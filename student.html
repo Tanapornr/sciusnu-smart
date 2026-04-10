@@ -197,9 +197,7 @@
             }
         }
 
-        // ========================================================
-        // 🚨 ส่วนที่แก้ไข: ระบบแจ้งเตือนกลางจอ เมื่อเลือกงานที่เคยส่งแล้ว 🚨
-        // ========================================================
+        // ระบบแจ้งเตือนเมื่อเด็กเลือกประเภทงานที่เคยส่งไปแล้ว
         document.getElementById('workType').addEventListener('change', (e) => {
             const selectedType = e.target.value;
             if(selectedType && window.mySubmissions) {
@@ -211,7 +209,7 @@
                         text: 'หากคุณอัปโหลดไฟล์ใหม่ ระบบจะนำไฟล์ไปแทนที่งานเดิมของคุณครับ',
                         confirmButtonText: 'รับทราบ',
                         confirmButtonColor: '#3b82f6',
-                        backdrop: `rgba(0,0,0,0.5)` // พื้นหลังสีเทาเข้ม
+                        backdrop: `rgba(0,0,0,0.5)`
                     });
                 }
             }
@@ -288,8 +286,13 @@
                 return;
             }
             
+            // ตรวจสอบว่าเป็นการส่งซ้ำหรือส่งครั้งแรก เพื่อแสดงข้อความบนปุ่มให้ถูกต้อง
+            const selectedWorkType = document.getElementById('workType').value;
+            const isUpdating = window.mySubmissions && window.mySubmissions.find(s => s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] === selectedWorkType);
+            const loadingText = isUpdating ? 'กำลังส่งไฟล์ (กำลังแทนที่ไฟล์เดิม)...' : 'กำลังอัปโหลดไฟล์...';
+            
             btn.disabled = true; 
-            btn.innerHTML = '<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังส่งไฟล์ (ระบบกำลังจัดการไฟล์เก่า)...';
+            btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ${loadingText}`;
             btn.classList.replace('bg-blue-600', 'bg-blue-400');
 
             try {
