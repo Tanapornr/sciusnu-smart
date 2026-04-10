@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - ส่งงานโครงงาน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 font-sans pb-10">
+
+    <nav class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm">
+        <div>
+            <h1 class="text-xl font-bold text-blue-700">Student Space</h1>
+            <p class="text-sm text-slate-500">รหัสนักเรียน: <span id="displayStudentId" class="font-semibold text-slate-800"></span></p>
+        </div>
+        <button onclick="logout()" class="text-sm text-red-600 hover:text-red-800 font-medium">ออกจากระบบ</button>
+    </nav>
+
+    <div class="max-w-5xl mx-auto mt-8 px-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <div class="md:col-span-1 space-y-6">
+            
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">📥 ดาวน์โหลดแบบฟอร์ม</h2>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" class="text-blue-600 hover:underline flex items-center">📄 Template โครงร่าง (Proposal)</a></li>
+                    <li><a href="#" class="text-blue-600 hover:underline flex items-center">📄 Template รายงานความก้าวหน้า</a></li>
+                    <li><a href="#" class="text-blue-600 hover:underline flex items-center">📄 Template รายงานฉบับสมบูรณ์</a></li>
+                    <li><a href="#" class="text-blue-600 hover:underline flex items-center">📑 แบบคำร้องต่างๆ</a></li>
+                </ul>
+                <p class="text-xs text-slate-400 mt-4">*สามารถนำลิงก์ Google Drive ของเอกสารมาใส่ที่ href ได้เลย</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">📤 ส่งงาน/แบบคำร้อง</h2>
+                <form id="uploadForm" class="space-y-4">
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ประเภทงาน</label>
+                        <select id="workType" required class="w-full text-sm border border-slate-300 rounded-md p-2 focus:ring-blue-500">
+                            <option value="">-- เลือกประเภทงาน --</option>
+                            <option value="โครงร่าง">โครงร่าง (Proposal)</option>
+                            <option value="รายงานความก้าวหน้า">รายงานความก้าวหน้า</option>
+                            <option value="รายงานฉบับสมบูรณ์">รายงานฉบับสมบูรณ์</option>
+                            <option value="แบบคำร้อง">แบบคำร้อง</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">อาจารย์ที่ปรึกษา (อ. ที่ปรึกษา TH)</label>
+                        <input type="text" id="advisorName" required placeholder="ระบุชื่ออาจารย์เพื่อส่งแจ้งเตือน" class="w-full text-sm border border-slate-300 rounded-md p-2">
+                    </div>
+
+                    <div class="bg-blue-50 p-3 rounded-md border border-blue-100">
+                        <label class="block text-sm font-medium text-slate-800 mb-1">1. อัปโหลดไฟล์รูปเล่ม (PDF)</label>
+                        <input type="file" id="fileReport" accept="application/pdf" required class="w-full text-sm text-slate-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200">
+                    </div>
+
+                    <div class="bg-amber-50 p-3 rounded-md border border-amber-100">
+                        <label class="block text-sm font-medium text-slate-800 mb-1">2. อัปโหลดหน้าลายเซ็น (PDF)</label>
+                        <input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-sm text-slate-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200">
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                        ส่งงาน
+                    </button>
+                    <div id="uploadStatus" class="text-sm text-center hidden font-medium"></div>
+                </form>
+            </div>
+        </div>
+
+        <div class="md:col-span-2">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">📋 ประวัติการส่งงานและสถานะ</h2>
+                
+                <div id="loadingData" class="text-center text-slate-500 py-8 text-sm">กำลังโหลดข้อมูล...</div>
+
+                <div class="overflow-x-auto hidden" id="tableContainer">
+                    <table class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                            <tr>
+                                <th class="px-4 py-3">วันที่ส่ง</th>
+                                <th class="px-4 py-3">ประเภทงาน</th>
+                                <th class="px-4 py-3">อ.ที่ปรึกษา</th>
+                                <th class="px-4 py-3 text-center">ไฟล์ที่ส่ง</th>
+                                <th class="px-4 py-3 text-center">สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // *** ใส่ URL ของ Web App (Apps Script) ของคุณที่นี่ ***
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzdMsG4eRVEDzPaUC3ODPXm24pyQ4Ud8XMbOmdcS8SL9N9iOYR-jDZrAamNCpeL07JM6Q/exec';
+        
+        // 1. ตรวจสอบการ Login
+        const studentId = localStorage.getItem('currentUser');
+        const role = localStorage.getItem('userRole');
+        
+        if (!studentId || role !== 'student') {
+            window.location.href = 'index.html'; // ถ้าไม่ได้ล็อกอินให้เตะกลับหน้าแรก
+        }
+        document.getElementById('displayStudentId').innerText = studentId;
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        // 2. ฟังก์ชันโหลดประวัติการส่งงาน
+        async function loadHistory() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // กรองเฉพาะงานที่ส่งโดยรหัสนักเรียนคนนี้
+                    const mySubmissions = data.submissions.filter(item => item['รหัสนักเรียน'] === studentId);
+                    renderTable(mySubmissions);
+                }
+            } catch (error) {
+                console.error("Error loading data:", error);
+                document.getElementById('loadingData').innerText = "เกิดข้อผิดพลาดในการโหลดข้อมูล";
+            }
+        }
+
+        function renderTable(submissions) {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+            
+            if (submissions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-center text-slate-500">ยังไม่มีประวัติการส่งงาน</td></tr>';
+            } else {
+                submissions.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b hover:bg-slate-50";
+                    
+                    // จัดการสีของสถานะ
+                    let statusBadge = `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-700">${item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)']}</span>`;
+                    if(item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'อนุมัติ') {
+                        statusBadge = `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">อนุมัติ</span>`;
+                    } else if (item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'ไม่อนุมัติ') {
+                        statusBadge = `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">ไม่อนุมัติ</span>`;
+                    }
+
+                    // ตัด string วันที่ให้ดูสั้นลง
+                    const dateObj = new Date(item['Timestamp']);
+                    const dateStr = dateObj.toLocaleDateString('th-TH') + ' ' + dateObj.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
+
+                    tr.innerHTML = `
+                        <td class="px-4 py-3 whitespace-nowrap">${dateStr}</td>
+                        <td class="px-4 py-3 font-medium">${item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']}</td>
+                        <td class="px-4 py-3">${item['อ.ที่ปรึกษา']}</td>
+                        <td class="px-4 py-3 text-center space-x-2">
+                            <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="text-blue-600 hover:underline text-xs">📄 เล่ม</a>
+                            <a href="${item['URL ลายเซ็น']}" target="_blank" class="text-amber-600 hover:underline text-xs">✍️ ลายเซ็น</a>
+                        </td>
+                        <td class="px-4 py-3 text-center">${statusBadge}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('loadingData').style.display = 'none';
+            document.getElementById('tableContainer').classList.remove('hidden');
+        }
+
+        // 3. ฟังก์ชันช่วยแปลงไฟล์ PDF เป็น Base64
+        const fileToBase64 = (file) => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const base64String = reader.result.split(',')[1];
+                resolve({ data: base64String, mime: file.type });
+            };
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
+        });
+
+        // 4. จัดการการอัปโหลดไฟล์เมื่อกด Submit
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const statusDiv = document.getElementById('uploadStatus');
+            
+            // เปลี่ยนสถานะปุ่ม
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'กำลังอัปโหลดและบันทึกข้อมูล (อาจใช้เวลาสักครู่)...';
+            submitBtn.classList.replace('bg-blue-600', 'bg-slate-400');
+            statusDiv.classList.add('hidden');
+
+            try {
+                const file1 = document.getElementById('fileReport').files[0];
+                const file2 = document.getElementById('fileSignature').files[0];
+
+                // แปลงไฟล์ทั้ง 2 อันเป็น Base64
+                const file1Base64 = await fileToBase64(file1);
+                const file2Base64 = await fileToBase64(file2);
+
+                // สร้าง JSON Payload ส่งไปให้ Apps Script
+                const payload = {
+                    studentId: studentId,
+                    workType: document.getElementById('workType').value,
+                    advisorName: document.getElementById('advisorName').value,
+                    file1Data: file1Base64.data,
+                    file1Mime: file1Base64.mime,
+                    file2Data: file2Base64.data,
+                    file2Mime: file2Base64.mime
+                };
+
+                // ส่ง POST Request
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    statusDiv.innerText = '✅ อัปโหลดและส่งงานเรียบร้อยแล้ว!';
+                    statusDiv.className = "text-sm text-center font-medium mt-3 text-green-600 block";
+                    document.getElementById('uploadForm').reset();
+                    
+                    // รีโหลดตารางใหม่เพื่อแสดงข้อมูลที่เพิ่งส่ง
+                    document.getElementById('tableContainer').classList.add('hidden');
+                    document.getElementById('loadingData').style.display = 'block';
+                    loadHistory();
+                } else {
+                    throw new Error(result.message);
+                }
+
+            } catch (error) {
+                console.error('Upload Error:', error);
+                statusDiv.innerText = '❌ เกิดข้อผิดพลาด: ' + error.message;
+                statusDiv.className = "text-sm text-center font-medium mt-3 text-red-600 block";
+            } finally {
+                // คืนค่าปุ่มกลับมาเหมือนเดิม
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'ส่งงาน';
+                submitBtn.classList.replace('bg-slate-400', 'bg-blue-600');
+            }
+        });
+
+        // เรียกโหลดประวัติทันทีที่เข้าหน้าเว็บ
+        loadHistory();
+    </script>
+</body>
+</html>
