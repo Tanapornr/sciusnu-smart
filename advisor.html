@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advisor Dashboard - ตรวจสอบโครงงาน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 font-sans pb-10">
+
+    <nav class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center shadow-md">
+        <div>
+            <h1 class="text-xl font-bold text-white">Advisor Space</h1>
+            <p class="text-sm text-slate-300">อ.ที่ปรึกษา: <span id="displayAdvisorName" class="font-semibold text-white"></span></p>
+        </div>
+        <button onclick="logout()" class="text-sm text-red-400 hover:text-red-300 font-medium bg-slate-700 px-3 py-1 rounded">ออกจากระบบ</button>
+    </nav>
+
+    <div class="max-w-6xl mx-auto mt-8 px-4 space-y-6">
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col md:flex-row md:items-center justify-between">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">📥 ดาวน์โหลดแบบฟอร์ม / Template</h2>
+                <p class="text-sm text-slate-500 mt-1">เอกสารสำหรับอาจารย์ที่ปรึกษา</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex flex-wrap gap-3">
+                <a href="#" class="text-sm bg-blue-50 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-100 font-medium">📄 Template โครงร่าง</a>
+                <a href="#" class="text-sm bg-blue-50 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-100 font-medium">📄 แบบประเมินความก้าวหน้า</a>
+                <a href="#" class="text-sm bg-blue-50 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-100 font-medium">📑 คำร้องต่างๆ</a>
+            </div>
+        </div>
+        
+        <div id="loadingData" class="text-center text-slate-500 py-8 text-sm bg-white rounded-xl shadow-sm border border-slate-200">
+            กำลังโหลดข้อมูลงานที่นักเรียนส่ง...
+        </div>
+
+        <div id="pendingSection" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 hidden">
+            <h2 class="text-lg font-bold text-amber-600 mb-4 border-b pb-2 flex items-center">
+                <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-sm mr-2" id="pendingCount">0</span> 
+                งานที่รอการตรวจสอบ
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-50">
+                        <tr>
+                            <th class="px-4 py-3">วันที่ส่ง</th>
+                            <th class="px-4 py-3">รหัสนักเรียน</th>
+                            <th class="px-4 py-3">ประเภทงาน</th>
+                            <th class="px-4 py-3 text-center">ไฟล์แนบ</th>
+                            <th class="px-4 py-3 text-center">การดำเนินการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="historySection" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 hidden">
+            <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">📋 ประวัติการอนุมัติ / ตรวจงานแล้ว</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-50">
+                        <tr>
+                            <th class="px-4 py-3">วันที่ส่ง</th>
+                            <th class="px-4 py-3">รหัสนักเรียน</th>
+                            <th class="px-4 py-3">ประเภทงาน</th>
+                            <th class="px-4 py-3 text-center">ไฟล์แนบ</th>
+                            <th class="px-4 py-3 text-center">สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // *** ใส่ URL ของ Web App (Apps Script) ของคุณที่นี่ ***
+        const API_URL = 'วาง_URL_ของ_APPS_SCRIPT_ที่นี่';
+        
+        // 1. ตรวจสอบการ Login
+        const advisorName = localStorage.getItem('currentUser');
+        const role = localStorage.getItem('userRole');
+        
+        if (!advisorName || role !== 'advisor') {
+            window.location.href = 'index.html';
+        }
+        document.getElementById('displayAdvisorName').innerText = advisorName;
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        // 2. โหลดข้อมูล
+        async function loadDashboard() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // กรองเฉพาะงานที่เป็นของอาจารย์ท่านนี้
+                    const myStudentsWork = data.submissions.filter(item => item['อ.ที่ปรึกษา'] === advisorName);
+                    
+                    // แยกงานเป็น 2 กลุ่ม: รออนุมัติ และ ตรวจแล้ว
+                    const pendingWorks = myStudentsWork.filter(item => item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'รออนุมัติ');
+                    const historyWorks = myStudentsWork.filter(item => item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] !== 'รออนุมัติ');
+
+                    renderPendingTable(pendingWorks.reverse());
+                    renderHistoryTable(historyWorks.reverse());
+                    
+                    document.getElementById('loadingData').style.display = 'none';
+                    document.getElementById('pendingSection').classList.remove('hidden');
+                    document.getElementById('historySection').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Error loading data:", error);
+                document.getElementById('loadingData').innerText = "เกิดข้อผิดพลาดในการโหลดข้อมูล";
+            }
+        }
+
+        // 3. ฟังก์ชันอัปเดตสถานะ (ยิง API ไปที่ Apps Script)
+        async function updateStatus(studentId, timestamp, newStatus, buttonElement) {
+            if(!confirm(`ยืนยันการเปลี่ยนสถานะเป็น "${newStatus}" ใช่หรือไม่?`)) return;
+
+            // เปลี่ยนหน้าตาปุ่มให้ดูเหมือนกำลังโหลด
+            const originalText = buttonElement.innerText;
+            buttonElement.innerText = "กำลังบันทึก...";
+            buttonElement.disabled = true;
+
+            const payload = {
+                action: "updateStatus",
+                studentId: studentId,
+                timestamp: timestamp,
+                status: newStatus
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    // ถ้ายิงสำเร็จ ให้โหลดตารางใหม่เพื่อรีเฟรชข้อมูล
+                    document.getElementById('pendingSection').classList.add('hidden');
+                    document.getElementById('historySection').classList.add('hidden');
+                    document.getElementById('loadingData').style.display = 'block';
+                    loadDashboard();
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.message);
+                    buttonElement.innerText = originalText;
+                    buttonElement.disabled = false;
+                }
+            } catch (error) {
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+                buttonElement.innerText = originalText;
+                buttonElement.disabled = false;
+            }
+        }
+
+        // 4. Render ตารางงานที่รออนุมัติ
+        function renderPendingTable(works) {
+            const tbody = document.getElementById('pendingTableBody');
+            document.getElementById('pendingCount').innerText = works.length;
+            tbody.innerHTML = '';
+            
+            if (works.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">🎉 ไม่มีงานรอตรวจสอบ</td></tr>';
+                return;
+            }
+
+            works.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b hover:bg-slate-50";
+                
+                const dateObj = new Date(item['Timestamp']);
+                const dateStr = dateObj.toLocaleDateString('th-TH') + ' ' + dateObj.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 whitespace-nowrap text-xs">${dateStr}</td>
+                    <td class="px-4 py-3 font-semibold text-slate-800">${item['รหัสนักเรียน']}</td>
+                    <td class="px-4 py-3 text-blue-700 font-medium">${item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']}</td>
+                    <td class="px-4 py-3 text-center space-x-2">
+                        <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="inline-block bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1 rounded text-xs font-medium">📄 เปิดเล่ม</a>
+                        <a href="${item['URL ลายเซ็น']}" target="_blank" class="inline-block bg-amber-100 text-amber-700 hover:bg-amber-200 px-3 py-1 rounded text-xs font-medium">✍️ ลายเซ็น</a>
+                    </td>
+                    <td class="px-4 py-3 text-center space-x-2 whitespace-nowrap">
+                        <button onclick="updateStatus('${item['รหัสนักเรียน']}', '${item['Timestamp']}', 'อนุมัติ', this)" class="bg-green-500 text-white hover:bg-green-600 px-3 py-1.5 rounded text-xs font-medium transition-colors">✔️ อนุมัติ</button>
+                        <button onclick="updateStatus('${item['รหัสนักเรียน']}', '${item['Timestamp']}', 'ไม่อนุมัติ', this)" class="bg-red-500 text-white hover:bg-red-600 px-3 py-1.5 rounded text-xs font-medium transition-colors">❌ ไม่อนุมัติ</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 5. Render ตารางประวัติการตรวจ
+        function renderHistoryTable(works) {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+            
+            if (works.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-center text-slate-500">ยังไม่มีประวัติการตรวจงาน</td></tr>';
+                return;
+            }
+
+            works.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b hover:bg-slate-50";
+                
+                let statusBadge = item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'อนุมัติ' 
+                    ? `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">อนุมัติ</span>`
+                    : `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">ไม่อนุมัติ</span>`;
+
+                const dateObj = new Date(item['Timestamp']);
+                const dateStr = dateObj.toLocaleDateString('th-TH') + ' ' + dateObj.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 whitespace-nowrap text-xs">${dateStr}</td>
+                    <td class="px-4 py-3 font-semibold text-slate-800">${item['รหัสนักเรียน']}</td>
+                    <td class="px-4 py-3">${item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']}</td>
+                    <td class="px-4 py-3 text-center space-x-2">
+                        <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="text-blue-600 hover:underline text-xs">📄 เล่ม</a>
+                        <a href="${item['URL ลายเซ็น']}" target="_blank" class="text-amber-600 hover:underline text-xs">✍️ ลายเซ็น</a>
+                    </td>
+                    <td class="px-4 py-3 text-center">${statusBadge}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // เริ่มโหลดข้อมูล
+        loadDashboard();
+    </script>
+</body>
+</html>
