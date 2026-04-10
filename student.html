@@ -52,10 +52,10 @@
                     <span class="text-xl mr-2">📥</span> ดาวน์โหลดแบบฟอร์ม
                 </h2>
                 <ul class="space-y-3 text-sm">
-                    <li><a href="#" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center transition-colors">📄 Template โครงร่าง (Proposal)</a></li>
-                    <li><a href="#" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center transition-colors">📄 Template รายงานความก้าวหน้า</a></li>
-                    <li><a href="#" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center transition-colors">📄 Template รายงานฉบับสมบูรณ์</a></li>
-                    <li><a href="#" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center transition-colors">📑 แบบคำร้องต่างๆ</a></li>
+                    <li><a href="ใส่ลิงก์_Template_โครงร่างที่นี่" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center transition-colors">📄 Template โครงร่าง (Proposal)</a></li>
+                    <li><a href="ใส่ลิงก์_Template_รายงานความก้าวหน้าที่นี่" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center transition-colors">📄 Template รายงานความก้าวหน้า</a></li>
+                    <li><a href="ใส่ลิงก์_Template_รายงานฉบับสมบูรณ์ที่นี่" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center transition-colors">📄 Template รายงานฉบับสมบูรณ์</a></li>
+                    <li><a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center transition-colors">📑 แบบคำร้องต่างๆ</a></li>
                 </ul>
             </div>
 
@@ -197,7 +197,7 @@
             }
         }
 
-        // ระบบแจ้งเตือนเมื่อเด็กเลือกประเภทงานที่เคยส่งไปแล้ว
+        // ระบบแจ้งเตือนกลางจอ เมื่อเด็กเลือกประเภทงานที่เคยส่งไปแล้ว
         document.getElementById('workType').addEventListener('change', (e) => {
             const selectedType = e.target.value;
             if(selectedType && window.mySubmissions) {
@@ -286,7 +286,7 @@
                 return;
             }
             
-            // ตรวจสอบว่าเป็นการส่งซ้ำหรือส่งครั้งแรก เพื่อแสดงข้อความบนปุ่มให้ถูกต้อง
+            // เปลี่ยนข้อความปุ่มตามสถานะ (ส่งใหม่ vs ทับของเดิม)
             const selectedWorkType = document.getElementById('workType').value;
             const isUpdating = window.mySubmissions && window.mySubmissions.find(s => s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] === selectedWorkType);
             const loadingText = isUpdating ? 'กำลังส่งไฟล์ (กำลังแทนที่ไฟล์เดิม)...' : 'กำลังอัปโหลดไฟล์...';
