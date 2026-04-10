@@ -47,9 +47,14 @@
 
                     <div>
                         <label class="block text-sm font-medium mb-1 text-slate-700">รหัสโครงงาน</label>
-                        <input list="projectList" id="projectId" required placeholder="พิมพ์เพื่อค้นหารหัส..." class="w-full text-sm border border-slate-300 rounded-md p-2 bg-white focus:ring-blue-500">
+                        <input list="projectList" id="projectId" required placeholder="พิมพ์หรือเลือกรหัสโครงงาน..." class="w-full text-sm border border-slate-300 rounded-md p-2 bg-white focus:ring-blue-500">
                         <datalist id="projectList"></datalist>
-                        <p id="advisorShow" class="text-xs text-slate-500 mt-1 hidden">อ.ที่ปรึกษา: <span id="advisorNameText" class="font-semibold text-blue-600"></span></p>
+                        
+                        <div id="projectInfoShow" class="mt-3 p-3 bg-slate-50 border border-slate-200 rounded-md hidden">
+                            <p class="text-xs text-slate-500 mb-1">👤 ผู้ส่ง: <span id="uploaderNameText" class="font-semibold text-slate-700"></span></p>
+                            <p class="text-xs text-slate-500 mb-1">👥 คู่โครงงาน: <span id="partnerNameText" class="font-semibold text-slate-700"></span></p>
+                            <p class="text-xs text-slate-500">🎓 อ.ที่ปรึกษา: <span id="advisorNameText" class="font-semibold text-blue-600"></span></p>
+                        </div>
                     </div>
 
                     <div class="bg-blue-50 p-3 rounded-md border border-blue-100">
@@ -92,7 +97,7 @@
     </div>
 
     <script>
-        // *** ใส่ URL ของ Web App (Google Apps Script) ตรงนี้ ***
+        // *** 1. ใส่ URL ของ Web App (Google Apps Script) ตรงนี้ ***
         const API_URL = 'https://script.google.com/macros/s/AKfycbydQG2IFvjqfrOuQu4tbSuXP5U14CD15y1V9wyYkK6_ifZSPNdxOTaIg-9yUCtpNPNZlQ/exec';
         
         const studentId = localStorage.getItem('currentUser');
@@ -114,15 +119,14 @@
                     window.allProjects = data.projects || [];
                     
                     const pList = document.getElementById('projectList');
+                    // กรองเอารหัสโครงงานที่ไม่ซ้ำกันมาใส่ Dropdown
                     const uniqueIds = [...new Set(window.allProjects.map(p => p && p['รหัสโครงงาน']).filter(id => id && id.toString().trim() !== ""))];
-                    
                     pList.innerHTML = uniqueIds.map(id => `<option value="${id}">`).join('');
 
-                    // ค้นหานักเรียนโดยใช้ == เพื่อป้องกัน String/Number Mismatch
                     const myProject = window.allProjects.find(p => p && p['รหัสนักเรียน'] == studentId);
                     if (myProject && myProject['รหัสโครงงาน']) {
                         document.getElementById('projectId').value = myProject['รหัสโครงงาน'];
-                        showAdvisor(myProject['รหัสโครงงาน']);
+                        showProjectInfo(myProject['รหัสโครงงาน']);
                     }
 
                     renderTable(data.submissions || []);
@@ -135,21 +139,34 @@
             }
         }
 
-        function showAdvisor(pid) {
+        // 2. ฟังก์ชันแสดงข้อมูลทีมและอาจารย์ (ดึงคู่หูโครงงาน)
+        function showProjectInfo(pid) {
             const projects = window.allProjects || [];
-            // ใช้ == เผื่อรหัสเป็นตัวเลขหรือข้อความ
-            const p = projects.find(x => x && x['รหัสโครงงาน'] == pid);
-            const show = document.getElementById('advisorShow');
+            const infoShow = document.getElementById('projectInfoShow');
             
-            if (p && p['อ. ที่ปรึกษา TH']) {
-                document.getElementById('advisorNameText').innerText = p['อ. ที่ปรึกษา TH'];
-                show.classList.remove('hidden');
+            // หารายชื่อทุกคนที่มีรหัสโครงงานนี้ (น่าจะมี 2 คน)
+            const members = projects.filter(x => x && x['รหัสโครงงาน'] == pid);
+            
+            if (members.length > 0) {
+                // แยกคนที่เป็นคนล็อกอิน กับ คนที่เป็นเพื่อน
+                const uploader = members.find(x => x['รหัสนักเรียน'] == studentId);
+                const partner = members.find(x => x['รหัสนักเรียน'] != studentId);
+                
+                const uploaderName = uploader ? `${uploader['ชื่อ']} ${uploader['นามสกุล']}` : "คุณ (ไม่พบข้อมูลในฐาน)";
+                const partnerName = partner ? `${partner['ชื่อ']} ${partner['นามสกุล']}` : "- (ทำโครงงานเดี่ยว)";
+                const advName = members[0]['อ. ที่ปรึกษา TH'] || "-";
+
+                document.getElementById('uploaderNameText').innerText = uploaderName;
+                document.getElementById('partnerNameText').innerText = partnerName;
+                document.getElementById('advisorNameText').innerText = advName;
+                
+                infoShow.classList.remove('hidden');
             } else { 
-                show.classList.add('hidden'); 
+                infoShow.classList.add('hidden'); 
             }
         }
 
-        document.getElementById('projectId').addEventListener('input', (e) => showAdvisor(e.target.value.trim()));
+        document.getElementById('projectId').addEventListener('input', (e) => showProjectInfo(e.target.value.trim()));
 
         function renderTable(subs) {
             const tbody = document.getElementById('historyTableBody');
@@ -196,7 +213,17 @@
             
             const btn = document.getElementById('submitBtn');
             const status = document.getElementById('uploadStatus');
+            const pid = document.getElementById('projectId').value.trim();
+            const projects = window.allProjects || [];
             
+            // 3. ระบบป้องกัน รหัสโครงงานต้องถูกเท่านั้น!
+            const members = projects.filter(x => x && x['รหัสโครงงาน'] == pid);
+            if (members.length === 0) {
+                alert('⚠️ รหัสโครงงานไม่ถูกต้อง หรือไม่มีในระบบ กรุณาตรวจสอบแล้วเลือกใหม่จากตัวเลือกครับ');
+                return; // หยุดการทำงานทันที ไม่ให้โหลดหรือส่งไฟล์
+            }
+            
+            // เริ่มต้นการส่ง
             btn.disabled = true; 
             btn.innerText = 'กำลังส่ง...';
             btn.classList.replace('bg-blue-600', 'bg-slate-400');
@@ -208,18 +235,26 @@
                 const f1 = await toBase64(document.getElementById('fileReport').files[0]);
                 const f2 = await toBase64(document.getElementById('fileSignature').files[0]);
                 
-                const pid = document.getElementById('projectId').value.trim();
-                const projects = window.allProjects || [];
-                // ค้นหาข้อมูลนักเรียนเพื่อดึงชื่อและนามสกุลส่งไป Sheet
-                const pInfo = projects.find(x => x && x['รหัสโครงงาน'] == pid);
+                // หาชื่อคนส่งและคู่หู เพื่อส่งไปหลังบ้าน
+                const uploader = members.find(x => x['รหัสนักเรียน'] == studentId);
+                const partner = members.find(x => x['รหัสนักเรียน'] != studentId);
+
+                // เชื่อมชื่อให้เรียบร้อย (เช่น "นายเอก (ผู้ส่ง) และ นายบี")
+                let finalFirstName = uploader && uploader['ชื่อ'] ? `${uploader['ชื่อ']} (ผู้ส่ง)` : "-";
+                if (partner && partner['ชื่อ']) finalFirstName += ` และ ${partner['ชื่อ']}`;
+
+                let finalLastName = uploader && uploader['นามสกุล'] ? uploader['นามสกุล'] : "-";
+                if (partner && partner['นามสกุล']) finalLastName += ` และ ${partner['นามสกุล']}`;
+
+                const advName = members[0]['อ. ที่ปรึกษา TH'] || "-";
 
                 const payload = {
                     studentId: studentId, 
-                    firstName: pInfo && pInfo['ชื่อ'] ? pInfo['ชื่อ'] : "", 
-                    lastName: pInfo && pInfo['นามสกุล'] ? pInfo['นามสกุล'] : "", 
+                    firstName: finalFirstName, 
+                    lastName: finalLastName, 
                     projectId: pid,                         
                     workType: document.getElementById('workType').value,
-                    advisorName: pInfo && pInfo['อ. ที่ปรึกษา TH'] ? pInfo['อ. ที่ปรึกษา TH'] : "",
+                    advisorName: advName,
                     file1Data: f1.data, 
                     file1Mime: f1.mime, 
                     file2Data: f2.data, 
@@ -233,7 +268,7 @@
                     status.innerText = '✅ ส่งงานและบันทึกข้อมูลสำเร็จ!';
                     status.className = "text-sm text-center font-medium mt-3 text-green-600 block";
                     document.getElementById('uploadForm').reset();
-                    document.getElementById('advisorShow').classList.add('hidden');
+                    document.getElementById('projectInfoShow').classList.add('hidden');
                     
                     document.getElementById('tableContainer').classList.add('hidden');
                     document.getElementById('loadingData').style.display = 'block';
