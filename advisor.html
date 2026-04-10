@@ -33,7 +33,7 @@
             <div class="mt-4 md:mt-0 flex flex-wrap gap-3">
                 <a href="#" target="_blank" class="text-sm bg-blue-50 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-100 font-medium transition-colors border border-blue-100">📄 Template โครงร่าง</a>
                 <a href="#" target="_blank" class="text-sm bg-blue-50 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-100 font-medium transition-colors border border-blue-100">📄 แบบประเมินความก้าวหน้า</a>
-                <a href="#" target="_blank" class="text-sm bg-blue-50 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-100 font-medium transition-colors border border-blue-100">📑 คำร้องต่างๆ</a>
+                <a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="text-sm bg-blue-50 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-100 font-medium transition-colors border border-blue-100">📑 คำร้องต่างๆ</a>
             </div>
         </div>
         
@@ -89,9 +89,9 @@
 
     <script>
         // ========================================================
-        // 🚨 1. นำ URL ของ Web App (Google Apps Script) มาวางในบรรทัดด้านล่าง 🚨
+        // 🚨 นำ URL ของ Web App (Google Apps Script) อันใหม่ มาวางที่นี่ 🚨
         // ========================================================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbw9OHaDYcmC2JrBDo-oQs5EVsBQFRoKcq7sNz4K8W9oOO5Yl8tpnN6tMFBU8Y3O2bE9hQ/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwnyUUioAGbeKEDx0PfGEYgn3wH3nNBNzn_9neUCZQyqmTgUP1U5IppZoKcUJdYllJW-w/exec';
         
         const advisorName = localStorage.getItem('currentUser');
         if (!advisorName) window.location.href = 'index.html'; 
@@ -111,9 +111,7 @@
                 if (data.status === 'success') {
                     window.allProjects = data.projects || [];
                     
-                    // กรองงานเฉพาะของอาจารย์ที่ปรึกษาท่านนี้
                     const myStudentsWork = (data.submissions || []).filter(item => item['อ.ที่ปรึกษา'] === advisorName);
-                    
                     const pendingWorks = myStudentsWork.filter(item => item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'รออนุมัติ');
                     const historyWorks = myStudentsWork.filter(item => item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] !== 'รออนุมัติ');
 
@@ -132,27 +130,21 @@
             }
         }
 
-        // ฟังก์ชันสร้างบล็อกข้อมูลโครงงานและนักเรียนแบบ 2 คน
         function generateStudentInfoHtml(submission) {
             const projectId = submission['รหัสโครงงาน'] || "-";
             const uploaderId = submission['รหัสนักเรียน'];
-            
-            // ค้นหาสมาชิกทั้งหมดในโครงงานนี้จากฐานข้อมูลโปรเจกต์
             const teamMembers = window.allProjects.filter(p => p && p['รหัสโครงงาน'] == projectId);
             
             let uploaderInfo = "";
             let partnerInfo = "";
 
-            // ข้อมูลคนส่ง
             const uploader = teamMembers.find(m => m['รหัสนักเรียน'] == uploaderId);
             if (uploader) {
                 uploaderInfo = `<p class="mt-1">👤 ${uploader['รหัสนักเรียน']} ${uploader['ชื่อ']} ${uploader['นามสกุล']} <span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[10px] font-bold ml-1 shadow-sm">ผู้ส่ง</span></p>`;
             } else {
-                // เผื่อหาไม่เจอใน project ให้ดึงจากข้อมูล submission แทน
                 uploaderInfo = `<p class="mt-1">👤 ${uploaderId} ${submission['ชื่อ']} ${submission['นามสกุล']} <span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[10px] font-bold ml-1 shadow-sm">ผู้ส่ง</span></p>`;
             }
 
-            // ข้อมูลคู่โครงงาน
             const partners = teamMembers.filter(m => m['รหัสนักเรียน'] != uploaderId);
             if (partners.length > 0) {
                 partnerInfo = partners.map(p => `<p class="mt-1 text-slate-500">👥 ${p['รหัสนักเรียน']} ${p['ชื่อ']} ${p['นามสกุล']}</p>`).join('');
@@ -185,20 +177,21 @@
                 const dateObj = new Date(item['Timestamp']);
                 const dateStr = dateObj.toLocaleDateString('th-TH') + ' ' + dateObj.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
                 const studentHtml = generateStudentInfoHtml(item);
+                const workType = item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'];
 
                 const tr = document.createElement('tr');
                 tr.className = "border-b hover:bg-amber-50/30 transition-colors";
                 tr.innerHTML = `
                     <td class="px-4 py-3 whitespace-nowrap text-xs text-slate-500 align-top pt-4">${dateStr}</td>
                     <td class="px-4 py-3 align-top pt-3">${studentHtml}</td>
-                    <td class="px-4 py-3 font-medium text-blue-700 align-top pt-4">${item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']}</td>
+                    <td class="px-4 py-3 font-medium text-blue-700 align-top pt-4">${workType}</td>
                     <td class="px-4 py-3 text-center space-x-1 whitespace-nowrap align-top pt-3">
                         <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="inline-block bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded-md text-xs font-medium border border-blue-100 transition-colors">📄 เปิดเล่ม</a>
                         <a href="${item['URL ลายเซ็น']}" target="_blank" class="inline-block bg-amber-50 text-amber-700 hover:bg-amber-100 px-3 py-1.5 rounded-md text-xs font-medium border border-amber-100 transition-colors">✍️ ลายเซ็น</a>
                     </td>
                     <td class="px-4 py-3 text-center space-x-2 whitespace-nowrap align-top pt-3">
-                        <button onclick="updateStatus('${item['รหัสนักเรียน']}', '${item['Timestamp']}', 'อนุมัติ')" class="bg-emerald-500 text-white hover:bg-emerald-600 px-3 py-1.5 rounded-md text-xs font-medium shadow-sm transition-colors">✔️ อนุมัติ</button>
-                        <button onclick="updateStatus('${item['รหัสนักเรียน']}', '${item['Timestamp']}', 'ไม่อนุมัติ')" class="bg-rose-500 text-white hover:bg-rose-600 px-3 py-1.5 rounded-md text-xs font-medium shadow-sm transition-colors">❌ ไม่อนุมัติ</button>
+                        <button onclick="updateStatus('${item['รหัสนักเรียน']}', '${workType}', 'อนุมัติ')" class="bg-emerald-500 text-white hover:bg-emerald-600 px-3 py-1.5 rounded-md text-xs font-medium shadow-sm transition-colors">✔️ อนุมัติ</button>
+                        <button onclick="updateStatus('${item['รหัสนักเรียน']}', '${workType}', 'ไม่อนุมัติ')" class="bg-rose-500 text-white hover:bg-rose-600 px-3 py-1.5 rounded-md text-xs font-medium shadow-sm transition-colors">❌ ไม่อนุมัติ</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -239,10 +232,9 @@
             });
         }
 
-        // ฟังก์ชันอัปเดตสถานะ (พร้อม SweetAlert2)
-        async function updateStatus(studentId, timestamp, newStatus) {
+        // 🔥 แก้ไขตัวแปรเป็น workType แทน timestamp
+        async function updateStatus(studentId, workType, newStatus) {
             
-            // เด้งป๊อปอัปยืนยันก่อน
             const result = await Swal.fire({
                 title: `ยืนยันผลการตรวจ?`,
                 html: `คุณต้องการปรับสถานะเป็น <br><b class="${newStatus === 'อนุมัติ' ? 'text-emerald-600' : 'text-rose-600'} text-lg">${newStatus}</b> ใช่หรือไม่?`,
@@ -257,7 +249,6 @@
 
             if (!result.isConfirmed) return;
 
-            // แสดงสถานะโหลดระหว่างส่งข้อมูล
             Swal.fire({
                 title: 'กำลังบันทึกข้อมูล...',
                 allowOutsideClick: false,
@@ -269,7 +260,7 @@
             const payload = {
                 action: "updateStatus",
                 studentId: studentId,
-                timestamp: timestamp,
+                workType: workType, // ส่งประเภทงานไปแทนเวลา
                 status: newStatus
             };
 
@@ -290,7 +281,6 @@
                         showConfirmButton: false
                     });
                     
-                    // โหลดหน้าใหม่
                     document.getElementById('pendingSection').classList.add('hidden');
                     document.getElementById('historySection').classList.add('hidden');
                     document.getElementById('loadingData').style.display = 'flex';
@@ -308,7 +298,6 @@
             }
         }
 
-        // เริ่มรันระบบ
         loadDashboard();
     </script>
 </body>
