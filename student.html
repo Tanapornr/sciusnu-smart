@@ -36,7 +36,7 @@
                     
                     <div>
                         <label class="block text-sm font-medium mb-1 text-slate-700">ประเภทงาน</label>
-                        <select id="workType" required class="w-full text-sm border border-slate-300 rounded-md p-2 bg-white focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <select id="workType" required class="w-full text-sm border border-slate-300 rounded-md p-2 bg-white focus:ring-blue-500">
                             <option value="">-- เลือกประเภทงาน --</option>
                             <option value="โครงร่าง (Proposal)">โครงร่าง (Proposal)</option>
                             <option value="รายงานความก้าวหน้า">รายงานความก้าวหน้า</option>
@@ -47,19 +47,19 @@
 
                     <div>
                         <label class="block text-sm font-medium mb-1 text-slate-700">รหัสโครงงาน</label>
-                        <input list="projectList" id="projectId" required placeholder="พิมพ์เพื่อค้นหารหัส..." class="w-full text-sm border border-slate-300 rounded-md p-2 bg-white focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <input list="projectList" id="projectId" required placeholder="พิมพ์เพื่อค้นหารหัส..." class="w-full text-sm border border-slate-300 rounded-md p-2 bg-white focus:ring-blue-500">
                         <datalist id="projectList"></datalist>
                         <p id="advisorShow" class="text-xs text-slate-500 mt-1 hidden">อ.ที่ปรึกษา: <span id="advisorNameText" class="font-semibold text-blue-600"></span></p>
                     </div>
 
                     <div class="bg-blue-50 p-3 rounded-md border border-blue-100">
                         <label class="block text-sm font-medium mb-1 text-blue-800">1. ไฟล์รูปเล่ม (PDF)</label>
-                        <input type="file" id="fileReport" accept="application/pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200">
+                        <input type="file" id="fileReport" accept="application/pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700">
                     </div>
 
                     <div class="bg-amber-50 p-3 rounded-md border border-amber-100">
                         <label class="block text-sm font-medium mb-1 text-amber-800">2. หน้าลายเซ็น (PDF)</label>
-                        <input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200">
+                        <input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-100 file:text-amber-700">
                     </div>
 
                     <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">ส่งงาน</button>
@@ -92,16 +92,12 @@
     </div>
 
     <script>
-        // ==========================================
-        // 1. นำ URL ของ Web App (Google Apps Script) มาวางที่นี่
-        // ==========================================
+        // *** ใส่ URL ของ Web App (Google Apps Script) ตรงนี้ ***
         const API_URL = 'https://script.google.com/macros/s/AKfycbydQG2IFvjqfrOuQu4tbSuXP5U14CD15y1V9wyYkK6_ifZSPNdxOTaIg-9yUCtpNPNZlQ/exec';
         
-        // 2. ตรวจสอบการ Login
         const studentId = localStorage.getItem('currentUser');
-        if (!studentId) {
-            window.location.href = 'index.html'; 
-        }
+        if (!studentId) window.location.href = 'index.html'; 
+        
         document.getElementById('displayStudentId').innerText = studentId;
 
         function logout() { 
@@ -109,14 +105,12 @@
             window.location.href = 'index.html'; 
         }
 
-        // 3. ฟังก์ชันโหลดข้อมูล (ป้องกัน Error .find อย่างสมบูรณ์)
         async function loadData() {
             try {
                 const res = await fetch(API_URL);
                 const data = await res.json();
                 
                 if (data && data.status === 'success') {
-                    // เก็บข้อมูลโครงงานไว้ใช้ (ถ้าไม่มีให้เป็น Array ว่าง)
                     window.allProjects = data.projects || [];
                     
                     const pList = document.getElementById('projectList');
@@ -124,14 +118,13 @@
                     
                     pList.innerHTML = uniqueIds.map(id => `<option value="${id}">`).join('');
 
-                    // ดึงข้อมูลของนักเรียนคนนี้มาใส่ช่องอัตโนมัติ
-                    const myProject = window.allProjects.find(p => p && p['รหัสนักเรียน'] === studentId);
+                    // ค้นหานักเรียนโดยใช้ == เพื่อป้องกัน String/Number Mismatch
+                    const myProject = window.allProjects.find(p => p && p['รหัสนักเรียน'] == studentId);
                     if (myProject && myProject['รหัสโครงงาน']) {
                         document.getElementById('projectId').value = myProject['รหัสโครงงาน'];
                         showAdvisor(myProject['รหัสโครงงาน']);
                     }
 
-                    // แสดงตารางประวัติ
                     renderTable(data.submissions || []);
                 } else {
                     throw new Error(data ? data.message : "ไม่สามารถเชื่อมต่อ API ได้");
@@ -142,10 +135,10 @@
             }
         }
 
-        // 4. ฟังก์ชันแสดงชื่ออาจารย์
         function showAdvisor(pid) {
             const projects = window.allProjects || [];
-            const p = projects.find(x => x && x['รหัสโครงงาน'] === pid);
+            // ใช้ == เผื่อรหัสเป็นตัวเลขหรือข้อความ
+            const p = projects.find(x => x && x['รหัสโครงงาน'] == pid);
             const show = document.getElementById('advisorShow');
             
             if (p && p['อ. ที่ปรึกษา TH']) {
@@ -156,21 +149,16 @@
             }
         }
 
-        // เมื่อพิมพ์เปลี่ยนรหัสโครงงาน ให้โชว์ชื่ออาจารย์เปลี่ยนตาม
-        document.getElementById('projectId').addEventListener('input', (e) => showAdvisor(e.target.value));
+        document.getElementById('projectId').addEventListener('input', (e) => showAdvisor(e.target.value.trim()));
 
-        // 5. ฟังก์ชันสร้างตารางประวัติ
         function renderTable(subs) {
             const tbody = document.getElementById('historyTableBody');
-            
-            // กรองเฉพาะงานของนักเรียนคนนี้ และเรียงจากใหม่ไปเก่า
-            const mySubs = subs.filter(s => s && s['รหัสนักเรียน'] === studentId).reverse();
+            const mySubs = subs.filter(s => s && s['รหัสนักเรียน'] == studentId).reverse();
             
             if(mySubs.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-500">ยังไม่มีประวัติการส่งงาน</td></tr>';
             } else {
                 tbody.innerHTML = mySubs.map(s => {
-                    // จัดการสีสถานะ
                     let statusClass = "bg-amber-100 text-amber-700";
                     if (s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'อนุมัติ') statusClass = "bg-green-100 text-green-700";
                     if (s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'ไม่อนุมัติ') statusClass = "bg-red-100 text-red-700";
@@ -196,7 +184,6 @@
             document.getElementById('tableContainer').classList.remove('hidden');
         }
 
-        // 6. ฟังก์ชันแปลงไฟล์ PDF เป็น Base64
         const toBase64 = file => new Promise((res, rej) => {
             const r = new FileReader(); 
             r.readAsDataURL(file);
@@ -204,7 +191,6 @@
             r.onerror = rej;
         });
 
-        // 7. จัดการกดปุ่มส่งงาน
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -222,18 +208,18 @@
                 const f1 = await toBase64(document.getElementById('fileReport').files[0]);
                 const f2 = await toBase64(document.getElementById('fileSignature').files[0]);
                 
-                const pid = document.getElementById('projectId').value;
+                const pid = document.getElementById('projectId').value.trim();
                 const projects = window.allProjects || [];
-                const pInfo = projects.find(x => x && x['รหัสโครงงาน'] === pid);
+                // ค้นหาข้อมูลนักเรียนเพื่อดึงชื่อและนามสกุลส่งไป Sheet
+                const pInfo = projects.find(x => x && x['รหัสโครงงาน'] == pid);
 
-                // สร้าง Payload แบบ 10 คอลัมน์ (ส่ง ชื่อ และ นามสกุล ไปด้วย)
                 const payload = {
                     studentId: studentId, 
-                    firstName: pInfo && pInfo['ชื่อ'] ? pInfo['ชื่อ'] : "-", 
-                    lastName: pInfo && pInfo['นามสกุล'] ? pInfo['นามสกุล'] : "-", 
+                    firstName: pInfo && pInfo['ชื่อ'] ? pInfo['ชื่อ'] : "", 
+                    lastName: pInfo && pInfo['นามสกุล'] ? pInfo['นามสกุล'] : "", 
                     projectId: pid,                         
                     workType: document.getElementById('workType').value,
-                    advisorName: pInfo && pInfo['อ. ที่ปรึกษา TH'] ? pInfo['อ. ที่ปรึกษา TH'] : "-",
+                    advisorName: pInfo && pInfo['อ. ที่ปรึกษา TH'] ? pInfo['อ. ที่ปรึกษา TH'] : "",
                     file1Data: f1.data, 
                     file1Mime: f1.mime, 
                     file2Data: f2.data, 
@@ -249,7 +235,6 @@
                     document.getElementById('uploadForm').reset();
                     document.getElementById('advisorShow').classList.add('hidden');
                     
-                    // โหลดตารางใหม่
                     document.getElementById('tableContainer').classList.add('hidden');
                     document.getElementById('loadingData').style.display = 'block';
                     loadData();
@@ -266,7 +251,6 @@
             }
         });
 
-        // เริ่มโหลดข้อมูลครั้งแรก
         loadData();
     </script>
 </body>
