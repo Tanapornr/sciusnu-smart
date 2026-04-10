@@ -28,7 +28,6 @@
                     <li><a href="#" class="text-blue-600 hover:underline flex items-center">📄 Template รายงานฉบับสมบูรณ์</a></li>
                     <li><a href="#" class="text-blue-600 hover:underline flex items-center">📑 แบบคำร้องต่างๆ</a></li>
                 </ul>
-                <p class="text-xs text-slate-400 mt-4">*สามารถนำลิงก์ Google Drive ของเอกสารมาใส่ที่ href ได้เลย</p>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
@@ -37,9 +36,9 @@
                     
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">ประเภทงาน</label>
-                        <select id="workType" required class="w-full text-sm border border-slate-300 rounded-md p-2 focus:ring-blue-500">
+                        <select id="workType" required class="w-full text-sm border border-slate-300 rounded-md p-2 focus:ring-blue-500 bg-white">
                             <option value="">-- เลือกประเภทงาน --</option>
-                            <option value="โครงร่าง">โครงร่าง (Proposal)</option>
+                            <option value="โครงร่าง (Proposal)">โครงร่าง (Proposal)</option>
                             <option value="รายงานความก้าวหน้า">รายงานความก้าวหน้า</option>
                             <option value="รายงานฉบับสมบูรณ์">รายงานฉบับสมบูรณ์</option>
                             <option value="แบบคำร้อง">แบบคำร้อง</option>
@@ -47,8 +46,11 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">อาจารย์ที่ปรึกษา (อ. ที่ปรึกษา TH)</label>
-                        <input type="text" id="advisorName" required placeholder="ระบุชื่ออาจารย์เพื่อส่งแจ้งเตือน" class="w-full text-sm border border-slate-300 rounded-md p-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">รหัสโครงงาน</label>
+                        <input list="projectList" id="projectId" required placeholder="พิมพ์เพื่อค้นหารหัส..." class="w-full text-sm border border-slate-300 rounded-md p-2 focus:ring-blue-500 bg-white">
+                        <datalist id="projectList">
+                            </datalist>
+                        <p id="advisorShow" class="text-xs text-slate-500 mt-1 hidden">อ.ที่ปรึกษา: <span id="advisorNameText" class="font-semibold text-blue-600"></span></p>
                     </div>
 
                     <div class="bg-blue-50 p-3 rounded-md border border-blue-100">
@@ -86,8 +88,7 @@
                                 <th class="px-4 py-3 text-center">สถานะ</th>
                             </tr>
                         </thead>
-                        <tbody id="historyTableBody">
-                            </tbody>
+                        <tbody id="historyTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -95,15 +96,15 @@
     </div>
 
     <script>
-        // *** ใส่ URL ของ Web App (Apps Script) ของคุณที่นี่ ***
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwbc1CnOVU0Mo8Sy5vDcYLFzAsjROMMdplbgBN1SGYtqXnBggcUwIL8dLJjOdu3eKrJRA/exec';
+        // *** 1. ใส่ URL ของ Web App (Apps Script) ตรงนี้ ***
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyh92jXZ-krjzqPALD_9hxxim7MGdaT0MxqUOG2U7ajcHs0wiRtys8yK6tSWI25X_RuKA/exec';
         
-        // 1. ตรวจสอบการ Login
+        // 2. ตรวจสอบการ Login
         const studentId = localStorage.getItem('currentUser');
         const role = localStorage.getItem('userRole');
         
         if (!studentId || role !== 'student') {
-            window.location.href = 'index.html'; // ถ้าไม่ได้ล็อกอินให้เตะกลับหน้าแรก
+            window.location.href = 'index.html'; 
         }
         document.getElementById('displayStudentId').innerText = studentId;
 
@@ -112,14 +113,44 @@
             window.location.href = 'index.html';
         }
 
-        // 2. ฟังก์ชันโหลดประวัติการส่งงาน
+        // 3. ฟังก์ชันโหลดประวัติการส่งงาน และดึงรหัสโครงงาน
         async function loadHistory() {
             try {
                 const response = await fetch(API_URL);
                 const data = await response.json();
                 
                 if (data.status === 'success') {
-                    // กรองเฉพาะงานที่ส่งโดยรหัสนักเรียนคนนี้
+                    window.allProjectsData = data.projects;
+
+                    // --- ส่วนจัดการ Autocomplete รหัสโครงงาน ---
+                    const projectDataList = document.getElementById('projectList');
+                    const projectInput = document.getElementById('projectId');
+                    
+                    const allProjectIds = data.projects
+                        .map(p => p['รหัสโครงงาน'])
+                        .filter(id => id !== undefined && id.toString().trim() !== "");
+                    const uniqueProjectIds = [...new Set(allProjectIds)].sort();
+
+                    projectDataList.innerHTML = '';
+                    uniqueProjectIds.forEach(id => {
+                        const option = document.createElement('option');
+                        option.value = id;
+                        projectDataList.appendChild(option);
+                    });
+
+                    // ถ้าระบบเจอว่านักเรียนคนนี้มีรหัสโครงงานอะไร ให้ใส่ให้อัตโนมัติเลย
+                    const myProject = data.projects.find(p => p['รหัสนักเรียน'] === studentId);
+                    if (myProject && myProject['รหัสโครงงาน']) {
+                        projectInput.value = myProject['รหัสโครงงาน'];
+                        showAdvisorName(myProject['รหัสโครงงาน']);
+                    }
+                    
+                    // เมื่อมีการเปลี่ยนรหัสโครงงาน ให้แสดงชื่ออาจารย์ที่ปรึกษาขึ้นมาดูเพื่อความชัวร์
+                    projectInput.addEventListener('input', (e) => {
+                        showAdvisorName(e.target.value);
+                    });
+
+                    // --- ส่วนโหลดประวัติการส่งงาน ---
                     const mySubmissions = data.submissions.filter(item => item['รหัสนักเรียน'] === studentId);
                     renderTable(mySubmissions);
                 }
@@ -129,6 +160,21 @@
             }
         }
 
+        // ฟังก์ชันช่วยแสดงชื่ออาจารย์เมื่อเลือกรหัสโครงงาน
+        function showAdvisorName(projectId) {
+            const matchedProject = window.allProjectsData.find(p => p['รหัสโครงงาน'] === projectId);
+            const advisorText = document.getElementById('advisorNameText');
+            const advisorShow = document.getElementById('advisorShow');
+            
+            if(matchedProject && matchedProject['อ. ที่ปรึกษา TH']) {
+                advisorText.innerText = matchedProject['อ. ที่ปรึกษา TH'];
+                advisorShow.classList.remove('hidden');
+            } else {
+                advisorShow.classList.add('hidden');
+            }
+        }
+
+        // 4. ฟังก์ชันแสดงตาราง
         function renderTable(submissions) {
             const tbody = document.getElementById('historyTableBody');
             tbody.innerHTML = '';
@@ -136,11 +182,10 @@
             if (submissions.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-center text-slate-500">ยังไม่มีประวัติการส่งงาน</td></tr>';
             } else {
-                submissions.forEach(item => {
+                submissions.reverse().forEach(item => {
                     const tr = document.createElement('tr');
                     tr.className = "border-b hover:bg-slate-50";
                     
-                    // จัดการสีของสถานะ
                     let statusBadge = `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-700">${item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)']}</span>`;
                     if(item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'อนุมัติ') {
                         statusBadge = `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">อนุมัติ</span>`;
@@ -148,7 +193,6 @@
                         statusBadge = `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">ไม่อนุมัติ</span>`;
                     }
 
-                    // ตัด string วันที่ให้ดูสั้นลง
                     const dateObj = new Date(item['Timestamp']);
                     const dateStr = dateObj.toLocaleDateString('th-TH') + ' ' + dateObj.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
 
@@ -157,8 +201,8 @@
                         <td class="px-4 py-3 font-medium">${item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']}</td>
                         <td class="px-4 py-3">${item['อ.ที่ปรึกษา']}</td>
                         <td class="px-4 py-3 text-center space-x-2">
-                            <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="text-blue-600 hover:underline text-xs">📄 เล่ม</a>
-                            <a href="${item['URL ลายเซ็น']}" target="_blank" class="text-amber-600 hover:underline text-xs">✍️ ลายเซ็น</a>
+                            <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="text-blue-600 hover:underline text-xs bg-blue-50 px-2 py-1 rounded">📄 เล่ม</a>
+                            <a href="${item['URL ลายเซ็น']}" target="_blank" class="text-amber-600 hover:underline text-xs bg-amber-50 px-2 py-1 rounded">✍️ ลายเซ็น</a>
                         </td>
                         <td class="px-4 py-3 text-center">${statusBadge}</td>
                     `;
@@ -170,7 +214,7 @@
             document.getElementById('tableContainer').classList.remove('hidden');
         }
 
-        // 3. ฟังก์ชันช่วยแปลงไฟล์ PDF เป็น Base64
+        // 5. ฟังก์ชันช่วยแปลงไฟล์ PDF
         const fileToBase64 = (file) => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => {
@@ -181,16 +225,15 @@
             reader.readAsDataURL(file);
         });
 
-        // 4. จัดการการอัปโหลดไฟล์เมื่อกด Submit
+        // 6. จัดการการอัปโหลดไฟล์
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const submitBtn = document.getElementById('submitBtn');
             const statusDiv = document.getElementById('uploadStatus');
             
-            // เปลี่ยนสถานะปุ่ม
             submitBtn.disabled = true;
-            submitBtn.innerText = 'กำลังอัปโหลดและบันทึกข้อมูล (อาจใช้เวลาสักครู่)...';
+            submitBtn.innerText = 'กำลังอัปโหลด...';
             submitBtn.classList.replace('bg-blue-600', 'bg-slate-400');
             statusDiv.classList.add('hidden');
 
@@ -198,22 +241,24 @@
                 const file1 = document.getElementById('fileReport').files[0];
                 const file2 = document.getElementById('fileSignature').files[0];
 
-                // แปลงไฟล์ทั้ง 2 อันเป็น Base64
                 const file1Base64 = await fileToBase64(file1);
                 const file2Base64 = await fileToBase64(file2);
 
-                // สร้าง JSON Payload ส่งไปให้ Apps Script
+                // ดึงชื่ออาจารย์จากรหัสโครงงานที่เลือก
+                const inputProjectId = document.getElementById('projectId').value;
+                const matchedProject = window.allProjectsData.find(p => p['รหัสโครงงาน'] === inputProjectId);
+                const advisorToSend = matchedProject ? matchedProject['อ. ที่ปรึกษา TH'] : "-";
+
                 const payload = {
                     studentId: studentId,
                     workType: document.getElementById('workType').value,
-                    advisorName: document.getElementById('advisorName').value,
+                    advisorName: advisorToSend, 
                     file1Data: file1Base64.data,
                     file1Mime: file1Base64.mime,
                     file2Data: file2Base64.data,
                     file2Mime: file2Base64.mime
                 };
 
-                // ส่ง POST Request
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     body: JSON.stringify(payload)
@@ -225,8 +270,8 @@
                     statusDiv.innerText = '✅ อัปโหลดและส่งงานเรียบร้อยแล้ว!';
                     statusDiv.className = "text-sm text-center font-medium mt-3 text-green-600 block";
                     document.getElementById('uploadForm').reset();
+                    document.getElementById('advisorShow').classList.add('hidden');
                     
-                    // รีโหลดตารางใหม่เพื่อแสดงข้อมูลที่เพิ่งส่ง
                     document.getElementById('tableContainer').classList.add('hidden');
                     document.getElementById('loadingData').style.display = 'block';
                     loadHistory();
@@ -239,14 +284,12 @@
                 statusDiv.innerText = '❌ เกิดข้อผิดพลาด: ' + error.message;
                 statusDiv.className = "text-sm text-center font-medium mt-3 text-red-600 block";
             } finally {
-                // คืนค่าปุ่มกลับมาเหมือนเดิม
                 submitBtn.disabled = false;
                 submitBtn.innerText = 'ส่งงาน';
                 submitBtn.classList.replace('bg-slate-400', 'bg-blue-600');
             }
         });
 
-        // เรียกโหลดประวัติทันทีที่เข้าหน้าเว็บ
         loadHistory();
     </script>
 </body>
