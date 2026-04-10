@@ -15,7 +15,6 @@
 
     <header class="bg-white border-b border-slate-200 shadow-sm relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-blue-600"></div>
-        
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
             <div class="flex justify-between items-start">
                 <div>
@@ -96,7 +95,6 @@
                     <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-lg hover:bg-blue-700 transition-colors shadow-sm mt-2">
                         ส่งงาน
                     </button>
-                    <div id="uploadStatus" class="text-xs text-center hidden font-medium mt-2"></div>
                 </form>
             </div>
         </div>
@@ -133,7 +131,7 @@
         // ========================================================
         // 🚨 1. นำ URL ของ Web App (Google Apps Script) มาวางในบรรทัดด้านล่าง 🚨
         // ========================================================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbydQG2IFvjqfrOuQu4tbSuXP5U14CD15y1V9wyYkK6_ifZSPNdxOTaIg-9yUCtpNPNZlQ/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbw9OHaDYcmC2JrBDo-oQs5EVsBQFRoKcq7sNz4K8W9oOO5Yl8tpnN6tMFBU8Y3O2bE9hQ/exec';
         
         const studentId = localStorage.getItem('currentUser');
         if (!studentId) window.location.href = 'index.html'; 
@@ -153,28 +151,26 @@
                 if (data && data.status === 'success') {
                     window.allProjects = data.projects || [];
                     
+                    // เก็บประวัติงานที่ส่งเฉพาะของคนนี้ไว้ เผื่อเช็คการส่งซ้ำ
+                    window.mySubmissions = (data.submissions || []).filter(s => s && s['รหัสนักเรียน'] == studentId);
+                    
                     const pList = document.getElementById('projectList');
                     const uniqueIds = [...new Set(window.allProjects.map(p => p && p['รหัสโครงงาน']).filter(id => id && id.toString().trim() !== ""))];
                     pList.innerHTML = uniqueIds.map(id => `<option value="${id}">`).join('');
 
-                    // --- ดึงข้อมูลใส่ Header ด้านบน ---
                     const myProject = window.allProjects.find(p => p && p['รหัสนักเรียน'] == studentId);
                     
                     if (myProject && myProject['รหัสโครงงาน']) {
                         const pid = myProject['รหัสโครงงาน'];
                         
-                        // 1. นำรหัสไปใส่ในช่องฟอร์มส่งงานแบบซ่อน/Readonly
                         document.getElementById('projectId').value = pid;
                         
-                        // 2. แสดงชื่อผู้ใช้งาน
                         const myFullName = `${myProject['ชื่อ'] || ''} ${myProject['นามสกุล'] || ''}`.trim();
                         document.getElementById('headerMyName').innerText = myFullName || "ข้อมูลผู้ใช้";
                         
-                        // 3. แสดงรหัสโครงงานและอาจารย์
                         document.getElementById('headerProjectId').innerText = pid;
                         document.getElementById('headerAdvisor').innerText = myProject['อ. ที่ปรึกษา TH'] || "-";
 
-                        // 4. หาคู่หู
                         const partner = window.allProjects.find(p => p && p['รหัสโครงงาน'] == pid && p['รหัสนักเรียน'] != studentId);
                         if (partner) {
                             document.getElementById('headerPartnerName').innerText = `${partner['ชื่อ'] || ''} ${partner['นามสกุล'] || ''}`;
@@ -183,7 +179,6 @@
                             document.getElementById('headerPartnerName').classList.add("text-slate-400");
                         }
 
-                        // แสดงกล่องข้อมูล
                         document.getElementById('headerProjectInfo').classList.remove('hidden');
 
                     } else {
@@ -191,7 +186,6 @@
                         document.getElementById('headerMyName').classList.add('text-red-500');
                     }
 
-                    // เรนเดอร์ประวัติส่งงาน
                     renderTable(data.submissions || []);
                 } else {
                     throw new Error(data ? data.message : "ไม่สามารถเชื่อมต่อ API ได้");
@@ -201,6 +195,27 @@
                 document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ โหลดข้อมูลไม่สำเร็จ: ${e.message}</span>`;
             }
         }
+
+        // ระบบแจ้งเตือนเมื่อเด็กเลือกประเภทงานที่เคยส่งไปแล้ว
+        document.getElementById('workType').addEventListener('change', (e) => {
+            const selectedType = e.target.value;
+            if(selectedType && window.mySubmissions) {
+                const isExist = window.mySubmissions.find(s => s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] === selectedType);
+                if(isExist) {
+                    // แจ้งเตือนแบบ Toast ด้านบนขวา สวยๆ ไม่บังหน้าจอ
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'คุณเคยส่งงานประเภทนี้แล้ว',
+                        text: 'หากอัปโหลดใหม่ ระบบจะนำไฟล์ไปแทนที่งานเดิมครับ',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 5000,
+                        timerProgressBar: true
+                    });
+                }
+            }
+        });
 
         function renderTable(subs) {
             const tbody = document.getElementById('historyTableBody');
@@ -257,11 +272,9 @@
             e.preventDefault();
             
             const btn = document.getElementById('submitBtn');
-            const status = document.getElementById('uploadStatus');
             const pid = document.getElementById('projectId').value.trim();
             const projects = window.allProjects || [];
             
-            // ป้องกัน รหัสโครงงานต้องถูก
             const members = projects.filter(x => x && x['รหัสโครงงาน'] == pid);
             if (members.length === 0) {
                 Swal.fire({
@@ -276,7 +289,7 @@
             }
             
             btn.disabled = true; 
-            btn.innerHTML = '<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังอัปโหลด...';
+            btn.innerHTML = '<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังส่งไฟล์ (ระบบกำลังจัดการไฟล์เก่า)...';
             btn.classList.replace('bg-blue-600', 'bg-blue-400');
 
             try {
@@ -314,7 +327,7 @@
                     Swal.fire({
                         icon: 'success',
                         title: 'ส่งงานสำเร็จ!',
-                        text: 'ระบบได้บันทึกข้อมูลและอัปโหลดไฟล์เรียบร้อยแล้ว',
+                        text: 'ระบบได้อัปเดตข้อมูลและจัดการไฟล์เรียบร้อยแล้ว',
                         confirmButtonText: 'ตกลง',
                         confirmButtonColor: '#10b981'
                     }).then(() => {
