@@ -9,7 +9,6 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .swal2-popup { font-family: inherit; border-radius: 1rem !important; }
-        /* แอนิเมชันสำหรับป๊อปอัป */
         .modal-enter { animation: modalFadeIn 0.3s ease-out forwards; }
         @keyframes modalFadeIn {
             from { opacity: 0; transform: scale(0.95) translateY(-10px); }
@@ -33,6 +32,7 @@
                             </svg>
                         </div>
                     </button>
+
                     <div>
                         <h1 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
                             <span id="headerMyName">กำลังโหลดข้อมูล...</span>
@@ -65,7 +65,6 @@
     <div class="max-w-7xl mx-auto mt-6 px-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <div class="lg:col-span-1 space-y-6">
-            
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5">
                 <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center">
                     <span class="text-xl mr-2">📥</span> ดาวน์โหลดแบบฟอร์ม
@@ -157,8 +156,10 @@
                     </svg>
                 </button>
             </div>
+            
             <div class="p-5">
-                <form id="profileForm" class="space-y-4">
+                <form id="profileForm" class="space-y-5">
+                    
                     <div class="flex items-center space-x-4 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
                         <div class="relative group">
                             <img id="profilePreview" src="https://ui-avatars.com/api/?name=Student&background=random" class="w-16 h-16 rounded-full object-cover border-2 border-indigo-200 shadow-sm transition-opacity group-hover:opacity-80">
@@ -168,22 +169,23 @@
                         </div>
                         <div class="flex-1">
                             <input type="file" id="profilePicInput" accept="image/*" class="hidden" onchange="previewImage(event)">
-                            <label for="profilePicInput" class="text-sm text-indigo-600 font-semibold cursor-pointer hover:underline block mb-1 inline-block">เลือกรูปภาพใหม่</label>
-                            <p class="text-[10px] text-slate-500 leading-tight">รองรับไฟล์ .jpg, .png<br>(จำเป็นต้องอัปเดตเพื่อให้อาจารย์ตรวจสอบ)</p>
+                            <label for="profilePicInput" class="text-sm text-indigo-600 font-bold cursor-pointer hover:underline block mb-1 inline-block">เลือกรูปภาพใหม่</label>
+                            <p class="text-[10px] text-slate-500 leading-tight">รองรับไฟล์ .jpg, .png</p>
                         </div>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium mb-1 text-slate-700">เบอร์โทรศัพท์ <span class="text-red-500">*จำเป็น</span></label>
+                        <label class="block text-sm font-bold mb-1 text-slate-700">เบอร์โทรศัพท์ <span class="text-red-500">*จำเป็นต้องใส่</span></label>
                         <input type="tel" id="profilePhone" required placeholder="เช่น 0812345678" class="w-full text-sm border border-slate-300 rounded-lg p-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium mb-1 text-slate-700">รหัสผ่านใหม่ <span class="text-slate-400 font-normal">(เว้นว่างหากไม่เปลี่ยน)</span></label>
-                        <input type="password" id="profilePassword" placeholder="กรอกรหัสผ่านใหม่ที่ต้องการ..." class="w-full text-sm border border-slate-300 rounded-lg p-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <label class="block text-sm font-bold mb-1 text-slate-700">เปลี่ยนรหัสผ่านใหม่ <span class="text-slate-400 font-normal text-xs">(ไม่บังคับ)</span></label>
+                        <p class="text-[10px] text-slate-500 mb-2">*หากต้องการใช้รหัสผ่านเดิม ให้ปล่อยช่องนี้ว่างไว้ครับ</p>
+                        <input type="password" id="profilePassword" placeholder="กรอกเฉพาะเมื่อต้องการเปลี่ยนรหัสผ่าน..." class="w-full text-sm border border-slate-300 rounded-lg p-3 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
                     </div>
 
-                    <button type="submit" id="btnSaveProfile" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-700 hover:shadow-lg transition-all mt-4">
+                    <button type="submit" id="btnSaveProfile" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-700 hover:shadow-lg transition-all mt-2">
                         💾 บันทึกการตั้งค่า
                     </button>
                 </form>
@@ -192,10 +194,9 @@
     </div>
 
     <script>
-        // 🚨 นำ URL ของ Web App อันใหม่มาวางที่นี่ 🚨
+        // 🚨 นำ URL ของ Web App มาวางที่นี่ 🚨
         const API_URL = 'https://script.google.com/macros/s/AKfycbybjvaocbvQ4Pp6zZ8YWd5mmnhh0Y_JdWxNzkFHBu2zao7A4-gsVkzDcSijtmIK6XXT8Q/exec';
         
-        // ข้อมูลผู้ใช้
         const userEmail = localStorage.getItem('userEmail');
         const studentId = localStorage.getItem('studentId');
         let currentProfileUrl = ""; 
@@ -209,7 +210,6 @@
             window.location.href = 'index.html'; 
         }
 
-        // ฟังก์ชันเปิด-ปิด Modal
         const profileModal = document.getElementById('profileModal');
         function openProfileModal() {
             profileModal.classList.remove('hidden');
@@ -218,7 +218,6 @@
             profileModal.classList.add('hidden');
         }
 
-        // ปิดป๊อปอัปเมื่อคลิกพื้นที่ว่างด้านนอก
         profileModal.addEventListener('click', (e) => {
             if(e.target === profileModal) closeProfileModal();
         });
@@ -293,7 +292,7 @@
             r.onerror = rej;
         });
 
-        // 🌟 ระบบเซฟโปรไฟล์ใน Modal 🌟
+        // ระบบเซฟโปรไฟล์ใน Modal
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSaveProfile');
@@ -326,7 +325,7 @@
                         currentProfileUrl = result.profileUrl;
                         document.getElementById('headerProfilePic').src = currentProfileUrl;
                     }
-                    closeProfileModal(); // ปิด Modal อัตโนมัติเมื่อเซฟเสร็จ
+                    closeProfileModal(); 
                 } else throw new Error(result.message);
             } catch (err) {
                 Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message });
@@ -387,7 +386,7 @@
             document.getElementById('tableContainer').classList.remove('hidden');
         }
 
-        // ระบบส่งงาน (บังคับเบอร์โทร พร้อมเด้งป๊อปอัปให้ทันที)
+        // ระบบส่งงาน (บังคับเบอร์โทร)
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -401,7 +400,7 @@
                     confirmButtonColor: '#3b82f6',
                     backdrop: `rgba(0,0,0,0.5)`
                 }).then(() => {
-                    openProfileModal(); // เปิดป๊อปอัปให้เลย
+                    openProfileModal(); 
                     document.getElementById('profilePhone').focus();
                 });
                 return;
