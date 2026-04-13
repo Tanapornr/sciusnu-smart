@@ -6,9 +6,8 @@
     <title>Student Dashboard - โครงการ วมว. มน.</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Prompt', sans-serif; background-color: #f1f5f9; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; }
         .swal2-popup { font-family: inherit; border-radius: 1.5rem !important; }
         .modal-enter { animation: modalFadeIn 0.3s ease-out forwards; }
         @keyframes modalFadeIn {
@@ -22,43 +21,43 @@
     <header class="bg-white border-b border-slate-200 shadow-sm relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-blue-600"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+            
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 
                 <div class="flex items-center gap-4 sm:gap-6">
                     <button onclick="openProfileModal()" class="relative group outline-none rounded-full focus:ring-4 focus:ring-blue-100 transition-all" title="ตั้งค่าโปรไฟล์">
-                        <img id="headerProfilePic" src="https://ui-avatars.com/api/?name=User&background=random" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-[3px] sm:border-4 border-blue-100 shadow-lg group-hover:opacity-90 transition-opacity bg-white" onerror="this.src='https://ui-avatars.com/api/?name=Student&background=random'">
-                        <div class="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-slate-800 rounded-full p-2 shadow-md border-2 border-white group-hover:bg-blue-600 transition-colors">
+                        <img id="headerProfilePic" src="https://ui-avatars.com/api/?name=User&background=random" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-[3px] sm:border-4 border-blue-50 shadow-md group-hover:opacity-90 transition-opacity bg-white" onerror="this.src='https://ui-avatars.com/api/?name=Student&background=random'">
+                        <div class="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-slate-800 rounded-full p-2.5 shadow-md border-2 border-white group-hover:bg-blue-600 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287-.947c.886.54 2.042.061 2.287-.947 1.56-.38 1.56-2.6 0-2.978a1.532 1.532 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106-.54-.886-.061-2.042.947-2.287zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
                             </svg>
                         </div>
                     </button>
-
                     <div>
-                        <h1 class="text-2xl sm:text-3xl font-bold text-slate-800 flex items-center gap-2">
+                        <h1 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
                             <span id="headerMyName">กำลังโหลดข้อมูล...</span>
                         </h1>
-                        <p class="text-sm sm:text-base text-slate-500 mt-1">รหัสนักเรียน: <span id="displayStudentId" class="font-semibold text-blue-600"></span></p>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1">รหัสนักเรียน: <span id="displayStudentId" class="font-semibold text-blue-600"></span></p>
                     </div>
                 </div>
 
-                <button onclick="logout()" class="text-xs sm:text-sm w-full sm:w-auto text-center text-red-600 font-medium hover:bg-red-50 px-5 py-2.5 rounded-xl transition-colors border border-red-100 shadow-sm">
+                <button onclick="logout()" class="text-xs sm:text-sm w-full sm:w-auto text-center text-red-600 font-medium hover:bg-red-50 px-4 py-2 rounded-lg transition-colors border border-red-100 shadow-sm">
                     ออกจากระบบ
                 </button>
             </div>
 
-            <div id="headerProjectInfo" class="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 hidden">
-                <div class="bg-slate-50 px-5 py-4 rounded-xl border border-slate-200 flex flex-col justify-center">
-                    <p class="text-xs text-slate-500 mb-1">📌 รหัสโครงงาน</p>
-                    <p id="headerProjectId" class="font-bold text-slate-800 text-lg">-</p>
+            <div id="headerProjectInfo" class="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 hidden">
+                <div class="bg-slate-50 px-4 py-3 rounded-lg border border-slate-200 flex flex-col justify-center">
+                    <p class="text-[10px] sm:text-xs text-slate-500 mb-1">📌 รหัสโครงงาน</p>
+                    <p id="headerProjectId" class="font-bold text-slate-800 text-base sm:text-lg">-</p>
                 </div>
-                <div class="bg-slate-50 px-5 py-4 rounded-xl border border-slate-200 flex flex-col justify-center">
-                    <p class="text-xs text-slate-500 mb-1">👥 ทำโครงงานคู่กับ</p>
-                    <p id="headerPartnerName" class="font-medium text-slate-800 text-base">-</p>
+                <div class="bg-slate-50 px-4 py-3 rounded-lg border border-slate-200 flex flex-col justify-center">
+                    <p class="text-[10px] sm:text-xs text-slate-500 mb-1">👥 ทำโครงงานคู่กับ</p>
+                    <p id="headerPartnerName" class="font-medium text-slate-800 text-sm sm:text-base">-</p>
                 </div>
-                <div class="bg-blue-50 px-5 py-4 rounded-xl border border-blue-100 flex flex-col justify-center">
-                    <p class="text-xs text-blue-600 font-semibold mb-1">🎓 อาจารย์ที่ปรึกษา</p>
-                    <p id="headerAdvisor" class="font-medium text-blue-800 text-base">-</p>
+                <div class="bg-blue-50 px-4 py-3 rounded-lg border border-blue-100 flex flex-col justify-center">
+                    <p class="text-[10px] sm:text-xs text-blue-600 font-semibold mb-1">🎓 อาจารย์ที่ปรึกษา</p>
+                    <p id="headerAdvisor" class="font-medium text-blue-800 text-sm sm:text-base">-</p>
                 </div>
             </div>
         </div>
@@ -68,26 +67,26 @@
         
         <div class="lg:col-span-1 space-y-6">
             
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
-                <h2 class="text-lg sm:text-xl font-bold text-slate-800 mb-5 border-b pb-3 flex items-center">
-                    <span class="text-2xl mr-2">📥</span> ดาวน์โหลดแบบฟอร์ม
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5">
+                <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center">
+                    <span class="text-xl mr-2">📥</span> ดาวน์โหลดแบบฟอร์ม
                 </h2>
-                <ul class="space-y-4 text-sm sm:text-base">
-                    <li><a href="#" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center">📄 Template โครงร่าง (Proposal)</a></li>
-                    <li><a href="#" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center">📄 Template รายงานความก้าวหน้า</a></li>
-                    <li><a href="#" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center">📄 Template รายงานฉบับสมบูรณ์</a></li>
-                    <li><a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center">📑 แบบคำร้องต่างๆ</a></li>
+                <ul class="space-y-3 text-xs sm:text-sm">
+                    <li><a href="#" target="_blank" class="text-blue-600 hover:underline flex items-center">📄 Template โครงร่าง (Proposal)</a></li>
+                    <li><a href="#" target="_blank" class="text-blue-600 hover:underline flex items-center">📄 Template รายงานความก้าวหน้า</a></li>
+                    <li><a href="#" target="_blank" class="text-blue-600 hover:underline flex items-center">📄 Template รายงานฉบับสมบูรณ์</a></li>
+                    <li><a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="text-blue-600 hover:underline flex items-center">📑 แบบคำร้องต่างๆ</a></li>
                 </ul>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
-                <h2 class="text-lg sm:text-xl font-bold text-slate-800 mb-5 border-b pb-3 flex items-center">
-                    <span class="text-2xl mr-2">📤</span> ส่งงาน / แบบคำร้อง
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5">
+                <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center">
+                    <span class="text-xl mr-2">📤</span> ส่งงาน / แบบคำร้อง
                 </h2>
-                <form id="uploadForm" class="space-y-5">
+                <form id="uploadForm" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-semibold mb-1 text-slate-700">ประเภทงาน</label>
-                        <select id="workType" required class="w-full text-sm border border-slate-300 rounded-xl p-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-colors">
+                        <label class="block text-xs sm:text-sm font-medium mb-1 text-slate-700">ประเภทงาน</label>
+                        <select id="workType" required class="w-full text-xs sm:text-sm border border-slate-300 rounded-md p-2.5 bg-white focus:ring-blue-500 outline-none">
                             <option value="">-- เลือกประเภทงาน --</option>
                             <option value="โครงร่าง (Proposal)">โครงร่าง (Proposal)</option>
                             <option value="รายงานความก้าวหน้า">รายงานความก้าวหน้า</option>
@@ -97,21 +96,21 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold mb-1 text-slate-700">รหัสโครงงาน</label>
-                        <input list="projectList" id="projectId" required class="w-full text-sm border border-slate-200 rounded-xl p-3 bg-slate-100 text-slate-500 outline-none cursor-not-allowed" readonly>
+                        <label class="block text-xs sm:text-sm font-medium mb-1 text-slate-700">รหัสโครงงาน</label>
+                        <input list="projectList" id="projectId" required class="w-full text-xs sm:text-sm border border-slate-200 rounded-md p-2.5 bg-slate-100 text-slate-500 outline-none cursor-not-allowed" readonly>
                     </div>
 
-                    <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                        <label class="block text-sm font-bold mb-2 text-blue-800">1. ไฟล์รูปเล่ม (PDF)</label>
-                        <input type="file" id="fileReport" accept="application/pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-blue-600 file:text-white cursor-pointer hover:file:bg-blue-700 transition-colors">
+                    <div class="bg-blue-50 p-3 rounded-md border border-blue-100">
+                        <label class="block text-xs sm:text-sm font-medium mb-2 text-blue-800">1. ไฟล์รูปเล่ม (PDF)</label>
+                        <input type="file" id="fileReport" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-slate-500 file:mr-2 sm:file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-blue-600 file:text-white cursor-pointer hover:file:bg-blue-700 transition-colors">
                     </div>
 
-                    <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-100">
-                        <label class="block text-sm font-bold mb-2 text-amber-800">2. หน้าลายเซ็น (PDF)</label>
-                        <input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-amber-500 file:text-white cursor-pointer hover:file:bg-amber-600 transition-colors">
+                    <div class="bg-amber-50 p-3 rounded-md border border-amber-100">
+                        <label class="block text-xs sm:text-sm font-medium mb-2 text-amber-800">2. หน้าลายเซ็น (PDF)</label>
+                        <input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-slate-500 file:mr-2 sm:file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-amber-500 file:text-white cursor-pointer hover:file:bg-amber-600 transition-colors">
                     </div>
 
-                    <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-all shadow-md mt-2 text-base">
+                    <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-semibold py-2.5 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-sm mt-2 text-sm">
                         ส่งงาน
                     </button>
                 </form>
@@ -119,24 +118,24 @@
         </div>
 
         <div class="lg:col-span-2">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
-                <h2 class="text-lg sm:text-xl font-bold text-slate-800 mb-5 border-b pb-3 flex items-center">
-                    <span class="text-2xl mr-2">📋</span> ประวัติการส่งงานของคุณ
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5">
+                <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center">
+                    <span class="text-xl mr-2">📋</span> ประวัติการส่งงานของคุณ
                 </h2>
                 
-                <div id="loadingData" class="text-center py-16 text-sm text-slate-500 flex flex-col items-center">
-                    <svg class="animate-spin h-8 w-8 text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <div id="loadingData" class="text-center py-12 text-sm text-slate-500 flex flex-col items-center">
+                    <svg class="animate-spin h-6 w-6 text-blue-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     กำลังดึงข้อมูล...
                 </div>
                 
                 <div class="overflow-x-auto hidden w-full" id="tableContainer">
-                    <table class="w-full text-sm text-left text-slate-600 min-w-[500px]">
+                    <table class="w-full text-xs sm:text-sm text-left text-slate-600 min-w-[500px]">
                         <thead class="bg-slate-50 text-slate-700 uppercase border-b">
                             <tr>
-                                <th class="px-4 py-4">วันที่ส่ง</th>
-                                <th class="px-4 py-4">ประเภทงาน</th>
-                                <th class="px-4 py-4 text-center">สถานะ</th>
-                                <th class="px-4 py-4 text-center">ไฟล์แนบ</th>
+                                <th class="px-3 sm:px-4 py-3">วันที่ส่ง</th>
+                                <th class="px-3 sm:px-4 py-3">ประเภทงาน</th>
+                                <th class="px-3 sm:px-4 py-3 text-center">สถานะ</th>
+                                <th class="px-3 sm:px-4 py-3 text-center">ไฟล์แนบ</th>
                             </tr>
                         </thead>
                         <tbody id="historyTableBody"></tbody>
@@ -147,7 +146,7 @@
     </div>
 
     <div id="profileModal" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity">
-        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden modal-enter relative flex flex-col">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden modal-enter relative flex flex-col border border-slate-100">
             
             <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full p-2 transition-colors z-10">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
@@ -176,7 +175,7 @@
                     </div>
                     
                     <div>
-                        <label class="block text-xs font-bold mb-1.5 text-slate-700 ml-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label>
+                        <label class="block text-xs font-bold mb-1.5 text-slate-700 ml-1">เบอร์โทรศัพท์ <span class="text-red-500">*จำเป็นต้องใส่</span></label>
                         <input type="tel" id="profilePhone" required placeholder="0812345678" class="w-full text-sm border border-slate-200 rounded-xl p-3.5 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder-slate-400 text-slate-700 font-medium">
                     </div>
 
@@ -223,7 +222,6 @@
             window.location.href = 'index.html'; 
         }
 
-        // จัดการ Modal
         const profileModal = document.getElementById('profileModal');
         
         function openProfileModal() { 
@@ -267,7 +265,6 @@
             return url;
         }
 
-        // โหลดข้อมูล
         async function loadData() {
             try {
                 const res = await fetch(API_URL);
@@ -336,7 +333,6 @@
             r.onerror = rej;
         });
 
-        // บันทึกโปรไฟล์
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -361,7 +357,7 @@
             const fileInput = document.getElementById('profilePicInput').files[0];
 
             btn.disabled = true;
-            btn.innerHTML = `<svg class="animate-spin inline-block h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังบันทึก...`;
+            btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังบันทึก...`;
 
             try {
                 let picData = null; let picMime = null;
@@ -407,7 +403,7 @@
             const mySubs = subs.filter(s => s && s['รหัสนักเรียน'] == studentId).reverse();
             
             if(mySubs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-slate-500">เริ่มส่งงานแรกกันเลย! 🎉</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-500">เริ่มส่งงานแรกกันเลย! 🎉</td></tr>';
             } else {
                 tbody.innerHTML = mySubs.map(s => {
                     let statusClass = "bg-amber-100 text-amber-700 border border-amber-200"; let statusIcon = "⏳";
@@ -419,16 +415,16 @@
                     
                     return `
                     <tr class="border-b hover:bg-slate-50 transition-colors">
-                        <td class="px-4 py-4 text-xs text-slate-500 whitespace-nowrap">${dateStr}</td>
-                        <td class="px-4 py-4 font-semibold text-slate-700 text-sm">${s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']}</td>
-                        <td class="px-4 py-4 text-center">
-                            <span class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold ${statusClass} shadow-sm inline-flex items-center gap-1">
+                        <td class="px-3 sm:px-4 py-3 text-[10px] sm:text-xs text-slate-500 whitespace-nowrap">${dateStr}</td>
+                        <td class="px-3 sm:px-4 py-3 font-medium text-slate-700 text-xs sm:text-sm">${s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']}</td>
+                        <td class="px-3 sm:px-4 py-3 text-center">
+                            <span class="px-2 py-1 rounded-full text-[10px] sm:text-xs font-bold ${statusClass} shadow-sm inline-flex items-center gap-1">
                                 ${statusIcon} ${s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)']}
                             </span>
                         </td>
-                        <td class="px-4 py-4 text-center space-x-2 whitespace-nowrap">
-                            <a href="${s['URL ไฟล์เล่ม']}" target="_blank" class="text-blue-700 bg-blue-50 px-3 py-2 rounded-lg text-xs font-bold hover:bg-blue-100 border border-blue-100 transition-colors">📄 เล่ม</a>
-                            <a href="${s['URL ลายเซ็น']}" target="_blank" class="text-amber-700 bg-amber-50 px-3 py-2 rounded-lg text-xs font-bold hover:bg-amber-100 border border-amber-100 transition-colors">✍️ เซ็น</a>
+                        <td class="px-3 sm:px-4 py-3 text-center space-x-1 sm:space-x-2 whitespace-nowrap">
+                            <a href="${s['URL ไฟล์เล่ม']}" target="_blank" class="text-blue-700 bg-blue-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium hover:bg-blue-100 border border-blue-100">📄 เล่ม</a>
+                            <a href="${s['URL ลายเซ็น']}" target="_blank" class="text-amber-700 bg-amber-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium hover:bg-amber-100 border border-amber-100">✍️ เซ็น</a>
                         </td>
                     </tr>
                     `;
@@ -460,7 +456,7 @@
             const loadingText = isUpdating ? 'กำลังแทนที่ไฟล์เดิม...' : 'กำลังอัปโหลด...';
             
             btn.disabled = true; 
-            btn.innerHTML = `<svg class="animate-spin inline-block h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ${loadingText}`;
+            btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ${loadingText}`;
             btn.classList.replace('bg-blue-600', 'bg-blue-400');
 
             try {
