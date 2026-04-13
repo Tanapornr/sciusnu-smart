@@ -10,11 +10,7 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
         .swal2-popup { font-family: inherit; border-radius: 1.5rem !important; }
         .modal-enter { animation: modalFadeIn 0.3s ease-out forwards; }
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.95) translateY(-10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        /* เพิ่มเพื่อปรับระยะปุ่มใน Swal ให้สวยขึ้น */
+        @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         .swal2-actions { margin-top: 1.5em !important; }
     </style>
 </head>
@@ -51,7 +47,7 @@
         <div id="overviewSection" class="bg-white rounded-3xl shadow-sm border border-slate-200 p-4 sm:p-6 hidden relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-purple-500"></div>
             <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-3 sm:mb-5 border-b pb-2 sm:pb-3 flex items-center ml-2">
-                <span class="text-xl sm:text-2xl mr-2">📊</span> ภาพรวมสถานะโครงงาน
+                <span class="text-xl sm:text-2xl mr-2">📊</span> ภาพรวมสถานะโครงงานในการดูแล
             </h2>
             <div class="overflow-x-auto w-full pb-2">
                 <table class="w-full text-left text-slate-600">
@@ -123,7 +119,6 @@
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
-        // ฟังก์ชันแปลงลิงก์รูป
         function getDirectImageUrl(url) {
             if (!url) return "";
             if (url.includes('drive.google.com')) {
@@ -192,7 +187,7 @@
             } finally { btn.disabled = false; btn.innerText = "บันทึกรหัสผ่านใหม่"; }
         });
 
-        // ฟังก์ชันโหลด Dashboard สำหรับ Viewer
+        // โหลดข้อมูล Dashboard
         async function loadDashboard() {
             try {
                 const response = await fetch(API_URL);
@@ -201,17 +196,25 @@
                 if (data.status === 'success') {
                     window.allProjects = data.projects || [];
                     
-                    // กรองเฉพาะโครงงานที่อาจารย์คนนี้เป็น "ที่ปรึกษาร่วม" หรือ "ที่ปรึกษาโรงเรียน"
+                    // 🔥 ค้นหาโครงงานโดยใช้อีเมลเป็นหลัก เพื่อกันข้อผิดพลาดจากการพิมพ์ชื่ออาจารย์ไม่ตรง 🔥
                     const myProjects = window.allProjects.filter(p => {
-                        if (viewerRole === 'co_advisor') return p['อ. ที่ปรึกษาร่วม TH'] === viewerName;
-                        if (viewerRole === 'school_advisor') return p['อ. ที่ปรึกษาโรงเรียน TH'] === viewerName;
-                        return false;
+                        let isMatch = false;
+                        for (let key in p) {
+                            let cleanKey = key.replace(/\s/g, '').toLowerCase();
+                            if (viewerRole === 'co_advisor' && cleanKey.includes('e-mailอ.ที่ปรึกษาร่วม')) {
+                                if (p[key].toString().trim().toLowerCase() === viewerEmail.toLowerCase()) isMatch = true;
+                            }
+                            if (viewerRole === 'school_advisor' && cleanKey.includes('e-mailอ.ที่ปรึกษาโรงเรียน')) {
+                                if (p[key].toString().trim().toLowerCase() === viewerEmail.toLowerCase()) isMatch = true;
+                            }
+                        }
+                        return isMatch;
                     });
                     
-                    const myProjectIds = myProjects.map(p => p['รหัสโครงงาน']);
+                    const myProjectIds = [...new Set(myProjects.map(p => p['รหัสโครงงาน']).filter(id => id))];
                     const myStudentsWork = (data.submissions || []).filter(item => myProjectIds.includes(item['รหัสโครงงาน']));
 
-                    renderOverviewTable(myProjects, myStudentsWork);
+                    renderOverviewTable(myProjectIds, myStudentsWork);
                     renderAllWorksTable(myStudentsWork.reverse());
                     
                     document.getElementById('loadingData').style.display = 'none';
@@ -221,7 +224,7 @@
             } catch (error) { document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ โหลดข้อมูลล้มเหลว</span>`; }
         }
 
-        // 🔥 สร้าง HTML ข้อมูลนักเรียนสำหรับตารางทั้งหมด 🔥
+        // สร้าง HTML ข้อมูลนักเรียนให้กด Popup ได้
         function generateStudentInfoHtml(submission) {
             const projectId = submission['รหัสโครงงาน'] || "-";
             const uploaderId = submission['รหัสนักเรียน'];
@@ -268,14 +271,13 @@
             return `<div><span class="font-bold text-slate-800 bg-slate-100 px-2 sm:px-3 py-1 rounded-lg border border-slate-200 text-[10px] sm:text-xs shadow-sm">${projectId}</span>${uploaderInfo}${partnerInfo}</div>`;
         }
 
-        // 🔥 สร้างตารางภาพรวม 🔥
-        function renderOverviewTable(myProjects, submissions) {
+        // สร้างตารางภาพรวม
+        function renderOverviewTable(uniqueProjectIds, submissions) {
             const tbody = document.getElementById('overviewTableBody'); tbody.innerHTML = '';
-            const uniqueProjectIds = [...new Set(myProjects.map(p => p['รหัสโครงงาน']).filter(id => id && id.toString().trim() !== ""))];
-            if (uniqueProjectIds.length === 0) return;
+            if (uniqueProjectIds.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 sm:py-16 text-center text-slate-500 text-xs sm:text-sm">ไม่มีข้อมูลโครงงานในการดูแลครับ</td></tr>'; return; }
 
             uniqueProjectIds.forEach(pid => {
-                const members = myProjects.filter(p => p['รหัสโครงงาน'] === pid);
+                const members = window.allProjects.filter(p => p['รหัสโครงงาน'] === pid);
                 
                 const memberHtml = members.map(m => {
                     const rawPic = m['รูปโปรไฟล์'] || "";
@@ -285,7 +287,7 @@
                     
                     return `
                     <button type="button" onclick="viewStudentPopup('${fullName}', '${m['รหัสนักเรียน']}', '${phone}', '${pic}')" class="w-full text-left flex items-center gap-2 sm:gap-3 mb-2 bg-slate-50 hover:bg-slate-100 p-2 sm:p-2.5 rounded-xl border border-slate-100 transition-colors focus:ring-2 focus:ring-purple-100 outline-none shadow-sm">
-                        <img src="${pic}" class="w-7 h-7 sm:w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m['ชื่อ'])}&background=random'">
+                        <img src="${pic}" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white shadow-sm" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m['ชื่อ'])}&background=random'">
                         <div class="flex flex-col leading-tight overflow-hidden">
                             <span class="text-[10px] sm:text-xs text-slate-700 font-bold truncate">${m['รหัสนักเรียน']}</span>
                             <span class="text-[9px] sm:text-[11px] text-slate-500 font-medium truncate">${m['ชื่อ']}</span>
@@ -312,7 +314,7 @@
             });
         }
 
-        // 🔥 สร้างตารางรายละเอียดทั้งหมด 🔥
+        // สร้างตารางรายละเอียดทั้งหมด
         function renderAllWorksTable(works) {
             const tbody = document.getElementById('allWorksTableBody'); tbody.innerHTML = '';
             if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 sm:py-16 text-center text-slate-500 text-xs sm:text-sm">ยังไม่มีงานถูกส่งเข้าระบบครับ</td></tr>'; return; }
@@ -329,9 +331,9 @@
                     <td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td>
                     <td class="px-2 py-4 sm:px-4 sm:py-5 font-bold text-purple-700 text-[10px] sm:text-sm align-middle leading-tight">${workType}</td>
                     <td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">
-                        <div class="flex flex-col gap-1.5">
-                            <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="bg-blue-50 text-blue-700 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-blue-100 hover:bg-blue-100 transition-colors whitespace-nowrap">📄 เล่ม</a>
-                            <a href="${item['URL ลายเซ็น']}" target="_blank" class="bg-amber-50 text-amber-700 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 hover:bg-amber-100 transition-colors whitespace-nowrap">✍️ ลายเซ็น</a>
+                        <div class="flex flex-col sm:flex-row gap-1 sm:gap-2 justify-center">
+                            <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="bg-blue-50 text-blue-700 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg text-[9px] sm:text-xs font-bold border border-blue-100 hover:bg-blue-100 transition-colors whitespace-nowrap">📄 เล่ม</a>
+                            <a href="${item['URL ลายเซ็น']}" target="_blank" class="bg-amber-50 text-amber-700 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 hover:bg-amber-100 transition-colors whitespace-nowrap">✍️ ลายเซ็น</a>
                         </div>
                     </td>
                     <td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">${badge}</td>
