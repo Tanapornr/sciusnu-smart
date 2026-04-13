@@ -125,8 +125,17 @@
                             background: '#f8fafc', color: '#0f172a', backdrop: `rgba(15, 23, 42, 0.8)`
                         }).then(() => { window.location.href = 'student.html'; });
 
+                    } else if (result.role === 'admin') {
+                        // 🔥 เพิ่มเงื่อนไขเช็คแอดมินตรงนี้ เพื่อไปหน้า admin.html 🔥
+                        Swal.fire({
+                            icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', text: `เข้าสู่ระบบในฐานะผู้ดูแลระบบ`,
+                            showConfirmButton: false, timer: 1500, background: '#1e293b', color: '#fff'
+                        }).then(() => {
+                            window.location.href = 'admin.html';
+                        });
+                        
                     } else {
-                        // อาจารย์เข้าสู่ระบบ ไม่มีป๊อปอัปรูป
+                        // อาจารย์เข้าสู่ระบบ
                         Swal.fire({
                             icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', text: `ยินดีต้อนรับ อาจารย์ ${result.name}`,
                             showConfirmButton: false, timer: 1500, background: '#1e293b', color: '#fff'
@@ -136,8 +145,11 @@
                         });
                     }
                 } else throw new Error(result.message);
-            } catch (error) { Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: error.message, background: '#1e293b', color: '#fff', confirmButtonColor: '#3b82f6' });
-            } finally { btn.disabled = false; btn.innerHTML = '🚀 เข้าสู่ระบบ'; }
+            } catch (error) { 
+                Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: error.message, background: '#1e293b', color: '#fff', confirmButtonColor: '#3b82f6' });
+            } finally { 
+                btn.disabled = false; btn.innerHTML = '🚀 เข้าสู่ระบบ'; 
+            }
         }
     </script>
 </body>
