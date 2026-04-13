@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viewer Dashboard - โครงการ วมว. มน.</title>
+    <title>Advisor Dashboard - โครงการ วมว. มน.</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        .swal2-popup { font-family: inherit; border-radius: 1rem !important; }
     </style>
 </head>
-<body class="bg-slate-50 font-sans pb-10">
+<body class="font-sans pb-10">
 
     <nav class="bg-slate-800 border-b border-slate-700 px-4 sm:px-6 py-4 shadow-md">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="text-center sm:text-left">
-                <h1 class="text-lg sm:text-xl font-bold text-white">Viewer Space</h1>
-                <p class="text-xs sm:text-sm text-slate-300">อาจารย์ที่ปรึกษาร่วม / โรงเรียน: <span id="displayViewerName" class="font-semibold text-purple-400"></span></p>
+                <h1 class="text-lg sm:text-xl font-bold text-white">Advisor Space</h1>
+                <p class="text-xs sm:text-sm text-slate-300">อาจารย์ที่ปรึกษาหลัก: <span id="displayAdvisorName" class="font-semibold text-amber-400"></span></p>
             </div>
             <button onclick="logout()" class="text-xs sm:text-sm w-full sm:w-auto text-red-400 hover:text-red-300 hover:bg-slate-700 px-4 py-2 rounded-lg transition-colors font-medium border border-slate-600">
                 ออกจากระบบ
@@ -25,25 +27,35 @@
 
     <div class="max-w-7xl mx-auto mt-6 sm:mt-8 px-4 space-y-6">
 
-        <div id="loadingData" class="text-center py-12 text-sm text-slate-500 flex flex-col items-center bg-white rounded-xl shadow-sm border border-slate-200">
-            <svg class="animate-spin h-8 w-8 text-purple-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col md:flex-row md:items-center justify-between">
+            <div class="mb-4 md:mb-0">
+                <h2 class="text-base sm:text-lg font-bold text-slate-800 flex items-center"><span class="text-2xl mr-2">📥</span> ดาวน์โหลดแบบฟอร์ม / Template</h2>
+            </div>
+            <div class="flex flex-wrap gap-2 sm:gap-3">
+                <a href="#" target="_blank" class="text-xs sm:text-sm bg-blue-50 text-blue-700 px-4 py-2 rounded-xl hover:bg-blue-100 font-bold border border-blue-100 transition-colors">📄 Template โครงร่าง</a>
+                <a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="text-xs sm:text-sm bg-blue-50 text-blue-700 px-4 py-2 rounded-xl hover:bg-blue-100 font-bold border border-blue-100 transition-colors">📑 คำร้องต่างๆ</a>
+            </div>
+        </div>
+        
+        <div id="loadingData" class="text-center py-16 text-sm text-slate-500 flex flex-col items-center bg-white rounded-2xl shadow-sm border border-slate-200">
+            <svg class="animate-spin h-8 w-8 text-amber-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             กำลังโหลดข้อมูลโครงงาน...
         </div>
 
-        <div id="overviewSection" class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5 hidden relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1.5 h-full bg-purple-500"></div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center ml-2">
-                <span class="text-xl mr-2">📊</span> ภาพรวมสถานะโครงงานของนักเรียนในการดูแล
+        <div id="overviewSection" class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 hidden relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
+            <h2 class="text-lg font-bold text-slate-800 mb-5 border-b pb-3 flex items-center ml-2">
+                <span class="text-2xl mr-2">📊</span> ภาพรวมสถานะโครงงานในการดูแล
             </h2>
             <div class="overflow-x-auto w-full">
-                <table class="w-full text-xs sm:text-sm text-left text-slate-600 min-w-[600px]">
-                    <thead class="bg-slate-50 text-slate-700 uppercase border-b">
+                <table class="w-full text-sm text-left text-slate-600 min-w-[600px]">
+                    <thead class="bg-slate-50 text-slate-700 uppercase border-b border-slate-200">
                         <tr>
-                            <th class="px-3 sm:px-4 py-3">รหัสโครงงาน</th>
-                            <th class="px-3 sm:px-4 py-3">สมาชิกในกลุ่ม</th>
-                            <th class="px-3 sm:px-4 py-3 text-center">โครงร่าง</th>
-                            <th class="px-3 sm:px-4 py-3 text-center">ความก้าวหน้า</th>
-                            <th class="px-3 sm:px-4 py-3 text-center">ฉบับสมบูรณ์</th>
+                            <th class="px-4 py-4 font-semibold">รหัสโครงงาน</th>
+                            <th class="px-4 py-4 font-semibold">สมาชิกในกลุ่ม</th>
+                            <th class="px-4 py-4 text-center font-semibold">โครงร่าง</th>
+                            <th class="px-4 py-4 text-center font-semibold">ความก้าวหน้า</th>
+                            <th class="px-4 py-4 text-center font-semibold">ฉบับสมบูรณ์</th>
                         </tr>
                     </thead>
                     <tbody id="overviewTableBody"></tbody>
@@ -51,41 +63,52 @@
             </div>
         </div>
 
-        <div id="allWorksSection" class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5 hidden relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center ml-2">
-                <span class="text-xl mr-2">📁</span> รายละเอียดการส่งงานทั้งหมด
+        <div id="pendingSection" class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 hidden relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-amber-400"></div>
+            <h2 class="text-lg font-bold text-amber-600 mb-5 border-b pb-3 flex items-center ml-2">
+                <span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg text-sm mr-2 shadow-sm font-black" id="pendingCount">0</span> งานใหม่รอการตรวจสอบ
             </h2>
             <div class="overflow-x-auto w-full">
-                <table class="w-full text-xs sm:text-sm text-left text-slate-600 min-w-[700px]">
-                    <thead class="bg-slate-50 text-slate-700 uppercase border-b">
-                        <tr>
-                            <th class="px-3 sm:px-4 py-3">วันที่ส่ง</th>
-                            <th class="px-3 sm:px-4 py-3">โครงงาน / ข้อมูลนักเรียน</th>
-                            <th class="px-3 sm:px-4 py-3">ประเภทงาน</th>
-                            <th class="px-3 sm:px-4 py-3 text-center">ไฟล์แนบ</th>
-                            <th class="px-3 sm:px-4 py-3 text-center">สถานะปัจจุบัน</th>
-                        </tr>
+                <table class="w-full text-sm text-left text-slate-600 min-w-[700px]">
+                    <thead class="bg-slate-50 text-slate-700 uppercase border-b border-slate-200">
+                        <tr><th class="px-4 py-4 font-semibold">วันที่ส่ง</th><th class="px-4 py-4 font-semibold">โครงงาน / ข้อมูลนักเรียน</th><th class="px-4 py-4 font-semibold">ประเภทงาน</th><th class="px-4 py-4 text-center font-semibold">ไฟล์แนบ</th><th class="px-4 py-4 text-center font-semibold">ดำเนินการ</th></tr>
                     </thead>
-                    <tbody id="allWorksTableBody"></tbody>
+                    <tbody id="pendingTableBody"></tbody>
                 </table>
             </div>
         </div>
 
+        <div id="historySection" class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 hidden relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-slate-400"></div>
+            <h2 class="text-lg font-bold text-slate-800 mb-5 border-b pb-3 flex items-center ml-2"><span class="text-2xl mr-2">📋</span> ประวัติการอนุมัติ / ตรวจงานแล้ว</h2>
+            <div class="overflow-x-auto w-full">
+                <table class="w-full text-sm text-left text-slate-600 min-w-[600px]">
+                    <thead class="bg-slate-50 text-slate-700 uppercase border-b border-slate-200">
+                        <tr><th class="px-4 py-4 font-semibold">วันที่ส่ง</th><th class="px-4 py-4 font-semibold">โครงงาน / ข้อมูลนักเรียน</th><th class="px-4 py-4 font-semibold">ประเภทงาน</th><th class="px-4 py-4 text-center font-semibold">ไฟล์แนบ</th><th class="px-4 py-4 text-center font-semibold">สถานะ</th></tr>
+                    </thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
-        // 🚨 นำ URL ของ Web App อันใหม่ มาวางที่นี่ 🚨
-        const API_URL = 'https://script.google.com/macros/s/AKfycbybjvaocbvQ4Pp6zZ8YWd5mmnhh0Y_JdWxNzkFHBu2zao7A4-gsVkzDcSijtmIK6XXT8Q/execนี่';
+        // 🚨 นำ URL ของ Web App มาวางที่นี่ 🚨
+        const API_URL = 'https://script.google.com/macros/s/AKfycbz-J-CuLjdf_rCJiHcqMNvteRq4f31YMaMhBZ35X95_UNgukdZmqLmFb4TwZ0ZkAeK_Gg/exec';
         
-        const viewerName = localStorage.getItem('userName'); 
-        if (!viewerName) window.location.href = 'index.html'; 
-        
-        document.getElementById('displayViewerName').innerText = viewerName;
+        const advisorName = localStorage.getItem('userName'); 
+        if (!advisorName) window.location.href = 'index.html'; 
+        document.getElementById('displayAdvisorName').innerText = advisorName;
 
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'index.html';
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+
+        function getDirectImageUrl(url) {
+            if (!url) return "";
+            if (url.includes('drive.google.com')) {
+                const match = url.match(/[-\w]{25,}/);
+                if (match) return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`;
+            }
+            return url;
         }
 
         async function loadDashboard() {
@@ -95,27 +118,22 @@
                 
                 if (data.status === 'success') {
                     window.allProjects = data.projects || [];
-                    
-                    // 🌟 กรองเฉพาะโครงงานที่อาจารย์คนนี้เป็น "ที่ปรึกษาร่วม" หรือ "ที่ปรึกษาโรงเรียน"
-                    const myProjects = window.allProjects.filter(p => p['อ. ที่ปรึกษาร่วม TH'] === viewerName || p['อ. ที่ปรึกษาโรงเรียน TH'] === viewerName);
-                    const myProjectIds = myProjects.map(p => p['รหัสโครงงาน']);
-                    
-                    // กรองเฉพาะงานที่รหัสโครงงานตรงกับเด็กของตัวเอง
-                    const myStudentsWork = (data.submissions || []).filter(item => myProjectIds.includes(item['รหัสโครงงาน']));
+                    const myStudentsWork = (data.submissions || []).filter(item => item['อ.ที่ปรึกษา'] === advisorName);
+                    const pendingWorks = myStudentsWork.filter(item => item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'รออนุมัติ');
+                    const historyWorks = myStudentsWork.filter(item => item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] !== 'รออนุมัติ');
 
-                    renderOverviewTable(myProjects, myStudentsWork);
-                    renderAllWorksTable(myStudentsWork.reverse());
+                    renderOverviewTable(window.allProjects, myStudentsWork);
+                    renderPendingTable(pendingWorks.reverse());
+                    renderHistoryTable(historyWorks.reverse());
                     
                     document.getElementById('loadingData').style.display = 'none';
                     document.getElementById('overviewSection').classList.remove('hidden');
-                    document.getElementById('allWorksSection').classList.remove('hidden');
+                    document.getElementById('pendingSection').classList.remove('hidden');
+                    document.getElementById('historySection').classList.remove('hidden');
                 } else { throw new Error(data.message); }
-            } catch (error) {
-                document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ เกิดข้อผิดพลาด: ${error.message}</span>`;
-            }
+            } catch (error) { document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ เกิดข้อผิดพลาด: ${error.message}</span>`; }
         }
 
-        // โค้ดสร้าง HTML โชว์รูปและเบอร์โทรเด็ก
         function generateStudentInfoHtml(submission) {
             const projectId = submission['รหัสโครงงาน'] || "-";
             const uploaderId = submission['รหัสนักเรียน'];
@@ -125,14 +143,15 @@
 
             const uploader = teamMembers.find(m => m['รหัสนักเรียน'] == uploaderId);
             if (uploader) {
-                const pic = uploader['รูปโปรไฟล์'] || `https://ui-avatars.com/api/?name=${uploader['ชื่อ']}&background=random`;
-                const phone = uploader['เบอร์โทรศัพท์'] ? `📞 ${uploader['เบอร์โทรศัพท์']}` : "ไม่มีเบอร์โทร";
+                const rawPic = uploader['รูปโปรไฟล์'] || "";
+                const pic = rawPic ? getDirectImageUrl(rawPic) : `https://ui-avatars.com/api/?name=${encodeURIComponent(uploader['ชื่อ'])}&background=random`;
+                const phone = uploader['เบอร์โทรศัพท์'] ? `📞 ${uploader['เบอร์โทรศัพท์'].replace(/'/g, '')}` : "ไม่มีเบอร์โทร";
                 uploaderInfo = `
-                    <div class="flex items-center gap-3 mt-3 bg-purple-50/50 p-2 rounded-lg border border-purple-100">
-                        <img src="${pic}" class="w-10 h-10 rounded-full object-cover border-2 border-purple-200">
+                    <div class="flex items-center gap-3 mt-4 bg-blue-50 p-3 rounded-xl border border-blue-100">
+                        <img src="${pic}" class="w-12 h-12 rounded-full object-cover border-2 border-blue-200 bg-white" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(uploader['ชื่อ'])}&background=random'">
                         <div>
-                            <p class="text-xs font-semibold text-slate-700">👤 ${uploader['รหัสนักเรียน']} ${uploader['ชื่อ']} ${uploader['นามสกุล']} <span class="bg-purple-600 text-white px-1.5 py-0.5 rounded text-[9px] font-bold ml-1 shadow-sm">ผู้ส่งงาน</span></p>
-                            <p class="text-[10px] text-purple-600 mt-0.5">${phone}</p>
+                            <p class="text-xs font-bold text-slate-700">👤 ${uploader['รหัสนักเรียน']} ${uploader['ชื่อ']} ${uploader['นามสกุล']} <span class="bg-blue-600 text-white px-2 py-0.5 rounded-lg text-[10px] font-bold ml-1 shadow-sm">ผู้ส่งงาน</span></p>
+                            <p class="text-[11px] text-blue-600 mt-1 font-medium">${phone}</p>
                         </div>
                     </div>`;
             }
@@ -140,89 +159,111 @@
             const partners = teamMembers.filter(m => m['รหัสนักเรียน'] != uploaderId);
             if (partners.length > 0) {
                 partnerInfo = partners.map(p => {
-                    const pic = p['รูปโปรไฟล์'] || `https://ui-avatars.com/api/?name=${p['ชื่อ']}&background=random`;
-                    const phone = p['เบอร์โทรศัพท์'] ? `📞 ${p['เบอร์โทรศัพท์']}` : "ไม่มีเบอร์โทร";
+                    const rawPic = p['รูปโปรไฟล์'] || "";
+                    const pic = rawPic ? getDirectImageUrl(rawPic) : `https://ui-avatars.com/api/?name=${encodeURIComponent(p['ชื่อ'])}&background=random`;
+                    const phone = p['เบอร์โทรศัพท์'] ? `📞 ${p['เบอร์โทรศัพท์'].replace(/'/g, '')}` : "ไม่มีเบอร์โทร";
                     return `
-                    <div class="flex items-center gap-3 mt-2 px-2">
-                        <img src="${pic}" class="w-8 h-8 rounded-full object-cover border border-slate-200 opacity-80">
+                    <div class="flex items-center gap-3 mt-3 px-2">
+                        <img src="${pic}" class="w-8 h-8 rounded-full object-cover border border-slate-200 bg-white opacity-90" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p['ชื่อ'])}&background=random'">
                         <div>
-                            <p class="text-[10px] sm:text-xs text-slate-600">👥 ${p['รหัสนักเรียน']} ${p['ชื่อ']} ${p['นามสกุล']}</p>
-                            <p class="text-[9px] sm:text-[10px] text-slate-400">${phone}</p>
+                            <p class="text-[11px] font-semibold text-slate-600">👥 ${p['รหัสนักเรียน']} ${p['ชื่อ']} ${p['นามสกุล']}</p>
+                            <p class="text-[10px] text-slate-400">${phone}</p>
                         </div>
                     </div>`;
                 }).join('');
             } else {
-                partnerInfo = `<p class="mt-2 text-[10px] text-slate-400 italic px-2">ทำโครงงานเดี่ยว</p>`;
+                partnerInfo = `<p class="mt-3 text-[11px] text-slate-400 italic px-2">ทำโครงงานเดี่ยว</p>`;
             }
 
-            return `<div><span class="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 text-xs shadow-sm">${projectId}</span>${uploaderInfo}${partnerInfo}</div>`;
+            return `<div><span class="font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 text-xs shadow-sm">${projectId}</span>${uploaderInfo}${partnerInfo}</div>`;
         }
 
-        function renderOverviewTable(myProjects, submissions) {
+        function renderOverviewTable(projects, submissions) {
             const tbody = document.getElementById('overviewTableBody');
             tbody.innerHTML = '';
+            const myProjects = projects.filter(p => p && p['อ. ที่ปรึกษา TH'] === advisorName);
             const uniqueProjectIds = [...new Set(myProjects.map(p => p['รหัสโครงงาน']).filter(id => id && id.toString().trim() !== ""))];
 
-            if (uniqueProjectIds.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">ไม่มีข้อมูลโครงงานในการดูแลครับ</td></tr>'; return;
-            }
+            if (uniqueProjectIds.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">ไม่มีข้อมูลโครงงานในการดูแลครับ</td></tr>'; return; }
 
             uniqueProjectIds.forEach(pid => {
                 const members = myProjects.filter(p => p['รหัสโครงงาน'] === pid);
-                const memberHtml = members.map(m => `<div class="text-[10px] sm:text-xs text-slate-600 mb-1">👤 ${m['รหัสนักเรียน']} ${m['ชื่อ']} ${m['นามสกุล']}</div>`).join('');
+                
+                // 🔥 โชว์รูปโปรไฟล์นักเรียนในตารางภาพรวม 🔥
+                const memberHtml = members.map(m => {
+                    const rawPic = m['รูปโปรไฟล์'] || "";
+                    // ใช้รูปล่าสุด หรือใช้ชื่อย่อถ้าไม่มี
+                    const pic = rawPic ? getDirectImageUrl(rawPic) : `https://ui-avatars.com/api/?name=${encodeURIComponent(m['ชื่อ'])}&background=random`;
+                    return `
+                    <div class="flex items-center gap-3 mb-3 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                        <img src="${pic}" class="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m['ชื่อ'])}&background=random'">
+                        <div class="flex flex-col leading-tight">
+                            <span class="text-xs text-slate-700 font-bold">${m['รหัสนักเรียน']}</span>
+                            <span class="text-[11px] text-slate-500 font-medium">${m['ชื่อ']} ${m['นามสกุล']}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+
                 const memberIds = members.map(m => m['รหัสนักเรียน']);
                 const projectSubs = submissions.filter(s => s && (s['รหัสโครงงาน'] == pid || memberIds.includes(s['รหัสนักเรียน'])));
 
                 const getStatusBadge = (workType) => {
                     const subs = projectSubs.filter(s => s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] === workType);
-                    if (subs.length === 0) return `<span class="px-2 py-1 rounded-md text-[9px] sm:text-[10px] font-medium bg-slate-100 text-slate-400 border border-slate-200">➖ ยังไม่ส่ง</span>`;
+                    if (subs.length === 0) return `<span class="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-400 border border-slate-200">➖ ยังไม่ส่ง</span>`;
                     const status = subs[subs.length - 1]['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'];
-                    if (status === 'อนุมัติ') return `<span class="px-2 py-1 rounded-md text-[9px] sm:text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">✅ อนุมัติ</span>`;
-                    if (status === 'ไม่อนุมัติ') return `<span class="px-2 py-1 rounded-md text-[9px] sm:text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200">❌ ไม่อนุมัติ</span>`;
-                    return `<span class="px-2 py-1 rounded-md text-[9px] sm:text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200">⏳ รออนุมัติจากที่ปรึกษาหลัก</span>`;
+                    if (status === 'อนุมัติ') return `<span class="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">✅ อนุมัติ</span>`;
+                    if (status === 'ไม่อนุมัติ') return `<span class="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">❌ ไม่อนุมัติ</span>`;
+                    return `<span class="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">⏳ รออนุมัติ</span>`;
                 };
 
                 const tr = document.createElement('tr');
-                tr.className = "border-b hover:bg-purple-50/30 transition-colors";
+                tr.className = "border-b border-slate-100 hover:bg-blue-50/50 transition-colors";
                 tr.innerHTML = `
-                    <td class="px-3 sm:px-4 py-3 align-top pt-4 font-bold text-slate-800 text-xs sm:text-sm">${pid}</td>
-                    <td class="px-3 sm:px-4 py-3 align-top pt-3">${memberHtml}</td>
-                    <td class="px-3 sm:px-4 py-3 align-top pt-4 text-center">${getStatusBadge('โครงร่าง (Proposal)')}</td>
-                    <td class="px-3 sm:px-4 py-3 align-top pt-4 text-center">${getStatusBadge('รายงานความก้าวหน้า')}</td>
-                    <td class="px-3 sm:px-4 py-3 align-top pt-4 text-center">${getStatusBadge('รายงานฉบับสมบูรณ์')}</td>
+                    <td class="px-4 py-5 align-top font-bold text-slate-800 text-sm border-r border-slate-100">${pid}</td>
+                    <td class="px-4 py-3 align-top border-r border-slate-100">${memberHtml}</td>
+                    <td class="px-4 py-5 align-top text-center">${getStatusBadge('โครงร่าง (Proposal)')}</td>
+                    <td class="px-4 py-5 align-top text-center">${getStatusBadge('รายงานความก้าวหน้า')}</td>
+                    <td class="px-4 py-5 align-top text-center">${getStatusBadge('รายงานฉบับสมบูรณ์')}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function renderAllWorksTable(works) {
-            const tbody = document.getElementById('allWorksTableBody');
-            tbody.innerHTML = '';
-            if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 text-center text-slate-500">ยังไม่มีงานถูกส่งเข้าระบบครับ</td></tr>'; return; }
-
+        function renderPendingTable(works) {
+            const tbody = document.getElementById('pendingTableBody'); document.getElementById('pendingCount').innerText = works.length; tbody.innerHTML = '';
+            if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-16 text-center text-slate-500">🎉 ไม่มีงานรอตรวจสอบแล้วครับ</td></tr>'; return; }
             works.forEach(item => {
-                const dateObj = new Date(item['Timestamp']);
-                const dateStr = dateObj.toLocaleDateString('th-TH') + ' ' + dateObj.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
-                const workType = item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'];
-                
-                let badge = `<span class="px-2.5 py-1 text-[10px] sm:text-xs font-bold rounded-full bg-amber-100 text-amber-700 border border-amber-200 shadow-sm">⏳ รออนุมัติหลัก</span>`;
-                if (item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'อนุมัติ') badge = `<span class="px-2.5 py-1 text-[10px] sm:text-xs font-bold rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm">✅ อนุมัติแล้ว</span>`;
-                if (item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'ไม่อนุมัติ') badge = `<span class="px-2.5 py-1 text-[10px] sm:text-xs font-bold rounded-full bg-rose-100 text-rose-700 border border-rose-200 shadow-sm">❌ ไม่อนุมัติ</span>`;
-
-                const tr = document.createElement('tr');
-                tr.className = "border-b hover:bg-slate-50 transition-colors";
-                tr.innerHTML = `
-                    <td class="px-3 sm:px-4 py-3 whitespace-nowrap text-[10px] sm:text-xs text-slate-500 align-top pt-4">${dateStr}</td>
-                    <td class="px-3 sm:px-4 py-3 align-top pt-3">${generateStudentInfoHtml(item)}</td>
-                    <td class="px-3 sm:px-4 py-3 font-medium text-purple-700 text-xs sm:text-sm align-top pt-4">${workType}</td>
-                    <td class="px-3 sm:px-4 py-3 text-center space-y-2 sm:space-y-0 sm:space-x-1 whitespace-nowrap align-top pt-3">
-                        <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="block sm:inline-block bg-blue-50 text-blue-700 px-2 sm:px-3 py-1.5 rounded-md text-[10px] sm:text-xs border border-blue-100 hover:bg-blue-100">📄 เล่ม</a>
-                        <a href="${item['URL ลายเซ็น']}" target="_blank" class="block sm:inline-block bg-amber-50 text-amber-700 px-2 sm:px-3 py-1.5 rounded-md text-[10px] sm:text-xs border border-amber-100 hover:bg-amber-100">✍️ ลายเซ็น</a>
-                    </td>
-                    <td class="px-3 sm:px-4 py-3 text-center align-top pt-4">${badge}</td>
-                `;
+                const dateObj = new Date(item['Timestamp']); const dateStr = dateObj.toLocaleDateString('th-TH') + ' ' + dateObj.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}); const workType = item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'];
+                const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 hover:bg-amber-50/50 transition-colors";
+                tr.innerHTML = `<td class="px-4 py-5 whitespace-nowrap text-xs text-slate-500 align-top">${dateStr}</td><td class="px-4 py-4 align-top">${generateStudentInfoHtml(item)}</td><td class="px-4 py-5 font-bold text-blue-700 text-sm align-top">${workType}</td><td class="px-4 py-5 text-center space-y-3 sm:space-y-0 sm:space-x-2 whitespace-nowrap align-top"><a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="block sm:inline-block bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-xs font-bold border border-blue-100 hover:bg-blue-100 transition-colors">📄 เล่ม</a><a href="${item['URL ลายเซ็น']}" target="_blank" class="block sm:inline-block bg-amber-50 text-amber-700 px-4 py-2 rounded-xl text-xs font-bold border border-amber-100 hover:bg-amber-100 transition-colors">✍️ ลายเซ็น</a></td><td class="px-4 py-5 text-center space-y-3 sm:space-y-0 sm:space-x-2 whitespace-nowrap align-top"><button onclick="updateStatus('${item['รหัสนักเรียน']}', '${workType}', 'อนุมัติ')" class="block sm:inline-block w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors">✔️ อนุมัติ</button><button onclick="updateStatus('${item['รหัสนักเรียน']}', '${workType}', 'ไม่อนุมัติ')" class="block sm:inline-block w-full sm:w-auto bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors">❌ ไม่อนุมัติ</button></td>`;
                 tbody.appendChild(tr);
             });
+        }
+
+        function renderHistoryTable(works) {
+            const tbody = document.getElementById('historyTableBody'); tbody.innerHTML = '';
+            if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-16 text-center text-slate-500">ยังไม่มีประวัติการตรวจงานครับ</td></tr>'; return; }
+            works.forEach(item => {
+                let badge = item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'อนุมัติ' ? `<span class="px-3 py-1.5 text-[11px] font-bold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">✅ อนุมัติแล้ว</span>` : `<span class="px-3 py-1.5 text-[11px] font-bold rounded-lg bg-rose-50 text-rose-700 border border-rose-200">❌ ไม่อนุมัติ</span>`;
+                const dateObj = new Date(item['Timestamp']); const dateStr = dateObj.toLocaleDateString('th-TH') + ' ' + dateObj.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
+                const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 hover:bg-slate-50/80 transition-colors";
+                tr.innerHTML = `<td class="px-4 py-5 whitespace-nowrap text-xs text-slate-500 align-top">${dateStr}</td><td class="px-4 py-4 align-top">${generateStudentInfoHtml(item)}</td><td class="px-4 py-5 text-slate-700 font-semibold text-sm align-top">${item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']}</td><td class="px-4 py-5 text-center space-x-2 whitespace-nowrap align-top"><a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="inline-block text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg text-xs font-bold border border-transparent hover:border-blue-100 transition-colors">📄 เล่ม</a><a href="${item['URL ลายเซ็น']}" target="_blank" class="inline-block text-amber-600 hover:bg-amber-50 px-3 py-1.5 rounded-lg text-xs font-bold border border-transparent hover:border-amber-100 transition-colors">✍️ ลายเซ็น</a></td><td class="px-4 py-5 text-center align-top">${badge}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function updateStatus(studentId, workType, newStatus) {
+            const result = await Swal.fire({ title: `ยืนยันผลการตรวจ?`, html: `คุณต้องการปรับสถานะเป็น <br><b class="${newStatus === 'อนุมัติ' ? 'text-emerald-600' : 'text-rose-600'} text-lg">${newStatus}</b> ใช่หรือไม่?`, icon: 'question', showCancelButton: true, confirmButtonColor: newStatus === 'อนุมัติ' ? '#10b981' : '#f43f5e', cancelButtonColor: '#94a3b8', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก', backdrop: `rgba(0,0,0,0.5)` });
+            if (!result.isConfirmed) return;
+            Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+            try {
+                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "updateStatus", studentId: studentId, workType: workType, status: newStatus }) });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    await Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', text: `อัปเดตสถานะเป็น "${newStatus}" เรียบร้อยแล้ว`, timer: 1500, showConfirmButton: false });
+                    document.getElementById('overviewSection').classList.add('hidden'); document.getElementById('pendingSection').classList.add('hidden'); document.getElementById('historySection').classList.add('hidden'); document.getElementById('loadingData').style.display = 'flex'; loadDashboard();
+                } else throw new Error(data.message);
+            } catch (error) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message, confirmButtonColor: '#3b82f6' }); }
         }
 
         loadDashboard();
