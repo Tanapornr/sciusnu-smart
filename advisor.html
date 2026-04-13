@@ -130,7 +130,9 @@
         const advisorEmail = localStorage.getItem('userEmail'); 
         const advisorRole = localStorage.getItem('userRole'); 
         
-        if (!advisorName) window.location.href = 'index.html'; 
+        // ล็อคระบบให้เข้าได้เฉพาะอาจารย์ที่ปรึกษาหลัก
+        if (!advisorName || advisorRole !== 'advisor') window.location.href = 'index.html'; 
+        
         document.getElementById('displayAdvisorName').innerText = advisorName;
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
@@ -166,8 +168,7 @@
                 return;
             }
 
-            const btn = document.getElementById('btnSaveSettings');
-            btn.disabled = true; btn.innerHTML = `กำลังบันทึก...`;
+            const btn = document.getElementById('btnSaveSettings'); btn.disabled = true; btn.innerHTML = `กำลังบันทึก...`;
 
             try {
                 const payload = { action: "updateAdvisorPassword", email: advisorEmail, role: advisorRole, oldPassword: oldPass, newPassword: newPass };
@@ -205,6 +206,7 @@
             } catch (error) { document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ เกิดข้อผิดพลาด: ${error.message}</span>`; }
         }
 
+        // 🌟 เพิ่มรูปนักเรียนในหน้ารอตรวจสอบ/ประวัติ 🌟
         function generateStudentInfoHtml(submission) {
             const projectId = submission['รหัสโครงงาน'] || "-";
             const uploaderId = submission['รหัสนักเรียน'];
@@ -249,6 +251,7 @@
             return `<div><span class="font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 text-xs shadow-sm">${projectId}</span>${uploaderInfo}${partnerInfo}</div>`;
         }
 
+        // 🌟 เพิ่มรูปนักเรียนในตารางภาพรวมโครงงาน 🌟
         function renderOverviewTable(projects, submissions) {
             const tbody = document.getElementById('overviewTableBody');
             tbody.innerHTML = '';
@@ -260,7 +263,6 @@
             uniqueProjectIds.forEach(pid => {
                 const members = myProjects.filter(p => p['รหัสโครงงาน'] === pid);
                 
-                // 🔥 โชว์รูปโปรไฟล์นักเรียนในตารางภาพรวม 🔥
                 const memberHtml = members.map(m => {
                     const rawPic = m['รูปโปรไฟล์'] || "";
                     const pic = rawPic ? getDirectImageUrl(rawPic) : `https://ui-avatars.com/api/?name=${encodeURIComponent(m['ชื่อ'])}&background=random`;
