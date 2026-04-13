@@ -22,12 +22,12 @@
         <div class="absolute top-0 left-0 w-full h-1 bg-blue-600"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-4 sm:gap-6">
                     
                     <button onclick="openProfileModal()" class="relative group outline-none rounded-full focus:ring-4 focus:ring-blue-100 transition-all" title="ตั้งค่าโปรไฟล์">
-                        <img id="headerProfilePic" src="https://ui-avatars.com/api/?name=Student&background=random" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-blue-100 shadow-sm group-hover:opacity-80 transition-opacity">
-                        <div class="absolute bottom-0 right-0 bg-slate-700 rounded-full p-1 shadow-sm border-2 border-white group-hover:bg-blue-600 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                        <img id="headerProfilePic" src="https://ui-avatars.com/api/?name=User&background=random" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 sm:border-4 border-blue-100 shadow-md group-hover:opacity-80 transition-opacity" onerror="this.src='https://ui-avatars.com/api/?name=Student&background=random'">
+                        <div class="absolute bottom-0 right-0 bg-slate-700 rounded-full p-1.5 shadow-sm border-2 border-white group-hover:bg-blue-600 transition-colors translate-x-1 translate-y-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287-.947c.886.54 2.042.061 2.287-.947 1.56-.38 1.56-2.6 0-2.978a1.532 1.532 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106-.54-.886-.061-2.042.947-2.287zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
                             </svg>
                         </div>
@@ -94,9 +94,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium mb-1 text-slate-700">รหัสโครงงาน (อ้างอิงตอนส่ง)</label>
+                        <label class="block text-xs sm:text-sm font-medium mb-1 text-slate-700">รหัสโครงงาน</label>
                         <input list="projectList" id="projectId" required class="w-full text-xs sm:text-sm border border-slate-200 rounded-md p-2.5 bg-slate-100 text-slate-500 outline-none cursor-not-allowed" readonly>
-                        <datalist id="projectList"></datalist>
                     </div>
 
                     <div class="bg-blue-50 p-3 rounded-md border border-blue-100">
@@ -121,7 +120,6 @@
                 <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center">
                     <span class="text-xl mr-2">📋</span> ประวัติการส่งงานของคุณ
                 </h2>
-                
                 <div id="loadingData" class="text-center py-12 text-sm text-slate-500 flex flex-col items-center">
                     <svg class="animate-spin h-6 w-6 text-blue-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     กำลังดึงข้อมูล...
@@ -150,7 +148,7 @@
                 <h2 class="text-lg font-bold text-slate-800 flex items-center">
                     <span class="text-xl mr-2">⚙️</span> ตั้งค่าโปรไฟล์ส่วนตัว
                 </h2>
-                <button onclick="closeProfileModal()" class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg p-1.5 transition-colors focus:outline-none">
+                <button onclick="closeProfileModal()" class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg p-1.5 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                     </svg>
@@ -159,11 +157,10 @@
             
             <div class="p-5">
                 <form id="profileForm" class="space-y-5">
-                    
                     <div class="flex items-center space-x-4 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
                         <div class="relative group">
-                            <img id="profilePreview" src="https://ui-avatars.com/api/?name=Student&background=random" class="w-16 h-16 rounded-full object-cover border-2 border-indigo-200 shadow-sm transition-opacity group-hover:opacity-80">
-                            <div class="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow border border-slate-200 cursor-pointer pointer-events-none">
+                            <img id="profilePreview" src="https://ui-avatars.com/api/?name=User&background=random" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-indigo-200 shadow-sm transition-opacity group-hover:opacity-80">
+                            <div class="absolute bottom-0 right-0 bg-white rounded-full p-1.5 shadow border border-slate-200 cursor-pointer pointer-events-none translate-x-1 translate-y-1">
                                 <span class="text-[10px] block leading-none">📷</span>
                             </div>
                         </div>
@@ -211,16 +208,23 @@
         }
 
         const profileModal = document.getElementById('profileModal');
-        function openProfileModal() {
-            profileModal.classList.remove('hidden');
-        }
-        function closeProfileModal() {
-            profileModal.classList.add('hidden');
-        }
+        function openProfileModal() { profileModal.classList.remove('hidden'); }
+        function closeProfileModal() { profileModal.classList.add('hidden'); }
 
         profileModal.addEventListener('click', (e) => {
             if(e.target === profileModal) closeProfileModal();
         });
+
+        // 🔥 ฟังก์ชันแปลงลิงก์ Google Drive ให้เป็นรูปรถแสดงผลได้ 100% 🔥
+        function getDirectImageUrl(url) {
+            if (!url) return "";
+            if (url.includes('drive.google.com')) {
+                // ดึงเฉพาะ ID ไฟล์ออกมา แล้วต่อท้ายด้วยลิงก์ดาวน์โหลดตรง
+                const match = url.match(/[-\w]{25,}/);
+                if (match) return `https://drive.google.com/uc?id=${match[0]}`;
+            }
+            return url;
+        }
 
         async function loadData() {
             try {
@@ -231,10 +235,6 @@
                     window.allProjects = data.projects || [];
                     window.mySubmissions = (data.submissions || []).filter(s => s && s['รหัสนักเรียน'] == studentId);
                     
-                    const pList = document.getElementById('projectList');
-                    const uniqueIds = [...new Set(window.allProjects.map(p => p && p['รหัสโครงงาน']).filter(id => id && id.toString().trim() !== ""))];
-                    pList.innerHTML = uniqueIds.map(id => `<option value="${id}">`).join('');
-
                     const myProject = window.allProjects.find(p => p && p['รหัสนักเรียน'] == studentId);
                     
                     if (myProject && myProject['รหัสโครงงาน']) {
@@ -246,12 +246,16 @@
                         document.getElementById('headerProjectId').innerText = pid;
                         document.getElementById('headerAdvisor').innerText = myProject['อ. ที่ปรึกษา TH'] || "-";
 
-                        // ดึงข้อมูลโปรไฟล์
-                        document.getElementById('profilePhone').value = myProject['เบอร์โทรศัพท์'] || "";
+                        // 🔥 การจัดการรูประบบที่ชาญฉลาดขึ้น 🔥
+                        document.getElementById('profilePhone').value = (myProject['เบอร์โทรศัพท์'] || "").replace(/'/g, ''); 
                         currentProfileUrl = myProject['รูปโปรไฟล์'] || "";
                         
-                        // ถ้ารูปไม่มี ให้ใช้รูปเริ่มต้น
-                        const displayPic = currentProfileUrl ? currentProfileUrl : `https://ui-avatars.com/api/?name=${myProject['ชื่อ']}&background=random`;
+                        // แปลงลิงก์ที่มาจากหลังบ้านให้โชว์รูปได้
+                        const directPicUrl = getDirectImageUrl(currentProfileUrl);
+                        // ถ้าไม่มีรูป ให้ใช้รูปที่มีชื่อตัวเองแปะอยู่ (Encode ชื่อกัน Error)
+                        const fallbackPic = `https://ui-avatars.com/api/?name=${encodeURIComponent(myProject['ชื่อ'] || 'User')}&background=random`;
+                        const displayPic = directPicUrl ? directPicUrl : fallbackPic;
+                        
                         document.getElementById('headerProfilePic').src = displayPic;
                         document.getElementById('profilePreview').src = displayPic;
 
@@ -263,7 +267,6 @@
                             document.getElementById('headerPartnerName').classList.add("text-slate-400");
                         }
                         document.getElementById('headerProjectInfo').classList.remove('hidden');
-
                     } else {
                         document.getElementById('headerMyName').innerText = "ไม่พบข้อมูลในระบบ";
                     }
@@ -292,7 +295,7 @@
             r.onerror = rej;
         });
 
-        // ระบบเซฟโปรไฟล์ใน Modal
+        // บันทึกการตั้งค่า
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSaveProfile');
@@ -323,7 +326,7 @@
                     document.getElementById('profilePassword').value = "";
                     if (result.profileUrl) {
                         currentProfileUrl = result.profileUrl;
-                        document.getElementById('headerProfilePic').src = currentProfileUrl;
+                        document.getElementById('headerProfilePic').src = getDirectImageUrl(currentProfileUrl);
                     }
                     closeProfileModal(); 
                 } else throw new Error(result.message);
@@ -334,6 +337,7 @@
             }
         });
 
+        // ดักการส่งซ้ำ
         document.getElementById('workType').addEventListener('change', (e) => {
             const selectedType = e.target.value;
             if(selectedType && window.mySubmissions) {
@@ -344,6 +348,7 @@
             }
         });
 
+        // ตาราง
         function renderTable(subs) {
             const tbody = document.getElementById('historyTableBody');
             const mySubs = subs.filter(s => s && s['รหัสนักเรียน'] == studentId).reverse();
@@ -386,19 +391,15 @@
             document.getElementById('tableContainer').classList.remove('hidden');
         }
 
-        // ระบบส่งงาน (บังคับเบอร์โทร)
+        // ระบบส่งงาน
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const userPhone = document.getElementById('profilePhone').value.trim();
             if (!userPhone) {
                 Swal.fire({ 
-                    icon: 'warning', 
-                    title: 'โปรดระบุเบอร์โทรศัพท์', 
-                    text: 'จำเป็นต้องมีเบอร์โทรศัพท์เพื่อใช้ติดต่อกลับครับ ระบบจะเปิดหน้าตั้งค่าให้ทันที', 
-                    confirmButtonText: 'ตกลง', 
-                    confirmButtonColor: '#3b82f6',
-                    backdrop: `rgba(0,0,0,0.5)`
+                    icon: 'warning', title: 'โปรดระบุเบอร์โทรศัพท์', text: 'จำเป็นต้องมีเบอร์โทรศัพท์เพื่อใช้ติดต่อกลับครับ', 
+                    confirmButtonText: 'ตกลง', confirmButtonColor: '#3b82f6', backdrop: `rgba(0,0,0,0.5)`
                 }).then(() => {
                     openProfileModal(); 
                     document.getElementById('profilePhone').focus();
