@@ -23,16 +23,14 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div class="flex items-center gap-4 sm:gap-6">
-                    
                     <button onclick="openProfileModal()" class="relative group outline-none rounded-full focus:ring-4 focus:ring-blue-100 transition-all" title="ตั้งค่าโปรไฟล์">
-                        <img id="headerProfilePic" src="https://ui-avatars.com/api/?name=User&background=random" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 sm:border-4 border-blue-100 shadow-md group-hover:opacity-80 transition-opacity" onerror="this.src='https://ui-avatars.com/api/?name=Student&background=random'">
+                        <img id="headerProfilePic" src="https://ui-avatars.com/api/?name=User&background=random" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 sm:border-4 border-blue-100 shadow-md group-hover:opacity-80 transition-opacity bg-white">
                         <div class="absolute bottom-0 right-0 bg-slate-700 rounded-full p-1.5 shadow-sm border-2 border-white group-hover:bg-blue-600 transition-colors translate-x-1 translate-y-1">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287-.947c.886.54 2.042.061 2.287-.947 1.56-.38 1.56-2.6 0-2.978a1.532 1.532 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106-.54-.886-.061-2.042.947-2.287zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
                             </svg>
                         </div>
                     </button>
-
                     <div>
                         <h1 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
                             <span id="headerMyName">กำลังโหลดข้อมูล...</span>
@@ -143,23 +141,23 @@
     </div>
 
     <div id="profileModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity">
-        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden modal-enter">
-            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden modal-enter max-h-[90vh] flex flex-col">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
                 <h2 class="text-lg font-bold text-slate-800 flex items-center">
                     <span class="text-xl mr-2">⚙️</span> ตั้งค่าโปรไฟล์ส่วนตัว
                 </h2>
                 <button onclick="closeProfileModal()" class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg p-1.5 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                     </svg>
                 </button>
             </div>
             
-            <div class="p-5">
+            <div class="p-5 overflow-y-auto">
                 <form id="profileForm" class="space-y-5">
                     <div class="flex items-center space-x-4 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
                         <div class="relative group">
-                            <img id="profilePreview" src="https://ui-avatars.com/api/?name=User&background=random" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-indigo-200 shadow-sm transition-opacity group-hover:opacity-80">
+                            <img id="profilePreview" src="https://ui-avatars.com/api/?name=User&background=random" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-indigo-200 shadow-sm bg-white">
                             <div class="absolute bottom-0 right-0 bg-white rounded-full p-1.5 shadow border border-slate-200 cursor-pointer pointer-events-none translate-x-1 translate-y-1">
                                 <span class="text-[10px] block leading-none">📷</span>
                             </div>
@@ -176,13 +174,28 @@
                         <input type="tel" id="profilePhone" required placeholder="เช่น 0812345678" class="w-full text-sm border border-slate-300 rounded-lg p-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
                     </div>
 
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <label class="block text-sm font-bold mb-1 text-slate-700">เปลี่ยนรหัสผ่านใหม่ <span class="text-slate-400 font-normal text-xs">(ไม่บังคับ)</span></label>
-                        <p class="text-[10px] text-slate-500 mb-2">*หากต้องการใช้รหัสผ่านเดิม ให้ปล่อยช่องนี้ว่างไว้ครับ</p>
-                        <input type="password" id="profilePassword" placeholder="กรอกเฉพาะเมื่อต้องการเปลี่ยนรหัสผ่าน..." class="w-full text-sm border border-slate-300 rounded-lg p-3 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+                    <div class="pt-2 border-t border-slate-100">
+                        <button type="button" onclick="togglePasswordSection()" class="text-sm font-bold text-slate-500 hover:text-indigo-600 flex items-center transition-colors">
+                            <span id="pwdToggleIcon" class="mr-1">▶</span> 🔑 ต้องการเปลี่ยนรหัสผ่าน?
+                        </button>
+                        
+                        <div id="passwordSection" class="hidden mt-3 space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div>
+                                <label class="block text-xs font-bold mb-1 text-slate-700">รหัสผ่านเดิม</label>
+                                <input type="password" id="oldPassword" placeholder="กรอกรหัสผ่านปัจจุบัน..." class="w-full text-sm border border-slate-300 rounded-md p-2 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold mb-1 text-slate-700">รหัสผ่านใหม่</label>
+                                <input type="password" id="newPassword" placeholder="กรอกรหัสผ่านใหม่..." class="w-full text-sm border border-slate-300 rounded-md p-2 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold mb-1 text-slate-700">รหัสผ่านใหม่ อีกครั้ง</label>
+                                <input type="password" id="confirmPassword" placeholder="ยืนยันรหัสผ่านใหม่..." class="w-full text-sm border border-slate-300 rounded-md p-2 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                            </div>
+                        </div>
                     </div>
 
-                    <button type="submit" id="btnSaveProfile" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-700 hover:shadow-lg transition-all mt-2">
+                    <button type="submit" id="btnSaveProfile" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-700 hover:shadow-lg transition-all mt-4">
                         💾 บันทึกการตั้งค่า
                     </button>
                 </form>
@@ -192,7 +205,7 @@
 
     <script>
         // 🚨 นำ URL ของ Web App มาวางที่นี่ 🚨
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwYeK8pIDfeyyUY-jlw-_hs2bOJAGAiroeNAvU55nigy-yWTuJdVHoFEuSckleLM2zCNw/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxnBiBPNg_vtHxdgf7WHFLAkbU7xkjmGGKWL8Ajyq8F6lPyMK9Krrqz7oysTBX-YG0hxg/exec';
         
         const userEmail = localStorage.getItem('userEmail');
         const studentId = localStorage.getItem('studentId');
@@ -209,19 +222,42 @@
 
         const profileModal = document.getElementById('profileModal');
         function openProfileModal() { profileModal.classList.remove('hidden'); }
-        function closeProfileModal() { profileModal.classList.add('hidden'); }
+        function closeProfileModal() { 
+            profileModal.classList.add('hidden'); 
+            // รีเซ็ตฟอร์มรหัสผ่านเวลาปิดป๊อปอัป
+            document.getElementById('passwordSection').classList.add('hidden');
+            document.getElementById('pwdToggleIcon').innerText = '▶';
+            document.getElementById('oldPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
 
         profileModal.addEventListener('click', (e) => {
             if(e.target === profileModal) closeProfileModal();
         });
 
-        // 🔥 ฟังก์ชันแปลงลิงก์ Google Drive ให้เป็นรูปรถแสดงผลได้ 100% 🔥
+        // ฟังก์ชันเปิด/ปิด กล่องเปลี่ยนรหัสผ่าน
+        function togglePasswordSection() {
+            const sec = document.getElementById('passwordSection');
+            const icon = document.getElementById('pwdToggleIcon');
+            if(sec.classList.contains('hidden')) {
+                sec.classList.remove('hidden');
+                icon.innerText = '▼';
+            } else {
+                sec.classList.add('hidden');
+                icon.innerText = '▶';
+                document.getElementById('oldPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+            }
+        }
+
+        // 🔥 ฟังก์ชันแปลงลิงก์ Drive ให้เป็น Thumbnail รูปที่โชว์ได้ชัวร์ 100% 🔥
         function getDirectImageUrl(url) {
             if (!url) return "";
             if (url.includes('drive.google.com')) {
-                // ดึงเฉพาะ ID ไฟล์ออกมา แล้วต่อท้ายด้วยลิงก์ดาวน์โหลดตรง
                 const match = url.match(/[-\w]{25,}/);
-                if (match) return `https://drive.google.com/uc?id=${match[0]}`;
+                if (match) return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`;
             }
             return url;
         }
@@ -246,18 +282,19 @@
                         document.getElementById('headerProjectId').innerText = pid;
                         document.getElementById('headerAdvisor').innerText = myProject['อ. ที่ปรึกษา TH'] || "-";
 
-                        // 🔥 การจัดการรูประบบที่ชาญฉลาดขึ้น 🔥
                         document.getElementById('profilePhone').value = (myProject['เบอร์โทรศัพท์'] || "").replace(/'/g, ''); 
                         currentProfileUrl = myProject['รูปโปรไฟล์'] || "";
                         
-                        // แปลงลิงก์ที่มาจากหลังบ้านให้โชว์รูปได้
                         const directPicUrl = getDirectImageUrl(currentProfileUrl);
-                        // ถ้าไม่มีรูป ให้ใช้รูปที่มีชื่อตัวเองแปะอยู่ (Encode ชื่อกัน Error)
                         const fallbackPic = `https://ui-avatars.com/api/?name=${encodeURIComponent(myProject['ชื่อ'] || 'User')}&background=random`;
                         const displayPic = directPicUrl ? directPicUrl : fallbackPic;
                         
                         document.getElementById('headerProfilePic').src = displayPic;
                         document.getElementById('profilePreview').src = displayPic;
+
+                        // เผื่อรูป Error ให้กลับไปใช้ ui-avatars
+                        document.getElementById('headerProfilePic').onerror = function() { this.onerror=null; this.src = fallbackPic; };
+                        document.getElementById('profilePreview').onerror = function() { this.onerror=null; this.src = fallbackPic; };
 
                         const partner = window.allProjects.find(p => p && p['รหัสโครงงาน'] == pid && p['รหัสนักเรียน'] != studentId);
                         if (partner) {
@@ -267,16 +304,11 @@
                             document.getElementById('headerPartnerName').classList.add("text-slate-400");
                         }
                         document.getElementById('headerProjectInfo').classList.remove('hidden');
-                    } else {
-                        document.getElementById('headerMyName').innerText = "ไม่พบข้อมูลในระบบ";
                     }
-
                     renderTable(data.submissions || []);
-                } else {
-                    throw new Error("ไม่สามารถเชื่อมต่อ API ได้");
                 }
             } catch (e) { 
-                document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ โหลดข้อมูลไม่สำเร็จ: ${e.message}</span>`;
+                document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ โหลดข้อมูลไม่สำเร็จ</span>`;
             }
         }
 
@@ -295,12 +327,29 @@
             r.onerror = rej;
         });
 
-        // บันทึกการตั้งค่า
+        // 🌟 บันทึกโปรไฟล์ (พร้อมเช็ครหัสผ่าน) 🌟
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const oldPass = document.getElementById('oldPassword').value.trim();
+            const newPass = document.getElementById('newPassword').value.trim();
+            const confPass = document.getElementById('confirmPassword').value.trim();
+            const pwdSection = document.getElementById('passwordSection');
+
+            // ตรวจสอบความถูกต้องถ้านักเรียนเปิดช่องเปลี่ยนรหัสผ่าน
+            if (!pwdSection.classList.contains('hidden') && (oldPass || newPass || confPass)) {
+                if (!oldPass) {
+                    Swal.fire({icon: 'warning', title: 'โปรดระบุรหัสผ่านเดิม', text: 'คุณต้องกรอกรหัสผ่านเดิม เพื่อยืนยันการเปลี่ยนรหัสผ่านครับ'});
+                    return;
+                }
+                if (newPass !== confPass) {
+                    Swal.fire({icon: 'warning', title: 'รหัสผ่านไม่ตรงกัน', text: 'รหัสผ่านใหม่ และ ยืนยันรหัสผ่านใหม่ ไม่ตรงกันครับ'});
+                    return;
+                }
+            }
+
             const btn = document.getElementById('btnSaveProfile');
             const newPhone = document.getElementById('profilePhone').value.trim();
-            const newPass = document.getElementById('profilePassword').value.trim();
             const fileInput = document.getElementById('profilePicInput').files[0];
 
             btn.disabled = true;
@@ -315,7 +364,8 @@
 
                 const payload = {
                     action: "updateProfile", email: userEmail, phone: newPhone, 
-                    newPassword: newPass, newPicData: picData, newPicMime: picMime, existingPicUrl: currentProfileUrl
+                    oldPassword: oldPass, newPassword: newPass, // ส่งรหัสเก่าและใหม่ไปเช็คที่หลังบ้าน
+                    newPicData: picData, newPicMime: picMime, existingPicUrl: currentProfileUrl
                 };
 
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
@@ -323,7 +373,6 @@
 
                 if (result.status === 'success') {
                     Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลเรียบร้อย!', showConfirmButton: false, timer: 1500 });
-                    document.getElementById('profilePassword').value = "";
                     if (result.profileUrl) {
                         currentProfileUrl = result.profileUrl;
                         document.getElementById('headerProfilePic').src = getDirectImageUrl(currentProfileUrl);
@@ -342,84 +391,43 @@
             const selectedType = e.target.value;
             if(selectedType && window.mySubmissions) {
                 const isExist = window.mySubmissions.find(s => s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] === selectedType);
-                if(isExist) {
-                    Swal.fire({ icon: 'info', title: 'คุณเคยส่งงานประเภทนี้แล้ว', text: 'ระบบจะนำไฟล์ใหม่ไปแทนที่งานเดิมครับ', confirmButtonText: 'รับทราบ', confirmButtonColor: '#3b82f6', backdrop: `rgba(0,0,0,0.5)`});
-                }
+                if(isExist) Swal.fire({ icon: 'info', title: 'คุณเคยส่งงานประเภทนี้แล้ว', text: 'ระบบจะนำไฟล์ใหม่ไปแทนที่งานเดิมครับ', confirmButtonText: 'รับทราบ', confirmButtonColor: '#3b82f6', backdrop: `rgba(0,0,0,0.5)`});
             }
         });
 
-        // ตาราง
         function renderTable(subs) {
             const tbody = document.getElementById('historyTableBody');
             const mySubs = subs.filter(s => s && s['รหัสนักเรียน'] == studentId).reverse();
-            
-            if(mySubs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-500">เริ่มส่งงานแรกกันเลย! 🎉</td></tr>';
-            } else {
-                tbody.innerHTML = mySubs.map(s => {
-                    let statusClass = "bg-amber-100 text-amber-700 border border-amber-200";
-                    let statusIcon = "⏳";
-                    if (s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'อนุมัติ') {
-                        statusClass = "bg-green-100 text-green-700 border border-green-200"; statusIcon = "✅";
-                    }
-                    if (s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'ไม่อนุมัติ') {
-                        statusClass = "bg-red-100 text-red-700 border border-red-200"; statusIcon = "❌";
-                    }
-
-                    const d = new Date(s['Timestamp']);
-                    const dateStr = d.toLocaleDateString('th-TH') + ' ' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
-
-                    return `
-                    <tr class="border-b hover:bg-slate-50 transition-colors">
-                        <td class="px-3 sm:px-4 py-3 text-[10px] sm:text-xs text-slate-500 whitespace-nowrap">${dateStr}</td>
-                        <td class="px-3 sm:px-4 py-3 font-medium text-slate-700 text-xs sm:text-sm">${s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']}</td>
-                        <td class="px-3 sm:px-4 py-3 text-center">
-                            <span class="px-2 py-1 rounded-full text-[10px] sm:text-xs font-bold ${statusClass} shadow-sm inline-flex items-center gap-1">
-                                ${statusIcon} ${s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)']}
-                            </span>
-                        </td>
-                        <td class="px-3 sm:px-4 py-3 text-center space-x-1 sm:space-x-2 whitespace-nowrap">
-                            <a href="${s['URL ไฟล์เล่ม']}" target="_blank" class="text-blue-700 bg-blue-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium hover:bg-blue-100 border border-blue-100">📄 เล่ม</a>
-                            <a href="${s['URL ลายเซ็น']}" target="_blank" class="text-amber-700 bg-amber-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium hover:bg-amber-100 border border-amber-100">✍️ เซ็น</a>
-                        </td>
-                    </tr>
-                    `;
-                }).join('');
-            }
-            
-            document.getElementById('loadingData').style.display = 'none';
-            document.getElementById('tableContainer').classList.remove('hidden');
+            if(mySubs.length === 0) tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-500">เริ่มส่งงานแรกกันเลย! 🎉</td></tr>';
+            else tbody.innerHTML = mySubs.map(s => { /* สร้างตารางตามเดิม */
+                let statusClass = "bg-amber-100 text-amber-700 border border-amber-200"; let statusIcon = "⏳";
+                if (s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'อนุมัติ') { statusClass = "bg-green-100 text-green-700 border border-green-200"; statusIcon = "✅"; }
+                if (s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'ไม่อนุมัติ') { statusClass = "bg-red-100 text-red-700 border border-red-200"; statusIcon = "❌"; }
+                const d = new Date(s['Timestamp']); const dateStr = d.toLocaleDateString('th-TH') + ' ' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
+                return `<tr class="border-b hover:bg-slate-50 transition-colors"><td class="px-3 sm:px-4 py-3 text-[10px] sm:text-xs text-slate-500 whitespace-nowrap">${dateStr}</td><td class="px-3 sm:px-4 py-3 font-medium text-slate-700 text-xs sm:text-sm">${s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']}</td><td class="px-3 sm:px-4 py-3 text-center"><span class="px-2 py-1 rounded-full text-[10px] sm:text-xs font-bold ${statusClass} shadow-sm inline-flex items-center gap-1">${statusIcon} ${s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)']}</span></td><td class="px-3 sm:px-4 py-3 text-center space-x-1 sm:space-x-2 whitespace-nowrap"><a href="${s['URL ไฟล์เล่ม']}" target="_blank" class="text-blue-700 bg-blue-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium hover:bg-blue-100 border border-blue-100">📄 เล่ม</a><a href="${s['URL ลายเซ็น']}" target="_blank" class="text-amber-700 bg-amber-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium hover:bg-amber-100 border border-amber-100">✍️ เซ็น</a></td></tr>`;
+            }).join('');
+            document.getElementById('loadingData').style.display = 'none'; document.getElementById('tableContainer').classList.remove('hidden');
         }
 
-        // ระบบส่งงาน
+        // ส่งงาน
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const userPhone = document.getElementById('profilePhone').value.trim();
             if (!userPhone) {
-                Swal.fire({ 
-                    icon: 'warning', title: 'โปรดระบุเบอร์โทรศัพท์', text: 'จำเป็นต้องมีเบอร์โทรศัพท์เพื่อใช้ติดต่อกลับครับ', 
-                    confirmButtonText: 'ตกลง', confirmButtonColor: '#3b82f6', backdrop: `rgba(0,0,0,0.5)`
-                }).then(() => {
-                    openProfileModal(); 
-                    document.getElementById('profilePhone').focus();
-                });
+                Swal.fire({ icon: 'warning', title: 'โปรดระบุเบอร์โทรศัพท์', text: 'จำเป็นต้องมีเบอร์โทรศัพท์เพื่อใช้ติดต่อกลับครับ', confirmButtonText: 'ตกลง', confirmButtonColor: '#3b82f6', backdrop: `rgba(0,0,0,0.5)`
+                }).then(() => { openProfileModal(); document.getElementById('profilePhone').focus(); });
                 return;
             }
 
             const btn = document.getElementById('submitBtn');
             const pid = document.getElementById('projectId').value.trim();
             const projects = window.allProjects || [];
-            
             const members = projects.filter(x => x && x['รหัสโครงงาน'] == pid);
             if (members.length === 0) return;
-            
             const selectedWorkType = document.getElementById('workType').value;
             const isUpdating = window.mySubmissions && window.mySubmissions.find(s => s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] === selectedWorkType);
             const loadingText = isUpdating ? 'กำลังแทนที่ไฟล์เดิม...' : 'กำลังอัปโหลด...';
-            
-            btn.disabled = true; 
-            btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ${loadingText}`;
+            btn.disabled = true; btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ${loadingText}`;
             btn.classList.replace('bg-blue-600', 'bg-blue-400');
 
             try {
@@ -427,7 +435,6 @@
                 const f2 = await toBase64(document.getElementById('fileSignature').files[0]);
                 const uploader = members.find(x => x['รหัสนักเรียน'] == studentId);
                 const partner = members.find(x => x['รหัสนักเรียน'] != studentId);
-
                 let finalFirstName = uploader && uploader['ชื่อ'] ? `${uploader['ชื่อ']} (ผู้ส่ง)` : "-";
                 if (partner && partner['ชื่อ']) finalFirstName += ` และ ${partner['ชื่อ']}`;
                 let finalLastName = uploader && uploader['นามสกุล'] ? uploader['นามสกุล'] : "-";
@@ -436,28 +443,18 @@
                 const payload = {
                     studentId: studentId, firstName: finalFirstName, lastName: finalLastName, 
                     projectId: pid, workType: document.getElementById('workType').value,
-                    advisorName: members[0]['อ. ที่ปรึกษา TH'] || "-",
-                    file1Data: f1.data, file1Mime: f1.mime, file2Data: f2.data, file2Mime: f2.mime
+                    advisorName: members[0]['อ. ที่ปรึกษา TH'] || "-", file1Data: f1.data, file1Mime: f1.mime, file2Data: f2.data, file2Mime: f2.mime
                 };
 
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const result = await res.json();
-                
                 if (result && result.status === 'success') {
                     Swal.fire({ icon: 'success', title: 'ส่งงานสำเร็จ!', confirmButtonText: 'ตกลง', confirmButtonColor: '#10b981', backdrop: `rgba(0,0,0,0.5)` })
-                    .then(() => {
-                        document.getElementById('workType').value = ""; document.getElementById('fileReport').value = ""; document.getElementById('fileSignature').value = "";
-                        document.getElementById('tableContainer').classList.add('hidden'); document.getElementById('loadingData').style.display = 'flex';
-                        loadData();
-                    });
+                    .then(() => { document.getElementById('workType').value = ""; document.getElementById('fileReport').value = ""; document.getElementById('fileSignature').value = ""; document.getElementById('tableContainer').classList.add('hidden'); document.getElementById('loadingData').style.display = 'flex'; loadData(); });
                 } else throw new Error(result.message);
-            } catch (err) { 
-                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message, confirmButtonColor: '#ef4444' });
-            } finally {
-                btn.disabled = false; btn.innerText = 'ส่งงาน'; btn.classList.replace('bg-blue-400', 'bg-blue-600');
-            }
+            } catch (err) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message, confirmButtonColor: '#ef4444' });
+            } finally { btn.disabled = false; btn.innerText = 'ส่งงาน'; btn.classList.replace('bg-blue-400', 'bg-blue-600'); }
         });
-
         loadData();
     </script>
 </body>
