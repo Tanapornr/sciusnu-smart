@@ -21,7 +21,9 @@
     <header class="bg-white border-b border-slate-200 shadow-sm relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-blue-600"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+            
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                
                 <div class="flex items-center gap-4 sm:gap-6">
                     <button onclick="openProfileModal()" class="relative group outline-none rounded-full focus:ring-4 focus:ring-blue-100 transition-all" title="ตั้งค่าโปรไฟล์">
                         <img id="headerProfilePic" src="https://ui-avatars.com/api/?name=User&background=random" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 sm:border-4 border-blue-100 shadow-md group-hover:opacity-80 transition-opacity bg-white">
@@ -38,6 +40,7 @@
                         <p class="text-xs sm:text-sm text-slate-500 mt-1">รหัสนักเรียน: <span id="displayStudentId" class="font-semibold text-blue-600"></span></p>
                     </div>
                 </div>
+
                 <button onclick="logout()" class="text-xs sm:text-sm w-full sm:w-auto text-center text-red-600 font-medium hover:bg-red-50 px-4 py-2 rounded-lg transition-colors border border-red-100 shadow-sm">
                     ออกจากระบบ
                 </button>
@@ -63,14 +66,15 @@
     <div class="max-w-7xl mx-auto mt-6 px-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <div class="lg:col-span-1 space-y-6">
+            
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5">
                 <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center">
                     <span class="text-xl mr-2">📥</span> ดาวน์โหลดแบบฟอร์ม
                 </h2>
                 <ul class="space-y-3 text-xs sm:text-sm">
-                    <li><a href="ใส่ลิงก์_Template_โครงร่างที่นี่" target="_blank" class="text-blue-600 hover:underline flex items-center">📄 Template โครงร่าง (Proposal)</a></li>
-                    <li><a href="ใส่ลิงก์_Template_รายงานความก้าวหน้าที่นี่" target="_blank" class="text-blue-600 hover:underline flex items-center">📄 Template รายงานความก้าวหน้า</a></li>
-                    <li><a href="ใส่ลิงก์_Template_รายงานฉบับสมบูรณ์ที่นี่" target="_blank" class="text-blue-600 hover:underline flex items-center">📄 Template รายงานฉบับสมบูรณ์</a></li>
+                    <li><a href="#" target="_blank" class="text-blue-600 hover:underline flex items-center">📄 Template โครงร่าง (Proposal)</a></li>
+                    <li><a href="#" target="_blank" class="text-blue-600 hover:underline flex items-center">📄 Template รายงานความก้าวหน้า</a></li>
+                    <li><a href="#" target="_blank" class="text-blue-600 hover:underline flex items-center">📄 Template รายงานฉบับสมบูรณ์</a></li>
                     <li><a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="text-blue-600 hover:underline flex items-center">📑 แบบคำร้องต่างๆ</a></li>
                 </ul>
             </div>
@@ -118,6 +122,7 @@
                 <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center">
                     <span class="text-xl mr-2">📋</span> ประวัติการส่งงานของคุณ
                 </h2>
+                
                 <div id="loadingData" class="text-center py-12 text-sm text-slate-500 flex flex-col items-center">
                     <svg class="animate-spin h-6 w-6 text-blue-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     กำลังดึงข้อมูล...
@@ -142,6 +147,7 @@
 
     <div id="profileModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity">
         <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden modal-enter max-h-[90vh] flex flex-col">
+            
             <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
                 <h2 class="text-lg font-bold text-slate-800 flex items-center">
                     <span class="text-xl mr-2">⚙️</span> ตั้งค่าโปรไฟล์ส่วนตัว
@@ -155,9 +161,10 @@
             
             <div class="p-5 overflow-y-auto">
                 <form id="profileForm" class="space-y-5">
+                    
                     <div class="flex items-center space-x-4 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
                         <div class="relative group">
-                            <img id="profilePreview" src="https://ui-avatars.com/api/?name=User&background=random" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-indigo-200 shadow-sm bg-white">
+                            <img id="profilePreview" src="https://ui-avatars.com/api/?name=User&background=random" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-indigo-200 shadow-sm bg-white transition-opacity group-hover:opacity-80">
                             <div class="absolute bottom-0 right-0 bg-white rounded-full p-1.5 shadow border border-slate-200 cursor-pointer pointer-events-none translate-x-1 translate-y-1">
                                 <span class="text-[10px] block leading-none">📷</span>
                             </div>
@@ -205,26 +212,30 @@
 
     <script>
         // 🚨 นำ URL ของ Web App มาวางที่นี่ 🚨
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxnBiBPNg_vtHxdgf7WHFLAkbU7xkjmGGKWL8Ajyq8F6lPyMK9Krrqz7oysTBX-YG0hxg/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbz-J-CuLjdf_rCJiHcqMNvteRq4f31YMaMhBZ35X95_UNgukdZmqLmFb4TwZ0ZkAeK_Gg/exec';
         
         const userEmail = localStorage.getItem('userEmail');
         const studentId = localStorage.getItem('studentId');
         let currentProfileUrl = ""; 
 
         if (!userEmail || !studentId) window.location.href = 'index.html'; 
-        
         document.getElementById('displayStudentId').innerText = studentId;
 
+        // ฟังก์ชันออกจากระบบ
         function logout() { 
             localStorage.clear(); 
             window.location.href = 'index.html'; 
         }
 
+        // ฟังก์ชันจัดการ Modal
         const profileModal = document.getElementById('profileModal');
-        function openProfileModal() { profileModal.classList.remove('hidden'); }
+        
+        function openProfileModal() { 
+            profileModal.classList.remove('hidden'); 
+        }
+        
         function closeProfileModal() { 
             profileModal.classList.add('hidden'); 
-            // รีเซ็ตฟอร์มรหัสผ่านเวลาปิดป๊อปอัป
             document.getElementById('passwordSection').classList.add('hidden');
             document.getElementById('pwdToggleIcon').innerText = '▶';
             document.getElementById('oldPassword').value = '';
@@ -236,7 +247,6 @@
             if(e.target === profileModal) closeProfileModal();
         });
 
-        // ฟังก์ชันเปิด/ปิด กล่องเปลี่ยนรหัสผ่าน
         function togglePasswordSection() {
             const sec = document.getElementById('passwordSection');
             const icon = document.getElementById('pwdToggleIcon');
@@ -252,7 +262,7 @@
             }
         }
 
-        // 🔥 ฟังก์ชันแปลงลิงก์ Drive ให้เป็น Thumbnail รูปที่โชว์ได้ชัวร์ 100% 🔥
+        // ฟังก์ชันแปลงลิงก์ Drive
         function getDirectImageUrl(url) {
             if (!url) return "";
             if (url.includes('drive.google.com')) {
@@ -262,6 +272,7 @@
             return url;
         }
 
+        // ฟังก์ชันโหลดข้อมูลหลัก
         async function loadData() {
             try {
                 const res = await fetch(API_URL);
@@ -282,6 +293,7 @@
                         document.getElementById('headerProjectId').innerText = pid;
                         document.getElementById('headerAdvisor').innerText = myProject['อ. ที่ปรึกษา TH'] || "-";
 
+                        // ข้อมูลโปรไฟล์
                         document.getElementById('profilePhone').value = (myProject['เบอร์โทรศัพท์'] || "").replace(/'/g, ''); 
                         currentProfileUrl = myProject['รูปโปรไฟล์'] || "";
                         
@@ -292,7 +304,7 @@
                         document.getElementById('headerProfilePic').src = displayPic;
                         document.getElementById('profilePreview').src = displayPic;
 
-                        // เผื่อรูป Error ให้กลับไปใช้ ui-avatars
+                        // เผื่อรูปพัง
                         document.getElementById('headerProfilePic').onerror = function() { this.onerror=null; this.src = fallbackPic; };
                         document.getElementById('profilePreview').onerror = function() { this.onerror=null; this.src = fallbackPic; };
 
@@ -304,7 +316,10 @@
                             document.getElementById('headerPartnerName').classList.add("text-slate-400");
                         }
                         document.getElementById('headerProjectInfo').classList.remove('hidden');
+                    } else {
+                        document.getElementById('headerMyName').innerText = "ไม่พบข้อมูลในระบบ";
                     }
+                    
                     renderTable(data.submissions || []);
                 }
             } catch (e) { 
@@ -322,12 +337,13 @@
         }
 
         const toBase64 = file => new Promise((res, rej) => {
-            const r = new FileReader(); r.readAsDataURL(file);
+            const r = new FileReader(); 
+            r.readAsDataURL(file);
             r.onload = () => res({ data: r.result.split(',')[1], mime: file.type });
             r.onerror = rej;
         });
 
-        // 🌟 บันทึกโปรไฟล์ (พร้อมเช็ครหัสผ่าน) 🌟
+        // ฟังก์ชันบันทึกโปรไฟล์
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -336,7 +352,6 @@
             const confPass = document.getElementById('confirmPassword').value.trim();
             const pwdSection = document.getElementById('passwordSection');
 
-            // ตรวจสอบความถูกต้องถ้านักเรียนเปิดช่องเปลี่ยนรหัสผ่าน
             if (!pwdSection.classList.contains('hidden') && (oldPass || newPass || confPass)) {
                 if (!oldPass) {
                     Swal.fire({icon: 'warning', title: 'โปรดระบุรหัสผ่านเดิม', text: 'คุณต้องกรอกรหัสผ่านเดิม เพื่อยืนยันการเปลี่ยนรหัสผ่านครับ'});
@@ -364,7 +379,7 @@
 
                 const payload = {
                     action: "updateProfile", email: userEmail, phone: newPhone, 
-                    oldPassword: oldPass, newPassword: newPass, // ส่งรหัสเก่าและใหม่ไปเช็คที่หลังบ้าน
+                    oldPassword: oldPass, newPassword: newPass,
                     newPicData: picData, newPicMime: picMime, existingPicUrl: currentProfileUrl
                 };
 
@@ -395,23 +410,47 @@
             }
         });
 
+        // ฟังก์ชันวาดตาราง
         function renderTable(subs) {
             const tbody = document.getElementById('historyTableBody');
             const mySubs = subs.filter(s => s && s['รหัสนักเรียน'] == studentId).reverse();
-            if(mySubs.length === 0) tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-500">เริ่มส่งงานแรกกันเลย! 🎉</td></tr>';
-            else tbody.innerHTML = mySubs.map(s => { /* สร้างตารางตามเดิม */
-                let statusClass = "bg-amber-100 text-amber-700 border border-amber-200"; let statusIcon = "⏳";
-                if (s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'อนุมัติ') { statusClass = "bg-green-100 text-green-700 border border-green-200"; statusIcon = "✅"; }
-                if (s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'ไม่อนุมัติ') { statusClass = "bg-red-100 text-red-700 border border-red-200"; statusIcon = "❌"; }
-                const d = new Date(s['Timestamp']); const dateStr = d.toLocaleDateString('th-TH') + ' ' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
-                return `<tr class="border-b hover:bg-slate-50 transition-colors"><td class="px-3 sm:px-4 py-3 text-[10px] sm:text-xs text-slate-500 whitespace-nowrap">${dateStr}</td><td class="px-3 sm:px-4 py-3 font-medium text-slate-700 text-xs sm:text-sm">${s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']}</td><td class="px-3 sm:px-4 py-3 text-center"><span class="px-2 py-1 rounded-full text-[10px] sm:text-xs font-bold ${statusClass} shadow-sm inline-flex items-center gap-1">${statusIcon} ${s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)']}</span></td><td class="px-3 sm:px-4 py-3 text-center space-x-1 sm:space-x-2 whitespace-nowrap"><a href="${s['URL ไฟล์เล่ม']}" target="_blank" class="text-blue-700 bg-blue-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium hover:bg-blue-100 border border-blue-100">📄 เล่ม</a><a href="${s['URL ลายเซ็น']}" target="_blank" class="text-amber-700 bg-amber-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium hover:bg-amber-100 border border-amber-100">✍️ เซ็น</a></td></tr>`;
-            }).join('');
-            document.getElementById('loadingData').style.display = 'none'; document.getElementById('tableContainer').classList.remove('hidden');
+            
+            if(mySubs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-500">เริ่มส่งงานแรกกันเลย! 🎉</td></tr>';
+            } else {
+                tbody.innerHTML = mySubs.map(s => {
+                    let statusClass = "bg-amber-100 text-amber-700 border border-amber-200"; let statusIcon = "⏳";
+                    if (s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'อนุมัติ') { statusClass = "bg-green-100 text-green-700 border border-green-200"; statusIcon = "✅"; }
+                    if (s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'ไม่อนุมัติ') { statusClass = "bg-red-100 text-red-700 border border-red-200"; statusIcon = "❌"; }
+                    
+                    const d = new Date(s['Timestamp']); 
+                    const dateStr = d.toLocaleDateString('th-TH') + ' ' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
+                    
+                    return `
+                    <tr class="border-b hover:bg-slate-50 transition-colors">
+                        <td class="px-3 sm:px-4 py-3 text-[10px] sm:text-xs text-slate-500 whitespace-nowrap">${dateStr}</td>
+                        <td class="px-3 sm:px-4 py-3 font-medium text-slate-700 text-xs sm:text-sm">${s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']}</td>
+                        <td class="px-3 sm:px-4 py-3 text-center">
+                            <span class="px-2 py-1 rounded-full text-[10px] sm:text-xs font-bold ${statusClass} shadow-sm inline-flex items-center gap-1">
+                                ${statusIcon} ${s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)']}
+                            </span>
+                        </td>
+                        <td class="px-3 sm:px-4 py-3 text-center space-x-1 sm:space-x-2 whitespace-nowrap">
+                            <a href="${s['URL ไฟล์เล่ม']}" target="_blank" class="text-blue-700 bg-blue-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium hover:bg-blue-100 border border-blue-100">📄 เล่ม</a>
+                            <a href="${s['URL ลายเซ็น']}" target="_blank" class="text-amber-700 bg-amber-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium hover:bg-amber-100 border border-amber-100">✍️ เซ็น</a>
+                        </td>
+                    </tr>
+                    `;
+                }).join('');
+            }
+            document.getElementById('loadingData').style.display = 'none'; 
+            document.getElementById('tableContainer').classList.remove('hidden');
         }
 
-        // ส่งงาน
+        // ฟังก์ชันส่งงาน
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
             const userPhone = document.getElementById('profilePhone').value.trim();
             if (!userPhone) {
                 Swal.fire({ icon: 'warning', title: 'โปรดระบุเบอร์โทรศัพท์', text: 'จำเป็นต้องมีเบอร์โทรศัพท์เพื่อใช้ติดต่อกลับครับ', confirmButtonText: 'ตกลง', confirmButtonColor: '#3b82f6', backdrop: `rgba(0,0,0,0.5)`
@@ -422,12 +461,16 @@
             const btn = document.getElementById('submitBtn');
             const pid = document.getElementById('projectId').value.trim();
             const projects = window.allProjects || [];
+            
             const members = projects.filter(x => x && x['รหัสโครงงาน'] == pid);
             if (members.length === 0) return;
+            
             const selectedWorkType = document.getElementById('workType').value;
             const isUpdating = window.mySubmissions && window.mySubmissions.find(s => s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] === selectedWorkType);
             const loadingText = isUpdating ? 'กำลังแทนที่ไฟล์เดิม...' : 'กำลังอัปโหลด...';
-            btn.disabled = true; btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ${loadingText}`;
+            
+            btn.disabled = true; 
+            btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ${loadingText}`;
             btn.classList.replace('bg-blue-600', 'bg-blue-400');
 
             try {
@@ -435,8 +478,10 @@
                 const f2 = await toBase64(document.getElementById('fileSignature').files[0]);
                 const uploader = members.find(x => x['รหัสนักเรียน'] == studentId);
                 const partner = members.find(x => x['รหัสนักเรียน'] != studentId);
+                
                 let finalFirstName = uploader && uploader['ชื่อ'] ? `${uploader['ชื่อ']} (ผู้ส่ง)` : "-";
                 if (partner && partner['ชื่อ']) finalFirstName += ` และ ${partner['ชื่อ']}`;
+                
                 let finalLastName = uploader && uploader['นามสกุล'] ? uploader['นามสกุล'] : "-";
                 if (partner && partner['นามสกุล']) finalLastName += ` และ ${partner['นามสกุล']}`;
 
@@ -448,13 +493,23 @@
 
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const result = await res.json();
+                
                 if (result && result.status === 'success') {
                     Swal.fire({ icon: 'success', title: 'ส่งงานสำเร็จ!', confirmButtonText: 'ตกลง', confirmButtonColor: '#10b981', backdrop: `rgba(0,0,0,0.5)` })
-                    .then(() => { document.getElementById('workType').value = ""; document.getElementById('fileReport').value = ""; document.getElementById('fileSignature').value = ""; document.getElementById('tableContainer').classList.add('hidden'); document.getElementById('loadingData').style.display = 'flex'; loadData(); });
+                    .then(() => { 
+                        document.getElementById('workType').value = ""; document.getElementById('fileReport').value = ""; document.getElementById('fileSignature').value = ""; 
+                        document.getElementById('tableContainer').classList.add('hidden'); document.getElementById('loadingData').style.display = 'flex'; 
+                        loadData(); 
+                    });
                 } else throw new Error(result.message);
-            } catch (err) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message, confirmButtonColor: '#ef4444' });
-            } finally { btn.disabled = false; btn.innerText = 'ส่งงาน'; btn.classList.replace('bg-blue-400', 'bg-blue-600'); }
+            } catch (err) { 
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message, confirmButtonColor: '#ef4444' });
+            } finally { 
+                btn.disabled = false; btn.innerText = 'ส่งงาน'; btn.classList.replace('bg-blue-400', 'bg-blue-600'); 
+            }
         });
+
+        // สั่งโหลดข้อมูลเมื่อเปิดหน้าเว็บ
         loadData();
     </script>
 </body>
