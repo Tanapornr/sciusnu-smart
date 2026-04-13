@@ -9,6 +9,12 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .swal2-popup { font-family: inherit; border-radius: 1rem !important; }
+        /* แอนิเมชันสำหรับป๊อปอัป */
+        .modal-enter { animation: modalFadeIn 0.3s ease-out forwards; }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
     </style>
 </head>
 <body class="bg-slate-50 font-sans pb-10">
@@ -18,9 +24,19 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div class="flex items-center gap-4">
-                    <img id="headerProfilePic" src="https://ui-avatars.com/api/?name=Student&background=random" class="w-12 h-12 rounded-full object-cover border-2 border-blue-100 shadow-sm">
+                    
+                    <button onclick="openProfileModal()" class="relative group outline-none rounded-full focus:ring-4 focus:ring-blue-100 transition-all" title="ตั้งค่าโปรไฟล์">
+                        <img id="headerProfilePic" src="https://ui-avatars.com/api/?name=Student&background=random" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-blue-100 shadow-sm group-hover:opacity-80 transition-opacity">
+                        <div class="absolute bottom-0 right-0 bg-slate-700 rounded-full p-1 shadow-sm border-2 border-white group-hover:bg-blue-600 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287-.947c.886.54 2.042.061 2.287-.947 1.56-.38 1.56-2.6 0-2.978a1.532 1.532 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106-.54-.886-.061-2.042.947-2.287zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </button>
                     <div>
-                        <h1 class="text-xl sm:text-2xl font-bold text-slate-800" id="headerMyName">กำลังโหลดข้อมูล...</h1>
+                        <h1 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
+                            <span id="headerMyName">กำลังโหลดข้อมูล...</span>
+                        </h1>
                         <p class="text-xs sm:text-sm text-slate-500 mt-1">รหัสนักเรียน: <span id="displayStudentId" class="font-semibold text-blue-600"></span></p>
                     </div>
                 </div>
@@ -50,41 +66,6 @@
         
         <div class="lg:col-span-1 space-y-6">
             
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5">
-                <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center">
-                    <span class="text-xl mr-2">⚙️</span> ตั้งค่าโปรไฟล์ส่วนตัว
-                </h2>
-                <form id="profileForm" class="space-y-4">
-                    <div class="flex items-center space-x-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <div class="relative">
-                            <img id="profilePreview" src="https://ui-avatars.com/api/?name=Student&background=random" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-indigo-200 shadow-sm">
-                            <div class="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow border border-slate-200 hover:bg-slate-100">
-                                <label for="profilePicInput" class="cursor-pointer text-[10px] sm:text-xs block">📷</label>
-                            </div>
-                        </div>
-                        <div class="flex-1">
-                            <input type="file" id="profilePicInput" accept="image/*" class="hidden" onchange="previewImage(event)">
-                            <label for="profilePicInput" class="text-xs sm:text-sm text-indigo-600 font-medium cursor-pointer hover:underline block mb-1">เปลี่ยนรูปโปรไฟล์</label>
-                            <p class="text-[10px] text-slate-400 leading-tight">รองรับไฟล์ .jpg, .png<br>(จำเป็นต้องอัปเดตเพื่อให้ อ. ตรวจสอบ)</p>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-xs sm:text-sm font-medium mb-1 text-slate-700">เบอร์โทรศัพท์ <span class="text-red-500">*จำเป็นต้องใส่เพื่อส่งงาน</span></label>
-                        <input type="tel" id="profilePhone" required placeholder="เช่น 0812345678" class="w-full text-xs sm:text-sm border border-slate-300 rounded-md p-2.5 bg-white focus:ring-indigo-500 outline-none">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs sm:text-sm font-medium mb-1 text-slate-700">รหัสผ่านใหม่ <span class="text-slate-400 font-normal">(เว้นว่างไว้หากไม่เปลี่ยน)</span></label>
-                        <input type="password" id="profilePassword" placeholder="กรอกรหัสผ่านใหม่ที่ต้องการ..." class="w-full text-xs sm:text-sm border border-slate-300 rounded-md p-2.5 bg-white focus:ring-indigo-500 outline-none">
-                    </div>
-
-                    <button type="submit" id="btnSaveProfile" class="w-full bg-slate-800 text-white font-semibold py-2.5 rounded-lg hover:bg-slate-700 transition-colors shadow-sm text-xs sm:text-sm">
-                        💾 บันทึกการตั้งค่า
-                    </button>
-                </form>
-            </div>
-
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5">
                 <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center">
                     <span class="text-xl mr-2">📥</span> ดาวน์โหลดแบบฟอร์ม
@@ -121,12 +102,12 @@
 
                     <div class="bg-blue-50 p-3 rounded-md border border-blue-100">
                         <label class="block text-xs sm:text-sm font-medium mb-2 text-blue-800">1. ไฟล์รูปเล่ม (PDF)</label>
-                        <input type="file" id="fileReport" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-slate-500 file:mr-2 sm:file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-blue-600 file:text-white cursor-pointer">
+                        <input type="file" id="fileReport" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-slate-500 file:mr-2 sm:file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-blue-600 file:text-white cursor-pointer hover:file:bg-blue-700 transition-colors">
                     </div>
 
                     <div class="bg-amber-50 p-3 rounded-md border border-amber-100">
                         <label class="block text-xs sm:text-sm font-medium mb-2 text-amber-800">2. หน้าลายเซ็น (PDF)</label>
-                        <input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-slate-500 file:mr-2 sm:file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-amber-500 file:text-white cursor-pointer">
+                        <input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-slate-500 file:mr-2 sm:file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-amber-500 file:text-white cursor-pointer hover:file:bg-amber-600 transition-colors">
                     </div>
 
                     <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-semibold py-2.5 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-sm mt-2 text-sm">
@@ -164,6 +145,52 @@
         </div>
     </div>
 
+    <div id="profileModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden modal-enter">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h2 class="text-lg font-bold text-slate-800 flex items-center">
+                    <span class="text-xl mr-2">⚙️</span> ตั้งค่าโปรไฟล์ส่วนตัว
+                </h2>
+                <button onclick="closeProfileModal()" class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg p-1.5 transition-colors focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-5">
+                <form id="profileForm" class="space-y-4">
+                    <div class="flex items-center space-x-4 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+                        <div class="relative group">
+                            <img id="profilePreview" src="https://ui-avatars.com/api/?name=Student&background=random" class="w-16 h-16 rounded-full object-cover border-2 border-indigo-200 shadow-sm transition-opacity group-hover:opacity-80">
+                            <div class="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow border border-slate-200 cursor-pointer pointer-events-none">
+                                <span class="text-[10px] block leading-none">📷</span>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <input type="file" id="profilePicInput" accept="image/*" class="hidden" onchange="previewImage(event)">
+                            <label for="profilePicInput" class="text-sm text-indigo-600 font-semibold cursor-pointer hover:underline block mb-1 inline-block">เลือกรูปภาพใหม่</label>
+                            <p class="text-[10px] text-slate-500 leading-tight">รองรับไฟล์ .jpg, .png<br>(จำเป็นต้องอัปเดตเพื่อให้อาจารย์ตรวจสอบ)</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-700">เบอร์โทรศัพท์ <span class="text-red-500">*จำเป็น</span></label>
+                        <input type="tel" id="profilePhone" required placeholder="เช่น 0812345678" class="w-full text-sm border border-slate-300 rounded-lg p-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-700">รหัสผ่านใหม่ <span class="text-slate-400 font-normal">(เว้นว่างหากไม่เปลี่ยน)</span></label>
+                        <input type="password" id="profilePassword" placeholder="กรอกรหัสผ่านใหม่ที่ต้องการ..." class="w-full text-sm border border-slate-300 rounded-lg p-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+                    </div>
+
+                    <button type="submit" id="btnSaveProfile" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-700 hover:shadow-lg transition-all mt-4">
+                        💾 บันทึกการตั้งค่า
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 🚨 นำ URL ของ Web App อันใหม่มาวางที่นี่ 🚨
         const API_URL = 'https://script.google.com/macros/s/AKfycbybjvaocbvQ4Pp6zZ8YWd5mmnhh0Y_JdWxNzkFHBu2zao7A4-gsVkzDcSijtmIK6XXT8Q/exec';
@@ -171,7 +198,7 @@
         // ข้อมูลผู้ใช้
         const userEmail = localStorage.getItem('userEmail');
         const studentId = localStorage.getItem('studentId');
-        let currentProfileUrl = ""; // เก็บ URL รูปเก่า
+        let currentProfileUrl = ""; 
 
         if (!userEmail || !studentId) window.location.href = 'index.html'; 
         
@@ -182,7 +209,20 @@
             window.location.href = 'index.html'; 
         }
 
-        // โหลดข้อมูล
+        // ฟังก์ชันเปิด-ปิด Modal
+        const profileModal = document.getElementById('profileModal');
+        function openProfileModal() {
+            profileModal.classList.remove('hidden');
+        }
+        function closeProfileModal() {
+            profileModal.classList.add('hidden');
+        }
+
+        // ปิดป๊อปอัปเมื่อคลิกพื้นที่ว่างด้านนอก
+        profileModal.addEventListener('click', (e) => {
+            if(e.target === profileModal) closeProfileModal();
+        });
+
         async function loadData() {
             try {
                 const res = await fetch(API_URL);
@@ -192,6 +232,10 @@
                     window.allProjects = data.projects || [];
                     window.mySubmissions = (data.submissions || []).filter(s => s && s['รหัสนักเรียน'] == studentId);
                     
+                    const pList = document.getElementById('projectList');
+                    const uniqueIds = [...new Set(window.allProjects.map(p => p && p['รหัสโครงงาน']).filter(id => id && id.toString().trim() !== ""))];
+                    pList.innerHTML = uniqueIds.map(id => `<option value="${id}">`).join('');
+
                     const myProject = window.allProjects.find(p => p && p['รหัสนักเรียน'] == studentId);
                     
                     if (myProject && myProject['รหัสโครงงาน']) {
@@ -203,16 +247,14 @@
                         document.getElementById('headerProjectId').innerText = pid;
                         document.getElementById('headerAdvisor').innerText = myProject['อ. ที่ปรึกษา TH'] || "-";
 
-                        // จัดการรูประบบและเบอร์โทรที่ดึงมา
+                        // ดึงข้อมูลโปรไฟล์
                         document.getElementById('profilePhone').value = myProject['เบอร์โทรศัพท์'] || "";
                         currentProfileUrl = myProject['รูปโปรไฟล์'] || "";
-                        if(currentProfileUrl) {
-                            document.getElementById('profilePreview').src = currentProfileUrl;
-                            document.getElementById('headerProfilePic').src = currentProfileUrl;
-                        } else {
-                            document.getElementById('headerProfilePic').src = `https://ui-avatars.com/api/?name=${myProject['ชื่อ']}&background=random`;
-                            document.getElementById('profilePreview').src = `https://ui-avatars.com/api/?name=${myProject['ชื่อ']}&background=random`;
-                        }
+                        
+                        // ถ้ารูปไม่มี ให้ใช้รูปเริ่มต้น
+                        const displayPic = currentProfileUrl ? currentProfileUrl : `https://ui-avatars.com/api/?name=${myProject['ชื่อ']}&background=random`;
+                        document.getElementById('headerProfilePic').src = displayPic;
+                        document.getElementById('profilePreview').src = displayPic;
 
                         const partner = window.allProjects.find(p => p && p['รหัสโครงงาน'] == pid && p['รหัสนักเรียน'] != studentId);
                         if (partner) {
@@ -236,7 +278,6 @@
             }
         }
 
-        // พรีวิวรูปก่อนอัปโหลด
         function previewImage(event) {
             const file = event.target.files[0];
             if (file) {
@@ -252,7 +293,7 @@
             r.onerror = rej;
         });
 
-        // 🌟 ระบบเซฟโปรไฟล์ 🌟
+        // 🌟 ระบบเซฟโปรไฟล์ใน Modal 🌟
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSaveProfile');
@@ -261,7 +302,7 @@
             const fileInput = document.getElementById('profilePicInput').files[0];
 
             btn.disabled = true;
-            btn.innerText = "กำลังบันทึกข้อมูล...";
+            btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังบันทึก...`;
 
             try {
                 let picData = null; let picMime = null;
@@ -280,11 +321,12 @@
 
                 if (result.status === 'success') {
                     Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลเรียบร้อย!', showConfirmButton: false, timer: 1500 });
-                    document.getElementById('profilePassword').value = ""; // เคลียร์ช่องรหัสผ่าน
+                    document.getElementById('profilePassword').value = "";
                     if (result.profileUrl) {
                         currentProfileUrl = result.profileUrl;
                         document.getElementById('headerProfilePic').src = currentProfileUrl;
                     }
+                    closeProfileModal(); // ปิด Modal อัตโนมัติเมื่อเซฟเสร็จ
                 } else throw new Error(result.message);
             } catch (err) {
                 Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message });
@@ -293,7 +335,6 @@
             }
         });
 
-        // แจ้งเตือนการส่งซ้ำ
         document.getElementById('workType').addEventListener('change', (e) => {
             const selectedType = e.target.value;
             if(selectedType && window.mySubmissions) {
@@ -346,14 +387,23 @@
             document.getElementById('tableContainer').classList.remove('hidden');
         }
 
-        // ระบบส่งงาน (มีการป้องกันถ้าไม่ใส่เบอร์โทร)
+        // ระบบส่งงาน (บังคับเบอร์โทร พร้อมเด้งป๊อปอัปให้ทันที)
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // 🚨 บังคับให้เด็กต้องมีเบอร์โทรก่อนส่งงาน
             const userPhone = document.getElementById('profilePhone').value.trim();
             if (!userPhone) {
-                Swal.fire({ icon: 'warning', title: 'โปรดระบุเบอร์โทรศัพท์', text: 'กรุณาพิมพ์เบอร์โทรศัพท์ และกดปุ่มบันทึกการตั้งค่าโปรไฟล์ ก่อนทำการส่งงานครับ', confirmButtonText: 'ตกลง', confirmButtonColor: '#3b82f6' });
+                Swal.fire({ 
+                    icon: 'warning', 
+                    title: 'โปรดระบุเบอร์โทรศัพท์', 
+                    text: 'จำเป็นต้องมีเบอร์โทรศัพท์เพื่อใช้ติดต่อกลับครับ ระบบจะเปิดหน้าตั้งค่าให้ทันที', 
+                    confirmButtonText: 'ตกลง', 
+                    confirmButtonColor: '#3b82f6',
+                    backdrop: `rgba(0,0,0,0.5)`
+                }).then(() => {
+                    openProfileModal(); // เปิดป๊อปอัปให้เลย
+                    document.getElementById('profilePhone').focus();
+                });
                 return;
             }
 
