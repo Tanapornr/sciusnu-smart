@@ -45,6 +45,9 @@
         .swal2-actions { margin-top: 1.5em !important; }
         .modal-enter { animation: modalFadeIn 0.3s ease-out forwards; }
         @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        
+        /* เอาวงกลมซ้อนหลังเครื่องหมายถูกใน Swal ออก */
+        .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-success-ring { display: none !important; }
     </style>
 </head>
 <body class="pb-10">
@@ -78,7 +81,7 @@
         <div class="glass-panel rounded-3xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between">
             <div class="mb-3 md:mb-0">
                 <h2 class="text-sm sm:text-lg font-bold text-slate-800 dark:text-white flex items-center">
-                    <i data-lucide="download" class="w-5 h-5 sm:w-6 sm:h-6 mr-2"></i> ดาวน์โหลดแบบฟอร์ม
+                    <i data-lucide="download" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ดาวน์โหลดแบบฟอร์ม / Template
                 </h2>
             </div>
             <div class="flex flex-wrap gap-2 sm:gap-3">
@@ -99,7 +102,7 @@
         <div id="overviewSection" class="glass-panel rounded-3xl p-4 sm:p-6 hidden relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-blue-500"></div>
             <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2">
-                <i data-lucide="pie-chart" class="w-5 h-5 sm:w-6 sm:h-6 mr-2"></i> ภาพรวมสถานะโครงงาน
+                <i data-lucide="pie-chart" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ภาพรวมสถานะโครงงานในการดูแล
             </h2>
             <div class="overflow-x-auto w-full pb-2">
                 <table class="w-full text-left">
@@ -120,7 +123,7 @@
         <div id="pendingSection" class="glass-panel rounded-3xl p-4 sm:p-6 hidden relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-amber-400"></div>
             <h2 class="text-base sm:text-lg font-bold text-amber-600 dark:text-amber-400 mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2">
-                <span class="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-lg text-xs mr-2 shadow-sm font-black" id="pendingCount">0</span> งานใหม่รอตรวจสอบ
+                <span class="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-xs sm:text-sm mr-2 shadow-sm font-black" id="pendingCount">0</span> งานใหม่รอการตรวจสอบ
             </h2>
             <div class="overflow-x-auto w-full pb-2">
                 <table class="w-full text-left">
@@ -135,7 +138,7 @@
         <div id="historySection" class="glass-panel rounded-3xl p-4 sm:p-6 hidden relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-slate-400"></div>
             <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2">
-                <i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2"></i> ประวัติการตรวจงานแล้ว
+                <i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ประวัติการอนุมัติ / ตรวจงานแล้ว
             </h2>
             <div class="overflow-x-auto w-full pb-2">
                 <table class="w-full text-left">
@@ -156,7 +159,7 @@
             <div class="p-6 sm:p-8">
                 <div class="text-center mb-6">
                     <h2 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white tracking-wide">ตั้งค่าบัญชี</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">เปลี่ยนรหัสผ่านเข้าสู่ระบบ</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">เปลี่ยนรหัสผ่านสำหรับการเข้าสู่ระบบ</p>
                 </div>
                 <form id="settingsForm" class="space-y-4">
                     <div><input type="password" id="advOldPass" required placeholder="รหัสผ่านเดิม" class="w-full text-sm rounded-xl p-3 sm:p-3.5 glass-input outline-none focus:ring-2 focus:ring-amber-500"></div>
@@ -248,6 +251,7 @@
             } catch (error) { document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ โหลดข้อมูลล้มเหลว</span>`; }
         }
 
+        // 🔥 อัปเดต: เพิ่มนามสกุลในกล่องข้อมูลนักเรียน 🔥
         function generateStudentInfoHtml(submission) {
             const projectId = submission['รหัสโครงงาน'] || "-"; const uploaderId = submission['รหัสนักเรียน']; const teamMembers = window.allProjects.filter(p => p && p['รหัสโครงงาน'] == projectId);
             let uploaderInfo = ""; let partnerInfo = "";
@@ -258,7 +262,7 @@
                     <button type="button" onclick="viewStudentPopup('${uploader['ชื่อ']} ${uploader['นามสกุล']}', '${uploader['รหัสนักเรียน']}', '${uploader['เบอร์โทรศัพท์'] ? uploader['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 mt-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 transition-colors btn-liquid">
                         <img src="${pic}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm bg-white">
                         <div class="flex flex-col leading-tight overflow-hidden">
-                            <p class="text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 truncate">${uploader['รหัสนักเรียน']} ${uploader['ชื่อ']} <span class="bg-blue-600 text-white px-1.5 py-0.5 rounded-lg text-[8px] sm:text-[9px] font-bold ml-1">ผู้ส่ง</span></p>
+                            <p class="text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 truncate">${uploader['รหัสนักเรียน']} ${uploader['ชื่อ']} ${uploader['นามสกุล']} <span class="bg-blue-600 text-white px-1.5 py-0.5 rounded-lg text-[8px] sm:text-[9px] font-bold ml-1">ผู้ส่ง</span></p>
                         </div>
                     </button>`;
             }
@@ -269,13 +273,14 @@
                     return `
                     <button type="button" onclick="viewStudentPopup('${p['ชื่อ']} ${p['นามสกุล']}', '${p['รหัสนักเรียน']}', '${p['เบอร์โทรศัพท์'] ? p['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 mt-1.5 px-2 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors btn-liquid">
                         <img src="${pic}" class="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover border border-slate-200 dark:border-slate-600 opacity-90">
-                        <div class="flex flex-col leading-tight overflow-hidden"><p class="text-[9px] sm:text-[10px] font-semibold text-slate-600 dark:text-slate-400 truncate flex items-center"><i data-lucide="users" class="w-3 h-3 mr-1"></i> ${p['รหัสนักเรียน']} ${p['ชื่อ']}</p></div>
+                        <div class="flex flex-col leading-tight overflow-hidden"><p class="text-[9px] sm:text-[10px] font-semibold text-slate-600 dark:text-slate-400 truncate flex items-center"><i data-lucide="users" class="w-3 h-3 mr-1"></i> ${p['รหัสนักเรียน']} ${p['ชื่อ']} ${p['นามสกุล']}</p></div>
                     </button>`;
                 }).join('');
             }
             return `<div><span class="font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 px-2 sm:px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs shadow-sm">${projectId}</span>${uploaderInfo}${partnerInfo}</div>`;
         }
 
+        // 🔥 อัปเดต: เพิ่มนามสกุลในตารางภาพรวม 🔥
         function renderOverviewTable(projects, submissions) {
             const tbody = document.getElementById('overviewTableBody'); tbody.innerHTML = '';
             const myProjects = projects.filter(p => p && p['อ. ที่ปรึกษา TH'] === advisorName);
@@ -290,7 +295,7 @@
                         <img src="${pic}" class="w-7 h-7 sm:w-8 h-8 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm">
                         <div class="flex flex-col leading-tight overflow-hidden">
                             <span class="text-[10px] sm:text-xs text-slate-700 dark:text-slate-200 font-bold truncate">${m['รหัสนักเรียน']}</span>
-                            <span class="text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">${m['ชื่อ']}</span>
+                            <span class="text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">${m['ชื่อ']} ${m['นามสกุล']}</span>
                         </div>
                     </button>`;
                 }).join('');
@@ -303,7 +308,7 @@
                     if (status === 'ไม่อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i> ไม่อนุมัติ</span>`;
                     return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 flex items-center justify-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> รออนุมัติ</span>`;
                 };
-                const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors";
+                const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/20 transition-colors";
                 tr.innerHTML = `<td class="px-2 py-4 sm:px-4 sm:py-5 align-top font-bold text-slate-800 dark:text-slate-200 text-xs sm:text-sm border-r border-slate-50 dark:border-slate-700/50">${pid}</td><td class="px-2 py-2 sm:px-4 sm:py-3 align-top border-r border-slate-50 dark:border-slate-700/50">${memberHtml}</td><td class="px-2 py-4 sm:px-4 sm:py-5 align-top text-center">${getStatusBadge('โครงร่าง (Proposal)')}</td><td class="px-2 py-4 sm:px-4 sm:py-5 align-top text-center">${getStatusBadge('รายงานความก้าวหน้า')}</td><td class="px-2 py-4 sm:px-4 sm:py-5 align-top text-center">${getStatusBadge('รายงานฉบับสมบูรณ์')}</td>`;
                 tbody.appendChild(tr);
             });
@@ -312,7 +317,7 @@
 
         function renderPendingTable(works) {
             const tbody = document.getElementById('pendingTableBody'); document.getElementById('pendingCount').innerText = works.length; tbody.innerHTML = '';
-            if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 sm:py-16 text-center text-slate-500 text-xs sm:text-sm">ไม่มีงานรอตรวจสอบแล้วครับ</td></tr>'; return; }
+            if (works.length === 0) return;
             works.forEach(item => {
                 const workType = item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'];
                 const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors";
@@ -340,10 +345,10 @@
 
         function renderHistoryTable(works) {
             const tbody = document.getElementById('historyTableBody'); tbody.innerHTML = '';
-            if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 sm:py-16 text-center text-slate-500 text-xs sm:text-sm">ยังไม่มีประวัติการตรวจงานครับ</td></tr>'; return; }
+            if (works.length === 0) return;
             works.forEach(item => {
                 let badge = item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'อนุมัติ' ? `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>อนุมัติแล้ว</span>` : `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>ไม่อนุมัติ</span>`;
-                const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors";
+                const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors";
                 tr.innerHTML = `
                     <td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">${formatDateTime(item['Timestamp'])}</td>
                     <td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td>
