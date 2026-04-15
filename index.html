@@ -8,7 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <script>
         tailwind.config = { darkMode: 'class' };
         if (!localStorage.theme) localStorage.theme = 'light';
@@ -16,42 +15,33 @@
     </script>
     <style>
         body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; }
-        
-        /* สไตล์กระจกใส (Glassmorphism) */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255,255,255,0.8);
-        }
-        .dark .glass-panel {
-            background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255,255,255,0.05); color: #f1f5f9;
-        }
-
-        /* ปุ่ม Liquid Glass (iOS Style) */
-        .btn-liquid { position: relative; overflow: hidden; backdrop-filter: blur(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .glass-panel { background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255,255,255,0.8); }
+        .dark .glass-panel { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255,255,255,0.05); color: #f1f5f9; }
+        .btn-liquid { position: relative; overflow: hidden; backdrop-filter: blur(10px); transition: all 0.3s ease; }
         .btn-liquid::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0)); pointer-events: none; }
         .btn-liquid:active { transform: scale(0.96); }
-
         .glass-input { background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(255, 255, 255, 0.5); color: #334155; }
         .dark .glass-input { background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); color: #f1f5f9; }
-
         .swal2-popup { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.85) !important; border-radius: 2rem !important; border: 1px solid rgba(255,255,255,0.5); }
         .dark .swal2-popup { background: rgba(30,41,59,0.85) !important; border: 1px solid rgba(255,255,255,0.1); color: #f1f5f9 !important; }
         .dark .swal2-title, .dark .swal2-html-container { color: #f1f5f9 !important; }
-
+        
+        /* 🔥 ลบวงกลมทับซ้อนในป๊อปอัพให้เกลี้ยง 🔥 */
+        .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-success-ring { display: none !important; background-color: transparent !important; }
+        .swal2-icon.swal2-success { border-color: #a5dc86 !important; background: transparent !important; }
+        
         @keyframes blob { 0% { transform: translate(0px, 0px) scale(1); } 33% { transform: translate(40px, -60px) scale(1.2); } 66% { transform: translate(-30px, 30px) scale(0.8); } 100% { transform: translate(0px, 0px) scale(1); } }
         .animate-blob { animation: blob 8s infinite alternate; } .animation-delay-2000 { animation-delay: 2s; } .animation-delay-4000 { animation-delay: 4s; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-100 dark:bg-slate-900 p-4 transition-colors">
 
-    <div class="absolute top-10 left-10 w-64 h-64 sm:w-96 sm:h-96 bg-blue-500/30 dark:bg-blue-600/40 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] opacity-70 animate-blob"></div>
-    <div class="absolute top-0 right-10 w-64 h-64 sm:w-96 sm:h-96 bg-purple-500/30 dark:bg-purple-600/40 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] opacity-70 animate-blob animation-delay-2000"></div>
-    <div class="absolute -bottom-10 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-pink-500/30 dark:bg-pink-600/30 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] opacity-60 animate-blob animation-delay-4000"></div>
+    <div class="absolute top-10 left-10 w-64 h-64 sm:w-96 sm:h-96 bg-blue-500/30 dark:bg-blue-600/40 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob"></div>
+    <div class="absolute top-0 right-10 w-64 h-64 sm:w-96 sm:h-96 bg-purple-500/30 dark:bg-purple-600/40 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob animation-delay-2000"></div>
+    <div class="absolute -bottom-10 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-pink-500/30 dark:bg-pink-600/30 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob animation-delay-4000"></div>
 
     <button onclick="toggleTheme()" class="absolute top-6 right-6 btn-liquid bg-white/50 dark:bg-slate-800/50 p-3 rounded-full shadow-md text-slate-700 dark:text-slate-200 z-50 outline-none">
-        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
-        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
     </button>
 
     <div class="w-full max-w-md p-6 sm:p-8 rounded-[2rem] glass-panel relative z-10">
@@ -68,32 +58,26 @@
                 <label class="block text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Student ID / Email</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><i data-lucide="user" class="w-5 h-5 opacity-70"></i></div>
-                    <input type="text" id="username" required class="w-full pl-11 pr-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl glass-input focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-inner">
+                    <input type="text" id="username" required class="w-full pl-11 pr-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl glass-input focus:ring-2 focus:ring-blue-500 outline-none transition-all">
                 </div>
             </div>
-            
             <div class="mb-6 sm:mb-8">
                 <label class="block text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Password</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><i data-lucide="key-round" class="w-5 h-5 opacity-70"></i></div>
-                    <input type="password" id="password" required class="w-full pl-11 pr-12 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl glass-input focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-inner">
-                    <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-700 dark:hover:text-white outline-none transition-colors">
-                        <i data-lucide="eye" id="eyeIcon" class="w-5 h-5"></i>
-                    </button>
+                    <input type="password" id="password" required class="w-full pl-11 pr-12 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl glass-input focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-700 dark:hover:text-white outline-none"><i data-lucide="eye" id="eyeIcon" class="w-5 h-5"></i></button>
                 </div>
             </div>
-            
-            <button type="submit" id="submitBtn" class="w-full btn-liquid bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-purple-700 text-white font-bold py-3.5 rounded-xl text-sm sm:text-base hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] flex items-center justify-center">
+            <button type="submit" id="submitBtn" class="w-full btn-liquid bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-purple-700 text-white font-bold py-3.5 rounded-xl text-sm sm:text-base flex items-center justify-center">
                 <i data-lucide="log-in" class="w-5 h-5 mr-2"></i> เข้าสู่ระบบ
             </button>
         </form>
     </div>
 
     <script>
-        // 🚨 นำ URL ของ Web App มาวางที่นี่ 🚨
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxh5d3dfVInEgWM_vaPYmD3-eHFq6Cvyjd9mcIIUwc8iPQlRz-4XpjpfV2OufgUrH6d/exec';
-        localStorage.clear();
-        lucide.createIcons();
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxMFAthwvYInTLoNf9mBdV0EFHH_HSvU7FcsAgfyRHPUEI-h5eD9BYRg7TuaseaI5nPCw/exec';
+        localStorage.clear(); lucide.createIcons();
 
         function toggleTheme() {
             const html = document.documentElement;
@@ -116,16 +100,12 @@
 
         async function handleLogin(e) {
             e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-
+            const btn = document.getElementById('submitBtn'); const username = document.getElementById('username').value.trim(); const password = document.getElementById('password').value.trim();
             btn.disabled = true; btn.innerHTML = `<svg class="animate-spin inline-block h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังตรวจสอบ...`;
 
             try {
                 const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', username: username, password: password }) });
-                const responseText = await response.text();
-                let result;
+                const responseText = await response.text(); let result;
                 try { result = JSON.parse(responseText); } catch (parseError) { throw new Error("ลิงก์ API ไม่ถูกต้อง หรือลืมอัปเดตสิทธิ์ครับ"); }
 
                 if (result.status === 'success') {
@@ -133,14 +113,16 @@
                     
                     if (result.role === 'student') {
                         localStorage.setItem('studentId', result.studentId);
+                        
+                        // 🔥 บันทึกรูปโปรไฟล์ลงเครื่องทันที เพื่อให้หน้าถัดไปดึงมาโชว์ได้เลยไม่ต้องรอโหลด 🔥
                         const directPicUrl = getDirectImageUrl(result.profileUrl);
                         const fallbackPic = `https://ui-avatars.com/api/?name=${encodeURIComponent(result.name)}&background=random`;
                         const finalPic = directPicUrl ? directPicUrl : fallbackPic;
+                        localStorage.setItem('profileUrl', finalPic);
 
                         Swal.fire({
-                            title: 'ยินดีต้อนรับกลับมา!', text: `คุณ ${result.name} (ID: ${result.studentId})`, imageUrl: finalPic, imageWidth: 120, imageHeight: 120, customClass: { image: 'rounded-full object-cover border-4 border-blue-100 shadow-lg mx-auto mt-4 mb-2' }, showConfirmButton: false, timer: 5000, timerProgressBar: true
+                            title: 'ยินดีต้อนรับกลับมา!', text: `คุณ ${result.name} (ID: ${result.studentId})`, imageUrl: finalPic, imageWidth: 120, imageHeight: 120, customClass: { image: 'rounded-full object-cover border-4 border-blue-100 shadow-lg mx-auto mt-4 mb-2' }, showConfirmButton: false, timer: 2000, timerProgressBar: true
                         }).then(() => { window.location.href = 'student.html'; });
-
                     } else if (result.role === 'admin') {
                         Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', text: `เข้าสู่ระบบในฐานะผู้ดูแลระบบ`, showConfirmButton: false, timer: 1500 }).then(() => { window.location.href = 'admin.html'; });
                     } else {
