@@ -16,26 +16,20 @@
     <style>
         body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #f1f5f9; }
         .dark body { background-color: #0f172a; color: #f1f5f9; }
-
         .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255,255,255,0.8); }
         .dark .glass-panel { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255,255,255,0.05); }
-
         .btn-liquid { position: relative; overflow: hidden; backdrop-filter: blur(10px); transition: all 0.3s ease; }
         .btn-liquid::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0)); pointer-events: none; }
         .btn-liquid:active { transform: scale(0.96); }
-
         .glass-input { background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(255, 255, 255, 0.6); color: #334155; }
         .dark .glass-input { background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); color: #f1f5f9; }
-
         .dark table th { color: #cbd5e1 !important; border-color: rgba(255,255,255,0.1); }
         .dark table td { color: #f1f5f9 !important; border-color: rgba(255,255,255,0.05); }
         .dark .bg-slate-50 { background-color: rgba(15, 23, 42, 0.4) !important; }
-
         .swal2-popup { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.85) !important; border-radius: 2rem !important; border: 1px solid rgba(255,255,255,0.5); }
         .dark .swal2-popup { background: rgba(30,41,59,0.85) !important; border: 1px solid rgba(255,255,255,0.1); color: #f1f5f9 !important; }
         .dark .swal2-title, .dark .swal2-html-container { color: #f1f5f9 !important; }
         
-        /* 🔥 ลบวงกลมทับซ้อนในป๊อปอัพให้เกลี้ยง 🔥 */
         .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-success-ring { display: none !important; background-color: transparent !important; }
         .swal2-icon.swal2-success { border-color: #a5dc86 !important; background: transparent !important; }
     </style>
@@ -142,7 +136,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyiXwmRkrPbnXRv3fN47kYf1E4eC6c0AMWUS0YX0rLJm416BYZcbuo8zeXLvAbkTAzSpQ/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbz_YeSNfs9ng6pPSWUHWPG5t_-4UvivWobFTJ9M50fjN4K60gPXW__6iQWxa9_ou0GFRA/exec';
         lucide.createIcons();
 
         function toggleTheme() {
@@ -200,7 +194,7 @@
                         document.getElementById('headerProjectInfo').classList.remove('hidden');
                     }
                     
-                    // 🔍 ดึงงานของ "ทุกคน" ที่อยู่ในกลุ่มมาแสดง
+                    // ดึงงานของทุกคนในกลุ่มมาแสดง (เช็คจากรหัสโครงงาน หรือรหัสนักเรียน)
                     window.mySubmissions = (data.submissions || []).filter(s => {
                         let rowProj = (s['รหัสโครงงาน'] || "").toString().trim();
                         let rowStu = (s['รหัสนักเรียน'] || "").toString().trim();
@@ -243,10 +237,16 @@
         document.getElementById('workType').addEventListener('change', (e) => {
             const selectedType = e.target.value;
             if(selectedType && window.mySubmissions) {
-                const existingSub = window.mySubmissions.find(s => s['ประเภทงาน'] === selectedType);
+                // ดักจับชื่อคอลัมน์ไม่ว่าจะยาวหรือสั้น
+                const existingSub = window.mySubmissions.find(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === selectedType);
                 if(existingSub) {
                     const submitterId = (existingSub['รหัสนักเรียน'] || "").toString().trim();
-                    const submitterName = `${existingSub['ชื่อ'] || ''} ${existingSub['นามสกุล'] || ''}`.trim();
+                    
+                    // ทำความสะอาดชื่อที่อาจจะติดมาจากระบบเก่า
+                    let cleanFirstName = (existingSub['ชื่อ'] || "").split("และ")[0].replace(/\(ผู้ส่ง\)/g, '').trim();
+                    let cleanLastName = (existingSub['นามสกุล'] || "").split("และ")[0].trim();
+                    const submitterName = `${cleanFirstName} ${cleanLastName}`;
+
                     if(submitterId !== studentId.trim()) {
                         Swal.fire({ icon: 'warning', title: 'มีการส่งงานนี้แล้ว!', html: `เพื่อนร่วมกลุ่มของคุณ <b>${submitterName} (รหัส ${submitterId})</b> <br>ได้ส่งงานประเภทนี้เข้าระบบแล้ว<br><br><span class='text-rose-500 text-xs'>*หากคุณอัปโหลดใหม่ ไฟล์ของเพื่อนจะถูกแทนที่ทันที*</span>`, confirmButtonText: 'รับทราบ', confirmButtonColor: '#f59e0b' });
                     }
@@ -258,20 +258,28 @@
             const tbody = document.getElementById('historyTableBody'); const mySubs = subs.slice().reverse();
             if(mySubs.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-500 text-xs sm:text-sm">เริ่มส่งงานแรกกันเลย!</td></tr>'; } else {
                 tbody.innerHTML = mySubs.map(s => {
+                    // 🔥 รองรับหัวตารางทั้งชื่อสั้นและยาว ป้องกันปัญหา undefined
+                    let workType = s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
+                    let status = s['สถานะ'] || s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] || 'รออนุมัติ';
+
                     let statusClass = "bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700"; let statusIcon = '<i data-lucide="clock" class="w-3 h-3 mr-1"></i>';
-                    if (s['สถานะ'] === 'อนุมัติ') { statusClass = "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700"; statusIcon = '<i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>'; }
-                    if (s['สถานะ'] === 'ไม่อนุมัติ') { statusClass = "bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-700"; statusIcon = '<i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>'; }
+                    if (status === 'อนุมัติ') { statusClass = "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700"; statusIcon = '<i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>'; }
+                    if (status === 'ไม่อนุมัติ') { statusClass = "bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-700"; statusIcon = '<i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>'; }
                     
                     let isMe = (s['รหัสนักเรียน'] || "").toString().trim() === studentId.trim();
-                    let submitterTag = isMe ? `<span class="text-blue-600 font-semibold">(คุณเป็นผู้ส่ง)</span>` : `<span class="text-purple-600 font-semibold">(ส่งโดย ${s['ชื่อ']} ${s['นามสกุล']})</span>`;
+                    
+                    // ทำความสะอาดชื่อโชว์ในตาราง
+                    let cleanFirstName = (s['ชื่อ'] || "").split("และ")[0].replace(/\(ผู้ส่ง\)/g, '').trim();
+                    let cleanLastName = (s['นามสกุล'] || "").split("และ")[0].trim();
+                    let submitterTag = isMe ? `<span class="text-blue-600 font-semibold">(คุณเป็นผู้ส่ง)</span>` : `<span class="text-purple-600 font-semibold">(ส่งโดย ${cleanFirstName} ${cleanLastName})</span>`;
 
                     return `
                     <tr class="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td class="px-2 py-3 sm:px-4 sm:py-4 text-[10px] sm:text-xs align-middle opacity-80">${formatDateTime(s['Timestamp'])}</td>
                         <td class="px-2 py-3 sm:px-4 sm:py-4 font-semibold text-[10px] sm:text-sm align-middle leading-tight w-1/3">
-                            ${s['ประเภทงาน']}<br><div class="mt-1 text-[9px] sm:text-[10px] opacity-80">${submitterTag}</div>
+                            ${workType}<br><div class="mt-1 text-[9px] sm:text-[10px] opacity-80">${submitterTag}</div>
                         </td>
-                        <td class="px-2 py-3 sm:px-4 sm:py-4 text-center align-middle"><span class="px-1.5 py-1 sm:px-2.5 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-bold ${statusClass} shadow-sm inline-flex items-center whitespace-nowrap">${statusIcon} ${s['สถานะ']}</span></td>
+                        <td class="px-2 py-3 sm:px-4 sm:py-4 text-center align-middle"><span class="px-1.5 py-1 sm:px-2.5 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-bold ${statusClass} shadow-sm inline-flex items-center whitespace-nowrap">${statusIcon} ${status}</span></td>
                         <td class="px-2 py-3 sm:px-4 sm:py-4 text-center align-middle">
                             <div class="flex flex-col sm:flex-row gap-1 sm:gap-2 justify-center">
                                 <a href="${s['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg text-[10px] sm:text-xs font-bold border border-blue-100 dark:border-blue-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i> รูปเล่ม</a>
@@ -290,11 +298,12 @@
             if (!userPhone) { Swal.fire({ icon: 'warning', title: 'โปรดระบุเบอร์โทรศัพท์', confirmButtonText: 'ตกลง' }).then(() => { openProfileModal(); document.getElementById('profilePhone').focus(); }); return; }
             
             const selectedWorkType = document.getElementById('workType').value;
-            const existingSub = window.mySubmissions.find(s => s['ประเภทงาน'] === selectedWorkType);
+            const existingSub = window.mySubmissions.find(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === selectedWorkType);
             
             if (existingSub && (existingSub['รหัสนักเรียน'] || "").toString().trim() !== studentId.trim()) {
+                let cleanFirstName = (existingSub['ชื่อ'] || "").split("และ")[0].replace(/\(ผู้ส่ง\)/g, '').trim();
                 const result = await Swal.fire({
-                    title: 'ยืนยันการส่งทับไฟล์เพื่อน?', html: `เพื่อนของคุณ <b>${existingSub['ชื่อ']}</b> ได้ส่งงานนี้ไปแล้ว<br>คุณต้องการส่งไฟล์ใหม่เพื่อ <b>"แทนที่"</b> ไฟล์เดิมใช่หรือไม่?`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#3b82f6', cancelButtonColor: '#94a3b8', confirmButtonText: 'ใช่, ส่งไฟล์แทนที่', cancelButtonText: 'ยกเลิก'
+                    title: 'ยืนยันการส่งทับไฟล์เพื่อน?', html: `เพื่อนของคุณ <b>${cleanFirstName}</b> ได้ส่งงานนี้ไปแล้ว<br>คุณต้องการส่งไฟล์ใหม่เพื่อ <b>"แทนที่"</b> ไฟล์เดิมใช่หรือไม่?`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#3b82f6', cancelButtonColor: '#94a3b8', confirmButtonText: 'ใช่, ส่งไฟล์แทนที่', cancelButtonText: 'ยกเลิก'
                 });
                 if (!result.isConfirmed) return;
             }
