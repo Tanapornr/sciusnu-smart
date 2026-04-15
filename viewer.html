@@ -28,8 +28,6 @@
         .swal2-popup { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.85) !important; border-radius: 2rem !important; border: 1px solid rgba(255,255,255,0.5); }
         .dark .swal2-popup { background: rgba(30,41,59,0.85) !important; border: 1px solid rgba(255,255,255,0.1); color: #f1f5f9 !important; }
         .dark .swal2-title, .dark .swal2-html-container { color: #f1f5f9 !important; }
-        
-        /* 🔥 ลบวงกลมทับซ้อนในป๊อปอัพให้เกลี้ยง 🔥 */
         .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-success-ring { display: none !important; background-color: transparent !important; }
         .swal2-icon.swal2-success { border-color: #a5dc86 !important; background: transparent !important; }
     </style>
@@ -99,7 +97,6 @@
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
-        // 🔥 FIX: Images load immediately 🔥
         function getProcessedImgUrl(url, studentName) {
             if (!url || url === "-") return `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=random`;
             if (url.includes('drive.google.com')) { const match = url.match(/[-\w]{25,}/); if (match) return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`; }
@@ -114,17 +111,7 @@
 
         function viewStudentPopup(name, id, phone, picUrl) {
             Swal.fire({
-                html: `
-                    <div class="text-center pt-2">
-                        <img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-purple-50 dark:border-purple-900/50 shadow-md bg-white" loading="lazy">
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white leading-tight">${name}</h3>
-                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-5 mt-1">รหัสประจำตัว: ${id}</p>
-                        <div class="bg-purple-50 dark:bg-purple-900/30 rounded-2xl p-3 sm:p-4 inline-block w-full max-w-[200px] border border-purple-100 dark:border-purple-800">
-                            <p class="text-[10px] sm:text-xs text-purple-500 dark:text-purple-400 mb-1 font-semibold uppercase flex items-center justify-center"><i data-lucide="phone" class="w-3 h-3 mr-1"></i> เบอร์โทรติดต่อ</p>
-                            <p class="text-base sm:text-lg font-bold text-purple-700 dark:text-purple-300">${phone || 'ไม่มีข้อมูล'}</p>
-                        </div>
-                    </div>
-                `,
+                html: `<div class="text-center pt-2"><img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-purple-50 dark:border-purple-900/50 shadow-md bg-white" loading="lazy"><h3 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white leading-tight">${name}</h3><p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-5 mt-1">รหัสประจำตัว: ${id}</p><div class="bg-purple-50 dark:bg-purple-900/30 rounded-2xl p-3 sm:p-4 inline-block w-full max-w-[200px] border border-purple-100 dark:border-purple-800"><p class="text-[10px] sm:text-xs text-purple-500 dark:text-purple-400 mb-1 font-semibold uppercase flex items-center justify-center"><i data-lucide="phone" class="w-3 h-3 mr-1"></i> เบอร์โทรติดต่อ</p><p class="text-base sm:text-lg font-bold text-purple-700 dark:text-purple-300">${phone || 'ไม่มีข้อมูล'}</p></div></div>`,
                 showConfirmButton: true, confirmButtonText: 'ปิดหน้าต่าง', confirmButtonColor: '#334155', customClass: { popup: 'rounded-[2rem] p-4 sm:p-6' }, backdrop: `rgba(15, 23, 42, 0.7)`, didOpen: () => { lucide.createIcons(); }
             });
         }
@@ -170,20 +157,46 @@
         }
 
         function generateStudentInfoHtml(submission) {
-            const projectId = submission['รหัสโครงงาน'] || "-"; const uploaderId = submission['รหัสนักเรียน']; const teamMembers = window.allProjects.filter(p => p && p['รหัสโครงงาน'] == projectId);
-            let uploaderInfo = ""; let partnerInfo = "";
-            const uploader = teamMembers.find(m => m['รหัสนักเรียน'] == uploaderId);
-            if (uploader) {
-                const pic = getProcessedImgUrl(uploader['รูปโปรไฟล์'], uploader['ชื่อ']);
-                uploaderInfo = `
-                    <button type="button" onclick="viewStudentPopup('${uploader['ชื่อ']} ${uploader['นามสกุล']}', '${uploader['รหัสนักเรียน']}', '${uploader['เบอร์โทรศัพท์'] ? uploader['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 mt-2 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-800/50 p-2 sm:p-2.5 rounded-xl border border-purple-100 dark:border-purple-800 transition-colors btn-liquid">
-                        <img src="${pic}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm bg-white" loading="lazy">
-                        <div class="flex flex-col leading-tight overflow-hidden"><p class="text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 truncate">${uploader['รหัสนักเรียน']} ${uploader['ชื่อ']} ${uploader['นามสกุล']} <span class="bg-purple-600 text-white px-1.5 py-0.5 rounded-lg text-[8px] sm:text-[9px] font-bold ml-1">ผู้ส่ง</span></p></div>
-                    </button>`;
+            let targetProjId = (submission['รหัสโครงงาน'] || "").toString().replace(/\s/g, '').toLowerCase(); 
+            let targetStuId = (submission['รหัสนักเรียน'] || "").toString().replace(/\s/g, '').toLowerCase(); 
+            
+            if (targetProjId === "") {
+                for (let i = 0; i < window.allProjects.length; i++) {
+                    if ((window.allProjects[i]['รหัสนักเรียน'] || "").toString().replace(/\s/g, '').toLowerCase() === targetStuId) {
+                        targetProjId = (window.allProjects[i]['รหัสโครงงาน'] || "").toString().replace(/\s/g, '').toLowerCase(); break;
+                    }
+                }
             }
-            const partners = teamMembers.filter(m => m['รหัสนักเรียน'] != uploaderId);
-            if (partners.length > 0) { partnerInfo = partners.map(p => `<p class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 mt-1.5 px-2 truncate flex items-center"><i data-lucide="users" class="w-3 h-3 mr-1"></i> ${p['รหัสนักเรียน']} ${p['ชื่อ']} ${p['นามสกุล']}</p>`).join(''); }
-            return `<div><span class="font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 px-2 sm:px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs shadow-sm">${projectId}</span>${uploaderInfo}${partnerInfo}</div>`;
+
+            let groupMembers = [];
+            for (let i = 0; i < window.allProjects.length; i++) {
+                let rowProjId = (window.allProjects[i]['รหัสโครงงาน'] || "").toString().replace(/\s/g, '').toLowerCase();
+                let rowStuId = (window.allProjects[i]['รหัสนักเรียน'] || "").toString().replace(/\s/g, '').toLowerCase();
+                let isMatch = false;
+                if (targetProjId !== "" && rowProjId === targetProjId) isMatch = true; else if (targetStuId !== "" && rowStuId === targetStuId) isMatch = true;
+                if (isMatch && rowStuId !== "") {
+                    let originalStuId = (window.allProjects[i]['รหัสนักเรียน'] || "").toString().trim();
+                    if (!groupMembers.find(m => m.id === originalStuId)) {
+                        groupMembers.push({
+                            id: originalStuId, firstName: (window.allProjects[i]['ชื่อ'] || "").toString().trim(), lastName: (window.allProjects[i]['นามสกุล'] || "").toString().trim(),
+                            phone: (window.allProjects[i]['เบอร์โทรศัพท์'] || "").toString().replace(/'/g, ''),
+                            picUrl: getProcessedImgUrl((window.allProjects[i]['รูปโปรไฟล์'] || "").toString().trim(), (window.allProjects[i]['ชื่อ'] || "").toString().trim())
+                        });
+                    }
+                }
+            }
+
+            let memberHtml = groupMembers.map(m => {
+                let isSender = (m.id.toLowerCase() === targetStuId);
+                let senderTag = isSender ? ' <span class="bg-purple-600 text-white px-1.5 py-0.5 rounded-lg text-[8px] sm:text-[9px] font-bold ml-1">ผู้ส่ง</span>' : '';
+                return `
+                <button type="button" onclick="viewStudentPopup('${m.firstName} ${m.lastName}', '${m.id}', '${m.phone}', '${m.picUrl}')" class="w-full text-left flex items-center gap-2 mt-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 transition-colors btn-liquid">
+                    <img src="${m.picUrl}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm bg-white" loading="lazy">
+                    <div class="flex flex-col leading-tight overflow-hidden"><p class="text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 truncate">${m.id} ${m.firstName} ${m.lastName}${senderTag}</p></div>
+                </button>`;
+            }).join('');
+
+            return `<div><span class="font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 px-2 sm:px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs shadow-sm">${submission['รหัสโครงงาน'] || '-'}</span>${memberHtml}</div>`;
         }
 
         function renderOverviewTable(projectIds, submissions) {
@@ -193,17 +206,13 @@
                 const members = window.allProjects.filter(p => p['รหัสโครงงาน'] === pid);
                 const memberHtml = members.map(m => {
                     const pic = getProcessedImgUrl(m['รูปโปรไฟล์'], m['ชื่อ']);
-                    return `
-                    <button type="button" onclick="viewStudentPopup('${m['ชื่อ']} ${m['นามสกุล']}', '${m['รหัสนักเรียน']}', '${m['เบอร์โทรศัพท์'] ? m['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 sm:gap-3 mb-2 bg-slate-50 dark:bg-slate-800/50 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 btn-liquid transition-colors">
-                        <img src="${pic}" class="w-7 h-7 sm:w-8 h-8 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm" loading="lazy">
-                        <div class="flex flex-col leading-tight overflow-hidden"><span class="text-[10px] sm:text-xs text-slate-700 dark:text-slate-200 font-bold truncate">${m['รหัสนักเรียน']}</span><span class="text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">${m['ชื่อ']} ${m['นามสกุล']}</span></div>
-                    </button>`;
+                    return `<button type="button" onclick="viewStudentPopup('${m['ชื่อ']} ${m['นามสกุล']}', '${m['รหัสนักเรียน']}', '${m['เบอร์โทรศัพท์'] ? m['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 sm:gap-3 mb-2 bg-slate-50 dark:bg-slate-800/50 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 btn-liquid transition-colors"><img src="${pic}" class="w-7 h-7 sm:w-8 h-8 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm" loading="lazy"><div class="flex flex-col leading-tight overflow-hidden"><span class="text-[10px] sm:text-xs text-slate-700 dark:text-slate-200 font-bold truncate">${m['รหัสนักเรียน']}</span><span class="text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">${m['ชื่อ']} ${m['นามสกุล']}</span></div></button>`;
                 }).join('');
                 const memberIds = members.map(m => m['รหัสนักเรียน']); const projectSubs = submissions.filter(s => s && (s['รหัสโครงงาน'] == pid || memberIds.includes(s['รหัสนักเรียน'])));
                 const getStatusBadge = (workType) => {
-                    const subs = projectSubs.filter(s => s['ประเภทงาน'] === workType);
+                    const subs = projectSubs.filter(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === workType);
                     if (subs.length === 0) return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 opacity-60">➖ ยังไม่ส่ง</span>`;
-                    const status = subs[subs.length - 1]['สถานะ'];
+                    const status = subs[subs.length - 1]['สถานะ'] || subs[subs.length - 1]['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'];
                     if (status === 'อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i> อนุมัติ</span>`;
                     if (status === 'ไม่อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i> ไม่อนุมัติ</span>`;
                     return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 flex items-center justify-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> รออนุมัติ</span>`;
@@ -219,15 +228,22 @@
             const tbody = document.getElementById('allWorksTableBody'); tbody.innerHTML = '';
             if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 sm:py-16 text-center text-slate-500 text-xs sm:text-sm">ไม่พบข้อมูล</td></tr>'; return; }
             works.forEach(item => {
-                let badge = `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 shadow-sm flex items-center justify-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i>รออนุมัติหลัก</span>`;
-                if (item['สถานะ'] === 'อนุมัติ') badge = `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 shadow-sm flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>อนุมัติแล้ว</span>`;
-                if (item['สถานะ'] === 'ไม่อนุมัติ') badge = `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 shadow-sm flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>ไม่อนุมัติ</span>`;
+                // 🔥 แก้ปัญหา undefined ให้ดึงชื่อตัวใดตัวหนึ่งมาใช้
+                const workType = item['ประเภทงาน'] || item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
+                const status = item['สถานะ'] || item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] || 'รออนุมัติ';
+
+                let badge = status === 'อนุมัติ' ? `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 shadow-sm flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>อนุมัติแล้ว</span>` : status === 'ไม่อนุมัติ' ? `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 shadow-sm flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>ไม่อนุมัติ</span>` : `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 shadow-sm flex items-center justify-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i>รออนุมัติ</span>`;
                 const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors";
                 tr.innerHTML = `
                     <td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">${formatDateTime(item['Timestamp'])}</td>
                     <td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td>
-                    <td class="px-2 py-4 sm:px-4 sm:py-5 font-bold text-purple-700 dark:text-purple-400 text-[10px] sm:text-sm align-middle leading-tight">${item['ประเภทงาน']}</td>
-                    <td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-1.5"><a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-blue-100 dark:border-blue-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>รูปเล่ม</a><a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a></div></td>
+                    <td class="px-2 py-4 sm:px-4 sm:py-5 font-bold text-purple-700 dark:text-purple-400 text-[10px] sm:text-sm align-middle leading-tight">${workType}</td>
+                    <td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">
+                        <div class="flex flex-col gap-1.5">
+                            <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-blue-100 dark:border-blue-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>รูปเล่ม</a>
+                            <a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>
+                        </div>
+                    </td>
                     <td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">${badge}</td>
                 `;
                 tbody.appendChild(tr);
