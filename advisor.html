@@ -35,12 +35,12 @@
         .dark .swal2-popup { background: rgba(30,41,59,0.85) !important; border: 1px solid rgba(255,255,255,0.1); color: #f1f5f9 !important; }
         .dark .swal2-title, .dark .swal2-html-container { color: #f1f5f9 !important; }
         
-        /* 🔥 ลบวงกลมทับซ้อนในป๊อปอัพให้เกลี้ยง 🔥 */
         .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-success-ring { display: none !important; background-color: transparent !important; }
         .swal2-icon.swal2-success { border-color: #a5dc86 !important; background: transparent !important; }
     </style>
 </head>
 <body class="pb-10">
+
     <nav class="glass-panel border-b-0 shadow-sm sticky top-0 z-40">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-4">
             <div class="flex items-center gap-4">
@@ -165,20 +165,23 @@
                 if (data.status === 'success') {
                     window.allProjects = data.projects || [];
                     const myStudentsWork = (data.submissions || []).filter(item => item['อ.ที่ปรึกษา'] === advisorName);
-                    const pendingWorks = myStudentsWork.filter(item => item['สถานะ'] === 'รออนุมัติ');
-                    const historyWorks = myStudentsWork.filter(item => item['สถานะ'] !== 'รออนุมัติ');
-                    renderOverviewTable(window.allProjects, myStudentsWork); renderPendingTable(pendingWorks.reverse()); renderHistoryTable(historyWorks.reverse());
+                    
+                    // 🔥 รองรับชื่อสถานะทั้งสั้นและยาว 🔥
+                    const pendingWorks = myStudentsWork.filter(item => (item['สถานะ'] || item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)']) === 'รออนุมัติ');
+                    const historyWorks = myStudentsWork.filter(item => (item['สถานะ'] || item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)']) !== 'รออนุมัติ');
+                    
+                    renderOverviewTable(window.allProjects, myStudentsWork); 
+                    renderPendingTable(pendingWorks.reverse()); 
+                    renderHistoryTable(historyWorks.reverse());
                     document.getElementById('loadingData').style.display = 'none'; document.getElementById('overviewSection').classList.remove('hidden'); document.getElementById('pendingSection').classList.remove('hidden'); document.getElementById('historySection').classList.remove('hidden');
                 }
             } catch (error) { document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ โหลดข้อมูลล้มเหลว</span>`; }
         }
 
-        // 🔥 กวาดหาเพื่อนในกลุ่ม โชว์แบบแม่นยำ 🔥
         function generateStudentInfoHtml(submission) {
             let targetProjId = (submission['รหัสโครงงาน'] || "").toString().replace(/\s/g, '').toLowerCase(); 
             let targetStuId = (submission['รหัสนักเรียน'] || "").toString().replace(/\s/g, '').toLowerCase(); 
             
-            // ถ้ารหัสโปรเจกต์ว่าง ให้ค้นหาจาก sheet หลักก่อน
             if (targetProjId === "") {
                 for (let i = 0; i < window.allProjects.length; i++) {
                     if ((window.allProjects[i]['รหัสนักเรียน'] || "").toString().replace(/\s/g, '').toLowerCase() === targetStuId) {
@@ -231,9 +234,10 @@
                 }).join('');
                 const memberIds = members.map(m => m['รหัสนักเรียน']); const projectSubs = submissions.filter(s => s && (s['รหัสโครงงาน'] == pid || memberIds.includes(s['รหัสนักเรียน'])));
                 const getStatusBadge = (workType) => {
-                    const subs = projectSubs.filter(s => s['ประเภทงาน'] === workType);
+                    // 🔥 รองรับชื่อประเภทงานทั้งแบบสั้นและแบบยาว
+                    const subs = projectSubs.filter(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === workType);
                     if (subs.length === 0) return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 opacity-60">➖ ยังไม่ส่ง</span>`;
-                    const status = subs[subs.length - 1]['สถานะ'];
+                    const status = subs[subs.length - 1]['สถานะ'] || subs[subs.length - 1]['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'];
                     if (status === 'อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i> อนุมัติ</span>`;
                     if (status === 'ไม่อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i> ไม่อนุมัติ</span>`;
                     return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 flex items-center justify-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> รออนุมัติ</span>`;
@@ -249,7 +253,8 @@
             const tbody = document.getElementById('pendingTableBody'); document.getElementById('pendingCount').innerText = works.length; tbody.innerHTML = '';
             if (works.length === 0) return;
             works.forEach(item => {
-                const workType = item['ประเภทงาน'];
+                // 🔥 แก้ปัญหา undefined ให้ดึงชื่อตัวใดตัวหนึ่งมาใช้
+                const workType = item['ประเภทงาน'] || item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
                 const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors";
                 tr.innerHTML = `<td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">${formatDateTime(item['Timestamp'])}</td><td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td><td class="px-2 py-4 sm:px-4 sm:py-5 font-bold text-blue-700 dark:text-blue-400 text-[10px] sm:text-sm align-middle leading-tight">${workType}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-1.5"><a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-blue-100 dark:border-blue-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>รูปเล่ม</a><a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a></div></td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-2"><button onclick="updateStatus('${item['รหัสนักเรียน']}', '${workType}', 'อนุมัติ')" class="w-full btn-liquid btn-approve px-2 py-2 rounded-lg text-[10px] sm:text-xs font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i>อนุมัติ</button><button onclick="updateStatus('${item['รหัสนักเรียน']}', '${workType}', 'ไม่อนุมัติ')" class="w-full btn-liquid btn-reject px-2 py-2 rounded-lg text-[10px] sm:text-xs font-bold flex items-center justify-center"><i data-lucide="x" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i>ไม่อนุมัติ</button></div></td>`;
                 tbody.appendChild(tr);
@@ -261,9 +266,13 @@
             const tbody = document.getElementById('historyTableBody'); tbody.innerHTML = '';
             if (works.length === 0) return;
             works.forEach(item => {
-                let badge = item['สถานะ'] === 'อนุมัติ' ? `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>อนุมัติแล้ว</span>` : `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>ไม่อนุมัติ</span>`;
+                // 🔥 แก้ปัญหา undefined
+                const workType = item['ประเภทงาน'] || item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
+                const status = item['สถานะ'] || item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] || 'รออนุมัติ';
+                
+                let badge = status === 'อนุมัติ' ? `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>อนุมัติแล้ว</span>` : `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>ไม่อนุมัติ</span>`;
                 const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors";
-                tr.innerHTML = `<td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">${formatDateTime(item['Timestamp'])}</td><td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-slate-700 dark:text-slate-200 font-semibold text-[10px] sm:text-sm align-middle leading-tight">${item['ประเภทงาน']}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-1.5"><a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-blue-100 dark:border-blue-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>รูปเล่ม</a><a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a></div></td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">${badge}</td>`;
+                tr.innerHTML = `<td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">${formatDateTime(item['Timestamp'])}</td><td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-slate-700 dark:text-slate-200 font-semibold text-[10px] sm:text-sm align-middle leading-tight">${workType}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-1.5"><a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-blue-100 dark:border-blue-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>รูปเล่ม</a><a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a></div></td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">${badge}</td>`;
                 tbody.appendChild(tr);
             });
             lucide.createIcons();
