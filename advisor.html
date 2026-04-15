@@ -7,70 +7,103 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' };
+        if (!localStorage.theme) localStorage.theme = 'light';
+        if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
+    </script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
-        .swal2-popup { font-family: inherit; border-radius: 1.5rem !important; }
-        .modal-enter { animation: modalFadeIn 0.3s ease-out forwards; }
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.95) translateY(-10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        /* เพิ่มสไตล์ให้ปุ่ม Swal2 สวยขึ้น */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #f8fafc; }
+        .dark body { background-color: #0f172a; color: #f1f5f9; }
+
+        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255,255,255,0.8); }
+        .dark .glass-panel { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255,255,255,0.05); }
+
+        .btn-liquid { position: relative; overflow: hidden; backdrop-filter: blur(10px); transition: all 0.3s ease; }
+        .btn-liquid::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0)); pointer-events: none; }
+        .btn-liquid:active { transform: scale(0.96); }
+
+        /* 🔥 ปุ่ม Approve / Reject แบบ Liquid Glass 🔥 */
+        .btn-approve { background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); color: #059669; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1); }
+        .dark .btn-approve { background: rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.4); color: #34d399; }
+        .btn-approve:hover { background: rgba(16, 185, 129, 0.3); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2); }
+
+        .btn-reject { background: rgba(244, 63, 94, 0.2); border: 1px solid rgba(244, 63, 94, 0.5); color: #e11d48; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.1); }
+        .dark .btn-reject { background: rgba(244, 63, 94, 0.25); border-color: rgba(244, 63, 94, 0.4); color: #fb7185; }
+        .btn-reject:hover { background: rgba(244, 63, 94, 0.3); box-shadow: 0 6px 20px rgba(244, 63, 94, 0.2); }
+
+        .glass-input { background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(255, 255, 255, 0.6); color: #334155; }
+        .dark .glass-input { background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); color: #f1f5f9; }
+
+        .dark table th { color: #cbd5e1 !important; border-color: rgba(255,255,255,0.1); }
+        .dark table td { color: #f1f5f9 !important; border-color: rgba(255,255,255,0.05); }
+        .dark .bg-slate-50 { background-color: rgba(15, 23, 42, 0.4) !important; }
+
+        .swal2-popup { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.85) !important; border-radius: 2rem !important; border: 1px solid rgba(255,255,255,0.5); }
+        .dark .swal2-popup { background: rgba(30,41,59,0.85) !important; border: 1px solid rgba(255,255,255,0.1); color: #f1f5f9 !important; }
+        .dark .swal2-title, .dark .swal2-html-container { color: #f1f5f9 !important; }
         .swal2-actions { margin-top: 1.5em !important; }
+        .modal-enter { animation: modalFadeIn 0.3s ease-out forwards; }
+        @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
     </style>
 </head>
-<body class="font-sans pb-10">
+<body class="pb-10">
 
-    <nav class="bg-slate-800 border-b border-slate-700 px-4 sm:px-6 py-4 shadow-md">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+    <nav class="glass-panel border-b-0 shadow-sm sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-4">
             <div class="flex items-center gap-4">
                 <div>
-                    <h1 class="text-lg sm:text-xl font-bold text-white">Advisor Space</h1>
-                    <p class="text-xs sm:text-sm text-slate-300 mt-1 flex items-center">
-                        <i data-lucide="user" class="w-3 h-3 mr-1 text-amber-400"></i> อาจารย์ที่ปรึกษา: <span id="displayAdvisorName" class="font-semibold text-amber-400 ml-1"></span>
+                    <h1 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">Advisor Space</h1>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center">
+                        <i data-lucide="user-check" class="w-3 h-3 mr-1 text-amber-500"></i> อ.ที่ปรึกษา: <span id="displayAdvisorName" class="font-semibold text-amber-600 dark:text-amber-400 ml-1"></span>
                     </p>
                 </div>
-                <button onclick="openSettingsModal()" class="bg-slate-700 hover:bg-slate-600 text-white rounded-full p-2 transition-colors ml-2" title="เปลี่ยนรหัสผ่าน">
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleTheme()" class="btn-liquid bg-slate-200/50 dark:bg-slate-700/50 p-2.5 rounded-full text-slate-700 dark:text-slate-200 outline-none">
+                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                </button>
+                <button onclick="openSettingsModal()" class="btn-liquid bg-slate-200/50 dark:bg-slate-700/50 p-2.5 rounded-full text-slate-700 dark:text-slate-200 outline-none">
                     <i data-lucide="settings" class="w-5 h-5"></i>
                 </button>
+                <button onclick="logout()" class="text-xs sm:text-sm text-red-600 dark:text-red-400 font-medium bg-red-50/50 dark:bg-red-900/20 px-4 py-2.5 rounded-xl border border-red-100 dark:border-red-800 flex items-center btn-liquid">
+                    <i data-lucide="log-out" class="w-4 h-4 mr-1"></i> <span class="hidden sm:inline">ออกจากระบบ</span>
+                </button>
             </div>
-            <button onclick="logout()" class="text-xs sm:text-sm w-full sm:w-auto text-red-400 hover:text-red-300 hover:bg-slate-700 px-4 py-2 rounded-lg transition-colors font-medium border border-slate-600 flex items-center justify-center">
-                <i data-lucide="log-out" class="w-4 h-4 mr-2"></i> ออกจากระบบ
-            </button>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto mt-4 sm:mt-8 px-3 sm:px-4 space-y-4 sm:space-y-6">
+    <div class="max-w-7xl mx-auto mt-4 sm:mt-6 px-3 sm:px-4 space-y-4 sm:space-y-6">
 
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between">
+        <div class="glass-panel rounded-3xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between">
             <div class="mb-3 md:mb-0">
-                <h2 class="text-sm sm:text-lg font-bold text-slate-800 flex items-center">
-                    <i data-lucide="download" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700"></i> ดาวน์โหลดแบบฟอร์ม / Template
+                <h2 class="text-sm sm:text-lg font-bold text-slate-800 dark:text-white flex items-center">
+                    <i data-lucide="download" class="w-5 h-5 sm:w-6 sm:h-6 mr-2"></i> ดาวน์โหลดแบบฟอร์ม
                 </h2>
             </div>
             <div class="flex flex-wrap gap-2 sm:gap-3">
-                <a href="#" target="_blank" class="flex items-center text-[10px] sm:text-sm bg-blue-50 text-blue-700 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl hover:bg-blue-100 font-bold border border-blue-100 transition-colors">
+                <a href="#" target="_blank" class="flex items-center text-[10px] sm:text-sm bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl font-bold border border-blue-100 dark:border-blue-800 transition-colors btn-liquid">
                     <i data-lucide="file-text" class="w-3 h-3 sm:w-4 sm:h-4 mr-1.5"></i> Template โครงร่าง
                 </a>
-                <a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="flex items-center text-[10px] sm:text-sm bg-blue-50 text-blue-700 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl hover:bg-blue-100 font-bold border border-blue-100 transition-colors">
+                <a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="flex items-center text-[10px] sm:text-sm bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl font-bold border border-blue-100 dark:border-blue-800 transition-colors btn-liquid">
                     <i data-lucide="folder-open" class="w-3 h-3 sm:w-4 sm:h-4 mr-1.5"></i> คำร้องต่างๆ
                 </a>
             </div>
         </div>
         
-        <div id="loadingData" class="text-center py-10 sm:py-16 text-sm text-slate-500 flex flex-col items-center bg-white rounded-2xl shadow-sm border border-slate-200">
+        <div id="loadingData" class="text-center py-10 sm:py-16 text-sm text-slate-500 flex flex-col items-center glass-panel rounded-3xl">
             <svg class="animate-spin h-6 w-6 sm:h-8 sm:w-8 text-amber-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             กำลังโหลดข้อมูลโครงงาน...
         </div>
 
-        <div id="overviewSection" class="bg-white rounded-3xl shadow-sm border border-slate-200 p-4 sm:p-6 hidden relative overflow-hidden">
+        <div id="overviewSection" class="glass-panel rounded-3xl p-4 sm:p-6 hidden relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-blue-500"></div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-4 sm:mb-5 border-b pb-2 sm:pb-3 flex items-center ml-2">
-                <i data-lucide="pie-chart" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700"></i> ภาพรวมสถานะโครงงานในการดูแล
+            <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2">
+                <i data-lucide="pie-chart" class="w-5 h-5 sm:w-6 sm:h-6 mr-2"></i> ภาพรวมสถานะโครงงาน
             </h2>
             <div class="overflow-x-auto w-full pb-2">
-                <table class="w-full text-left text-slate-600">
-                    <thead class="bg-slate-50 text-slate-700 uppercase border-b border-slate-200 text-[10px] sm:text-sm">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 uppercase border-b text-[10px] sm:text-sm">
                         <tr>
                             <th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold whitespace-nowrap">รหัสโครงงาน</th>
                             <th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold min-w-[150px]">สมาชิกในกลุ่ม</th>
@@ -84,14 +117,14 @@
             </div>
         </div>
 
-        <div id="pendingSection" class="bg-white rounded-3xl shadow-sm border border-slate-200 p-4 sm:p-6 hidden relative overflow-hidden">
+        <div id="pendingSection" class="glass-panel rounded-3xl p-4 sm:p-6 hidden relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-amber-400"></div>
-            <h2 class="text-base sm:text-lg font-bold text-amber-600 mb-4 sm:mb-5 border-b pb-2 sm:pb-3 flex items-center ml-2">
-                <span class="bg-amber-100 text-amber-700 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-xs sm:text-sm mr-2 shadow-sm font-black" id="pendingCount">0</span> งานใหม่รอการตรวจสอบ
+            <h2 class="text-base sm:text-lg font-bold text-amber-600 dark:text-amber-400 mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2">
+                <span class="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-lg text-xs mr-2 shadow-sm font-black" id="pendingCount">0</span> งานใหม่รอตรวจสอบ
             </h2>
             <div class="overflow-x-auto w-full pb-2">
-                <table class="w-full text-left text-slate-600">
-                    <thead class="bg-slate-50 text-slate-700 uppercase border-b border-slate-200 text-[10px] sm:text-sm">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 uppercase border-b text-[10px] sm:text-sm">
                         <tr><th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold">เวลา</th><th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold min-w-[150px]">ข้อมูลนักเรียน</th><th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold">ประเภทงาน</th><th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ไฟล์แนบ</th><th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ดำเนินการ</th></tr>
                     </thead>
                     <tbody id="pendingTableBody"></tbody>
@@ -99,14 +132,14 @@
             </div>
         </div>
 
-        <div id="historySection" class="bg-white rounded-3xl shadow-sm border border-slate-200 p-4 sm:p-6 hidden relative overflow-hidden">
+        <div id="historySection" class="glass-panel rounded-3xl p-4 sm:p-6 hidden relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-slate-400"></div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-800 mb-4 sm:mb-5 border-b pb-2 sm:pb-3 flex items-center ml-2">
-                <i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700"></i> ประวัติการอนุมัติ / ตรวจงานแล้ว
+            <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2">
+                <i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2"></i> ประวัติการตรวจงานแล้ว
             </h2>
             <div class="overflow-x-auto w-full pb-2">
-                <table class="w-full text-left text-slate-600">
-                    <thead class="bg-slate-50 text-slate-700 uppercase border-b border-slate-200 text-[10px] sm:text-sm">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 uppercase border-b text-[10px] sm:text-sm">
                         <tr><th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold">เวลา</th><th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold min-w-[150px]">ข้อมูลนักเรียน</th><th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold">ประเภทงาน</th><th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ไฟล์แนบ</th><th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">สถานะ</th></tr>
                     </thead>
                     <tbody id="historyTableBody"></tbody>
@@ -116,20 +149,20 @@
     </div>
 
     <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity">
-        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden modal-enter relative flex flex-col border border-slate-100">
-            <button onclick="closeSettingsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full p-2 transition-colors z-10">
+        <div class="glass-panel bg-white/90 dark:bg-slate-800/90 rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden modal-enter relative flex flex-col">
+            <button onclick="closeSettingsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-100/50 dark:bg-slate-700/50 rounded-full p-2 transition-colors z-10 btn-liquid">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
             <div class="p-6 sm:p-8">
                 <div class="text-center mb-6">
-                    <h2 class="text-lg sm:text-xl font-bold text-slate-800 tracking-wide">ตั้งค่าบัญชี</h2>
-                    <p class="text-xs text-slate-500 mt-1">เปลี่ยนรหัสผ่านสำหรับการเข้าสู่ระบบ</p>
+                    <h2 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white tracking-wide">ตั้งค่าบัญชี</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">เปลี่ยนรหัสผ่านเข้าสู่ระบบ</p>
                 </div>
                 <form id="settingsForm" class="space-y-4">
-                    <div><input type="password" id="advOldPass" required placeholder="รหัสผ่านเดิม" class="w-full text-sm border border-slate-200 rounded-xl p-3 sm:p-3.5 bg-slate-50 focus:bg-white outline-none focus:ring-2 focus:ring-amber-400 transition-all"></div>
-                    <div><input type="password" id="advNewPass" required placeholder="รหัสผ่านใหม่" class="w-full text-sm border border-slate-200 rounded-xl p-3 sm:p-3.5 bg-slate-50 focus:bg-white outline-none focus:ring-2 focus:ring-amber-400 transition-all"></div>
-                    <div><input type="password" id="advConfPass" required placeholder="ยืนยันรหัสผ่านใหม่" class="w-full text-sm border border-slate-200 rounded-xl p-3 sm:p-3.5 bg-slate-50 focus:bg-white outline-none focus:ring-2 focus:ring-amber-400 transition-all"></div>
-                    <button type="submit" id="btnSaveSettings" class="w-full bg-slate-800 text-white font-bold py-3 sm:py-3.5 rounded-xl hover:bg-slate-700 hover:shadow-lg transition-all mt-4 flex items-center justify-center">
+                    <div><input type="password" id="advOldPass" required placeholder="รหัสผ่านเดิม" class="w-full text-sm rounded-xl p-3 sm:p-3.5 glass-input outline-none focus:ring-2 focus:ring-amber-500"></div>
+                    <div><input type="password" id="advNewPass" required placeholder="รหัสผ่านใหม่" class="w-full text-sm rounded-xl p-3 sm:p-3.5 glass-input outline-none focus:ring-2 focus:ring-amber-500"></div>
+                    <div><input type="password" id="advConfPass" required placeholder="ยืนยันรหัสผ่านใหม่" class="w-full text-sm rounded-xl p-3 sm:p-3.5 glass-input outline-none focus:ring-2 focus:ring-amber-500"></div>
+                    <button type="submit" id="btnSaveSettings" class="w-full btn-liquid bg-slate-800 dark:bg-amber-600 text-white font-bold py-3 sm:py-3.5 rounded-xl hover:shadow-lg transition-all mt-4 flex items-center justify-center">
                         <i data-lucide="save" class="w-4 h-4 mr-2"></i> บันทึกรหัสผ่านใหม่
                     </button>
                 </form>
@@ -138,259 +171,165 @@
     </div>
 
     <script>
-        // 🚨 นำ URL ของ Web App มาวางที่นี่ 🚨
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwv90B-cY383k8PVuXTDyfIQMDGqg6nZkGdbkJqTByderoHS1t8OLiQARjI5HmXXbs6eQ/exec';
-        
-        lucide.createIcons(); // โหลดไอคอน
+        const API_URL = 'https://script.google.com/macros/s/AKfycbx27LZEG7mHdgZf0azDiz8UdUxx8ow856z4scbvwQzkeZwb9haFxTJ4b2i1NG4EQ5Lr8Q/exec';
+        lucide.createIcons(); 
 
-        const advisorName = localStorage.getItem('userName'); 
-        const advisorEmail = localStorage.getItem('userEmail'); 
-        const advisorRole = localStorage.getItem('userRole'); 
-        
-        // ล็อคระบบให้เข้าได้เฉพาะอาจารย์ที่ปรึกษาหลัก
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) { html.classList.remove('dark'); localStorage.theme = 'light'; } 
+            else { html.classList.add('dark'); localStorage.theme = 'dark'; }
+        }
+
+        const advisorName = localStorage.getItem('userName'); const advisorEmail = localStorage.getItem('userEmail'); const advisorRole = localStorage.getItem('userRole'); 
         if (!advisorName || advisorRole !== 'advisor') window.location.href = 'index.html'; 
-        
         document.getElementById('displayAdvisorName').innerText = advisorName;
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
         function getDirectImageUrl(url) {
             if (!url) return "";
-            if (url.includes('drive.google.com')) {
-                const match = url.match(/[-\w]{25,}/);
-                if (match) return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`;
-            }
+            if (url.includes('drive.google.com')) { const match = url.match(/[-\w]{25,}/); if (match) return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`; }
             return url;
         }
 
-        // 🔥 ฟังก์ชันแก้ปัญหา Invalid Date 🔥
         function formatDateTime(rawStr) {
-            if (!rawStr) return "-";
-            let d = new Date(rawStr);
-            if (!isNaN(d.getTime())) {
-                return d.toLocaleDateString('th-TH') + '<br><span class="text-[9px] sm:text-[10px] text-slate-400">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</span>';
-            }
-            let parts = rawStr.toString().split(" ");
-            let datePart = parts[0] || rawStr;
-            let timePart = parts[1] || "";
+            if (!rawStr) return "-"; let d = new Date(rawStr);
+            if (!isNaN(d.getTime())) return d.toLocaleDateString('th-TH') + '<br><span class="text-[9px] sm:text-[10px] opacity-70">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</span>';
+            let parts = rawStr.toString().split(" "); let datePart = parts[0] || rawStr; let timePart = parts[1] || "";
             if (timePart.length > 5) timePart = timePart.substring(0, 5); 
-            return datePart + (timePart ? '<br><span class="text-[9px] sm:text-[10px] text-slate-400">' + timePart + ' น.</span>' : '');
+            return datePart + (timePart ? '<br><span class="text-[9px] sm:text-[10px] opacity-70">' + timePart + ' น.</span>' : '');
         }
 
-        // ฟังก์ชันเปิด Popup แสดงโปรไฟล์นักเรียน เมื่อกดคลิกที่ชื่อ
         function viewStudentPopup(name, id, phone, picUrl) {
             Swal.fire({
                 html: `
                     <div class="text-center pt-2">
-                        <img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-indigo-50 shadow-md bg-white" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random'">
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-800 leading-tight">${name}</h3>
-                        <p class="text-xs sm:text-sm text-slate-500 mb-5 mt-1">รหัสประจำตัว: ${id}</p>
-                        
-                        <div class="bg-indigo-50 rounded-2xl p-3 sm:p-4 inline-block shadow-inner w-full max-w-[200px] sm:max-w-xs border border-indigo-100">
-                            <p class="text-[10px] sm:text-xs text-indigo-400 mb-1 font-semibold uppercase tracking-wider flex items-center justify-center">
-                                <i data-lucide="phone" class="w-3 h-3 mr-1"></i> เบอร์โทรศัพท์ติดต่อ
-                            </p>
-                            <p class="text-base sm:text-lg font-bold text-indigo-700">
-                                ${phone || 'ไม่มีข้อมูล'}
-                            </p>
+                        <img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-indigo-50 dark:border-indigo-900/50 shadow-md bg-white">
+                        <h3 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white leading-tight">${name}</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-5 mt-1">รหัสประจำตัว: ${id}</p>
+                        <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl p-3 sm:p-4 inline-block w-full max-w-[200px] border border-indigo-100 dark:border-indigo-800">
+                            <p class="text-[10px] sm:text-xs text-indigo-500 dark:text-indigo-400 mb-1 font-semibold uppercase flex items-center justify-center"><i data-lucide="phone" class="w-3 h-3 mr-1"></i> เบอร์โทรติดต่อ</p>
+                            <p class="text-base sm:text-lg font-bold text-indigo-700 dark:text-indigo-300">${phone || 'ไม่มีข้อมูล'}</p>
                         </div>
                     </div>
                 `,
-                showConfirmButton: true,
-                confirmButtonText: 'ปิดหน้าต่าง',
-                confirmButtonColor: '#334155',
-                customClass: { popup: 'rounded-[2rem] p-4 sm:p-6' },
-                backdrop: `rgba(15, 23, 42, 0.7)`,
-                didOpen: () => { lucide.createIcons(); }
+                showConfirmButton: true, confirmButtonText: 'ปิดหน้าต่าง', confirmButtonColor: '#334155', customClass: { popup: 'rounded-[2rem] p-4 sm:p-6' }, backdrop: `rgba(15, 23, 42, 0.7)`, didOpen: () => { lucide.createIcons(); }
             });
         }
 
-        // ระบบ Modal เปลี่ยนรหัสผ่าน
         const settingsModal = document.getElementById('settingsModal');
         function openSettingsModal() { settingsModal.classList.remove('hidden'); }
-        function closeSettingsModal() { 
-            settingsModal.classList.add('hidden'); 
-            document.getElementById('advOldPass').value = '';
-            document.getElementById('advNewPass').value = '';
-            document.getElementById('advConfPass').value = '';
-        }
+        function closeSettingsModal() { settingsModal.classList.add('hidden'); document.getElementById('advOldPass').value = ''; document.getElementById('advNewPass').value = ''; document.getElementById('advConfPass').value = ''; }
         settingsModal.addEventListener('click', (e) => { if(e.target === settingsModal) closeSettingsModal(); });
 
         document.getElementById('settingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const oldPass = document.getElementById('advOldPass').value.trim();
-            const newPass = document.getElementById('advNewPass').value.trim();
-            const confPass = document.getElementById('advConfPass').value.trim();
-
-            if (newPass !== confPass) {
-                Swal.fire({icon: 'warning', title: 'รหัสผ่านไม่ตรงกัน', text: 'รหัสผ่านใหม่ และ ยืนยันรหัสผ่านใหม่ ไม่ตรงกันครับ'});
-                return;
-            }
-
+            const oldPass = document.getElementById('advOldPass').value.trim(); const newPass = document.getElementById('advNewPass').value.trim(); const confPass = document.getElementById('advConfPass').value.trim();
+            if (newPass !== confPass) { Swal.fire({icon: 'warning', title: 'รหัสผ่านไม่ตรงกัน'}); return; }
             const btn = document.getElementById('btnSaveSettings'); btn.disabled = true; btn.innerHTML = `กำลังบันทึก...`;
-
             try {
                 const payload = { action: "updateAdvisorPassword", email: advisorEmail, role: advisorRole, oldPassword: oldPass, newPassword: newPass };
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const result = await res.json();
-
-                if (result.status === 'success') {
-                    Swal.fire({ icon: 'success', title: 'เปลี่ยนรหัสผ่านเรียบร้อย!', showConfirmButton: false, timer: 1500 });
-                    closeSettingsModal(); 
-                } else throw new Error(result.message);
-            } catch (err) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message });
-            } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 mr-2"></i> บันทึกรหัสผ่านใหม่'; lucide.createIcons(); }
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
+                if (result.status === 'success') { Swal.fire({ icon: 'success', title: 'สำเร็จ!', showConfirmButton: false, timer: 1500 }); closeSettingsModal(); } else throw new Error(result.message);
+            } catch (err) { Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message }); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 mr-2"></i> บันทึกรหัสผ่านใหม่'; lucide.createIcons(); }
         });
 
         async function loadDashboard() {
             try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
-                
+                const response = await fetch(API_URL); const data = await response.json();
                 if (data.status === 'success') {
                     window.allProjects = data.projects || [];
                     const myStudentsWork = (data.submissions || []).filter(item => item['อ.ที่ปรึกษา'] === advisorName);
                     const pendingWorks = myStudentsWork.filter(item => item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'รออนุมัติ');
                     const historyWorks = myStudentsWork.filter(item => item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] !== 'รออนุมัติ');
-
-                    renderOverviewTable(window.allProjects, myStudentsWork);
-                    renderPendingTable(pendingWorks.reverse());
-                    renderHistoryTable(historyWorks.reverse());
-                    
-                    document.getElementById('loadingData').style.display = 'none';
-                    document.getElementById('overviewSection').classList.remove('hidden');
-                    document.getElementById('pendingSection').classList.remove('hidden');
-                    document.getElementById('historySection').classList.remove('hidden');
-                } else { throw new Error(data.message); }
-            } catch (error) { document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ เกิดข้อผิดพลาด: ${error.message}</span>`; }
+                    renderOverviewTable(window.allProjects, myStudentsWork); renderPendingTable(pendingWorks.reverse()); renderHistoryTable(historyWorks.reverse());
+                    document.getElementById('loadingData').style.display = 'none'; document.getElementById('overviewSection').classList.remove('hidden'); document.getElementById('pendingSection').classList.remove('hidden'); document.getElementById('historySection').classList.remove('hidden');
+                }
+            } catch (error) { document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ โหลดข้อมูลล้มเหลว</span>`; }
         }
 
-        // สร้าง HTML แสดงข้อมูลนักเรียนแบบกดได้ (ใช้ในตารางรอตรวจสอบและประวัติ)
         function generateStudentInfoHtml(submission) {
-            const projectId = submission['รหัสโครงงาน'] || "-";
-            const uploaderId = submission['รหัสนักเรียน'];
-            const teamMembers = window.allProjects.filter(p => p && p['รหัสโครงงาน'] == projectId);
-            
+            const projectId = submission['รหัสโครงงาน'] || "-"; const uploaderId = submission['รหัสนักเรียน']; const teamMembers = window.allProjects.filter(p => p && p['รหัสโครงงาน'] == projectId);
             let uploaderInfo = ""; let partnerInfo = "";
-
             const uploader = teamMembers.find(m => m['รหัสนักเรียน'] == uploaderId);
             if (uploader) {
-                const rawPic = uploader['รูปโปรไฟล์'] || "";
-                const fullName = `${uploader['ชื่อ']} ${uploader['นามสกุล']}`;
-                const phone = uploader['เบอร์โทรศัพท์'] ? uploader['เบอร์โทรศัพท์'].replace(/'/g, '') : "";
-                const pic = rawPic ? getDirectImageUrl(rawPic) : `https://ui-avatars.com/api/?name=${encodeURIComponent(uploader['ชื่อ'])}&background=random`;
-                
-                // เปลี่ยนเป็น <button> ให้กดแล้วโชว์ Popup ได้
+                const pic = uploader['รูปโปรไฟล์'] ? getDirectImageUrl(uploader['รูปโปรไฟล์']) : `https://ui-avatars.com/api/?name=${encodeURIComponent(uploader['ชื่อ'])}&background=random`;
                 uploaderInfo = `
-                    <button type="button" onclick="viewStudentPopup('${fullName}', '${uploader['รหัสนักเรียน']}', '${phone}', '${pic}')" class="w-full text-left flex items-center gap-2 mt-2 bg-blue-50/50 hover:bg-blue-100/50 p-2 sm:p-2.5 rounded-xl border border-blue-100 transition-colors outline-none focus:ring-2 focus:ring-blue-200">
-                        <img src="${pic}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white shadow-sm bg-white" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(uploader['ชื่อ'])}&background=random'">
+                    <button type="button" onclick="viewStudentPopup('${uploader['ชื่อ']} ${uploader['นามสกุล']}', '${uploader['รหัสนักเรียน']}', '${uploader['เบอร์โทรศัพท์'] ? uploader['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 mt-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 transition-colors btn-liquid">
+                        <img src="${pic}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm bg-white">
                         <div class="flex flex-col leading-tight overflow-hidden">
-                            <p class="text-[10px] sm:text-xs font-bold text-slate-700 truncate">${uploader['รหัสนักเรียน']} ${uploader['ชื่อ']} <span class="bg-blue-600 text-white px-1.5 sm:px-2 py-0.5 rounded-lg text-[8px] sm:text-[9px] font-bold ml-1">ผู้ส่ง</span></p>
+                            <p class="text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 truncate">${uploader['รหัสนักเรียน']} ${uploader['ชื่อ']} <span class="bg-blue-600 text-white px-1.5 py-0.5 rounded-lg text-[8px] sm:text-[9px] font-bold ml-1">ผู้ส่ง</span></p>
                         </div>
                     </button>`;
             }
-
             const partners = teamMembers.filter(m => m['รหัสนักเรียน'] != uploaderId);
             if (partners.length > 0) {
                 partnerInfo = partners.map(p => {
-                    const rawPic = p['รูปโปรไฟล์'] || "";
-                    const fullName = `${p['ชื่อ']} ${p['นามสกุล']}`;
-                    const phone = p['เบอร์โทรศัพท์'] ? p['เบอร์โทรศัพท์'].replace(/'/g, '') : "";
-                    const pic = rawPic ? getDirectImageUrl(rawPic) : `https://ui-avatars.com/api/?name=${encodeURIComponent(p['ชื่อ'])}&background=random`;
-                    
+                    const pic = p['รูปโปรไฟล์'] ? getDirectImageUrl(p['รูปโปรไฟล์']) : `https://ui-avatars.com/api/?name=${encodeURIComponent(p['ชื่อ'])}&background=random`;
                     return `
-                    <button type="button" onclick="viewStudentPopup('${fullName}', '${p['รหัสนักเรียน']}', '${phone}', '${pic}')" class="w-full text-left flex items-center gap-2 mt-1.5 px-2 py-1.5 hover:bg-slate-50 rounded-lg transition-colors outline-none focus:ring-2 focus:ring-slate-200">
-                        <img src="${pic}" class="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover border border-slate-200 bg-white opacity-90" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p['ชื่อ'])}&background=random'">
-                        <div class="flex flex-col leading-tight overflow-hidden">
-                            <p class="text-[9px] sm:text-[10px] font-semibold text-slate-600 truncate flex items-center"><i data-lucide="users" class="w-3 h-3 mr-1"></i> ${p['รหัสนักเรียน']} ${p['ชื่อ']}</p>
-                        </div>
+                    <button type="button" onclick="viewStudentPopup('${p['ชื่อ']} ${p['นามสกุล']}', '${p['รหัสนักเรียน']}', '${p['เบอร์โทรศัพท์'] ? p['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 mt-1.5 px-2 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors btn-liquid">
+                        <img src="${pic}" class="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover border border-slate-200 dark:border-slate-600 opacity-90">
+                        <div class="flex flex-col leading-tight overflow-hidden"><p class="text-[9px] sm:text-[10px] font-semibold text-slate-600 dark:text-slate-400 truncate flex items-center"><i data-lucide="users" class="w-3 h-3 mr-1"></i> ${p['รหัสนักเรียน']} ${p['ชื่อ']}</p></div>
                     </button>`;
                 }).join('');
-            } else {
-                partnerInfo = `<p class="mt-2 text-[10px] text-slate-400 italic px-2">ทำโครงงานเดี่ยว</p>`;
             }
-
-            return `<div><span class="font-bold text-slate-800 bg-slate-100 px-2 sm:px-3 py-1 rounded-lg border border-slate-200 text-[10px] sm:text-xs shadow-sm">${projectId}</span>${uploaderInfo}${partnerInfo}</div>`;
+            return `<div><span class="font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 px-2 sm:px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs shadow-sm">${projectId}</span>${uploaderInfo}${partnerInfo}</div>`;
         }
 
-        // วาดตารางภาพรวม (กดที่สมาชิกได้)
         function renderOverviewTable(projects, submissions) {
-            const tbody = document.getElementById('overviewTableBody');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('overviewTableBody'); tbody.innerHTML = '';
             const myProjects = projects.filter(p => p && p['อ. ที่ปรึกษา TH'] === advisorName);
             const uniqueProjectIds = [...new Set(myProjects.map(p => p['รหัสโครงงาน']).filter(id => id && id.toString().trim() !== ""))];
-
-            if (uniqueProjectIds.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">ไม่มีข้อมูลโครงงานในการดูแลครับ</td></tr>'; return; }
-
+            if (uniqueProjectIds.length === 0) return;
             uniqueProjectIds.forEach(pid => {
                 const members = myProjects.filter(p => p['รหัสโครงงาน'] === pid);
-                
-                // ปุ่มรายชื่อสมาชิก
                 const memberHtml = members.map(m => {
-                    const rawPic = m['รูปโปรไฟล์'] || "";
-                    const fullName = `${m['ชื่อ']} ${m['นามสกุล']}`;
-                    const phone = m['เบอร์โทรศัพท์'] ? m['เบอร์โทรศัพท์'].replace(/'/g, '') : "";
-                    const pic = rawPic ? getDirectImageUrl(rawPic) : `https://ui-avatars.com/api/?name=${encodeURIComponent(m['ชื่อ'])}&background=random`;
-                    
+                    const pic = m['รูปโปรไฟล์'] ? getDirectImageUrl(m['รูปโปรไฟล์']) : `https://ui-avatars.com/api/?name=${encodeURIComponent(m['ชื่อ'])}&background=random`;
                     return `
-                    <button type="button" onclick="viewStudentPopup('${fullName}', '${m['รหัสนักเรียน']}', '${phone}', '${pic}')" class="w-full text-left flex items-center gap-2 sm:gap-3 mb-2 bg-slate-50 hover:bg-slate-100 p-2 sm:p-2.5 rounded-xl border border-slate-100 transition-colors focus:ring-2 focus:ring-blue-100 outline-none shadow-sm">
-                        <img src="${pic}" class="w-7 h-7 sm:w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m['ชื่อ'])}&background=random'">
+                    <button type="button" onclick="viewStudentPopup('${m['ชื่อ']} ${m['นามสกุล']}', '${m['รหัสนักเรียน']}', '${m['เบอร์โทรศัพท์'] ? m['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 sm:gap-3 mb-2 bg-slate-50 dark:bg-slate-800/50 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 btn-liquid">
+                        <img src="${pic}" class="w-7 h-7 sm:w-8 h-8 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm">
                         <div class="flex flex-col leading-tight overflow-hidden">
-                            <span class="text-[10px] sm:text-xs text-slate-700 font-bold truncate">${m['รหัสนักเรียน']}</span>
-                            <span class="text-[9px] sm:text-[11px] text-slate-500 font-medium truncate">${m['ชื่อ']}</span>
+                            <span class="text-[10px] sm:text-xs text-slate-700 dark:text-slate-200 font-bold truncate">${m['รหัสนักเรียน']}</span>
+                            <span class="text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">${m['ชื่อ']}</span>
                         </div>
                     </button>`;
                 }).join('');
-
-                const memberIds = members.map(m => m['รหัสนักเรียน']);
-                const projectSubs = submissions.filter(s => s && (s['รหัสโครงงาน'] == pid || memberIds.includes(s['รหัสนักเรียน'])));
-
+                const memberIds = members.map(m => m['รหัสนักเรียน']); const projectSubs = submissions.filter(s => s && (s['รหัสโครงงาน'] == pid || memberIds.includes(s['รหัสนักเรียน'])));
                 const getStatusBadge = (workType) => {
                     const subs = projectSubs.filter(s => s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] === workType);
-                    if (subs.length === 0) return `<span class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-[10px] font-bold bg-slate-100 text-slate-400 border border-slate-200 whitespace-nowrap">➖ ยังไม่ส่ง</span>`;
+                    if (subs.length === 0) return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 opacity-60">➖ ยังไม่ส่ง</span>`;
                     const status = subs[subs.length - 1]['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'];
-                    if (status === 'อนุมัติ') return `<span class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i> อนุมัติ</span>`;
-                    if (status === 'ไม่อนุมัติ') return `<span class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i> ไม่อนุมัติ</span>`;
-                    return `<span class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap flex items-center justify-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> รออนุมัติ</span>`;
+                    if (status === 'อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i> อนุมัติ</span>`;
+                    if (status === 'ไม่อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i> ไม่อนุมัติ</span>`;
+                    return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 flex items-center justify-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> รออนุมัติ</span>`;
                 };
-
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-slate-100 hover:bg-blue-50/30 transition-colors";
-                tr.innerHTML = `
-                    <td class="px-2 py-4 sm:px-4 sm:py-5 align-top font-bold text-slate-800 text-xs sm:text-sm border-r border-slate-50">${pid}</td>
-                    <td class="px-2 py-2 sm:px-4 sm:py-3 align-top border-r border-slate-50">${memberHtml}</td>
-                    <td class="px-2 py-4 sm:px-4 sm:py-5 align-top text-center">${getStatusBadge('โครงร่าง (Proposal)')}</td>
-                    <td class="px-2 py-4 sm:px-4 sm:py-5 align-top text-center">${getStatusBadge('รายงานความก้าวหน้า')}</td>
-                    <td class="px-2 py-4 sm:px-4 sm:py-5 align-top text-center">${getStatusBadge('รายงานฉบับสมบูรณ์')}</td>
-                `;
+                const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors";
+                tr.innerHTML = `<td class="px-2 py-4 sm:px-4 sm:py-5 align-top font-bold text-slate-800 dark:text-slate-200 text-xs sm:text-sm border-r border-slate-50 dark:border-slate-700/50">${pid}</td><td class="px-2 py-2 sm:px-4 sm:py-3 align-top border-r border-slate-50 dark:border-slate-700/50">${memberHtml}</td><td class="px-2 py-4 sm:px-4 sm:py-5 align-top text-center">${getStatusBadge('โครงร่าง (Proposal)')}</td><td class="px-2 py-4 sm:px-4 sm:py-5 align-top text-center">${getStatusBadge('รายงานความก้าวหน้า')}</td><td class="px-2 py-4 sm:px-4 sm:py-5 align-top text-center">${getStatusBadge('รายงานฉบับสมบูรณ์')}</td>`;
                 tbody.appendChild(tr);
             });
             lucide.createIcons();
         }
 
-        // ตารางรอตรวจสอบ
         function renderPendingTable(works) {
             const tbody = document.getElementById('pendingTableBody'); document.getElementById('pendingCount').innerText = works.length; tbody.innerHTML = '';
-            if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 sm:py-16 text-center text-slate-500 text-xs sm:text-sm">🎉 ไม่มีงานรอตรวจสอบแล้วครับ</td></tr>'; return; }
+            if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 sm:py-16 text-center text-slate-500 text-xs sm:text-sm">ไม่มีงานรอตรวจสอบแล้วครับ</td></tr>'; return; }
             works.forEach(item => {
-                const dateHtml = formatDateTime(item['Timestamp']);
                 const workType = item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'];
-                
-                const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 hover:bg-amber-50/50 transition-colors";
+                const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors";
                 tr.innerHTML = `
-                    <td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">${dateHtml}</td>
+                    <td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">${formatDateTime(item['Timestamp'])}</td>
                     <td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td>
-                    <td class="px-2 py-4 sm:px-4 sm:py-5 font-bold text-blue-700 text-[10px] sm:text-sm align-middle leading-tight">${workType}</td>
+                    <td class="px-2 py-4 sm:px-4 sm:py-5 font-bold text-blue-700 dark:text-blue-400 text-[10px] sm:text-sm align-middle leading-tight">${workType}</td>
                     <td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">
                         <div class="flex flex-col gap-1.5">
-                            <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="bg-blue-50 text-blue-700 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-blue-100 hover:bg-blue-100 transition-colors whitespace-nowrap flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>รูปเล่ม</a>
-                            <a href="${item['URL ลายเซ็น']}" target="_blank" class="bg-amber-50 text-amber-700 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 hover:bg-amber-100 transition-colors whitespace-nowrap flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>
+                            <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-blue-100 dark:border-blue-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>รูปเล่ม</a>
+                            <a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>
                         </div>
                     </td>
                     <td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">
-                        <div class="flex flex-col gap-1.5">
-                            <button onclick="updateStatus('${item['รหัสนักเรียน']}', '${workType}', 'อนุมัติ')" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold transition-colors whitespace-nowrap flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 mr-1"></i>อนุมัติ</button>
-                            <button onclick="updateStatus('${item['รหัสนักเรียน']}', '${workType}', 'ไม่อนุมัติ')" class="w-full bg-rose-500 hover:bg-rose-600 text-white px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold transition-colors whitespace-nowrap flex items-center justify-center"><i data-lucide="x" class="w-3 h-3 mr-1"></i>ไม่อนุมัติ</button>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="updateStatus('${item['รหัสนักเรียน']}', '${workType}', 'อนุมัติ')" class="w-full btn-liquid btn-approve px-2 py-2 rounded-lg text-[10px] sm:text-xs font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i>อนุมัติ</button>
+                            <button onclick="updateStatus('${item['รหัสนักเรียน']}', '${workType}', 'ไม่อนุมัติ')" class="w-full btn-liquid btn-reject px-2 py-2 rounded-lg text-[10px] sm:text-xs font-bold flex items-center justify-center"><i data-lucide="x" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i>ไม่อนุมัติ</button>
                         </div>
                     </td>
                 `;
@@ -399,23 +338,20 @@
             lucide.createIcons();
         }
 
-        // ตารางประวัติ
         function renderHistoryTable(works) {
             const tbody = document.getElementById('historyTableBody'); tbody.innerHTML = '';
             if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 sm:py-16 text-center text-slate-500 text-xs sm:text-sm">ยังไม่มีประวัติการตรวจงานครับ</td></tr>'; return; }
             works.forEach(item => {
-                let badge = item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'อนุมัติ' ? `<span class="px-2 py-1 sm:px-3 sm:py-1.5 text-[9px] sm:text-[11px] font-bold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>อนุมัติแล้ว</span>` : `<span class="px-2 py-1 sm:px-3 sm:py-1.5 text-[9px] sm:text-[11px] font-bold rounded-lg bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>ไม่อนุมัติ</span>`;
-                const dateHtml = formatDateTime(item['Timestamp']);
-
-                const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 hover:bg-slate-50/80 transition-colors";
+                let badge = item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] === 'อนุมัติ' ? `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>อนุมัติแล้ว</span>` : `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>ไม่อนุมัติ</span>`;
+                const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors";
                 tr.innerHTML = `
-                    <td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">${dateHtml}</td>
+                    <td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">${formatDateTime(item['Timestamp'])}</td>
                     <td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td>
-                    <td class="px-2 py-4 sm:px-4 sm:py-5 text-slate-700 font-semibold text-[10px] sm:text-sm align-middle leading-tight">${item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']}</td>
+                    <td class="px-2 py-4 sm:px-4 sm:py-5 text-slate-700 dark:text-slate-200 font-semibold text-[10px] sm:text-sm align-middle leading-tight">${item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']}</td>
                     <td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">
                         <div class="flex flex-col gap-1.5">
-                            <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="text-blue-600 hover:bg-blue-50 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-transparent hover:border-blue-100 transition-colors whitespace-nowrap flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>รูปเล่ม</a>
-                            <a href="${item['URL ลายเซ็น']}" target="_blank" class="text-amber-600 hover:bg-amber-50 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-transparent hover:border-amber-100 transition-colors whitespace-nowrap flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>
+                            <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-blue-100 dark:border-blue-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>รูปเล่ม</a>
+                            <a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>
                         </div>
                     </td>
                     <td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">${badge}</td>
@@ -426,19 +362,14 @@
         }
 
         async function updateStatus(studentId, workType, newStatus) {
-            const result = await Swal.fire({ title: `ยืนยันผลการตรวจ?`, html: `คุณต้องการปรับสถานะเป็น <br><b class="${newStatus === 'อนุมัติ' ? 'text-emerald-600' : 'text-rose-600'} text-lg">${newStatus}</b> ใช่หรือไม่?`, icon: 'question', showCancelButton: true, confirmButtonColor: newStatus === 'อนุมัติ' ? '#10b981' : '#f43f5e', cancelButtonColor: '#94a3b8', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก', backdrop: `rgba(0,0,0,0.5)` });
+            const result = await Swal.fire({ title: `ยืนยันผลการตรวจ?`, html: `คุณต้องการปรับสถานะเป็น <br><b class="${newStatus === 'อนุมัติ' ? 'text-emerald-500' : 'text-rose-500'} text-lg">${newStatus}</b> ใช่หรือไม่?`, icon: 'question', showCancelButton: true, confirmButtonColor: newStatus === 'อนุมัติ' ? '#10b981' : '#f43f5e', cancelButtonColor: '#64748b', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' });
             if (!result.isConfirmed) return;
             Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
             try {
-                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "updateStatus", studentId: studentId, workType: workType, status: newStatus }) });
-                const data = await response.json();
-                if (data.status === 'success') {
-                    await Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', text: `อัปเดตสถานะเป็น "${newStatus}" เรียบร้อยแล้ว`, timer: 1500, showConfirmButton: false });
-                    document.getElementById('overviewSection').classList.add('hidden'); document.getElementById('pendingSection').classList.add('hidden'); document.getElementById('historySection').classList.add('hidden'); document.getElementById('loadingData').style.display = 'flex'; loadDashboard();
-                } else throw new Error(data.message);
-            } catch (error) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message, confirmButtonColor: '#3b82f6' }); }
+                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "updateStatus", studentId: studentId, workType: workType, status: newStatus }) }); const data = await response.json();
+                if (data.status === 'success') { await Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500 }); loadDashboard(); } else throw new Error(data.message);
+            } catch (error) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message }); }
         }
-
         loadDashboard();
     </script>
 </body>
