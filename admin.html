@@ -15,32 +15,23 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #f1f5f9; }
         .dark body { background-color: #0f172a; color: #f1f5f9; }
-
-        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255,255,255,0.8); }
+        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255,255,255,0.8); }
         .dark .glass-panel { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255,255,255,0.05); }
-
         .btn-liquid { position: relative; overflow: hidden; backdrop-filter: blur(10px); transition: all 0.3s ease; }
         .btn-liquid::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0)); pointer-events: none; }
         .btn-liquid:active { transform: scale(0.96); }
-
         .glass-input { background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(255, 255, 255, 0.6); color: #334155; }
         .dark .glass-input { background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); color: #f1f5f9; }
-
         .dark table th { color: #cbd5e1 !important; border-color: rgba(255,255,255,0.1); }
         .dark table td { color: #f1f5f9 !important; border-color: rgba(255,255,255,0.05); }
         .dark .bg-slate-50 { background-color: rgba(15, 23, 42, 0.4) !important; }
-
         .swal2-popup { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.85) !important; border-radius: 2rem !important; border: 1px solid rgba(255,255,255,0.5); }
         .dark .swal2-popup { background: rgba(30,41,59,0.85) !important; border: 1px solid rgba(255,255,255,0.1); color: #f1f5f9 !important; }
         .dark .swal2-title, .dark .swal2-html-container { color: #f1f5f9 !important; }
-
-        /* 🔥 FIX: Remove overlapping circles in Swal Success 🔥 */
-        .swal2-success-circular-line-left,
-        .swal2-success-circular-line-right,
-        .swal2-success-fix,
-        .swal2-success-ring {
-            display: none !important;
-        }
+        
+        /* 🔥 ลบวงกลมทับซ้อนในป๊อปอัพให้เกลี้ยง 🔥 */
+        .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-success-ring { display: none !important; background-color: transparent !important; }
+        .swal2-icon.swal2-success { border-color: #a5dc86 !important; background: transparent !important; }
     </style>
 </head>
 <body class="pb-10">
@@ -54,12 +45,8 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="toggleTheme()" class="btn-liquid bg-slate-200/50 dark:bg-slate-700/50 p-2.5 rounded-full text-slate-700 dark:text-slate-200 outline-none">
-                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
-                </button>
-                <button onclick="logout()" class="text-xs sm:text-sm text-red-600 dark:text-red-400 font-medium bg-red-50/50 dark:bg-red-900/20 px-4 py-2.5 rounded-xl border border-red-100 dark:border-red-800 flex items-center btn-liquid">
-                    <i data-lucide="log-out" class="w-4 h-4 mr-1"></i> <span class="hidden sm:inline">ออกจากระบบ</span>
-                </button>
+                <button onclick="toggleTheme()" class="btn-liquid bg-slate-200/50 dark:bg-slate-700/50 p-2.5 rounded-full text-slate-700 dark:text-slate-200 outline-none"><i data-lucide="moon" class="w-5 h-5 dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i></button>
+                <button onclick="logout()" class="text-xs sm:text-sm text-red-600 dark:text-red-400 font-medium bg-red-50/50 dark:bg-red-900/20 px-4 py-2.5 rounded-xl border border-red-100 dark:border-red-800 flex items-center btn-liquid"><i data-lucide="log-out" class="w-4 h-4 mr-1"></i> <span class="hidden sm:inline">ออกจากระบบ</span></button>
             </div>
         </div>
     </nav>
@@ -67,61 +54,34 @@
     <div class="max-w-7xl mx-auto mt-4 sm:mt-8 px-3 sm:px-4 space-y-4 sm:space-y-6">
 
         <div class="glass-panel rounded-3xl p-4 sm:p-6 flex flex-col items-center">
-            <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 w-full flex items-center">
-                <i data-lucide="search" class="w-5 h-5 mr-2"></i> ค้นหาข้อมูลนักเรียน / โครงงาน
-            </h2>
+            <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 w-full flex items-center"><i data-lucide="search" class="w-5 h-5 mr-2"></i> ค้นหาข้อมูลนักเรียน / โครงงาน</h2>
             <div class="relative w-full">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <i data-lucide="search" class="h-5 w-5 text-slate-400"></i>
-                </div>
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i data-lucide="search" class="h-5 w-5 text-slate-400"></i></div>
                 <input type="text" id="searchInput" onkeyup="filterData()" placeholder="พิมพ์ รหัสโครงงาน, รหัสนักเรียน หรือ ชื่อ-นามสกุล..." class="w-full pl-11 pr-4 py-3.5 sm:py-4 text-sm sm:text-base rounded-2xl glass-input focus:ring-4 focus:ring-cyan-100 dark:focus:ring-cyan-900 outline-none transition-all font-medium">
             </div>
         </div>
 
-        <div id="loadingData" class="text-center py-10 sm:py-16 text-sm text-slate-500 flex flex-col items-center glass-panel rounded-3xl">
-            <svg class="animate-spin h-6 w-6 sm:h-8 sm:w-8 text-cyan-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            กำลังโหลดข้อมูลทั้งระบบ...
-        </div>
+        <div id="loadingData" class="text-center py-10 sm:py-16 text-sm text-slate-500 flex flex-col items-center glass-panel rounded-3xl"><svg class="animate-spin h-6 w-6 sm:h-8 sm:w-8 text-cyan-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>กำลังโหลดข้อมูลทั้งระบบ...</div>
 
         <div id="overviewSection" class="glass-panel rounded-3xl p-4 sm:p-6 hidden relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-cyan-500"></div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-3 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2">
-                <i data-lucide="bar-chart-2" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-cyan-600 dark:text-cyan-400"></i> ภาพรวมโครงงานทั้งหมดในระบบ
-            </h2>
+            <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-3 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><i data-lucide="bar-chart-2" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-cyan-600 dark:text-cyan-400"></i> ภาพรวมโครงงานทั้งหมดในระบบ</h2>
             <div class="overflow-x-auto w-full pb-2">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 uppercase border-b text-[10px] sm:text-sm">
-                        <tr>
-                            <th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold whitespace-nowrap">รหัสโครงงาน</th>
-                            <th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold min-w-[150px]">นักเรียนในกลุ่ม</th>
-                            <th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">โครงร่าง</th>
-                            <th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ความก้าวหน้า</th>
-                            <th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ฉบับสมบูรณ์</th>
-                        </tr>
-                    </thead>
-                    <tbody id="overviewTableBody"></tbody>
-                </table>
+                <table class="w-full text-left"><thead class="bg-slate-50 uppercase border-b text-[10px] sm:text-sm"><tr><th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold whitespace-nowrap">รหัสโครงงาน</th><th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold min-w-[150px]">นักเรียนในกลุ่ม</th><th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">โครงร่าง</th><th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ความก้าวหน้า</th><th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ฉบับสมบูรณ์</th></tr></thead><tbody id="overviewTableBody"></tbody></table>
             </div>
         </div>
 
         <div id="allWorksSection" class="glass-panel rounded-3xl p-4 sm:p-6 hidden relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-slate-400"></div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-3 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2">
-                <i data-lucide="folder" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ประวัติการส่งงานทั้งหมด
-            </h2>
+            <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-3 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><i data-lucide="folder" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ประวัติการส่งงานทั้งหมด</h2>
             <div class="overflow-x-auto w-full pb-2">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 uppercase border-b text-[10px] sm:text-sm">
-                        <tr><th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold">เวลา</th><th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold min-w-[150px]">ข้อมูลนักเรียน</th><th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold">ประเภทงาน</th><th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ไฟล์แนบ</th><th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">สถานะปัจจุบัน</th></tr>
-                    </thead>
-                    <tbody id="allWorksTableBody"></tbody>
-                </table>
+                <table class="w-full text-left"><thead class="bg-slate-50 uppercase border-b text-[10px] sm:text-sm"><tr><th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold">เวลา</th><th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold min-w-[150px]">ข้อมูลนักเรียน</th><th class="px-2 py-3 sm:px-4 sm:py-4 font-semibold">ประเภทงาน</th><th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ไฟล์แนบ</th><th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">สถานะปัจจุบัน</th></tr></thead><tbody id="allWorksTableBody"></tbody></table>
             </div>
         </div>
     </div>
 
     <script>
-        const API_URL = https://script.google.com/macros/s/AKfycbxh5d3dfVInEgWM_vaPYmD3-eHFq6Cvyjd9mcIIUwc8iPQlRz-4XpjpfV2OufgUrH6d/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxMFAthwvYInTLoNf9mBdV0EFHH_HSvU7FcsAgfyRHPUEI-h5eD9BYRg7TuaseaI5nPCw/exec';
         lucide.createIcons();
 
         function toggleTheme() {
@@ -135,16 +95,10 @@
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
-        // 🔥 FIX: Simplified Image Fetching 🔥
+        // 🔥 FIX: Images load immediately 🔥
         function getProcessedImgUrl(url, studentName) {
-            if (!url || url === "-") {
-                return `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=random`;
-            }
-            // หากเป็นลิงก์ Drive แปลงเป็น Thumbnail เพื่อให้แสดงผลทันที
-            if (url.includes('drive.google.com')) {
-                const match = url.match(/[-\w]{25,}/);
-                if (match) return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`;
-            }
+            if (!url || url === "-") return `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=random`;
+            if (url.includes('drive.google.com')) { const match = url.match(/[-\w]{25,}/); if (match) return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`; }
             return url;
         }
 
@@ -199,7 +153,6 @@
             renderOverviewTable(filteredProjectIds, window.allSubmissions); renderAllWorksTable(filteredSubmissions.slice().reverse());
         }
 
-        // 🔥 FIX: Images load immediately 🔥
         function generateStudentInfoHtml(submission) {
             const projectId = submission['รหัสโครงงาน'] || "-"; const uploaderId = submission['รหัสนักเรียน']; const teamMembers = window.allProjects.filter(p => p && p['รหัสโครงงาน'] == projectId);
             let uploaderInfo = ""; let partnerInfo = "";
@@ -213,19 +166,28 @@
                     </button>`;
             }
             const partners = teamMembers.filter(m => m['รหัสนักเรียน'] != uploaderId);
-            if (partners.length > 0) { partnerInfo = partners.map(p => `<p class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 mt-1.5 px-2 truncate flex items-center"><i data-lucide="users" class="w-3 h-3 mr-1"></i> ${p['รหัสนักเรียน']} ${p['ชื่อ']} ${p['นามสกุล']}</p>`).join(''); }
+            if (partners.length > 0) {
+                partnerInfo = partners.map(p => {
+                    const pic = getProcessedImgUrl(p['รูปโปรไฟล์'], p['ชื่อ']);
+                    return `
+                    <button type="button" onclick="viewStudentPopup('${p['ชื่อ']} ${p['นามสกุล']}', '${p['รหัสนักเรียน']}', '${p['เบอร์โทรศัพท์'] ? p['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 mt-1.5 px-2 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors btn-liquid">
+                        <img src="${pic}" class="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover border border-slate-200 dark:border-slate-600 opacity-90" loading="lazy">
+                        <div class="flex flex-col leading-tight overflow-hidden"><p class="text-[9px] sm:text-[10px] font-semibold text-slate-600 dark:text-slate-400 truncate flex items-center"><i data-lucide="users" class="w-3 h-3 mr-1"></i> ${p['รหัสนักเรียน']} ${p['ชื่อ']} ${p['นามสกุล']}</p></div>
+                    </button>`;
+                }).join('');
+            } else { partnerInfo = `<p class="mt-2 text-[10px] text-slate-400 italic px-2">ทำเดี่ยว</p>`; }
             return `<div><span class="font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 px-2 sm:px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs shadow-sm">${projectId}</span>${uploaderInfo}${partnerInfo}</div>`;
         }
 
         function renderOverviewTable(projectIds, submissions) {
             const tbody = document.getElementById('overviewTableBody'); tbody.innerHTML = '';
-            if (projectIds.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 sm:py-16 text-center text-slate-500">ไม่พบข้อมูลที่ค้นหา</td></tr>'; return; }
+            if (projectIds.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 sm:py-16 text-center text-slate-500">ไม่พบข้อมูล</td></tr>'; return; }
             projectIds.forEach(pid => {
                 const members = window.allProjects.filter(p => p['รหัสโครงงาน'] === pid);
                 const memberHtml = members.map(m => {
                     const pic = getProcessedImgUrl(m['รูปโปรไฟล์'], m['ชื่อ']);
                     return `
-                    <button type="button" onclick="viewStudentPopup('${m['ชื่อ']} ${m['นามสกุล']}', '${m['รหัสนักเรียน']}', '${m['เบอร์โทรศัพท์'] ? m['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 sm:gap-3 mb-2 bg-slate-50 dark:bg-slate-800/50 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 btn-liquid transition-colors">
+                    <button type="button" onclick="viewStudentPopup('${m['ชื่อ']} ${m['นามสกุล']}', '${m['รหัสนักเรียน']}', '${m['เบอร์โทรศัพท์'] ? m['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 sm:gap-3 mb-2 bg-slate-50 dark:bg-slate-800/50 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 btn-liquid">
                         <img src="${pic}" class="w-7 h-7 sm:w-8 h-8 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm" loading="lazy">
                         <div class="flex flex-col leading-tight overflow-hidden"><span class="text-[10px] sm:text-xs text-slate-700 dark:text-slate-200 font-bold truncate">${m['รหัสนักเรียน']}</span><span class="text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">${m['ชื่อ']} ${m['นามสกุล']}</span></div>
                     </button>`;
