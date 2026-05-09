@@ -146,14 +146,14 @@
             else { html.classList.add('dark'); localStorage.theme = 'dark'; }
         }
 
-        // 🔥 แก้ไขระบบตรวจสิทธิ์การเข้าใช้งานที่นี่ ป้องกันการเด้งออกถ้ารหัสนักเรียนเป็นช่องว่าง 🔥
-        const userEmail = localStorage.getItem('userEmail'); 
+        // 🔥 แก้ไขระบบตรวจสิทธิ์การเข้าใช้งาน เอาการเช็ค userEmail ออก ป้องกันการเด้ง 🔥
         const userRole = localStorage.getItem('userRole');
+        const userEmail = localStorage.getItem('userEmail') || ""; 
         const studentId = localStorage.getItem('studentId') || "ไม่ระบุ"; 
         let currentProfileUrl = ""; 
         
-        // เช็คแค่ว่ามีอีเมลและเป็นนักเรียนจริงไหมก็พอครับ
-        if (!userEmail || userRole !== 'student') {
+        // เช็คแค่ว่าเป็นนักเรียนจริงไหมก็พอครับ
+        if (userRole !== 'student') {
             window.location.href = 'index.html'; 
         }
         
@@ -257,7 +257,7 @@
                     let cleanLastName = (existingSub['นามสกุล'] || "").split("และ")[0].trim();
                     const submitterName = `${cleanFirstName} ${cleanLastName}`;
 
-                    if(submitterId !== studentId.trim()) {
+                    if(submitterId !== (studentId === "ไม่ระบุ" ? "" : studentId.trim())) {
                         Swal.fire({ icon: 'warning', title: 'มีการส่งงานนี้แล้ว!', html: `เพื่อนร่วมกลุ่มของคุณ <b>${submitterName} ${submitterId ? '(รหัส ' + submitterId + ')' : ''}</b> <br>ได้ส่งงานประเภทนี้เข้าระบบแล้ว<br><br><span class='text-rose-500 text-xs'>*หากคุณอัปโหลดใหม่ ไฟล์ของเพื่อนจะถูกแทนที่ทันที*</span>`, confirmButtonText: 'รับทราบ', confirmButtonColor: '#f59e0b' });
                     }
                 }
