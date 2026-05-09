@@ -103,6 +103,7 @@
         </div>
     </div>
 
+    <!-- Modal ตั้งค่าโปรไฟล์ -->
     <div id="profileModal" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity">
         <div class="glass-panel bg-white/90 dark:bg-slate-800/90 rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden relative flex flex-col">
             <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-100/50 dark:bg-slate-700/50 rounded-full p-2 transition-colors z-10 btn-liquid"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -145,8 +146,17 @@
             else { html.classList.add('dark'); localStorage.theme = 'dark'; }
         }
 
-        const userEmail = localStorage.getItem('userEmail'); const studentId = localStorage.getItem('studentId'); let currentProfileUrl = ""; 
-        if (!userEmail || !studentId) window.location.href = 'index.html'; 
+        // 🔥 แก้ไขระบบตรวจสิทธิ์การเข้าใช้งานที่นี่ ป้องกันการเด้งออกถ้ารหัสนักเรียนเป็นช่องว่าง 🔥
+        const userEmail = localStorage.getItem('userEmail'); 
+        const userRole = localStorage.getItem('userRole');
+        const studentId = localStorage.getItem('studentId') || "ไม่ระบุ"; 
+        let currentProfileUrl = ""; 
+        
+        // เช็คแค่ว่ามีอีเมลและเป็นนักเรียนจริงไหมก็พอครับ
+        if (!userEmail || userRole !== 'student') {
+            window.location.href = 'index.html'; 
+        }
+        
         document.getElementById('displayStudentId').innerText = studentId;
 
         const cachedName = localStorage.getItem('userName') || 'User';
@@ -181,7 +191,7 @@
                 if (data && data.status === 'success') {
                     window.allProjects = data.projects || []; 
                     
-                    const myProject = window.allProjects.find(p => p && (p['รหัสนักเรียน']||"").toString().trim() === studentId.trim());
+                    const myProject = window.allProjects.find(p => p && (p['รหัสนักเรียน']||"").toString().trim() === (studentId === "ไม่ระบุ" ? "" : studentId.trim()));
                     let pid = "";
                     if (myProject && myProject['รหัสโครงงาน']) {
                         pid = (myProject['รหัสโครงงาน']||"").toString().trim();
@@ -199,7 +209,7 @@
                         let rowProj = (s['รหัสโครงงาน'] || "").toString().trim();
                         let rowStu = (s['รหัสนักเรียน'] || "").toString().trim();
                         if (pid !== "" && rowProj === pid) return true;
-                        if (rowStu === studentId.trim()) return true;
+                        if (studentId !== "ไม่ระบุ" && rowStu === studentId.trim()) return true;
                         return false;
                     });
                     
@@ -248,7 +258,7 @@
                     const submitterName = `${cleanFirstName} ${cleanLastName}`;
 
                     if(submitterId !== studentId.trim()) {
-                        Swal.fire({ icon: 'warning', title: 'มีการส่งงานนี้แล้ว!', html: `เพื่อนร่วมกลุ่มของคุณ <b>${submitterName} (รหัส ${submitterId})</b> <br>ได้ส่งงานประเภทนี้เข้าระบบแล้ว<br><br><span class='text-rose-500 text-xs'>*หากคุณอัปโหลดใหม่ ไฟล์ของเพื่อนจะถูกแทนที่ทันที*</span>`, confirmButtonText: 'รับทราบ', confirmButtonColor: '#f59e0b' });
+                        Swal.fire({ icon: 'warning', title: 'มีการส่งงานนี้แล้ว!', html: `เพื่อนร่วมกลุ่มของคุณ <b>${submitterName} ${submitterId ? '(รหัส ' + submitterId + ')' : ''}</b> <br>ได้ส่งงานประเภทนี้เข้าระบบแล้ว<br><br><span class='text-rose-500 text-xs'>*หากคุณอัปโหลดใหม่ ไฟล์ของเพื่อนจะถูกแทนที่ทันที*</span>`, confirmButtonText: 'รับทราบ', confirmButtonColor: '#f59e0b' });
                     }
                 }
             }
@@ -266,7 +276,7 @@
                     if (status === 'อนุมัติ') { statusClass = "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700"; statusIcon = '<i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>'; }
                     if (status === 'ไม่อนุมัติ') { statusClass = "bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-700"; statusIcon = '<i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>'; }
                     
-                    let isMe = (s['รหัสนักเรียน'] || "").toString().trim() === studentId.trim();
+                    let isMe = (s['รหัสนักเรียน'] || "").toString().trim() === (studentId === "ไม่ระบุ" ? "" : studentId.trim());
                     
                     // ทำความสะอาดชื่อโชว์ในตาราง
                     let cleanFirstName = (s['ชื่อ'] || "").split("และ")[0].replace(/\(ผู้ส่ง\)/g, '').trim();
@@ -300,7 +310,7 @@
             const selectedWorkType = document.getElementById('workType').value;
             const existingSub = window.mySubmissions.find(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === selectedWorkType);
             
-            if (existingSub && (existingSub['รหัสนักเรียน'] || "").toString().trim() !== studentId.trim()) {
+            if (existingSub && (existingSub['รหัสนักเรียน'] || "").toString().trim() !== (studentId === "ไม่ระบุ" ? "" : studentId.trim())) {
                 let cleanFirstName = (existingSub['ชื่อ'] || "").split("และ")[0].replace(/\(ผู้ส่ง\)/g, '').trim();
                 const result = await Swal.fire({
                     title: 'ยืนยันการส่งทับไฟล์เพื่อน?', html: `เพื่อนของคุณ <b>${cleanFirstName}</b> ได้ส่งงานนี้ไปแล้ว<br>คุณต้องการส่งไฟล์ใหม่เพื่อ <b>"แทนที่"</b> ไฟล์เดิมใช่หรือไม่?`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#3b82f6', cancelButtonColor: '#94a3b8', confirmButtonText: 'ใช่, ส่งไฟล์แทนที่', cancelButtonText: 'ยกเลิก'
@@ -314,7 +324,7 @@
             try {
                 const f1 = await toBase64(document.getElementById('fileReport').files[0]); const f2 = await toBase64(document.getElementById('fileSignature').files[0]);
                 const uploader = members.find(x => x['รหัสนักเรียน'] == studentId); 
-                const payload = { studentId: studentId, firstName: uploader ? uploader['ชื่อ'] : "", lastName: uploader ? uploader['นามสกุล'] : "", projectId: pid, workType: selectedWorkType, advisorName: (members[0] ? members[0]['อ. ที่ปรึกษา TH'] : ""), file1Data: f1.data, file1Mime: f1.mime, file2Data: f2.data, file2Mime: f2.mime };
+                const payload = { studentId: studentId === "ไม่ระบุ" ? "" : studentId, firstName: uploader ? uploader['ชื่อ'] : "", lastName: uploader ? uploader['นามสกุล'] : "", projectId: pid, workType: selectedWorkType, advisorName: (members[0] ? members[0]['อ. ที่ปรึกษา TH'] : ""), file1Data: f1.data, file1Mime: f1.mime, file2Data: f2.data, file2Mime: f2.mime };
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
                 if (result && result.status === 'success') { Swal.fire({ icon: 'success', title: 'ส่งงานสำเร็จ!', timer: 2000, showConfirmButton: false }).then(() => { document.getElementById('workType').value = ""; document.getElementById('fileReport').value = ""; document.getElementById('fileSignature').value = ""; document.getElementById('tableContainer').classList.add('hidden'); document.getElementById('loadingData').style.display = 'flex'; loadData(); }); } else throw new Error(result.message);
             } catch (err) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message }); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="send" class="w-4 h-4 mr-2"></i> ส่งงาน'; lucide.createIcons(); }
