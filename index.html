@@ -26,7 +26,6 @@
         .dark .swal2-popup { background: rgba(30,41,59,0.85) !important; border: 1px solid rgba(255,255,255,0.1); color: #f1f5f9 !important; }
         .dark .swal2-title, .dark .swal2-html-container { color: #f1f5f9 !important; }
         
-        /* 🔥 ลบวงกลมทับซ้อนในป๊อปอัพให้เกลี้ยง 🔥 */
         .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-success-ring { display: none !important; background-color: transparent !important; }
         .swal2-icon.swal2-success { border-color: #a5dc86 !important; background: transparent !important; }
         
@@ -45,8 +44,8 @@
 
     <div class="w-full max-w-md p-6 sm:p-8 rounded-[2rem] glass-panel relative z-10">
         <div class="text-center mb-6 sm:mb-8">
-            <div class="bg-white/40 dark:bg-white/5 p-3 sm:p-4 rounded-2xl inline-block mb-3 border border-white/40 dark:border-white/10 shadow-sm">
-                <img src="https://img1.pic.in.th/images/logo-banner-scius.png" alt="logo" class="h-12 sm:h-16 mx-auto drop-shadow-md hover:scale-105 transition-transform duration-300">
+            <div class="bg-white p-3 sm:p-4 rounded-2xl inline-block mb-3 border border-slate-100 shadow-md">
+                <img src="https://img1.pic.in.th/images/logo-banner-scius.png" alt="logo" class="h-12 sm:h-16 mx-auto hover:scale-105 transition-transform duration-300">
             </div>
             <h2 class="text-xl font-bold text-slate-800 dark:text-white tracking-wide">ระบบส่งงานโครงงาน</h2>
             <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">โครงการ วมว. มหาวิทยาลัยนเรศวร</p>
@@ -81,8 +80,8 @@
     </div>
 
     <script>
-        // ⚠️ อย่าลืมวาง URL ของ Google Apps Script Web App ของคุณที่นี่ ⚠️
-        const API_URL = 'https://script.google.com/macros/s/AKfycbz4VLdHZ_TrksKu_zHsmUpd-ztg1jbMEvPJD6xl4BdnxoW-4F_fQ6bdZSji5ejh6NfJJQ/exec';
+        // ⚠️ นำลิงก์ API เดิมของคุณมาใส่ตรงนี้นะครับ ⚠️
+        const API_URL = 'วาง_URL_ของ_APPS_SCRIPT_ที่นี่';
         
         localStorage.clear(); 
         lucide.createIcons();
@@ -134,7 +133,6 @@
                     if (result.role === 'student') {
                         localStorage.setItem('studentId', result.studentId);
                         
-                        // ประมวลผลและเก็บรูปโปรไฟล์ลงเครื่องทันที เพื่อให้หน้าถัดไปดึงไปแสดงได้เลย
                         const directPicUrl = getDirectImageUrl(result.profileUrl);
                         const fallbackPic = `https://ui-avatars.com/api/?name=${encodeURIComponent(result.name)}&background=random`;
                         const finalPic = directPicUrl ? directPicUrl : fallbackPic;
