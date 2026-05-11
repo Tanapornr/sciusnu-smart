@@ -14,10 +14,6 @@
         if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
     </script>
     <style>
-        /* 🔥 ปรับสเกลหน้าจอคอมให้ใหญ่ขึ้น (แทนการซูม 125%) 🔥 */
-        html { font-size: 18px; }
-        @media (max-width: 768px) { html { font-size: 14px; } }
-
         body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #fff7ed; }
         .dark body { background-color: #0f172a; color: #f1f5f9; }
         .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); }
@@ -30,34 +26,9 @@
         .dark table th { color: #cbd5e1 !important; border-color: rgba(255,255,255,0.1); }
         .dark table td { color: #f1f5f9 !important; border-color: rgba(255,255,255,0.05); }
         .dark .bg-slate-50 { background-color: rgba(15, 23, 42, 0.4) !important; }
-
-        /* 🔥 ดีไซน์ Pop-up สไตล์ Minimalist วงกลมพาสเทล + ตัด Scrollbar ออก 🔥 */
-        .swal2-shown { overflow: hidden !important; }
-        .swal2-popup { background: #ffffff !important; border-radius: 20px !important; border: none !important; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important; padding: 2rem 1.5rem !important; }
-        .dark .swal2-popup { background: #1e293b !important; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important; }
-        .swal2-title { color: #0f172a !important; font-weight: 700 !important; font-size: 1.25rem !important; margin-bottom: 0.5rem !important; }
-        .dark .swal2-title { color: #f8fafc !important; }
-        .swal2-html-container { color: #475569 !important; font-size: 0.95rem !important; }
-        .dark .swal2-html-container { color: #cbd5e1 !important; }
-        .swal2-actions { gap: 12px !important; width: 100%; justify-content: center; margin-top: 1.5rem !important; }
-        .swal2-styled { border-radius: 8px !important; font-weight: 600 !important; padding: 10px 24px !important; transition: all 0.2s !important; box-shadow: none !important; }
-        .swal2-cancel { background: #ffffff !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; }
-        .swal2-cancel:hover { background: #f8fafc !important; }
-        .dark .swal2-cancel { background: transparent !important; color: #f8fafc !important; border-color: #475569 !important; }
-        .dark .swal2-cancel:hover { background: #334155 !important; }
-        .swal2-icon { border: none !important; width: 70px !important; height: 70px !important; margin: 0 auto 1.5rem auto !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; }
-        .swal2-icon.swal2-success { background-color: #dcfce7 !important; color: #10b981 !important; }
-        .swal2-icon.swal2-error { background-color: #fee2e2 !important; color: #ef4444 !important; }
-        .swal2-icon.swal2-warning { background-color: #fef08a !important; color: #eab308 !important; }
-        .swal2-icon.swal2-info { background-color: #e0f2fe !important; color: #3b82f6 !important; }
-        .swal2-icon.swal2-question { background-color: #f3e8ff !important; color: #0ea5e9 !important; }
-        .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-success-ring { display: none !important; background-color: transparent !important; }
-        .swal2-icon.swal2-success [class^=swal2-success-line] { background-color: #10b981 !important; }
-        .swal2-icon.swal2-error [class^=swal2-x-mark-line] { background-color: #ef4444 !important; }
-        .swal2-close { color: #94a3b8 !important; border-radius: 50% !important; background: #f1f5f9 !important; width: 32px !important; height: 32px !important; margin: 8px 8px 0 0 !important; }
-        .swal2-close:hover { background: #e2e8f0 !important; color: #0f172a !important; }
-        .dark .swal2-close { background: #334155 !important; color: #94a3b8 !important; }
-        .dark .swal2-close:hover { background: #475569 !important; color: #f8fafc !important; }
+        .swal2-popup { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.95) !important; border-radius: 2rem !important; border: 1px solid rgba(255,255,255,0.5); }
+        .dark .swal2-popup { background: rgba(30,41,59,0.95) !important; border: 1px solid rgba(255,255,255,0.1); color: #f1f5f9 !important; }
+        .dark .swal2-title, .dark .swal2-html-container { color: #f1f5f9 !important; }
     </style>
 </head>
 <body class="pb-10">
@@ -122,6 +93,7 @@
             else { html.classList.add('dark'); localStorage.theme = 'dark'; }
         }
         
+        // เช็คชื่อผู้เข้าใช้ (ถ้าไม่ได้ล็อกอินให้เตะออก)
         const viewerName = localStorage.getItem('userName') || "ผู้บริหาร / กรรมการ"; 
         if (!localStorage.getItem('userRole')) { window.location.href = 'index.html'; }
         document.getElementById('displayViewerName').innerText = viewerName;
@@ -252,6 +224,7 @@
             lucide.createIcons();
         }
 
+        // 🔥 เรนเดอร์ตารางทั้งหมด รวมทั้งแบบคำร้องและหมายเหตุ
         function renderAllWorksTable(works) {
             const tbody = document.getElementById('allWorksTableBody'); tbody.innerHTML = '';
             if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-10 sm:py-16 text-center text-slate-500 text-xs sm:text-sm">ไม่พบข้อมูล</td></tr>'; return; }
@@ -259,9 +232,11 @@
                 const workType = item['ประเภทงาน'] || item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
                 const status = item['สถานะ'] || item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] || 'รออนุมัติ';
                 
+                // สแกนหาช่องหมายเหตุ
                 let reasonKey = Object.keys(item).find(k => String(k).includes('หมายเหตุ') || String(k).includes('เหตุผล'));
                 let reason = (reasonKey && item[reasonKey]) ? item[reasonKey].toString().trim() : '';
 
+                // ตัดปุ่มลายเซ็นและปรับชื่อปุ่มถ้าเป็นแบบคำร้อง
                 let signatureButton = workType === 'แบบคำร้อง' ? '' : `<a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>`;
                 let fileReportLabel = workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
                 
