@@ -56,9 +56,13 @@
         .swal2-icon.swal2-warning { background-color: #fef08a !important; color: #eab308 !important; }
         .swal2-icon.swal2-info { background-color: #ffedd5 !important; color: #f97316 !important; }
         .swal2-icon.swal2-question { background-color: #f3e8ff !important; color: #8b5cf6 !important; }
-        .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-ring { display: none !important; background: transparent !important;}
+        .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-ring { display: none !important; background: transparent !important; }
         .swal2-icon.swal2-success [class^=swal2-success-line] { background-color: #10b981 !important; }
         .swal2-icon.swal2-error [class^=swal2-x-mark-line] { background-color: #ef4444 !important; }
+        .swal2-close { color: #94a3b8 !important; border-radius: 50% !important; background: #f1f5f9 !important; width: 32px !important; height: 32px !important; margin: 8px 8px 0 0 !important; }
+        .swal2-close:hover { background: #e2e8f0 !important; color: #0f172a !important; }
+        .dark .swal2-close { background: #334155 !important; color: #94a3b8 !important; }
+        .dark .swal2-close:hover { background: #475569 !important; color: #f8fafc !important; }
     </style>
 </head>
 <body class="bg-pattern min-h-screen flex items-center justify-center p-4 relative">
@@ -128,7 +132,6 @@
             const btn = document.getElementById('loginBtn'); const username = document.getElementById('username').value.trim(); const password = document.getElementById('password').value.trim();
             btn.disabled = true; btn.innerHTML = `<svg class="animate-spin inline-block h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังตรวจสอบ...`;
             
-            // โชว์โหลดแบบไม่มี Scrollbar
             Swal.fire({ title: 'กำลังเข้าสู่ระบบ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
             
             try {
@@ -139,14 +142,11 @@
                     localStorage.setItem('userRole', result.role); localStorage.setItem('userName', result.name); localStorage.setItem('userEmail', result.email);
                     if (result.role === 'student') { localStorage.setItem('studentId', result.studentId); localStorage.setItem('profileUrl', result.profileUrl); }
                     
-                    // รีเซ็ตค่าว่ายังไม่ได้ยินดีต้อนรับ เพื่อให้หน้าถัดไปทำงานได้
-                    sessionStorage.removeItem('welcomed'); 
-                    
-                    // ❌ ตัด Popup เข้าสู่ระบบสำเร็จออก ❌ ให้ไปเด้งหน้าต้อนรับในไฟล์ student.html แทน
-                    if (result.role === 'admin') window.location.href = 'admin.html';
-                    else if (result.role === 'student') window.location.href = 'student.html';
-                    else window.location.href = 'advisor.html';
-                    
+                    Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ!', showConfirmButton: false, timer: 1000 }).then(() => {
+                        if (result.role === 'admin') window.location.href = 'admin.html';
+                        else if (result.role === 'student') window.location.href = 'student.html';
+                        else window.location.href = 'advisor.html';
+                    });
                 } else throw new Error(result.message);
             } catch (error) { 
                 Swal.fire({ icon: 'error', title: 'ไม่สามารถเข้าสู่ระบบได้', text: error.message, confirmButtonColor: '#f97316' }); 
