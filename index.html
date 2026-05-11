@@ -31,7 +31,7 @@
         .btn-liquid::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0)); pointer-events: none; }
         .btn-liquid:active { transform: scale(0.98); }
 
-        /* 🔥 ซ่อน Scrollbar ของโมดัลโหลด และวงกลมซ้อนทับ 🔥 */
+        /* 🔥 ซ่อน Scrollbar ของโมดัลโหลด และแก้ไขวงกลมซ้อนทับ 🔥 */
         body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
         .swal2-container { overflow-y: hidden !important; }
         .swal2-popup { background: #ffffff !important; border-radius: 24px !important; border: none !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; padding: 2.5rem 1.5rem !important; }
@@ -126,6 +126,7 @@
             const btn = document.getElementById('loginBtn'); const username = document.getElementById('username').value.trim(); const password = document.getElementById('password').value.trim();
             btn.disabled = true; btn.innerHTML = `<svg class="animate-spin inline-block h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังตรวจสอบ...`;
             
+            // โชว์โหลดแบบไม่มี Scrollbar
             Swal.fire({ title: 'กำลังเข้าสู่ระบบ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
             
             try {
@@ -135,11 +136,9 @@
                 if (result.status === 'success') {
                     localStorage.setItem('userRole', result.role); localStorage.setItem('userName', result.name); localStorage.setItem('userEmail', result.email);
                     if (result.role === 'student') { localStorage.setItem('studentId', result.studentId); localStorage.setItem('profileUrl', result.profileUrl); }
+                    sessionStorage.removeItem('welcomed'); // เคลียร์สถานะเพื่อให้หน้าต่อไปโชว์ต้อนรับได้
                     
-                    // เคลียร์ค่า welcomed เก่าทิ้ง เพื่อให้หน้าถัดไปโชว์ Pop-up
-                    sessionStorage.removeItem('welcomed'); 
-                    
-                    Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ!', showConfirmButton: false, timer: 1000 }).then(() => {
+                    Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ!', showConfirmButton: false, timer: 5000 }).then(() => {
                         if (result.role === 'admin') window.location.href = 'admin.html';
                         else if (result.role === 'student') window.location.href = 'student.html';
                         else window.location.href = 'advisor.html';
