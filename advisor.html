@@ -35,6 +35,11 @@
         .swal2-popup { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.95) !important; border-radius: 2rem !important; border: 1px solid rgba(255,255,255,0.5); }
         .dark .swal2-popup { background: rgba(30,41,59,0.95) !important; border: 1px solid rgba(255,255,255,0.1); color: #f1f5f9 !important; }
         .dark .swal2-title, .dark .swal2-html-container { color: #f1f5f9 !important; }
+
+        /* 🔥 CSS แก้ไขปัญหาวงกลมซ้อนทับในหน้า Pop-up 🔥 */
+        .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-success-ring { display: none !important; background-color: transparent !important; }
+        .swal2-icon.swal2-success { border-color: #10b981 !important; background: transparent !important; }
+        .swal2-icon.swal2-success [class^=swal2-success-line] { background-color: #10b981 !important; }
     </style>
 </head>
 <body class="pb-10">
@@ -86,7 +91,12 @@
             <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-slate-400"></div>
             <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ประวัติการอนุมัติ / ตรวจงานแล้ว</h2>
             <div class="overflow-x-auto w-full pb-2">
-                <table class="w-full text-left"><thead class="bg-slate-50 uppercase border-b text-[10px] sm:text-sm"><tr><th class="px-2 py-3 sm:px-4 py-4 font-semibold">เวลา</th><th class="px-2 py-3 sm:px-4 py-4 font-semibold min-w-[150px]">ข้อมูลนักเรียน</th><th class="px-2 py-3 sm:px-4 py-4 font-semibold">ประเภทงาน</th><th class="px-2 py-3 sm:px-4 py-4 text-center font-semibold">ไฟล์แนบ</th><th class="px-2 py-3 sm:px-4 py-4 text-center font-semibold">สถานะ</th></tr></thead><tbody id="historyTableBody"></tbody></table>
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 uppercase border-b text-[10px] sm:text-sm">
+                        <tr><th class="px-2 py-3 sm:px-4 py-4 font-semibold">เวลา</th><th class="px-2 py-3 sm:px-4 py-4 font-semibold min-w-[150px]">ข้อมูลนักเรียน</th><th class="px-2 py-3 sm:px-4 py-4 font-semibold">ประเภทงาน</th><th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold min-w-[120px]">หมายเหตุ</th><th class="px-2 py-3 sm:px-4 py-4 text-center font-semibold">ไฟล์แนบ</th><th class="px-2 py-3 sm:px-4 py-4 text-center font-semibold">สถานะ</th></tr>
+                    </thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -106,7 +116,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwUBpFiR8lmH3yL3G8PrFLVT9f8-jwMjfoBRvCPhTfQRJYRf86haDdKwNH4nCHdxg394w/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxvlQjACPTdbvpF7TuK4ye2gmjrBu83a26_nAoHqkoIULD1RiuFt9J-RxmnkcCUBjySaw/exec';
         lucide.createIcons(); 
 
         function toggleTheme() {
@@ -227,7 +237,7 @@
                 const members = myProjects.filter(p => p['รหัสโครงงาน'] === pid);
                 const memberHtml = members.map(m => {
                     const pic = getProcessedImgUrl(m['รูปโปรไฟล์'], m['ชื่อ']);
-                    return `<button type="button" onclick="viewStudentPopup('${m['ชื่อ']} ${m['นามสกุล']}', '${m['รหัสนักเรียน']}', '${m['เบอร์โทรศัพท์'] ? m['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 sm:gap-3 mb-2 bg-slate-50 dark:bg-slate-800/50 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 btn-liquid transition-colors"><img src="${pic}" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm" loading="lazy"><div class="flex flex-col leading-tight overflow-hidden"><span class="text-[10px] sm:text-xs text-slate-700 dark:text-slate-200 font-bold truncate">${m['รหัสนักเรียน']}</span><span class="text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">${m['ชื่อ']} ${m['นามสกุล']}</span></div></button>`;
+                    return `<button type="button" onclick="viewStudentPopup('${m['ชื่อ']} ${m['นามสกุล']}', '${m['รหัสนักเรียน']}', '${m['เบอร์โทรศัพท์'] ? m['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 sm:gap-3 mb-2 bg-slate-50 dark:bg-slate-800/50 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 btn-liquid transition-colors"><img src="${pic}" class="w-7 h-7 sm:w-8 h-8 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm" loading="lazy"><div class="flex flex-col leading-tight overflow-hidden"><span class="text-[10px] sm:text-xs text-slate-700 dark:text-slate-200 font-bold truncate">${m['รหัสนักเรียน']}</span><span class="text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">${m['ชื่อ']} ${m['นามสกุล']}</span></div></button>`;
                 }).join('');
                 const memberIds = members.map(m => m['รหัสนักเรียน']); const projectSubs = submissions.filter(s => s && (s['รหัสโครงงาน'] == pid || memberIds.includes(s['รหัสนักเรียน'])));
                 const getStatusBadge = (workType) => {
@@ -251,7 +261,7 @@
             works.forEach(item => {
                 const workType = item['ประเภทงาน'] || item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
                 
-                // เช็คว่าถ้าเป็นแบบคำร้อง ไม่ต้องแสดงปุ่มหน้าลายเซ็น
+                // ซ่อนปุ่มลายเซ็นและเปลี่ยนชื่อปุ่ม ถ้าเป็นแบบคำร้อง
                 let signatureButton = workType === 'แบบคำร้อง' ? '' : `<a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>`;
                 let fileReportLabel = workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
 
@@ -269,18 +279,22 @@
                 const workType = item['ประเภทงาน'] || item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
                 const status = item['สถานะ'] || item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] || 'รออนุมัติ';
                 
+                let reasonKey = Object.keys(item).find(k => String(k).includes('หมายเหตุ') || String(k).includes('เหตุผล'));
+                let reason = (reasonKey && item[reasonKey]) ? item[reasonKey].toString().trim() : '';
+                
                 let signatureButton = workType === 'แบบคำร้อง' ? '' : `<a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>`;
                 let fileReportLabel = workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
 
+                let reasonHtml = reason ? `<div class="text-[9px] sm:text-[11px] text-rose-500 font-medium bg-rose-50 dark:bg-rose-900/30 p-1.5 rounded-md inline-block w-full max-w-[150px] whitespace-normal break-words" title="${reason}">${reason}</div>` : `<span class="text-slate-300">-</span>`;
+
                 let badge = status === 'อนุมัติ' ? `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>อนุมัติแล้ว</span>` : `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>ไม่อนุมัติ</span>`;
                 const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors";
-                tr.innerHTML = `<td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">${formatDateTime(item['Timestamp'])}</td><td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-slate-700 dark:text-slate-200 font-semibold text-[10px] sm:text-sm align-middle leading-tight">${workType}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-1.5"><a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-orange-100 dark:border-orange-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>${fileReportLabel}</a>${signatureButton}</div></td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">${badge}</td>`;
+                tr.innerHTML = `<td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">${formatDateTime(item['Timestamp'])}</td><td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-slate-700 dark:text-slate-200 font-semibold text-[10px] sm:text-sm align-middle leading-tight">${workType}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">${reasonHtml}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-1.5"><a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-orange-100 dark:border-orange-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>${fileReportLabel}</a>${signatureButton}</div></td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">${badge}</td>`;
                 tbody.appendChild(tr);
             });
             lucide.createIcons();
         }
 
-        // 🔥 อัปเดตฟังก์ชันนี้ เพื่อให้มี Pop-up ถามเหตุผลตอนกดไม่อนุมัติ 🔥
         async function updateStatus(studentId, workType, newStatus) {
             let reasonText = '';
             
@@ -320,7 +334,6 @@
 
             Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
             try {
-                // ส่ง reason ไปให้ Google Apps Script ด้วย
                 const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "updateStatus", studentId: studentId, workType: workType, status: newStatus, reason: reasonText }) }); 
                 const data = await response.json();
                 if (data.status === 'success') { await Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500 }); loadDashboard(); } else throw new Error(data.message);
