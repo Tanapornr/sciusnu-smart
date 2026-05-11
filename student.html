@@ -31,7 +31,7 @@
         .dark table td { color: #f1f5f9 !important; border-color: rgba(255,255,255,0.05); }
         .dark .bg-slate-50 { background-color: rgba(15, 23, 42, 0.4) !important; }
 
-        /* 🔥 ตัดสกอร์บาร์ที่ไม่ต้องการออกระหว่างกำลังโหลด (Pop-up open state) 🔥 */
+        /* 🔥 ซ่อน Scrollbar ของโมดัลโหลด และลบวงกลมซ้อนทับ 🔥 */
         body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
         .swal2-container { overflow-y: hidden !important; }
 
@@ -124,7 +124,15 @@
         <div class="lg:col-span-2">
             <div class="glass-panel rounded-3xl p-4 sm:p-6 overflow-hidden">
                 <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 border-b border-slate-200 dark:border-slate-700 pb-3 flex items-center"><i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ประวัติการส่งงานของกลุ่ม</h2>
-                <div id="loadingData" class="text-center py-10 text-sm text-slate-500 flex flex-col items-center"><svg class="animate-spin h-6 w-6 sm:h-8 sm:w-8 text-orange-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>กำลังดึงข้อมูล...</div>
+                
+                <div id="loadingData" class="text-center py-16 text-sm text-slate-500 flex flex-col items-center">
+                    <svg class="animate-spin h-8 w-8 text-orange-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="font-semibold animate-pulse">กำลังซิงค์ข้อมูลจากระบบ...</span>
+                </div>
+
                 <div class="overflow-x-auto hidden w-full pb-2" id="tableContainer">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 dark:bg-slate-800 uppercase border-b border-slate-100 dark:border-slate-700 text-[10px] sm:text-xs">
@@ -236,9 +244,31 @@
             });
         };
 
-        // 🔥 เอาฟังก์ชันโชว์ยินดีต้อนรับออกทั้งหมด ไม่มีการเรียกใช้ใดๆ ทั้งสิ้น 🔥
+        // 🔥 ฟังก์ชัน Pop-up ยินดีต้อนรับโชว์รูปโปรไฟล์และรหัสนิสิต (ค้าง 5 วินาที) 🔥
+        function showWelcomeMessage() {
+            if (cachedName && !sessionStorage.getItem('welcomed')) {
+                Swal.fire({
+                    html: `
+                        <div class="flex flex-col items-center justify-center p-2 mt-4">
+                            <img src="${cachedPic}" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover mb-4 border-4 border-orange-100 dark:border-slate-700 shadow-md bg-white">
+                            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white leading-tight mb-2">ยินดีต้อนรับกลับมา</h2>
+                            <p class="text-orange-600 dark:text-orange-400 font-bold text-sm sm:text-base bg-orange-50 dark:bg-slate-800 py-1.5 px-4 rounded-xl border border-orange-200 dark:border-slate-600">${cachedName}</p>
+                            <p class="text-slate-500 text-xs mt-3 bg-slate-100 dark:bg-slate-800 py-1 px-3 rounded-lg"><i data-lucide="hash" class="w-3 h-3 inline-block mr-1"></i>รหัสประจำตัว: <span class="font-semibold text-slate-700 dark:text-slate-300">${studentId}</span></p>
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    timer: 5000, 
+                    timerProgressBar: true,
+                    backdrop: `rgba(15, 23, 42, 0.4)`,
+                    customClass: { popup: 'rounded-[2rem] p-2 max-w-sm w-[90%]' },
+                    didOpen: () => { lucide.createIcons(); }
+                });
+                sessionStorage.setItem('welcomed', 'true');
+            }
+        }
 
         async function loadData() {
+            // โหลดข้อมูลแบบไม่มี Pop-up บัง
             try {
                 const res = await fetch(API_URL); const data = await res.json();
                 if (data && data.status === 'success') {
@@ -266,10 +296,14 @@
                     });
                     
                     renderTable(window.mySubmissions);
-                    // 🔥 ไม่ต้องเรียก Swal.fire หรือ Swal.close อะไรทั้งนั้น หน้าเว็บจะโหลดเงียบๆ ไม่เด้งอะไรเลย 🔥
+                    document.getElementById('loadingData').style.display = 'none'; 
+                    document.getElementById('tableContainer').classList.remove('hidden'); 
+                    
+                    // เรียก Pop-up ยินดีต้อนรับหลังดึงข้อมูลเสร็จ
+                    showWelcomeMessage(); 
                 }
             } catch (e) { 
-                document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ โหลดข้อมูลไม่สำเร็จ</span>`; 
+                document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรชหน้าเว็บ</span>`; 
             }
         }
 
