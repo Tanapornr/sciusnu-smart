@@ -16,18 +16,14 @@
     <style>
         body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; }
         .glass-panel { background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255,255,255,0.8); }
-        .dark .glass-panel { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255,255,255,0.05); color: #f1f5f9; }
+        .dark .glass-panel { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); color: #f1f5f9; }
         .btn-liquid { position: relative; overflow: hidden; backdrop-filter: blur(10px); transition: all 0.3s ease; }
         .btn-liquid::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0)); pointer-events: none; }
         .btn-liquid:active { transform: scale(0.96); }
         .glass-input { background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(255, 255, 255, 0.5); color: #334155; }
         .dark .glass-input { background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); color: #f1f5f9; }
-        .swal2-popup { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.85) !important; border-radius: 2rem !important; border: 1px solid rgba(255,255,255,0.5); }
-        .dark .swal2-popup { background: rgba(30,41,59,0.85) !important; border: 1px solid rgba(255,255,255,0.1); color: #f1f5f9 !important; }
-        .dark .swal2-title, .dark .swal2-html-container { color: #f1f5f9 !important; }
-        
-        .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-success-ring { display: none !important; background-color: transparent !important; }
-        .swal2-icon.swal2-success { border-color: #a5dc86 !important; background: transparent !important; }
+        .swal2-popup { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.95) !important; border-radius: 2rem !important; border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important; }
+        .dark .swal2-popup { background: rgba(30,41,59,0.95) !important; border: 1px solid rgba(255,255,255,0.1); color: #f1f5f9 !important; }
         
         @keyframes blob { 0% { transform: translate(0px, 0px) scale(1); } 33% { transform: translate(40px, -60px) scale(1.2); } 66% { transform: translate(-30px, 30px) scale(0.8); } 100% { transform: translate(0px, 0px) scale(1); } }
         .animate-blob { animation: blob 8s infinite alternate; } .animation-delay-2000 { animation-delay: 2s; } .animation-delay-4000 { animation-delay: 4s; }
@@ -55,22 +51,16 @@
             <div class="mb-4">
                 <label class="block text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Student ID / Email</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                        <i data-lucide="user" class="w-5 h-5 opacity-70"></i>
-                    </div>
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><i data-lucide="user" class="w-5 h-5 opacity-70"></i></div>
                     <input type="text" id="username" required class="w-full pl-11 pr-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl glass-input focus:ring-2 focus:ring-orange-500 outline-none transition-all">
                 </div>
             </div>
             <div class="mb-6 sm:mb-8">
                 <label class="block text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Password</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                        <i data-lucide="key-round" class="w-5 h-5 opacity-70"></i>
-                    </div>
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><i data-lucide="key-round" class="w-5 h-5 opacity-70"></i></div>
                     <input type="password" id="password" required class="w-full pl-11 pr-12 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl glass-input focus:ring-2 focus:ring-orange-500 outline-none transition-all">
-                    <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 outline-none transition-colors">
-                        <i data-lucide="eye" id="eyeIcon" class="w-5 h-5"></i>
-                    </button>
+                    <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 outline-none transition-colors"><i data-lucide="eye" id="eyeIcon" class="w-5 h-5"></i></button>
                 </div>
             </div>
             <button type="submit" id="submitBtn" class="w-full btn-liquid bg-gradient-to-r from-orange-500 to-amber-500 dark:from-orange-600 dark:to-amber-600 text-white font-bold py-3.5 rounded-xl text-sm sm:text-base flex items-center justify-center hover:shadow-lg hover:shadow-orange-500/30 transition-all">
@@ -81,9 +71,7 @@
 
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbz4VLdHZ_TrksKu_zHsmUpd-ztg1jbMEvPJD6xl4BdnxoW-4F_fQ6bdZSji5ejh6NfJJQ/exec';
-        
-        localStorage.clear(); 
-        lucide.createIcons();
+        localStorage.clear(); lucide.createIcons();
 
         function toggleTheme() {
             const html = document.documentElement;
@@ -106,80 +94,65 @@
 
         async function handleLogin(e) {
             e.preventDefault();
-            const btn = document.getElementById('submitBtn'); 
             const username = document.getElementById('username').value.trim(); 
             const password = document.getElementById('password').value.trim();
-            
-            btn.disabled = true; 
-            btn.innerHTML = `<svg class="animate-spin inline-block h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังตรวจสอบ...`;
+
+            // 🔥 1. Pop-up โหลดเข้าสู่ระบบแบบใหม่ 🔥
+            Swal.fire({
+                html: `
+                    <div class="text-center pt-2">
+                        <p class="text-[11px] font-extrabold text-orange-500 uppercase tracking-widest mb-1">SCIUSNU SPACE</p>
+                        <h2 class="text-4xl font-black text-slate-800 dark:text-white mb-8">Login</h2>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">กำลังเข้าสู่ระบบ...</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-8">กรุณารอสักครู่</p>
+                        <div class="flex justify-center"><div class="w-10 h-10 border-4 border-slate-200 dark:border-slate-700 border-t-orange-500 rounded-full animate-spin"></div></div>
+                    </div>
+                `,
+                showConfirmButton: false, allowOutsideClick: false, customClass: { popup: 'rounded-[2rem] p-8' }
+            });
 
             try {
                 const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', username: username, password: password }) });
                 const responseText = await response.text(); 
                 let result;
-                
-                try { 
-                    result = JSON.parse(responseText); 
-                } catch (parseError) { 
-                    throw new Error("ลิงก์ API ไม่ถูกต้อง หรือลืมอัปเดตสิทธิ์ครับ"); 
-                }
+                try { result = JSON.parse(responseText); } catch (parseError) { throw new Error("ลิงก์ API ไม่ถูกต้อง"); }
 
                 if (result.status === 'success') {
-                    localStorage.setItem('userEmail', result.email); 
-                    localStorage.setItem('userRole', result.role); 
-                    localStorage.setItem('userName', result.name);
+                    localStorage.setItem('userEmail', result.email); localStorage.setItem('userRole', result.role); localStorage.setItem('userName', result.name);
                     
-                    if (result.role === 'student') {
-                        localStorage.setItem('studentId', result.studentId);
-                        
-                        const directPicUrl = getDirectImageUrl(result.profileUrl);
-                        const fallbackPic = `https://ui-avatars.com/api/?name=${encodeURIComponent(result.name)}&background=random`;
-                        const finalPic = directPicUrl ? directPicUrl : fallbackPic;
-                        localStorage.setItem('profileUrl', finalPic);
+                    const directPicUrl = getDirectImageUrl(result.profileUrl);
+                    const fallbackPic = `https://ui-avatars.com/api/?name=${encodeURIComponent(result.name)}&background=random`;
+                    const finalPic = directPicUrl ? directPicUrl : fallbackPic;
+                    localStorage.setItem('profileUrl', finalPic);
 
-                        Swal.fire({
-                            title: 'ยินดีต้อนรับกลับมา!', 
-                            text: `คุณ ${result.name} (ID: ${result.studentId})`, 
-                            imageUrl: finalPic, 
-                            imageWidth: 120, 
-                            imageHeight: 120, 
-                            // 🔥 เปลี่ยนกรอบรูปโปรไฟล์ในป๊อปอัพให้เข้าธีมส้ม 🔥
-                            customClass: { image: 'rounded-full object-cover border-4 border-orange-100 shadow-lg mx-auto mt-4 mb-2' }, 
-                            showConfirmButton: false, 
-                            timer: 2000, 
-                            timerProgressBar: true
-                        }).then(() => { window.location.href = 'student.html'; });
-                        
-                    } else if (result.role === 'admin') {
-                        Swal.fire({ 
-                            icon: 'success', 
-                            title: 'เข้าสู่ระบบสำเร็จ', 
-                            text: `เข้าสู่ระบบในฐานะผู้ดูแลระบบ`, 
-                            showConfirmButton: false, 
-                            timer: 1500 
-                        }).then(() => { window.location.href = 'admin.html'; });
-                        
-                    } else {
-                        Swal.fire({ 
-                            icon: 'success', 
-                            title: 'เข้าสู่ระบบสำเร็จ', 
-                            text: `ยินดีต้อนรับ อาจารย์ ${result.name}`, 
-                            showConfirmButton: false, 
-                            timer: 1500 
-                        }).then(() => {
-                            if (result.role === 'advisor') window.location.href = 'advisor.html'; 
-                            else window.location.href = 'viewer.html';
-                        });
-                    }
-                } else {
-                    throw new Error(result.message);
-                }
+                    if (result.role === 'student') localStorage.setItem('studentId', result.studentId);
+                    
+                    let roleDisplay = result.role === 'student' ? 'นักเรียน' : (result.role === 'admin' ? 'ผู้ดูแลระบบ' : 'อาจารย์');
+                    let idDisplay = result.studentId || result.role;
+
+                    // 🔥 2. Pop-up ยินดีต้อนรับแบบใหม่ 🔥
+                    Swal.fire({
+                        html: `
+                            <div class="text-center pt-2">
+                                <h2 class="text-2xl font-black text-slate-800 dark:text-white mb-6">ยินดีต้อนรับ!</h2>
+                                <img src="${finalPic}" class="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-6 border-[6px] border-white dark:border-slate-700 shadow-xl bg-white">
+                                <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-6">${result.name}</h3>
+                                <div class="flex justify-center gap-3">
+                                    <span class="bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold border border-orange-200 dark:border-orange-800">ID: ${idDisplay}</span>
+                                    <span class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold border border-slate-200 dark:border-slate-700">Class: ${roleDisplay}</span>
+                                </div>
+                            </div>
+                        `,
+                        showConfirmButton: false, timer: 2000, customClass: { popup: 'rounded-[2.5rem] p-6 sm:p-8' }
+                    }).then(() => {
+                        if (result.role === 'student') window.location.href = 'student.html';
+                        else if (result.role === 'admin') window.location.href = 'admin.html';
+                        else if (result.role === 'advisor') window.location.href = 'advisor.html';
+                        else window.location.href = 'viewer.html';
+                    });
+                } else throw new Error(result.message);
             } catch (error) { 
-                Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: error.message, confirmButtonColor: '#f97316' });
-            } finally { 
-                btn.disabled = false; 
-                btn.innerHTML = '<i data-lucide="log-in" class="w-5 h-5 mr-2"></i> เข้าสู่ระบบ'; 
-                lucide.createIcons(); 
+                Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: error.message, confirmButtonColor: '#f97316', customClass: { popup: 'rounded-[2rem] p-6' }});
             }
         }
     </script>
