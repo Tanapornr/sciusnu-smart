@@ -261,7 +261,6 @@
             works.forEach(item => {
                 const workType = item['ประเภทงาน'] || item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
                 
-                // ซ่อนปุ่มลายเซ็นและเปลี่ยนชื่อปุ่ม ถ้าเป็นแบบคำร้อง
                 let signatureButton = workType === 'แบบคำร้อง' ? '' : `<a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>`;
                 let fileReportLabel = workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
 
@@ -272,6 +271,7 @@
             lucide.createIcons();
         }
 
+        // 🔥 เพิ่มการดึงคอลัมน์หมายเหตุมาแสดงใน History Table 🔥
         function renderHistoryTable(works) {
             const tbody = document.getElementById('historyTableBody'); tbody.innerHTML = '';
             if (works.length === 0) return;
