@@ -33,12 +33,12 @@
         .animate-blob { animation: blob 8s infinite alternate; } .animation-delay-2000 { animation-delay: 2s; } .animation-delay-4000 { animation-delay: 4s; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-100 dark:bg-slate-900 p-4 transition-colors">
-    <div class="absolute top-10 left-10 w-64 h-64 sm:w-96 sm:h-96 bg-blue-500/30 dark:bg-blue-600/40 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob"></div>
-    <div class="absolute top-0 right-10 w-64 h-64 sm:w-96 sm:h-96 bg-purple-500/30 dark:bg-purple-600/40 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob animation-delay-2000"></div>
-    <div class="absolute -bottom-10 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-pink-500/30 dark:bg-pink-600/30 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob animation-delay-4000"></div>
+<body class="min-h-screen flex items-center justify-center relative overflow-hidden bg-orange-50/50 dark:bg-slate-900 p-4 transition-colors">
+    <div class="absolute top-10 left-10 w-64 h-64 sm:w-96 sm:h-96 bg-orange-500/30 dark:bg-orange-600/30 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob"></div>
+    <div class="absolute top-0 right-10 w-64 h-64 sm:w-96 sm:h-96 bg-amber-500/30 dark:bg-amber-600/30 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob animation-delay-2000"></div>
+    <div class="absolute -bottom-10 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-yellow-500/30 dark:bg-yellow-600/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob animation-delay-4000"></div>
 
-    <button onclick="toggleTheme()" class="absolute top-6 right-6 btn-liquid bg-white/50 dark:bg-slate-800/50 p-3 rounded-full shadow-md text-slate-700 dark:text-slate-200 z-50 outline-none">
+    <button onclick="toggleTheme()" class="absolute top-6 right-6 btn-liquid bg-white/50 dark:bg-slate-800/50 p-3 rounded-full shadow-md text-slate-700 dark:text-slate-200 z-50 outline-none hover:text-orange-500 transition-colors">
         <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
     </button>
 
@@ -58,7 +58,7 @@
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                         <i data-lucide="user" class="w-5 h-5 opacity-70"></i>
                     </div>
-                    <input type="text" id="username" required class="w-full pl-11 pr-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl glass-input focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    <input type="text" id="username" required class="w-full pl-11 pr-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl glass-input focus:ring-2 focus:ring-orange-500 outline-none transition-all">
                 </div>
             </div>
             <div class="mb-6 sm:mb-8">
@@ -67,13 +67,13 @@
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                         <i data-lucide="key-round" class="w-5 h-5 opacity-70"></i>
                     </div>
-                    <input type="password" id="password" required class="w-full pl-11 pr-12 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl glass-input focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                    <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-700 dark:hover:text-white outline-none">
+                    <input type="password" id="password" required class="w-full pl-11 pr-12 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl glass-input focus:ring-2 focus:ring-orange-500 outline-none transition-all">
+                    <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 outline-none transition-colors">
                         <i data-lucide="eye" id="eyeIcon" class="w-5 h-5"></i>
                     </button>
                 </div>
             </div>
-            <button type="submit" id="submitBtn" class="w-full btn-liquid bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-purple-700 text-white font-bold py-3.5 rounded-xl text-sm sm:text-base flex items-center justify-center">
+            <button type="submit" id="submitBtn" class="w-full btn-liquid bg-gradient-to-r from-orange-500 to-amber-500 dark:from-orange-600 dark:to-amber-600 text-white font-bold py-3.5 rounded-xl text-sm sm:text-base flex items-center justify-center hover:shadow-lg hover:shadow-orange-500/30 transition-all">
                 <i data-lucide="log-in" class="w-5 h-5 mr-2"></i> เข้าสู่ระบบ
             </button>
         </form>
@@ -143,7 +143,8 @@
                             imageUrl: finalPic, 
                             imageWidth: 120, 
                             imageHeight: 120, 
-                            customClass: { image: 'rounded-full object-cover border-4 border-blue-100 shadow-lg mx-auto mt-4 mb-2' }, 
+                            // 🔥 เปลี่ยนกรอบรูปโปรไฟล์ในป๊อปอัพให้เข้าธีมส้ม 🔥
+                            customClass: { image: 'rounded-full object-cover border-4 border-orange-100 shadow-lg mx-auto mt-4 mb-2' }, 
                             showConfirmButton: false, 
                             timer: 2000, 
                             timerProgressBar: true
@@ -174,7 +175,7 @@
                     throw new Error(result.message);
                 }
             } catch (error) { 
-                Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: error.message });
+                Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: error.message, confirmButtonColor: '#f97316' });
             } finally { 
                 btn.disabled = false; 
                 btn.innerHTML = '<i data-lucide="log-in" class="w-5 h-5 mr-2"></i> เข้าสู่ระบบ'; 
