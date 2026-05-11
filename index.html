@@ -14,64 +14,98 @@
         if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
     </script>
     <style>
-        body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; }
-        .glass-panel { background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255,255,255,0.8); }
-        .dark .glass-panel { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255,255,255,0.05); color: #f1f5f9; }
-        .btn-liquid { position: relative; overflow: hidden; backdrop-filter: blur(10px); transition: all 0.3s ease; }
-        .btn-liquid::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0)); pointer-events: none; }
-        .btn-liquid:active { transform: scale(0.96); }
-        .glass-input { background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(255, 255, 255, 0.5); color: #334155; }
-        .dark .glass-input { background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); color: #f1f5f9; }
-        .swal2-popup { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.95) !important; border-radius: 2rem !important; border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important; }
-        .dark .swal2-popup { background: rgba(30,41,59,0.95) !important; border: 1px solid rgba(255,255,255,0.1); color: #f1f5f9 !important; }
+        /* 🔥 ปรับสเกลหน้าเว็บให้ใหญ่ขึ้นบน Desktop 🔥 */
+        html { font-size: 18px; }
+        @media (max-width: 768px) { html { font-size: 14px; } }
+
+        body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; overflow-x: hidden; }
+        .bg-pattern { background-color: #fff7ed; background-image: radial-gradient(#fdba74 1px, transparent 1px); background-size: 30px 30px; }
+        .dark .bg-pattern { background-color: #0f172a; background-image: radial-gradient(#334155 1px, transparent 1px); }
+        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); }
+        .dark .glass-panel { background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4); }
+        .glass-input { background: rgba(255, 255, 255, 0.6); border: 2px solid transparent; color: #334155; transition: all 0.3s ease; }
+        .glass-input:focus { background: #ffffff; border-color: #f97316; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1); }
+        .dark .glass-input { background: rgba(15, 23, 42, 0.6); border-color: rgba(255, 255, 255, 0.05); color: #f1f5f9; }
+        .dark .glass-input:focus { background: rgba(15, 23, 42, 0.9); border-color: #ea580c; box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.15); }
+        .btn-liquid { position: relative; overflow: hidden; }
+        .btn-liquid::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0)); pointer-events: none; }
+        .btn-liquid:active { transform: scale(0.98); }
+
+        /* 🔥 ตัดสกอร์บาร์ขยะตอน Pop-up โหลด 🔥 */
+        body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
+        .swal2-container { overflow-y: hidden !important; }
+
+        /* 🔥 ดีไซน์ Pop-up สไตล์ Minimalist วงกลมพาสเทล 🔥 */
+        .swal2-popup { background: #ffffff !important; border-radius: 24px !important; border: none !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; padding: 2.5rem 1.5rem !important; }
+        .dark .swal2-popup { background: #1e293b !important; box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important; }
+        .swal2-title { color: #0f172a !important; font-weight: 700 !important; font-size: 1.4rem !important; margin-bottom: 0.5rem !important; }
+        .dark .swal2-title { color: #f8fafc !important; }
+        .swal2-html-container { color: #475569 !important; font-size: 1rem !important; }
+        .dark .swal2-html-container { color: #cbd5e1 !important; }
+        .swal2-actions { gap: 12px !important; width: 100%; justify-content: center; margin-top: 2rem !important; }
+        .swal2-styled { border-radius: 12px !important; font-weight: 600 !important; padding: 12px 28px !important; transition: all 0.2s !important; box-shadow: none !important; font-size: 1rem !important; }
+        .swal2-confirm { background-color: #f97316 !important; }
+        .swal2-cancel { background: #ffffff !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; }
+        .swal2-cancel:hover { background: #f8fafc !important; }
+        .dark .swal2-cancel { background: transparent !important; color: #f8fafc !important; border-color: #475569 !important; }
+        .dark .swal2-cancel:hover { background: #334155 !important; }
         
-        @keyframes blob { 0% { transform: translate(0px, 0px) scale(1); } 33% { transform: translate(40px, -60px) scale(1.2); } 66% { transform: translate(-30px, 30px) scale(0.8); } 100% { transform: translate(0px, 0px) scale(1); } }
-        .animate-blob { animation: blob 8s infinite alternate; } .animation-delay-2000 { animation-delay: 2s; } .animation-delay-4000 { animation-delay: 4s; }
+        .swal2-icon { border: none !important; width: 90px !important; height: 90px !important; margin: 0 auto 1.5rem auto !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; }
+        .swal2-icon.swal2-success { background-color: #dcfce7 !important; color: #10b981 !important; }
+        .swal2-icon.swal2-error { background-color: #fee2e2 !important; color: #ef4444 !important; }
+        .swal2-icon.swal2-warning { background-color: #fef08a !important; color: #eab308 !important; }
+        .swal2-icon.swal2-info { background-color: #ffedd5 !important; color: #f97316 !important; }
+        .swal2-icon.swal2-question { background-color: #f3e8ff !important; color: #8b5cf6 !important; }
+        .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-ring { display: none !important; background: transparent !important; }
+        .swal2-icon.swal2-success [class^=swal2-success-line] { background-color: #10b981 !important; }
+        .swal2-icon.swal2-error [class^=swal2-x-mark-line] { background-color: #ef4444 !important; }
+        .swal2-close { color: #94a3b8 !important; border-radius: 50% !important; background: #f1f5f9 !important; width: 32px !important; height: 32px !important; margin: 8px 8px 0 0 !important; }
+        .swal2-close:hover { background: #e2e8f0 !important; color: #0f172a !important; }
+        .dark .swal2-close { background: #334155 !important; color: #94a3b8 !important; }
+        .dark .swal2-close:hover { background: #475569 !important; color: #f8fafc !important; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center relative overflow-hidden bg-orange-50/50 dark:bg-slate-900 p-4 transition-colors">
-    <div class="absolute top-10 left-10 w-64 h-64 sm:w-96 sm:h-96 bg-orange-500/30 dark:bg-orange-600/30 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob"></div>
-    <div class="absolute top-0 right-10 w-64 h-64 sm:w-96 sm:h-96 bg-amber-500/30 dark:bg-amber-600/30 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob animation-delay-2000"></div>
-    <div class="absolute -bottom-10 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-yellow-500/30 dark:bg-yellow-600/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob animation-delay-4000"></div>
+<body class="bg-pattern min-h-screen flex items-center justify-center p-4 relative">
 
-    <button onclick="toggleTheme()" class="absolute top-6 right-6 btn-liquid bg-white/50 dark:bg-slate-800/50 p-3 rounded-full shadow-md text-slate-700 dark:text-slate-200 z-50 outline-none hover:text-orange-500 transition-colors">
-        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
-    </button>
+    <button onclick="toggleTheme()" class="absolute top-4 right-4 sm:top-6 sm:right-6 bg-white/50 dark:bg-slate-800/50 p-3 rounded-full text-slate-700 dark:text-slate-200 shadow-sm backdrop-blur-md border border-white/50 dark:border-slate-700/50 hover:scale-105 transition-transform"><i data-lucide="moon" class="w-5 h-5 dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i></button>
 
-    <div class="w-full max-w-md p-6 sm:p-8 rounded-[2rem] glass-panel relative z-10">
-        <div class="text-center mb-6 sm:mb-8">
-            <div class="bg-slate-800 dark:bg-slate-900 p-3 sm:p-4 rounded-2xl inline-block mb-3 shadow-lg border border-slate-700">
-                <img src="https://img1.pic.in.th/images/logo-banner-scius.png" alt="logo" class="h-12 sm:h-16 mx-auto hover:scale-105 transition-transform duration-300">
-            </div>
-            <h2 class="text-xl font-bold text-slate-800 dark:text-white tracking-wide">ระบบส่งงานโครงงาน</h2>
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">โครงการ วมว. มหาวิทยาลัยนเรศวร</p>
+    <div class="glass-panel w-full max-w-md rounded-[2rem] p-8 sm:p-10 relative z-10">
+        
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-gradient-to-tr from-orange-500 to-amber-400 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-orange-500/30 mb-4 transform -rotate-6"><i data-lucide="book-open" class="w-10 h-10 text-white transform rotate-6"></i></div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white tracking-tight">SCiUSNU <span class="text-orange-500">SMART</span></h1>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-2">ระบบจัดการโครงงาน วมว. มหาวิทยาลัยนเรศวร</p>
         </div>
 
-        <form id="loginForm" onsubmit="handleLogin(event)">
-            <div class="mb-4">
-                <label class="block text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Student ID / Email</label>
+        <form id="loginForm" class="space-y-5">
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-slate-600 dark:text-slate-300 ml-2">ชื่อผู้ใช้ / รหัสนักเรียน</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><i data-lucide="user" class="w-5 h-5 opacity-70"></i></div>
-                    <input type="text" id="username" required class="w-full pl-11 pr-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl glass-input focus:ring-2 focus:ring-orange-500 outline-none transition-all">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i data-lucide="user" class="h-5 w-5 text-slate-400"></i></div>
+                    <input type="text" id="username" required placeholder="กรอกข้อมูลที่นี่..." class="w-full pl-11 pr-4 py-3.5 rounded-xl glass-input text-sm outline-none font-medium">
                 </div>
             </div>
-            <div class="mb-6 sm:mb-8">
-                <label class="block text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Password</label>
+
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-slate-600 dark:text-slate-300 ml-2">รหัสผ่าน</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><i data-lucide="key-round" class="w-5 h-5 opacity-70"></i></div>
-                    <input type="password" id="password" required class="w-full pl-11 pr-12 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl glass-input focus:ring-2 focus:ring-orange-500 outline-none transition-all">
-                    <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 outline-none transition-colors"><i data-lucide="eye" id="eyeIcon" class="w-5 h-5"></i></button>
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i data-lucide="lock" class="h-5 w-5 text-slate-400"></i></div>
+                    <input type="password" id="password" required placeholder="••••••••" class="w-full pl-11 pr-12 py-3.5 rounded-xl glass-input text-sm outline-none font-medium">
+                    <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-orange-500 transition-colors"><i data-lucide="eye" id="eyeIcon" class="h-5 w-5"></i></button>
                 </div>
             </div>
-            <button type="submit" id="submitBtn" class="w-full btn-liquid bg-gradient-to-r from-orange-500 to-amber-500 dark:from-orange-600 dark:to-amber-600 text-white font-bold py-3.5 rounded-xl text-sm sm:text-base flex items-center justify-center hover:shadow-lg hover:shadow-orange-500/30 transition-all">
-                <i data-lucide="log-in" class="w-5 h-5 mr-2"></i> เข้าสู่ระบบ
-            </button>
+
+            <button type="submit" id="loginBtn" class="w-full btn-liquid bg-slate-800 dark:bg-orange-600 text-white font-bold py-4 rounded-xl hover:shadow-lg transition-all mt-6 text-sm sm:text-base flex items-center justify-center"><i data-lucide="log-in" class="w-5 h-5 mr-2"></i> เข้าสู่ระบบ</button>
         </form>
+
+        <div class="mt-8 text-center border-t border-slate-200 dark:border-slate-700/50 pt-6">
+            <p class="text-xs text-slate-500 dark:text-slate-400">มีปัญหาการเข้าสู่ระบบ? <br class="sm:hidden"><a href="https://www.facebook.com/sciusnu" target="_blank" class="text-orange-600 dark:text-orange-400 font-semibold hover:underline">ติดต่อเจ้าหน้าที่โครงการ</a></p>
+        </div>
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbz4VLdHZ_TrksKu_zHsmUpd-ztg1jbMEvPJD6xl4BdnxoW-4F_fQ6bdZSji5ejh6NfJJQ/exec';
-        localStorage.clear(); lucide.createIcons();
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxvlQjACPTdbvpF7TuK4ye2gmjrBu83a26_nAoHqkoIULD1RiuFt9J-RxmnkcCUBjySaw/exec';
+        lucide.createIcons();
 
         function toggleTheme() {
             const html = document.documentElement;
@@ -79,80 +113,48 @@
             else { html.classList.add('dark'); localStorage.theme = 'dark'; }
         }
 
-        function togglePasswordVisibility() {
-            const pwdInput = document.getElementById('password'); const eyeIcon = document.getElementById('eyeIcon');
-            if (pwdInput.type === 'password') { pwdInput.type = 'text'; eyeIcon.setAttribute('data-lucide', 'eye-off'); } 
-            else { pwdInput.type = 'password'; eyeIcon.setAttribute('data-lucide', 'eye'); }
-            lucide.createIcons(); 
+        function togglePassword() {
+            const pwd = document.getElementById('password'); const icon = document.getElementById('eyeIcon');
+            if (pwd.type === 'password') { pwd.type = 'text'; icon.setAttribute('data-lucide', 'eye-off'); } 
+            else { pwd.type = 'password'; icon.setAttribute('data-lucide', 'eye'); }
+            lucide.createIcons();
         }
 
-        function getDirectImageUrl(url) {
-            if (!url) return "";
-            if (url.includes('drive.google.com')) { const match = url.match(/[-\w]{25,}/); if (match) return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`; }
-            return url;
+        const storedRole = localStorage.getItem('userRole');
+        if (storedRole) {
+            if (storedRole === 'admin') window.location.href = 'admin.html';
+            else if (storedRole === 'student') window.location.href = 'student.html';
+            else window.location.href = 'advisor.html';
         }
 
-        async function handleLogin(e) {
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = document.getElementById('username').value.trim(); 
-            const password = document.getElementById('password').value.trim();
-
-            // 🔥 1. Pop-up โหลดเข้าสู่ระบบแบบกระชับ เปลี่ยนเป็น SCIUSNU SMART 🔥
-            Swal.fire({
-                html: `
-                    <div class="text-center pt-1">
-                        <p class="text-[10px] sm:text-[11px] font-extrabold text-orange-500 uppercase tracking-widest mb-1">SCIUSNU SMART</p>
-                        <h2 class="text-3xl sm:text-4xl font-black text-slate-800 dark:text-white mb-5">Login</h2>
-                        <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-1">กำลังเข้าสู่ระบบ...</h3>
-                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6">กรุณารอสักครู่</p>
-                        <div class="flex justify-center"><div class="w-8 h-8 sm:w-10 sm:h-10 border-4 border-slate-200 dark:border-slate-700 border-t-orange-500 rounded-full animate-spin"></div></div>
-                    </div>
-                `,
-                showConfirmButton: false, allowOutsideClick: false, customClass: { popup: 'rounded-[2rem] p-5 sm:p-8 w-[90%] max-w-sm' }
-            });
-
+            const btn = document.getElementById('loginBtn'); const username = document.getElementById('username').value.trim(); const password = document.getElementById('password').value.trim();
+            btn.disabled = true; btn.innerHTML = `<svg class="animate-spin inline-block h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังตรวจสอบ...`;
+            
+            Swal.fire({ title: 'กำลังเข้าสู่ระบบ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+            
             try {
-                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', username: username, password: password }) });
-                const responseText = await response.text(); 
-                let result;
-                try { result = JSON.parse(responseText); } catch (parseError) { throw new Error("ลิงก์ API ไม่ถูกต้อง"); }
-
+                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "login", username: username, password: password }) });
+                const result = await response.json();
+                
                 if (result.status === 'success') {
-                    localStorage.setItem('userEmail', result.email); localStorage.setItem('userRole', result.role); localStorage.setItem('userName', result.name);
+                    localStorage.setItem('userRole', result.role); localStorage.setItem('userName', result.name); localStorage.setItem('userEmail', result.email);
+                    if (result.role === 'student') { localStorage.setItem('studentId', result.studentId); localStorage.setItem('profileUrl', result.profileUrl); }
+                    sessionStorage.removeItem('welcomed'); 
                     
-                    const directPicUrl = getDirectImageUrl(result.profileUrl);
-                    const fallbackPic = `https://ui-avatars.com/api/?name=${encodeURIComponent(result.name)}&background=random`;
-                    const finalPic = directPicUrl ? directPicUrl : fallbackPic;
-                    localStorage.setItem('profileUrl', finalPic);
-
-                    if (result.role === 'student') localStorage.setItem('studentId', result.studentId);
-                    
-                    let idDisplay = result.studentId || result.role;
-
-                    // 🔥 2. Pop-up ยินดีต้อนรับ ตัดคำว่า Class ออก และย่อขนาดให้พอดีจอ 🔥
-                    Swal.fire({
-                        html: `
-                            <div class="text-center pt-1">
-                                <h2 class="text-xl sm:text-2xl font-black text-slate-800 dark:text-white mb-4">ยินดีต้อนรับ!</h2>
-                                <img src="${finalPic}" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover mx-auto mb-4 border-[4px] sm:border-[6px] border-white dark:border-slate-700 shadow-xl bg-white">
-                                <h3 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-5">${result.name}</h3>
-                                <div class="flex justify-center">
-                                    <span class="bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-5 py-1.5 rounded-full text-[11px] sm:text-xs font-bold border border-orange-200 dark:border-orange-800 shadow-sm">ID: ${idDisplay}</span>
-                                </div>
-                            </div>
-                        `,
-                        showConfirmButton: false, timer: 2000, customClass: { popup: 'rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 w-[90%] max-w-sm' }
-                    }).then(() => {
-                        if (result.role === 'student') window.location.href = 'student.html';
-                        else if (result.role === 'admin') window.location.href = 'admin.html';
-                        else if (result.role === 'advisor') window.location.href = 'advisor.html';
-                        else window.location.href = 'viewer.html';
+                    Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ!', showConfirmButton: false, timer: 1000 }).then(() => {
+                        if (result.role === 'admin') window.location.href = 'admin.html';
+                        else if (result.role === 'student') window.location.href = 'student.html';
+                        else window.location.href = 'advisor.html';
                     });
                 } else throw new Error(result.message);
             } catch (error) { 
-                Swal.fire({ icon: 'error', title: 'เข้าสู่ระบบล้มเหลว', text: error.message, confirmButtonColor: '#f97316', customClass: { popup: 'rounded-[2rem] p-5 w-[90%] max-w-sm' }});
+                Swal.fire({ icon: 'error', title: 'ไม่สามารถเข้าสู่ระบบได้', text: error.message, confirmButtonColor: '#f97316' }); 
+            } finally { 
+                btn.disabled = false; btn.innerHTML = '<i data-lucide="log-in" class="w-5 h-5 mr-2"></i> เข้าสู่ระบบ'; lucide.createIcons(); 
             }
-        }
+        });
     </script>
 </body>
 </html>
