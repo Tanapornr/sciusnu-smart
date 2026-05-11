@@ -14,11 +14,11 @@
         if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
     </script>
     <style>
-        /* 🔥 ปรับสเกลหน้าเว็บให้ใหญ่ขึ้นบน Desktop (แทนการ Zoom 125%) 🔥 */
+        /* 🔥 ปรับสเกลหน้าเว็บให้ใหญ่ขึ้นบน Desktop (ไม่ต้อง Zoom 125%) 🔥 */
         html { font-size: 18px; }
         @media (max-width: 768px) { html { font-size: 14px; } }
 
-        body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #fff7ed; }
+        body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #fff7ed; overflow-x: hidden; }
         .dark body { background-color: #0f172a; color: #f1f5f9; }
         .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); }
         .dark .glass-panel { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
@@ -31,7 +31,7 @@
         .dark table td { color: #f1f5f9 !important; border-color: rgba(255,255,255,0.05); }
         .dark .bg-slate-50 { background-color: rgba(15, 23, 42, 0.4) !important; }
 
-        /* 🔥 ซ่อน Scrollbar ของโมดัลโหลด และลบวงกลมซ้อนทับ 🔥 */
+        /* 🔥 ซ่อน Scrollbar ของโมดัลโหลด และลดเส้นขยะ 🔥 */
         body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
         .swal2-container { overflow-y: hidden !important; }
 
@@ -95,17 +95,9 @@
     </header>
 
     <div class="max-w-7xl mx-auto mt-4 sm:mt-6 px-3 sm:px-4 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        
         <div class="lg:col-span-1 space-y-4 sm:space-y-6">
-            <div class="glass-panel rounded-3xl p-4 sm:p-6">
-                <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 border-b border-slate-200 dark:border-slate-700 pb-3 flex items-center"><i data-lucide="download" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ดาวน์โหลดฟอร์ม</h2>
-                <ul class="space-y-3 text-xs sm:text-sm">
-                    <li><a href="#" class="text-orange-600 dark:text-orange-400 hover:underline flex items-center"><i data-lucide="file-text" class="w-4 h-4 mr-2 opacity-70"></i> Template โครงร่าง</a></li>
-                    <li><a href="#" class="text-orange-600 dark:text-orange-400 hover:underline flex items-center"><i data-lucide="file-text" class="w-4 h-4 mr-2 opacity-70"></i> Template ความก้าวหน้า</a></li>
-                    <li><a href="#" class="text-orange-600 dark:text-orange-400 hover:underline flex items-center"><i data-lucide="file-text" class="w-4 h-4 mr-2 opacity-70"></i> Template ฉบับสมบูรณ์</a></li>
-                    <li><a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="text-orange-600 dark:text-orange-400 hover:underline flex items-center"><i data-lucide="folder-open" class="w-4 h-4 mr-2 opacity-70"></i> คำร้องต่างๆ</a></li>
-                </ul>
-            </div>
-
+            
             <div id="uploadBox" class="glass-panel rounded-3xl p-4 sm:p-6 transition-all duration-500 border-2 border-transparent">
                 <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 border-b border-slate-200 dark:border-slate-700 pb-3 flex items-center"><i data-lucide="upload" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ส่งงาน</h2>
                 <form id="uploadForm" class="space-y-4">
@@ -119,6 +111,17 @@
                     <button type="submit" id="submitBtn" class="w-full btn-liquid bg-orange-500 dark:bg-orange-600 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition-all shadow-md text-sm flex items-center justify-center"><i data-lucide="send" class="w-4 h-4 mr-2"></i> ส่งงาน</button>
                 </form>
             </div>
+            
+            <div class="glass-panel rounded-3xl p-4 sm:p-6">
+                <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 border-b border-slate-200 dark:border-slate-700 pb-3 flex items-center"><i data-lucide="download" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ดาวน์โหลดแบบฟอร์ม</h2>
+                <div class="grid grid-cols-2 gap-2 sm:gap-3">
+                    <a href="#" class="flex flex-col items-center text-[10px] sm:text-xs bg-slate-50 dark:bg-slate-800/50 hover:bg-orange-50 dark:hover:bg-orange-900/30 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 p-3 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors btn-liquid text-center font-semibold"><i data-lucide="file-text" class="w-5 h-5 mb-1.5 opacity-70"></i> โครงร่าง</a>
+                    <a href="#" class="flex flex-col items-center text-[10px] sm:text-xs bg-slate-50 dark:bg-slate-800/50 hover:bg-orange-50 dark:hover:bg-orange-900/30 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 p-3 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors btn-liquid text-center font-semibold"><i data-lucide="file-text" class="w-5 h-5 mb-1.5 opacity-70"></i> ความก้าวหน้า</a>
+                    <a href="#" class="flex flex-col items-center text-[10px] sm:text-xs bg-slate-50 dark:bg-slate-800/50 hover:bg-orange-50 dark:hover:bg-orange-900/30 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 p-3 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors btn-liquid text-center font-semibold"><i data-lucide="file-text" class="w-5 h-5 mb-1.5 opacity-70"></i> ฉบับสมบูรณ์</a>
+                    <a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="flex flex-col items-center text-[10px] sm:text-xs bg-slate-50 dark:bg-slate-800/50 hover:bg-orange-50 dark:hover:bg-orange-900/30 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 p-3 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors btn-liquid text-center font-semibold"><i data-lucide="folder-open" class="w-5 h-5 mb-1.5 opacity-70"></i> คำร้องต่างๆ</a>
+                </div>
+            </div>
+            
         </div>
 
         <div class="lg:col-span-2">
@@ -244,7 +247,7 @@
             });
         };
 
-        // 🔥 ฟังก์ชัน Pop-up ยินดีต้อนรับโชว์รูปโปรไฟล์และรหัสนิสิต (ค้าง 5 วินาที) 🔥
+        // 🔥 ยินดีต้อนรับโชว์รูปโปรไฟล์ + รหัสนิสิต (ค้าง 5 วินาที) ตอนเข้าครั้งแรก 🔥
         function showWelcomeMessage() {
             if (cachedName && !sessionStorage.getItem('welcomed')) {
                 Swal.fire({
@@ -257,7 +260,7 @@
                         </div>
                     `,
                     showConfirmButton: false,
-                    timer: 5000, 
+                    timer: 5000, // ตั้งเวลา 5 วินาที
                     timerProgressBar: true,
                     backdrop: `rgba(15, 23, 42, 0.4)`,
                     customClass: { popup: 'rounded-[2rem] p-2 max-w-sm w-[90%]' },
@@ -268,7 +271,7 @@
         }
 
         async function loadData() {
-            // โหลดข้อมูลแบบไม่มี Pop-up บัง
+            // โหลดข้อมูลแบบทำงานเงียบๆ ภายใต้ HTML ไม่บังหน้าจอด้วย Pop-up
             try {
                 const res = await fetch(API_URL); const data = await res.json();
                 if (data && data.status === 'success') {
@@ -299,7 +302,7 @@
                     document.getElementById('loadingData').style.display = 'none'; 
                     document.getElementById('tableContainer').classList.remove('hidden'); 
                     
-                    // เรียก Pop-up ยินดีต้อนรับหลังดึงข้อมูลเสร็จ
+                    // เรียก Pop-up ยินดีต้อนรับหลังโหลดข้อมูลเสร็จ
                     showWelcomeMessage(); 
                 }
             } catch (e) { 
