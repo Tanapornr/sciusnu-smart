@@ -77,7 +77,9 @@
                 <form id="uploadForm" class="space-y-4">
                     <div><label class="block text-xs sm:text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">ประเภทงาน</label><select id="workType" required class="w-full text-xs sm:text-sm rounded-xl p-2.5 sm:p-3 glass-input outline-none focus:ring-2 focus:ring-orange-500"><option value="">-- เลือกประเภทงาน --</option><option value="โครงร่าง (Proposal)">โครงร่าง (Proposal)</option><option value="รายงานความก้าวหน้า">รายงานความก้าวหน้า</option><option value="รายงานฉบับสมบูรณ์">รายงานฉบับสมบูรณ์</option><option value="แบบคำร้อง">แบบคำร้อง</option></select></div>
                     <div><label class="block text-xs sm:text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">รหัสโครงงาน</label><input list="projectList" id="projectId" required class="w-full text-xs sm:text-sm rounded-xl p-2.5 sm:p-3 glass-input bg-slate-100/50 outline-none cursor-not-allowed" readonly></div>
-                    <div class="bg-orange-50 p-3 sm:p-4 rounded-xl"><label class="block text-xs sm:text-sm font-bold mb-2 text-orange-800 dark:text-orange-400 flex items-center"><i data-lucide="file" class="w-4 h-4 mr-1"></i> 1. ไฟล์รูปเล่ม (PDF)</label><input type="file" id="fileReport" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-slate-500 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-orange-500 file:text-white cursor-pointer"></div>
+                    
+                    <div class="bg-orange-50 p-3 sm:p-4 rounded-xl"><label id="labelFileReport" class="block text-xs sm:text-sm font-bold mb-2 text-orange-800 dark:text-orange-400 flex items-center"><i data-lucide="file" class="w-4 h-4 mr-1"></i> 1. ไฟล์รูปเล่ม (PDF)</label><input type="file" id="fileReport" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-slate-500 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-orange-500 file:text-white cursor-pointer"></div>
+                    
                     <div class="bg-amber-50 p-3 sm:p-4 rounded-xl"><label class="block text-xs sm:text-sm font-bold mb-2 text-amber-800 dark:text-amber-400 flex items-center"><i data-lucide="pen-tool" class="w-4 h-4 mr-1"></i> 2. หน้าลายเซ็น (PDF)</label><input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-slate-500 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-amber-500 file:text-white cursor-pointer"></div>
                     <button type="submit" id="submitBtn" class="w-full btn-liquid bg-orange-500 dark:bg-orange-600 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition-all shadow-md text-sm flex items-center justify-center"><i data-lucide="send" class="w-4 h-4 mr-2"></i> ส่งงาน</button>
                 </form>
@@ -233,8 +235,22 @@
             } catch (err) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message, confirmButtonColor: '#f97316' }); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 mr-2"></i> บันทึกการตั้งค่า'; lucide.createIcons(); }
         });
 
+        // 🔥 Dynamic Label and Button Text เปลี่ยนแบบเรียลไทม์ 🔥
         document.getElementById('workType').addEventListener('change', (e) => {
             const selectedType = e.target.value;
+            
+            const labelFileReport = document.getElementById('labelFileReport');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (selectedType === 'แบบคำร้อง') {
+                labelFileReport.innerHTML = '<i data-lucide="file" class="w-4 h-4 mr-1"></i> 1. ไฟล์คำร้อง (PDF)';
+                submitBtn.innerHTML = '<i data-lucide="send" class="w-4 h-4 mr-2"></i> ส่งแบบคำร้อง';
+            } else {
+                labelFileReport.innerHTML = '<i data-lucide="file" class="w-4 h-4 mr-1"></i> 1. ไฟล์รูปเล่ม (PDF)';
+                submitBtn.innerHTML = '<i data-lucide="send" class="w-4 h-4 mr-2"></i> ส่งงาน';
+            }
+            lucide.createIcons();
+
             if(selectedType && window.mySubmissions) {
                 const existingSub = window.mySubmissions.find(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === selectedType);
                 if(existingSub) {
@@ -308,8 +324,26 @@
                 const uploader = members.find(x => x['รหัสนักเรียน'] == studentId); 
                 const payload = { studentId: studentId === "ไม่ระบุ" ? "" : studentId, firstName: uploader ? uploader['ชื่อ'] : "", lastName: uploader ? uploader['นามสกุล'] : "", projectId: pid, workType: selectedWorkType, advisorName: (members[0] ? members[0]['อ. ที่ปรึกษา TH'] : ""), file1Data: f1.data, file1Mime: f1.mime, file2Data: f2.data, file2Mime: f2.mime };
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
-                if (result && result.status === 'success') { Swal.fire({ icon: 'success', title: 'ส่งงานสำเร็จ!', timer: 2000, showConfirmButton: false }).then(() => { document.getElementById('workType').value = ""; document.getElementById('fileReport').value = ""; document.getElementById('fileSignature').value = ""; document.getElementById('tableContainer').classList.add('hidden'); document.getElementById('loadingData').style.display = 'flex'; loadData(); }); } else throw new Error(result.message);
-            } catch (err) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message, confirmButtonColor: '#f97316' }); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="send" class="w-4 h-4 mr-2"></i> ส่งงาน'; lucide.createIcons(); }
+                
+                // 🔥 รีเซ็ต UI ให้ถูกต้องเมื่อโหลดเสร็จ 🔥
+                if (result && result.status === 'success') { 
+                    Swal.fire({ icon: 'success', title: 'ส่งงานสำเร็จ!', timer: 2000, showConfirmButton: false }).then(() => { 
+                        document.getElementById('workType').value = ""; 
+                        document.getElementById('workType').dispatchEvent(new Event('change')); // กระตุ้นให้เปลี่ยนชื่อปุ่มกลับอัตโนมัติ
+                        document.getElementById('fileReport').value = ""; 
+                        document.getElementById('fileSignature').value = ""; 
+                        document.getElementById('tableContainer').classList.add('hidden'); 
+                        document.getElementById('loadingData').style.display = 'flex'; 
+                        loadData(); 
+                    }); 
+                } else throw new Error(result.message);
+            } catch (err) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message, confirmButtonColor: '#f97316' }); } 
+            finally { 
+                btn.disabled = false; 
+                const currentType = document.getElementById('workType').value;
+                btn.innerHTML = currentType === 'แบบคำร้อง' ? '<i data-lucide="send" class="w-4 h-4 mr-2"></i> ส่งแบบคำร้อง' : '<i data-lucide="send" class="w-4 h-4 mr-2"></i> ส่งงาน'; 
+                lucide.createIcons(); 
+            }
         });
 
         loadData();
