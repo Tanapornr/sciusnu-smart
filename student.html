@@ -236,17 +236,18 @@
             });
         };
 
-        // 🔥 ยินดีต้อนรับ (ไม่มีรูปโปรไฟล์ และ ค้างนาน 5 วินาที) 🔥
+        // 🔥 ยินดีต้อนรับแบบไม่เอารูป + ค้างนาน 5 วินาที 🔥
         function showWelcomeMessage() {
             if (cachedName && !sessionStorage.getItem('welcomed')) {
                 Swal.fire({
                     html: `
-                        <div class="flex flex-col items-center justify-center p-4">
+                        <div class="flex flex-col items-center justify-center p-2">
                             <h2 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white leading-tight mb-2">ยินดีต้อนรับ</h2>
                             <p class="text-orange-600 dark:text-orange-400 font-medium text-sm sm:text-base">${cachedName}</p>
                             <p class="text-slate-500 text-xs mt-1">(รหัสนักเรียน: ${studentId})</p>
                         </div>
                     `,
+                    icon: 'success', // โชว์ไอคอนสำเร็จแทนรูป
                     showConfirmButton: false,
                     timer: 5000, 
                     timerProgressBar: true,
@@ -259,7 +260,6 @@
         }
 
         async function loadData() {
-            // โชว์โหลดแบบไม่มี Scrollbar
             Swal.fire({ title: 'กำลังโหลดข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
             try {
