@@ -31,9 +31,11 @@
         .btn-liquid::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0)); pointer-events: none; }
         .btn-liquid:active { transform: scale(0.98); }
 
-        /* 🔥 ซ่อน Scrollbar ของโมดัลโหลด และแก้ไขวงกลมซ้อนทับ 🔥 */
+        /* 🔥 ตัดสกอร์บาร์ที่ไม่ต้องการออกระหว่างกำลังโหลด (Pop-up open state) 🔥 */
         body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
         .swal2-container { overflow-y: hidden !important; }
+
+        /* 🔥 ดีไซน์ Pop-up สไตล์ Minimalist วงกลมพาสเทล 🔥 */
         .swal2-popup { background: #ffffff !important; border-radius: 24px !important; border: none !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; padding: 2.5rem 1.5rem !important; }
         .dark .swal2-popup { background: #1e293b !important; box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important; }
         .swal2-title { color: #0f172a !important; font-weight: 700 !important; font-size: 1.4rem !important; margin-bottom: 0.5rem !important; }
@@ -136,13 +138,15 @@
                 if (result.status === 'success') {
                     localStorage.setItem('userRole', result.role); localStorage.setItem('userName', result.name); localStorage.setItem('userEmail', result.email);
                     if (result.role === 'student') { localStorage.setItem('studentId', result.studentId); localStorage.setItem('profileUrl', result.profileUrl); }
-                    sessionStorage.removeItem('welcomed'); // เคลียร์สถานะเพื่อให้หน้าต่อไปโชว์ต้อนรับได้
                     
-                    Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ!', showConfirmButton: false, timer: 5000 }).then(() => {
-                        if (result.role === 'admin') window.location.href = 'admin.html';
-                        else if (result.role === 'student') window.location.href = 'student.html';
-                        else window.location.href = 'advisor.html';
-                    });
+                    // รีเซ็ตค่าว่ายังไม่ได้ยินดีต้อนรับ เพื่อให้หน้าถัดไปทำงานได้
+                    sessionStorage.removeItem('welcomed'); 
+                    
+                    // ❌ ตัด Popup เข้าสู่ระบบสำเร็จออก ❌ ให้ไปเด้งหน้าต้อนรับในไฟล์ student.html แทน
+                    if (result.role === 'admin') window.location.href = 'admin.html';
+                    else if (result.role === 'student') window.location.href = 'student.html';
+                    else window.location.href = 'advisor.html';
+                    
                 } else throw new Error(result.message);
             } catch (error) { 
                 Swal.fire({ icon: 'error', title: 'ไม่สามารถเข้าสู่ระบบได้', text: error.message, confirmButtonColor: '#f97316' }); 
