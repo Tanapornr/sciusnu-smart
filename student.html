@@ -28,7 +28,13 @@
         .dark .bg-slate-50 { background-color: rgba(15, 23, 42, 0.4) !important; }
 
         /* 🔥 ดีไซน์ Pop-up สไตล์ Minimalist วงกลมพาสเทล 🔥 */
-        .swal2-popup { background: #ffffff !important; border-radius: 24px !important; border: none !important; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important; padding: 2.5rem 1.5rem !important; }
+        .swal2-popup {
+            background: #ffffff !important;
+            border-radius: 24px !important;
+            border: none !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+            padding: 2.5rem 1.5rem !important;
+        }
         .dark .swal2-popup { background: #1e293b !important; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important; }
         .swal2-title { color: #0f172a !important; font-weight: 700 !important; font-size: 1.4rem !important; margin-bottom: 0.5rem !important; }
         .dark .swal2-title { color: #f8fafc !important; }
@@ -40,8 +46,6 @@
         .swal2-cancel { background: #ffffff !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; }
         .swal2-cancel:hover { background: #f8fafc !important; }
         .dark .swal2-cancel { background: transparent !important; color: #f8fafc !important; border-color: #475569 !important; }
-        .dark .swal2-cancel:hover { background: #334155 !important; }
-
         .swal2-icon { border: none !important; width: 90px !important; height: 90px !important; margin: 0 auto 1.5rem auto !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; }
         .swal2-icon.swal2-success { background-color: #dcfce7 !important; color: #10b981 !important; }
         .swal2-icon.swal2-error { background-color: #fee2e2 !important; color: #ef4444 !important; }
@@ -58,7 +62,7 @@
         html { font-size: 18px; }
         @media (max-width: 768px) { html { font-size: 14px; } }
 
-        /* ซ่อน Scrollbar ของโมดัล */
+        /* ซ่อน Scrollbar ของโมดัลโหลด */
         .swal2-shown { overflow: hidden !important; }
     </style>
 </head>
@@ -121,12 +125,7 @@
         <div class="lg:col-span-2">
             <div class="glass-panel rounded-3xl p-4 sm:p-6 overflow-hidden">
                 <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 border-b border-slate-200 dark:border-slate-700 pb-3 flex items-center"><i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ประวัติการส่งงานของกลุ่ม</h2>
-                
-                <div id="loadingData" class="text-center py-10 text-sm text-slate-500 flex flex-col items-center">
-                    <svg class="animate-spin h-6 w-6 sm:h-8 sm:w-8 text-orange-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    กำลังดึงข้อมูล...
-                </div>
-
+                <div id="loadingData" class="text-center py-10 text-sm text-slate-500 flex flex-col items-center"><svg class="animate-spin h-6 w-6 sm:h-8 sm:w-8 text-orange-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>กำลังดึงข้อมูล...</div>
                 <div class="overflow-x-auto hidden w-full pb-2" id="tableContainer">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 uppercase border-b text-[10px] sm:text-xs">
@@ -238,8 +237,10 @@
             });
         };
 
-        // 🔥 ถอดฟังก์ชัน Swal.fire() ออกทั้งหมดตอนโหลดหน้าเว็บ 🔥
+        // 🔥 เอาฟังก์ชันโชว์ยินดีต้อนรับออกทั้งหมด (ไม่มีการเรียกใช้งานแล้ว) 🔥
+
         async function loadData() {
+            // โชว์แค่ตัวหมุนๆ โหลดข้อมูลในตาราง ไม่ต้องเด้ง Pop-up อะไรทั้งนั้น
             try {
                 const res = await fetch(API_URL); const data = await res.json();
                 if (data && data.status === 'success') {
