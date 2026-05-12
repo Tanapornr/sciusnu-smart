@@ -18,7 +18,7 @@
         html { font-size: 18px; }
         @media (max-width: 768px) { html { font-size: 14px; } }
 
-        body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #fff7ed; }
+        body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #fff7ed; overflow-x: hidden; }
         .dark body { background-color: #0f172a; color: #f1f5f9; }
         .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); }
         .dark .glass-panel { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
@@ -31,7 +31,7 @@
         .dark table td { color: #f1f5f9 !important; border-color: rgba(255,255,255,0.05); }
         .dark .bg-slate-50 { background-color: rgba(15, 23, 42, 0.4) !important; }
 
-        /* 🔥 ตัดสกอร์บาร์ที่ไม่ต้องการออกระหว่างกำลังโหลด (Pop-up open state) 🔥 */
+        /* 🔥 ซ่อน Scrollbar ของโมดัลโหลด และลดเส้นขยะ 🔥 */
         body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
         .swal2-container { overflow-y: hidden !important; }
 
@@ -200,6 +200,8 @@
 
         const cachedName = localStorage.getItem('userName') || 'User';
         let cachedPic = localStorage.getItem('profileUrl') || `https://ui-avatars.com/api/?name=${encodeURIComponent(cachedName)}&background=random`;
+        
+        // เซ็ตภาพตั้งต้นตอนโหลด
         document.getElementById('headerProfilePic').src = cachedPic;
         document.getElementById('profilePreview').src = cachedPic;
         document.getElementById('headerMyName').innerText = cachedName;
@@ -247,8 +249,31 @@
             });
         };
 
-        // 🔥 โหลดข้อมูลแบบไม่มี Pop-up โผล่มาบังหน้าจอ
+        // 🔥 ฟังก์ชันโชว์ยินดีต้อนรับเฉพาะเข้าครั้งแรก 🔥
+        function showWelcomeMessage() {
+            if (cachedName && !sessionStorage.getItem('welcomed')) {
+                Swal.fire({
+                    html: `
+                        <div class="flex flex-col items-center justify-center p-2 mt-4">
+                            <img src="${cachedPic}" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover mb-4 border-4 border-orange-100 dark:border-slate-700 shadow-md bg-white">
+                            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white leading-tight mb-2">ยินดีต้อนรับ</h2>
+                            <p class="text-orange-600 dark:text-orange-400 font-bold text-sm sm:text-base bg-orange-50 dark:bg-slate-800 py-1.5 px-4 rounded-xl border border-orange-200 dark:border-slate-600">${cachedName}</p>
+                            <p class="text-slate-500 text-xs mt-3 bg-slate-100 dark:bg-slate-800 py-1 px-3 rounded-lg"><i data-lucide="hash" class="w-3 h-3 inline-block mr-1"></i>รหัสประจำตัว: <span class="font-semibold text-slate-700 dark:text-slate-300">${studentId}</span></p>
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    timer: 5000, 
+                    timerProgressBar: true,
+                    backdrop: `rgba(15, 23, 42, 0.4)`,
+                    customClass: { popup: 'rounded-[2rem] p-2 max-w-sm w-[90%]' },
+                    didOpen: () => { lucide.createIcons(); }
+                });
+                sessionStorage.setItem('welcomed', 'true');
+            }
+        }
+
         async function loadData() {
+            // โหลดข้อมูลเงียบๆ ไม่โชว์ Pop-up กำลังโหลด
             try {
                 const res = await fetch(API_URL); const data = await res.json();
                 if (data && data.status === 'success') {
@@ -266,11 +291,15 @@
                         else { document.getElementById('headerPartnerName').innerText = "- (เดี่ยว)"; document.getElementById('headerPartnerName').classList.add("opacity-60"); }
                         document.getElementById('headerProjectInfo').classList.remove('hidden');
                         
-                        // 🔥 ดึงรูปโปรไฟล์ใหม่ล่าสุดจากฐานข้อมูล (ถ้ามีเปลี่ยน) 🔥
-                        if (myProject['รูปโปรไฟล์'] && myProject['รูปโปรไฟล์'].includes('drive.google.com')) {
-                            const match = myProject['รูปโปรไฟล์'].match(/[-\w]{25,}/);
-                            if (match) {
-                                cachedPic = `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`;
+                        // 🔥 ดึงภาพโปรไฟล์ล่าสุดจาก Database (ป้องกันภาพไม่อัปเดต) 🔥
+                        if (myProject['รูปโปรไฟล์']) {
+                            let imgUrl = myProject['รูปโปรไฟล์'];
+                            if (imgUrl.includes('drive.google.com')) {
+                                const match = imgUrl.match(/[-\w]{25,}/);
+                                if (match) imgUrl = `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`;
+                            }
+                            if (imgUrl && imgUrl !== cachedPic) {
+                                cachedPic = imgUrl;
                                 localStorage.setItem('profileUrl', cachedPic);
                                 document.getElementById('headerProfilePic').src = cachedPic;
                                 document.getElementById('profilePreview').src = cachedPic;
@@ -290,16 +319,24 @@
                     document.getElementById('loadingData').style.display = 'none'; 
                     document.getElementById('tableContainer').classList.remove('hidden'); 
                     
+                    // หลังจากโหลดเสร็จค่อยโชว์ Pop-up ยินดีต้อนรับ
+                    showWelcomeMessage(); 
                 }
             } catch (e) { 
                 document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรชหน้าเว็บ</span>`; 
             }
         }
 
+        // โชว์รูปให้ดูก่อนกดบันทึก
         function previewImage(event) {
             const file = event.target.files[0];
-            if (file) { const reader = new FileReader(); reader.onload = function(e) { document.getElementById('profilePreview').src = e.target.result; }; reader.readAsDataURL(file); }
+            if (file) { 
+                const reader = new FileReader(); 
+                reader.onload = function(e) { document.getElementById('profilePreview').src = e.target.result; }; 
+                reader.readAsDataURL(file); 
+            }
         }
+        
         const toBase64 = file => new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res({ data: r.result.split(',')[1], mime: file.type }); r.onerror = rej; });
 
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
@@ -312,20 +349,21 @@
             }
             const btn = document.getElementById('btnSaveProfile'); const newPhone = document.getElementById('profilePhone').value.trim(); const fileInput = document.getElementById('profilePicInput').files[0];
             btn.disabled = true; btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังบันทึก...`;
+            
             try {
                 let picData = null; let picMime = null;
                 if(fileInput) { const base64File = await toBase64(fileInput); picData = base64File.data; picMime = base64File.mime; }
                 const payload = { action: "updateProfile", email: userEmail, phone: newPhone, oldPassword: oldPass, newPassword: newPass, newPicData: picData, newPicMime: picMime, existingPicUrl: localStorage.getItem('profileUrl') };
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
                 
-                // 🔥 ทันทีที่อัปเดตข้อมูลเสร็จ เปลี่ยนรูปโปรไฟล์หน้าเว็บให้ทันที แบบ Real-Time 🔥
+                // 🔥 เปลี่ยนรูปแบบ Real-Time ทันทีที่กดบันทึกสำเร็จ 🔥
                 if (result.status === 'success') { 
                     Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลเรียบร้อย!', showConfirmButton: false, timer: 1500 }); 
                     if (result.profileUrl) { 
                         cachedPic = result.profileUrl;
                         localStorage.setItem('profileUrl', result.profileUrl); 
-                        document.getElementById('headerProfilePic').src = result.profileUrl; 
-                        document.getElementById('profilePreview').src = result.profileUrl;
+                        document.getElementById('headerProfilePic').src = result.profileUrl; // เปลี่ยนรูปที่ Header มุมขวาบนทันที
+                        document.getElementById('profilePreview').src = result.profileUrl; // เปลี่ยนรูปใน Pop-up 
                     } 
                     closeProfileModal(); 
                 } else throw new Error(result.message);
