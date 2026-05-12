@@ -14,6 +14,10 @@
         if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
     </script>
     <style>
+        /* 🔥 ปรับสเกลหน้าเว็บให้ใหญ่ขึ้นบน Desktop 🔥 */
+        html { font-size: 16px; }
+        @media (max-width: 768px) { html { font-size: 14px; } }
+
         body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; }
         .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255,255,255,0.8); }
         .dark .glass-panel { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255,255,255,0.05); color: #f1f5f9; }
@@ -25,7 +29,7 @@
         .glass-input:focus { background: #ffffff; border-color: #f97316; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1); }
         .dark .glass-input:focus { background: rgba(15, 23, 42, 0.9); border-color: #ea580c; box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.15); }
         
-        .swal2-popup { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.95) !important; border-radius: 2rem !important; border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important; }
+        .swal2-popup { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.95) !important; border-radius: 2rem !important; border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important; padding: 2rem 1.5rem !important; }
         .dark .swal2-popup { background: rgba(30,41,59,0.95) !important; border: 1px solid rgba(255,255,255,0.1); color: #f1f5f9 !important; }
         
         @keyframes blob { 0% { transform: translate(0px, 0px) scale(1); } 33% { transform: translate(40px, -60px) scale(1.2); } 66% { transform: translate(-30px, 30px) scale(0.8); } 100% { transform: translate(0px, 0px) scale(1); } }
@@ -110,12 +114,15 @@
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
 
-            // 🔥 ลบ Pop-up รูปแบบเก่าทิ้ง โชว์แค่สัญลักษณ์โหลดแบบเรียบง่าย 🔥
+            // 🔥 1. Pop-up โหลดเข้าสู่ระบบแบบมินิมอล (ตามภาพ) 🔥
             Swal.fire({
                 title: 'กำลังตรวจสอบข้อมูล...',
                 allowOutsideClick: false,
                 didOpen: () => { Swal.showLoading(); },
-                customClass: { popup: 'rounded-[2rem] p-6 w-[90%] max-w-sm' }
+                customClass: { 
+                    popup: 'rounded-[2rem] p-6 w-[80%] max-w-sm',
+                    title: 'text-lg font-bold text-slate-700 dark:text-slate-200 mt-2' 
+                }
             });
 
             try {
@@ -137,23 +144,21 @@
                     if (result.role === 'student') localStorage.setItem('studentId', result.studentId);
                     
                     let idDisplay = result.studentId || result.role;
-
-                    // เคลียร์ค่า welcomed เก่าทิ้ง เพื่อให้หน้า Student เด้งต้อนรับได้
                     sessionStorage.removeItem('welcomed');
 
-                    // 🔥 Pop-up ยินดีต้อนรับ มีรูปโปรไฟล์และชื่อ เด้งโชว์ 2 วิ ก่อนสลับหน้า 🔥
+                    // 🔥 2. Pop-up ยินดีต้อนรับ ไซส์ตัวหนังสือเล็กลง สบายตา 🔥
                     Swal.fire({
                         html: `
                             <div class="text-center pt-2">
-                                <h2 class="text-xl sm:text-2xl font-black text-slate-800 dark:text-white mb-5">ยินดีต้อนรับ!</h2>
-                                <img src="${finalPic}" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover mx-auto mb-5 border-[4px] sm:border-[6px] border-orange-50 dark:border-slate-700 shadow-lg bg-white">
-                                <h3 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-5">${result.name}</h3>
+                                <h2 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-4">ยินดีต้อนรับ!</h2>
+                                <img src="${finalPic}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover mx-auto mb-4 border-[3px] border-orange-50 dark:border-slate-700 shadow-md bg-white">
+                                <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4">${result.name}</h3>
                                 <div class="flex justify-center">
-                                    <span class="bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-5 py-2 rounded-full text-xs font-bold border border-orange-200 dark:border-orange-800 shadow-sm flex items-center">ID: ${idDisplay}</span>
+                                    <span class="bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-4 py-1.5 rounded-full text-xs font-semibold border border-orange-200 dark:border-orange-800 shadow-sm">ID: ${idDisplay}</span>
                                 </div>
                             </div>
                         `,
-                        showConfirmButton: false, timer: 2000, customClass: { popup: 'rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 w-[90%] max-w-sm' }
+                        showConfirmButton: false, timer: 2000, customClass: { popup: 'rounded-[2rem] p-6 w-[80%] max-w-sm' }
                     }).then(() => {
                         if (result.role === 'student') window.location.href = 'student.html';
                         else if (result.role === 'admin') window.location.href = 'admin.html';
