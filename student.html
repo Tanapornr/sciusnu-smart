@@ -247,7 +247,7 @@
             });
         };
 
-        // 🔥 ยินดีต้อนรับโชว์รูปโปรไฟล์ + รหัสนิสิต (ค้าง 5 วินาที) ตอนเข้าครั้งแรก 🔥
+        // 🔥 ฟังก์ชัน Pop-up ยินดีต้อนรับโชว์รูปโปรไฟล์และรหัสนิสิต (ค้าง 5 วินาที) 🔥
         function showWelcomeMessage() {
             if (cachedName && !sessionStorage.getItem('welcomed')) {
                 Swal.fire({
@@ -260,7 +260,7 @@
                         </div>
                     `,
                     showConfirmButton: false,
-                    timer: 5000, // ตั้งเวลา 5 วินาที
+                    timer: 5000, 
                     timerProgressBar: true,
                     backdrop: `rgba(15, 23, 42, 0.4)`,
                     customClass: { popup: 'rounded-[2rem] p-2 max-w-sm w-[90%]' },
@@ -271,7 +271,6 @@
         }
 
         async function loadData() {
-            // โหลดข้อมูลแบบทำงานเงียบๆ ภายใต้ HTML ไม่บังหน้าจอด้วย Pop-up
             try {
                 const res = await fetch(API_URL); const data = await res.json();
                 if (data && data.status === 'success') {
@@ -302,7 +301,7 @@
                     document.getElementById('loadingData').style.display = 'none'; 
                     document.getElementById('tableContainer').classList.remove('hidden'); 
                     
-                    // เรียก Pop-up ยินดีต้อนรับหลังโหลดข้อมูลเสร็จ
+                    // เรียก Pop-up ยินดีต้อนรับหลังดึงข้อมูลเสร็จ
                     showWelcomeMessage(); 
                 }
             } catch (e) { 
@@ -331,7 +330,17 @@
                 if(fileInput) { const base64File = await toBase64(fileInput); picData = base64File.data; picMime = base64File.mime; }
                 const payload = { action: "updateProfile", email: userEmail, phone: newPhone, oldPassword: oldPass, newPassword: newPass, newPicData: picData, newPicMime: picMime, existingPicUrl: localStorage.getItem('profileUrl') };
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
-                if (result.status === 'success') { Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลเรียบร้อย!', showConfirmButton: false, timer: 1500 }); if (result.profileUrl) { localStorage.setItem('profileUrl', result.profileUrl); document.getElementById('headerProfilePic').src = result.profileUrl; document.getElementById('profilePreview').src = result.profileUrl;} closeProfileModal(); } else throw new Error(result.message);
+                if (result.status === 'success') { 
+                    Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลเรียบร้อย!', showConfirmButton: false, timer: 1500 }); 
+                    if (result.profileUrl) { 
+                        localStorage.setItem('profileUrl', result.profileUrl); 
+                        document.getElementById('headerProfilePic').src = result.profileUrl; 
+                        document.getElementById('profilePreview').src = result.profileUrl;
+                        // 🔥 อัปเดตรูปในหน้าต่างต้อนรับรอบถัดไปด้วย 🔥
+                        sessionStorage.removeItem('welcomed'); // ให้มันเด้งให้ดูอีกรอบว่ารูปเปลี่ยนแล้ว
+                    } 
+                    closeProfileModal(); 
+                } else throw new Error(result.message);
             } catch (err) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message, confirmButtonColor: '#f97316' }); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 mr-2"></i> บันทึกการตั้งค่า'; lucide.createIcons(); }
         });
 
