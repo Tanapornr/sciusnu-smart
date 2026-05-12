@@ -14,7 +14,7 @@
         if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
     </script>
     <style>
-        /* 🔥 ปรับสเกลหน้าเว็บให้ใหญ่ขึ้นบน Desktop (แทนการ Zoom 125%) 🔥 */
+        /* 🔥 ปรับสเกลหน้าเว็บให้ใหญ่ขึ้นบน Desktop (ไม่ต้อง Zoom 125%) 🔥 */
         html { font-size: 18px; }
         @media (max-width: 768px) { html { font-size: 14px; } }
 
@@ -31,11 +31,9 @@
         .dark table td { color: #f1f5f9 !important; border-color: rgba(255,255,255,0.05); }
         .dark .bg-slate-50 { background-color: rgba(15, 23, 42, 0.4) !important; }
 
-        /* 🔥 ซ่อน Scrollbar ของโมดัลโหลด และลดเส้นขยะ 🔥 */
+        /* 🔥 ซ่อน Scrollbar ของ Pop-up และแก้ไขวงกลมขยะ 🔥 */
         body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
         .swal2-container { overflow-y: hidden !important; }
-
-        /* 🔥 ดีไซน์ Pop-up สไตล์ Minimalist วงกลมพาสเทล 🔥 */
         .swal2-popup { background: #ffffff !important; border-radius: 24px !important; border: none !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; padding: 2.5rem 1.5rem !important; }
         .dark .swal2-popup { background: #1e293b !important; box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important; }
         .swal2-title { color: #0f172a !important; font-weight: 700 !important; font-size: 1.4rem !important; margin-bottom: 0.5rem !important; }
@@ -49,7 +47,6 @@
         .swal2-cancel:hover { background: #f8fafc !important; }
         .dark .swal2-cancel { background: transparent !important; color: #f8fafc !important; border-color: #475569 !important; }
         .dark .swal2-cancel:hover { background: #334155 !important; }
-        
         .swal2-icon { border: none !important; width: 90px !important; height: 90px !important; margin: 0 auto 1.5rem auto !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; }
         .swal2-icon.swal2-success { background-color: #dcfce7 !important; color: #10b981 !important; }
         .swal2-icon.swal2-error { background-color: #fee2e2 !important; color: #ef4444 !important; }
@@ -59,10 +56,6 @@
         .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-ring { display: none !important; background: transparent !important; }
         .swal2-icon.swal2-success [class^=swal2-success-line] { background-color: #10b981 !important; }
         .swal2-icon.swal2-error [class^=swal2-x-mark-line] { background-color: #ef4444 !important; }
-        .swal2-close { color: #94a3b8 !important; border-radius: 50% !important; background: #f1f5f9 !important; width: 32px !important; height: 32px !important; margin: 8px 8px 0 0 !important; }
-        .swal2-close:hover { background: #e2e8f0 !important; color: #0f172a !important; }
-        .dark .swal2-close { background: #334155 !important; color: #94a3b8 !important; }
-        .dark .swal2-close:hover { background: #475569 !important; color: #f8fafc !important; }
     </style>
 </head>
 <body class="pb-10">
@@ -200,8 +193,6 @@
 
         const cachedName = localStorage.getItem('userName') || 'User';
         let cachedPic = localStorage.getItem('profileUrl') || `https://ui-avatars.com/api/?name=${encodeURIComponent(cachedName)}&background=random`;
-        
-        // เซ็ตภาพตั้งต้นตอนโหลด
         document.getElementById('headerProfilePic').src = cachedPic;
         document.getElementById('profilePreview').src = cachedPic;
         document.getElementById('headerMyName').innerText = cachedName;
@@ -249,14 +240,14 @@
             });
         };
 
-        // 🔥 ฟังก์ชันโชว์ยินดีต้อนรับเฉพาะเข้าครั้งแรก 🔥
+        // 🔥 ฟังก์ชัน Pop-up ยินดีต้อนรับ (มีรูปวงกลม, ชื่อ, รหัส) ค้าง 5 วิ 🔥
         function showWelcomeMessage() {
             if (cachedName && !sessionStorage.getItem('welcomed')) {
                 Swal.fire({
                     html: `
                         <div class="flex flex-col items-center justify-center p-2 mt-4">
                             <img src="${cachedPic}" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover mb-4 border-4 border-orange-100 dark:border-slate-700 shadow-md bg-white">
-                            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white leading-tight mb-2">ยินดีต้อนรับ</h2>
+                            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white leading-tight mb-2">ยินดีต้อนรับกลับมา</h2>
                             <p class="text-orange-600 dark:text-orange-400 font-bold text-sm sm:text-base bg-orange-50 dark:bg-slate-800 py-1.5 px-4 rounded-xl border border-orange-200 dark:border-slate-600">${cachedName}</p>
                             <p class="text-slate-500 text-xs mt-3 bg-slate-100 dark:bg-slate-800 py-1 px-3 rounded-lg"><i data-lucide="hash" class="w-3 h-3 inline-block mr-1"></i>รหัสประจำตัว: <span class="font-semibold text-slate-700 dark:text-slate-300">${studentId}</span></p>
                         </div>
@@ -273,7 +264,6 @@
         }
 
         async function loadData() {
-            // โหลดข้อมูลเงียบๆ ไม่โชว์ Pop-up กำลังโหลด
             try {
                 const res = await fetch(API_URL); const data = await res.json();
                 if (data && data.status === 'success') {
@@ -291,7 +281,7 @@
                         else { document.getElementById('headerPartnerName').innerText = "- (เดี่ยว)"; document.getElementById('headerPartnerName').classList.add("opacity-60"); }
                         document.getElementById('headerProjectInfo').classList.remove('hidden');
                         
-                        // 🔥 ดึงภาพโปรไฟล์ล่าสุดจาก Database (ป้องกันภาพไม่อัปเดต) 🔥
+                        // 🔥 ดึงภาพโปรไฟล์ล่าสุดจาก Database เผื่อผู้ใช้ล็อกอินเครื่องอื่น 🔥
                         if (myProject['รูปโปรไฟล์']) {
                             let imgUrl = myProject['รูปโปรไฟล์'];
                             if (imgUrl.includes('drive.google.com')) {
@@ -319,7 +309,7 @@
                     document.getElementById('loadingData').style.display = 'none'; 
                     document.getElementById('tableContainer').classList.remove('hidden'); 
                     
-                    // หลังจากโหลดเสร็จค่อยโชว์ Pop-up ยินดีต้อนรับ
+                    // เรียก Pop-up ยินดีต้อนรับหลังโหลดเสร็จ
                     showWelcomeMessage(); 
                 }
             } catch (e) { 
@@ -327,16 +317,10 @@
             }
         }
 
-        // โชว์รูปให้ดูก่อนกดบันทึก
         function previewImage(event) {
             const file = event.target.files[0];
-            if (file) { 
-                const reader = new FileReader(); 
-                reader.onload = function(e) { document.getElementById('profilePreview').src = e.target.result; }; 
-                reader.readAsDataURL(file); 
-            }
+            if (file) { const reader = new FileReader(); reader.onload = function(e) { document.getElementById('profilePreview').src = e.target.result; }; reader.readAsDataURL(file); }
         }
-        
         const toBase64 = file => new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res({ data: r.result.split(',')[1], mime: file.type }); r.onerror = rej; });
 
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
@@ -349,21 +333,20 @@
             }
             const btn = document.getElementById('btnSaveProfile'); const newPhone = document.getElementById('profilePhone').value.trim(); const fileInput = document.getElementById('profilePicInput').files[0];
             btn.disabled = true; btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังบันทึก...`;
-            
             try {
                 let picData = null; let picMime = null;
                 if(fileInput) { const base64File = await toBase64(fileInput); picData = base64File.data; picMime = base64File.mime; }
                 const payload = { action: "updateProfile", email: userEmail, phone: newPhone, oldPassword: oldPass, newPassword: newPass, newPicData: picData, newPicMime: picMime, existingPicUrl: localStorage.getItem('profileUrl') };
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
                 
-                // 🔥 เปลี่ยนรูปแบบ Real-Time ทันทีที่กดบันทึกสำเร็จ 🔥
                 if (result.status === 'success') { 
                     Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลเรียบร้อย!', showConfirmButton: false, timer: 1500 }); 
+                    // 🔥 เปลี่ยนรูปล่าสุดบนหน้าจอแบบ Real-Time ทันที 🔥
                     if (result.profileUrl) { 
                         cachedPic = result.profileUrl;
                         localStorage.setItem('profileUrl', result.profileUrl); 
-                        document.getElementById('headerProfilePic').src = result.profileUrl; // เปลี่ยนรูปที่ Header มุมขวาบนทันที
-                        document.getElementById('profilePreview').src = result.profileUrl; // เปลี่ยนรูปใน Pop-up 
+                        document.getElementById('headerProfilePic').src = result.profileUrl; 
+                        document.getElementById('profilePreview').src = result.profileUrl;
                     } 
                     closeProfileModal(); 
                 } else throw new Error(result.message);
