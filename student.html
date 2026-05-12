@@ -14,11 +14,11 @@
         if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
     </script>
     <style>
-        /* 🔥 ปรับสเกลหน้าเว็บให้ใหญ่ขึ้นบน Desktop (ไม่ต้อง Zoom 125%) 🔥 */
+        /* 🔥 ปรับสเกลหน้าเว็บให้ใหญ่ขึ้นบน Desktop (แทนการ Zoom 125%) 🔥 */
         html { font-size: 18px; }
         @media (max-width: 768px) { html { font-size: 14px; } }
 
-        body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #fff7ed; overflow-x: hidden; }
+        body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #fff7ed; }
         .dark body { background-color: #0f172a; color: #f1f5f9; }
         .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); }
         .dark .glass-panel { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
@@ -31,7 +31,7 @@
         .dark table td { color: #f1f5f9 !important; border-color: rgba(255,255,255,0.05); }
         .dark .bg-slate-50 { background-color: rgba(15, 23, 42, 0.4) !important; }
 
-        /* 🔥 ซ่อน Scrollbar ของโมดัลโหลด และลดเส้นขยะ 🔥 */
+        /* 🔥 ตัดสกอร์บาร์ที่ไม่ต้องการออกระหว่างกำลังโหลด (Pop-up open state) 🔥 */
         body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
         .swal2-container { overflow-y: hidden !important; }
 
@@ -96,9 +96,9 @@
 
     <div class="max-w-7xl mx-auto mt-4 sm:mt-6 px-3 sm:px-4 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         
-        <div class="lg:col-span-1 space-y-4 sm:space-y-6">
+        <div class="lg:col-span-1 space-y-4 sm:space-y-6 flex flex-col">
             
-            <div id="uploadBox" class="glass-panel rounded-3xl p-4 sm:p-6 transition-all duration-500 border-2 border-transparent">
+            <div id="uploadBox" class="glass-panel rounded-3xl p-4 sm:p-6 transition-all duration-500 border-2 border-transparent order-1">
                 <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 border-b border-slate-200 dark:border-slate-700 pb-3 flex items-center"><i data-lucide="upload" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ส่งงาน</h2>
                 <form id="uploadForm" class="space-y-4">
                     <div><label class="block text-xs sm:text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">ประเภทงาน</label><select id="workType" required class="w-full text-xs sm:text-sm rounded-xl p-2.5 sm:p-3 glass-input outline-none focus:ring-2 focus:ring-orange-500 bg-white/20 dark:bg-slate-800/50"><option value="">-- เลือกประเภทงาน --</option><option value="โครงร่าง (Proposal)">โครงร่าง (Proposal)</option><option value="รายงานความก้าวหน้า">รายงานความก้าวหน้า</option><option value="รายงานฉบับสมบูรณ์">รายงานฉบับสมบูรณ์</option><option value="แบบคำร้อง">แบบคำร้อง</option></select></div>
@@ -112,7 +112,7 @@
                 </form>
             </div>
             
-            <div class="glass-panel rounded-3xl p-4 sm:p-6">
+            <div class="glass-panel rounded-3xl p-4 sm:p-6 order-2">
                 <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 border-b border-slate-200 dark:border-slate-700 pb-3 flex items-center"><i data-lucide="download" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ดาวน์โหลดแบบฟอร์ม</h2>
                 <div class="grid grid-cols-2 gap-2 sm:gap-3">
                     <a href="#" class="flex flex-col items-center text-[10px] sm:text-xs bg-slate-50 dark:bg-slate-800/50 hover:bg-orange-50 dark:hover:bg-orange-900/30 text-slate-700 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400 p-3 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors btn-liquid text-center font-semibold"><i data-lucide="file-text" class="w-5 h-5 mb-1.5 opacity-70"></i> โครงร่าง</a>
@@ -199,7 +199,7 @@
         document.getElementById('displayStudentId').innerText = studentId;
 
         const cachedName = localStorage.getItem('userName') || 'User';
-        const cachedPic = localStorage.getItem('profileUrl') || `https://ui-avatars.com/api/?name=${encodeURIComponent(cachedName)}&background=random`;
+        let cachedPic = localStorage.getItem('profileUrl') || `https://ui-avatars.com/api/?name=${encodeURIComponent(cachedName)}&background=random`;
         document.getElementById('headerProfilePic').src = cachedPic;
         document.getElementById('profilePreview').src = cachedPic;
         document.getElementById('headerMyName').innerText = cachedName;
@@ -247,29 +247,7 @@
             });
         };
 
-        // 🔥 ฟังก์ชัน Pop-up ยินดีต้อนรับโชว์รูปโปรไฟล์และรหัสนิสิต (ค้าง 5 วินาที) 🔥
-        function showWelcomeMessage() {
-            if (cachedName && !sessionStorage.getItem('welcomed')) {
-                Swal.fire({
-                    html: `
-                        <div class="flex flex-col items-center justify-center p-2 mt-4">
-                            <img src="${cachedPic}" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover mb-4 border-4 border-orange-100 dark:border-slate-700 shadow-md bg-white">
-                            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white leading-tight mb-2">ยินดีต้อนรับกลับมา</h2>
-                            <p class="text-orange-600 dark:text-orange-400 font-bold text-sm sm:text-base bg-orange-50 dark:bg-slate-800 py-1.5 px-4 rounded-xl border border-orange-200 dark:border-slate-600">${cachedName}</p>
-                            <p class="text-slate-500 text-xs mt-3 bg-slate-100 dark:bg-slate-800 py-1 px-3 rounded-lg"><i data-lucide="hash" class="w-3 h-3 inline-block mr-1"></i>รหัสประจำตัว: <span class="font-semibold text-slate-700 dark:text-slate-300">${studentId}</span></p>
-                        </div>
-                    `,
-                    showConfirmButton: false,
-                    timer: 5000, 
-                    timerProgressBar: true,
-                    backdrop: `rgba(15, 23, 42, 0.4)`,
-                    customClass: { popup: 'rounded-[2rem] p-2 max-w-sm w-[90%]' },
-                    didOpen: () => { lucide.createIcons(); }
-                });
-                sessionStorage.setItem('welcomed', 'true');
-            }
-        }
-
+        // 🔥 โหลดข้อมูลแบบไม่มี Pop-up โผล่มาบังหน้าจอ
         async function loadData() {
             try {
                 const res = await fetch(API_URL); const data = await res.json();
@@ -287,6 +265,17 @@
                         if (partner) { document.getElementById('headerPartnerName').innerText = `${partner['ชื่อ'] || ''} ${partner['นามสกุล'] || ''}`; } 
                         else { document.getElementById('headerPartnerName').innerText = "- (เดี่ยว)"; document.getElementById('headerPartnerName').classList.add("opacity-60"); }
                         document.getElementById('headerProjectInfo').classList.remove('hidden');
+                        
+                        // 🔥 ดึงรูปโปรไฟล์ใหม่ล่าสุดจากฐานข้อมูล (ถ้ามีเปลี่ยน) 🔥
+                        if (myProject['รูปโปรไฟล์'] && myProject['รูปโปรไฟล์'].includes('drive.google.com')) {
+                            const match = myProject['รูปโปรไฟล์'].match(/[-\w]{25,}/);
+                            if (match) {
+                                cachedPic = `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`;
+                                localStorage.setItem('profileUrl', cachedPic);
+                                document.getElementById('headerProfilePic').src = cachedPic;
+                                document.getElementById('profilePreview').src = cachedPic;
+                            }
+                        }
                     }
                     
                     window.mySubmissions = (data.submissions || []).filter(s => {
@@ -301,8 +290,6 @@
                     document.getElementById('loadingData').style.display = 'none'; 
                     document.getElementById('tableContainer').classList.remove('hidden'); 
                     
-                    // เรียก Pop-up ยินดีต้อนรับหลังดึงข้อมูลเสร็จ
-                    showWelcomeMessage(); 
                 }
             } catch (e) { 
                 document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรชหน้าเว็บ</span>`; 
@@ -330,14 +317,15 @@
                 if(fileInput) { const base64File = await toBase64(fileInput); picData = base64File.data; picMime = base64File.mime; }
                 const payload = { action: "updateProfile", email: userEmail, phone: newPhone, oldPassword: oldPass, newPassword: newPass, newPicData: picData, newPicMime: picMime, existingPicUrl: localStorage.getItem('profileUrl') };
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
+                
+                // 🔥 ทันทีที่อัปเดตข้อมูลเสร็จ เปลี่ยนรูปโปรไฟล์หน้าเว็บให้ทันที แบบ Real-Time 🔥
                 if (result.status === 'success') { 
                     Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลเรียบร้อย!', showConfirmButton: false, timer: 1500 }); 
                     if (result.profileUrl) { 
+                        cachedPic = result.profileUrl;
                         localStorage.setItem('profileUrl', result.profileUrl); 
                         document.getElementById('headerProfilePic').src = result.profileUrl; 
                         document.getElementById('profilePreview').src = result.profileUrl;
-                        // 🔥 อัปเดตรูปในหน้าต่างต้อนรับรอบถัดไปด้วย 🔥
-                        sessionStorage.removeItem('welcomed'); // ให้มันเด้งให้ดูอีกรอบว่ารูปเปลี่ยนแล้ว
                     } 
                     closeProfileModal(); 
                 } else throw new Error(result.message);
