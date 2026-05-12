@@ -14,7 +14,7 @@
         if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
     </script>
     <style>
-        /* 🔥 ปรับสเกลหน้าเว็บให้ใหญ่ขึ้นบน Desktop (ไม่ต้อง Zoom 125%) 🔥 */
+        /* 🔥 ปรับสเกลหน้าเว็บให้ใหญ่ขึ้นบน Desktop (แทนการ Zoom 125%) 🔥 */
         html { font-size: 18px; }
         @media (max-width: 768px) { html { font-size: 14px; } }
 
@@ -31,9 +31,11 @@
         .dark table td { color: #f1f5f9 !important; border-color: rgba(255,255,255,0.05); }
         .dark .bg-slate-50 { background-color: rgba(15, 23, 42, 0.4) !important; }
 
-        /* 🔥 ซ่อน Scrollbar ของ Pop-up และแก้ไขวงกลมขยะ 🔥 */
+        /* 🔥 ซ่อน Scrollbar ของโมดัลโหลด และลดเส้นขยะ 🔥 */
         body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
         .swal2-container { overflow-y: hidden !important; }
+
+        /* 🔥 ดีไซน์ Pop-up สไตล์ Minimalist วงกลมพาสเทล 🔥 */
         .swal2-popup { background: #ffffff !important; border-radius: 24px !important; border: none !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; padding: 2.5rem 1.5rem !important; }
         .dark .swal2-popup { background: #1e293b !important; box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important; }
         .swal2-title { color: #0f172a !important; font-weight: 700 !important; font-size: 1.4rem !important; margin-bottom: 0.5rem !important; }
@@ -47,6 +49,7 @@
         .swal2-cancel:hover { background: #f8fafc !important; }
         .dark .swal2-cancel { background: transparent !important; color: #f8fafc !important; border-color: #475569 !important; }
         .dark .swal2-cancel:hover { background: #334155 !important; }
+        
         .swal2-icon { border: none !important; width: 90px !important; height: 90px !important; margin: 0 auto 1.5rem auto !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; }
         .swal2-icon.swal2-success { background-color: #dcfce7 !important; color: #10b981 !important; }
         .swal2-icon.swal2-error { background-color: #fee2e2 !important; color: #ef4444 !important; }
@@ -56,6 +59,10 @@
         .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-ring { display: none !important; background: transparent !important; }
         .swal2-icon.swal2-success [class^=swal2-success-line] { background-color: #10b981 !important; }
         .swal2-icon.swal2-error [class^=swal2-x-mark-line] { background-color: #ef4444 !important; }
+        .swal2-close { color: #94a3b8 !important; border-radius: 50% !important; background: #f1f5f9 !important; width: 32px !important; height: 32px !important; margin: 8px 8px 0 0 !important; }
+        .swal2-close:hover { background: #e2e8f0 !important; color: #0f172a !important; }
+        .dark .swal2-close { background: #334155 !important; color: #94a3b8 !important; }
+        .dark .swal2-close:hover { background: #475569 !important; color: #f8fafc !important; }
     </style>
 </head>
 <body class="pb-10">
@@ -240,7 +247,7 @@
             });
         };
 
-        // 🔥 ฟังก์ชัน Pop-up ยินดีต้อนรับ (มีรูปวงกลม, ชื่อ, รหัส) ค้าง 5 วิ 🔥
+        // 🔥 ยินดีต้อนรับโชว์รูปโปรไฟล์ + รหัสนิสิต (ค้าง 5 วินาที) ตอนเข้าครั้งแรก 🔥
         function showWelcomeMessage() {
             if (cachedName && !sessionStorage.getItem('welcomed')) {
                 Swal.fire({
@@ -264,6 +271,7 @@
         }
 
         async function loadData() {
+            // โหลดข้อมูลแบบทำงานเงียบๆ ภายใต้ HTML ไม่บังหน้าจอด้วย Pop-up
             try {
                 const res = await fetch(API_URL); const data = await res.json();
                 if (data && data.status === 'success') {
@@ -309,7 +317,7 @@
                     document.getElementById('loadingData').style.display = 'none'; 
                     document.getElementById('tableContainer').classList.remove('hidden'); 
                     
-                    // เรียก Pop-up ยินดีต้อนรับหลังโหลดเสร็จ
+                    // เรียก Pop-up ยินดีต้อนรับหลังดึงข้อมูลเสร็จ
                     showWelcomeMessage(); 
                 }
             } catch (e) { 
@@ -341,7 +349,8 @@
                 
                 if (result.status === 'success') { 
                     Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลเรียบร้อย!', showConfirmButton: false, timer: 1500 }); 
-                    // 🔥 เปลี่ยนรูปล่าสุดบนหน้าจอแบบ Real-Time ทันที 🔥
+                    
+                    // 🔥 เปลี่ยนรูปล่าสุดบนหน้าจอแบบ Real-Time ทันทีที่อัปโหลดเสร็จ 🔥
                     if (result.profileUrl) { 
                         cachedPic = result.profileUrl;
                         localStorage.setItem('profileUrl', result.profileUrl); 
