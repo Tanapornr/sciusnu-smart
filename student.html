@@ -134,7 +134,7 @@
 
                     <div class="bg-orange-50 dark:bg-orange-950/20 p-3 sm:p-4 rounded-xl"><label id="labelFileReport" class="block text-xs sm:text-sm font-bold mb-2 text-orange-800 dark:text-orange-400 flex items-center"><i data-lucide="file" class="w-4 h-4 mr-1"></i> 1. ไฟล์รูปเล่ม (PDF)</label><input type="file" id="fileReport" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-orange-500 file:text-white cursor-pointer"></div>
 
-                    <div id="signatureSection" class="bg-amber-50 dark:bg-amber-950/20 p-3 sm:p-4 rounded-xl transition-all duration-300"><label class="block text-xs sm:text-sm font-bold mb-2 text-amber-800 dark:text-amber-400 flex items-center"><i data-lucide="pen-tool" class="w-4 h-4 mr-1"></i> 2. หน้าลายเซ็น (PDF)</label><input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-neutral-500 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-amber-500 file:text-white cursor-pointer"></div>
+                    <div id="signatureSection" class="bg-amber-50 dark:bg-amber-950/20 p-3 sm:p-4 rounded-xl transition-all duration-300"><label class="block text-xs sm:text-sm font-bold mb-2 text-amber-800 dark:text-amber-400 flex items-center"><i data-lucide="pen-tool" class="w-4 h-4 mr-1"></i> 2. หน้าลายเซ็น (PDF)</label><input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-slate-500 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-amber-500 file:text-white cursor-pointer"></div>
 
                     <button type="submit" id="submitBtn" class="w-full btn-liquid bg-orange-500 dark:bg-orange-600 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition-all shadow-md text-sm flex items-center justify-center"><i data-lucide="send" class="w-4 h-4 mr-2"></i> ส่งงาน</button>
                 </form>
@@ -218,20 +218,17 @@
         const cachedName = localStorage.getItem('userName') || 'User';
         let cachedPic = localStorage.getItem('profileUrl') || `https://ui-avatars.com/api/?name=${encodeURIComponent(cachedName)}&background=random`;
         
-        // ตั้งค่ารูปภาพตั้งต้นทันที
         document.getElementById('headerProfilePic').src = cachedPic;
         document.getElementById('profilePreview').src = cachedPic;
         document.getElementById('headerMyName').innerText = cachedName;
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
-        // สคริปต์สำหรับ Dropdown แบบใหม่
         function toggleDownloadDropdown() {
             const dropdown = document.getElementById('downloadDropdown');
             dropdown.classList.toggle('hidden');
         }
 
-        // ปิด Dropdown เมื่อคลิกที่อื่น
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('downloadDropdown');
             const button = document.getElementById('downloadBtn');
@@ -261,27 +258,75 @@
             return d.toLocaleDateString('th-TH') + '<br><span class="text-[9px] sm:text-[10px] opacity-70">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</span>';
         }
 
-        window.prepareResubmit = function(type) {
-            const workTypeSelect = document.getElementById('workType');
-            workTypeSelect.value = type;
-            workTypeSelect.dispatchEvent(new Event('change'));
-            
-            const formBox = document.getElementById('uploadBox');
-            formBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            formBox.classList.add('border-orange-400', 'shadow-lg', 'shadow-orange-500/20');
-            setTimeout(() => {
-                formBox.classList.remove('border-orange-400', 'shadow-lg', 'shadow-orange-500/20');
-            }, 1500);
+        // 🔥 เปิด Popup ยืนยันการอัปโหลดไฟล์สำหรับงานแก้ไขโดยเฉพาะ 🔥
+        window.prepareResubmitPopup = async function(type) {
+            const isRequest = type === 'แบบคำร้อง';
+            const signatureInputHtml = isRequest ? '' : `
+                <div class="text-left mt-4">
+                    <label class="block text-xs font-bold mb-1 text-amber-800 dark:text-amber-400">2. หน้าลายเซ็น (PDF)</label>
+                    <input type="file" id="popupFileSignature" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-amber-500 file:text-white cursor-pointer" required>
+                </div>
+            `;
 
-            Swal.fire({
-                title: 'แนบไฟล์แก้ไขใหม่',
-                html: `กรุณาอัปโหลด <b>${type}</b> อีกครั้ง`,
-                icon: 'info',
-                confirmButtonText: 'ตกลง',
+            const { value: formValues } = await Swal.fire({
+                title: 'ส่งไฟล์แก้ไข',
+                html: `
+                    <div class="text-sm font-semibold mb-4 text-slate-700 dark:text-slate-300">กำลังส่งแก้ไข: <span class="text-orange-500">${type}</span></div>
+                    <div class="text-left bg-orange-50 p-3 rounded-lg border border-orange-100">
+                        <label class="block text-xs font-bold mb-1 text-orange-800 dark:text-orange-400">1. ไฟล์รูปเล่ม (PDF)</label>
+                        <input type="file" id="popupFileReport" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-orange-500 file:text-white cursor-pointer" required>
+                    </div>
+                    ${signatureInputHtml}
+                `,
+                showCancelButton: true,
+                confirmButtonText: '<i data-lucide="send" class="w-4 h-4 mr-1 inline"></i> อัปโหลดเลย',
+                cancelButtonText: 'ยกเลิก',
                 confirmButtonColor: '#f97316',
-                customClass: { popup: 'rounded-[2rem] p-4 sm:p-6 w-[90%] max-w-sm' }
+                customClass: { popup: 'rounded-[2rem] p-4 max-w-sm' },
+                didOpen: () => { lucide.createIcons(); },
+                preConfirm: () => {
+                    const rFile = document.getElementById('popupFileReport').files[0];
+                    const sFile = isRequest ? null : document.getElementById('popupFileSignature').files[0];
+                    if (!rFile) { Swal.showValidationMessage('กรุณาอัปโหลดไฟล์รูปเล่ม'); return false; }
+                    if (!isRequest && !sFile) { Swal.showValidationMessage('กรุณาอัปโหลดหน้าลายเซ็น'); return false; }
+                    return { rFile, sFile };
+                }
             });
+
+            if (formValues) {
+                Swal.fire({
+                    title: 'กำลังอัปโหลดงานแก้...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); },
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+
+                try {
+                    const pid = document.getElementById('projectId').value.trim();
+                    const f1 = await toBase64(formValues.rFile);
+                    let f2 = { data: "JVBERi0xLjAKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFsgMyAwIFIgXQovQ291bnQgMQo+PgplbmRvYmoKMyAwIG9iago8PAovVHlwZSAvUGFnZQovUGFyZW50IDIgMCBSCi9NZWRpYUJveCBbMCAwIDU5NSA4NDJdCj4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA2MCAwMDAwMCBuIAowMDAwMDAwMTQ3IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1NpemUgNAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMjQzCiUlRU9FCg==", mime: "application/pdf" };
+                    if (formValues.sFile) f2 = await toBase64(formValues.sFile);
+
+                    const uploader = window.allProjects.find(x => x['รหัสนักเรียน'] == studentId);
+                    const payload = { 
+                        studentId: studentId, firstName: uploader ? uploader['ชื่อ'] : "", lastName: uploader ? uploader['นามสกุล'] : "", 
+                        projectId: pid, workType: type, advisorName: (window.allProjects[0] ? window.allProjects[0]['อ. ที่ปรึกษา TH'] : ""), 
+                        file1Data: f1.data, file1Mime: f1.mime, file2Data: f2.data, file2Mime: f2.mime 
+                    };
+                    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); 
+                    const result = await res.json();
+                    
+                    if (result.status === 'success') {
+                        Swal.fire({ icon: 'success', title: 'ส่งงานแก้ไขสำเร็จ!', showConfirmButton: false, timer: 1500 }).then(() => {
+                            document.getElementById('tableContainer').classList.add('hidden');
+                            document.getElementById('loadingData').style.display = 'flex';
+                            loadData(); // โหลดข้อมูลใหม่
+                        });
+                    } else throw new Error(result.message);
+                } catch (err) {
+                    Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message, confirmButtonColor: '#f97316' });
+                }
+            }
         };
 
         async function loadData() {
@@ -408,11 +453,11 @@
             }
         });
 
-        // 🔥 ตรรกะใหม่ 100%: อ่านค่าจากแถวแรกถึงแถวสุดท้าย เพื่อจำประวัติการตีกลับ 🔥
-       function renderTable(subs) {
+        // 🔥 ตรรกะแสดงผลตารางเวอร์ชันสมบูรณ์: จำสถานะตีกลับและโชว์ปุ่ม Popup ไฟล์แก้งานแบบถูกต้อง 🔥
+        function renderTable(subs) {
             const tbody = document.getElementById('historyTableBody'); 
             
-            // 1. เรียงลำดับจากเก่าไปใหม่ตามเวลา
+            // เรียงจากเก่าไปใหม่ตามเวลาจริง
             let sortedSubs = [...subs].sort((a, b) => {
                 let dA = new Date(a['Timestamp']); let dB = new Date(b['Timestamp']);
                 if (isNaN(dA)) dA = new Date(0); if (isNaN(dB)) dB = new Date(0);
@@ -420,10 +465,7 @@
             });
             
             let trackers = {};
-            let processedSubs = [];
-            
-            for (let i = 0; i < sortedSubs.length; i++) {
-                let s = sortedSubs[i];
+            let processedSubs = sortedSubs.map(s => {
                 let workType = (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ').toString().trim();
                 let rawStatusText = (s['สถานะ'] || s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] || '').toString().trim();
                 
@@ -432,48 +474,45 @@
                     parsedStatus = 'ไม่อนุมัติ';
                 } else if (rawStatusText === 'อนุมัติ' || rawStatusText.indexOf('อนุมัติแล้ว') > -1) {
                     parsedStatus = 'อนุมัติ';
+                } else {
+                    parsedStatus = 'รออนุมัติ';
                 }
-                
+
                 let reasonKey = Object.keys(s).find(k => String(k).includes('หมายเหตุ') || String(k).includes('เหตุผล'));
                 let reason = (reasonKey && s[reasonKey]) ? s[reasonKey].toString().trim() : '';
                 
-                let newSub = { ...s, _workType: workType, _reason: reason };
+                let newSub = { ...s, _rawStatus: parsedStatus, _workType: workType, _reason: reason };
                 
                 if (!trackers[workType]) {
                     trackers[workType] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
                 }
                 
                 if (parsedStatus === 'ไม่อนุมัติ') {
-                    // โดนตีกลับรอบนี้ จำไว้ไปใช้รอบหน้า
                     trackers[workType].lastRejectReason = reason;
                     trackers[workType].lastRejectTime = s['Timestamp'];
                     trackers[workType].isResubmit = true;
-                    
                     newSub._displayStatus = 'ไม่อนุมัติ';
                     newSub._isResubmit = false;
                 } else if (parsedStatus === 'รออนุมัติ') {
-                    // กำลังส่งใหม่ ให้ดูว่าเคยโดนตีกลับไหม
                     if (trackers[workType].isResubmit) {
                         newSub._displayStatus = 'ส่งแก้ไขแล้ว';
                         newSub._isResubmit = true;
                         newSub._oldReason = trackers[workType].lastRejectReason;
                         newSub._oldRejectTime = trackers[workType].lastRejectTime;
                     } else {
-                        // ไม่เคยโดนตีกลับ = ส่งครั้งแรก
                         newSub._displayStatus = 'รออนุมัติ';
                         newSub._isResubmit = false;
                     }
                 } else if (parsedStatus === 'อนุมัติ') {
                     newSub._displayStatus = 'อนุมัติ';
                     newSub._isResubmit = false;
-                    // ผ่านแล้ว ล้างประวัติการจำ
                     trackers[workType] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
                 }
                 
-                processedSubs.push(newSub);
-            }
+                return newSub;
+            });
 
-            // กลับให้ข้อมูลล่าสุดอยู่ด้านบน
+            // กลับด้านเอาอันใหม่ล่าสุดขึ้นไว้บนสุด
             const mySubs = processedSubs.reverse(); 
 
             if(mySubs.length === 0) { 
@@ -485,9 +524,11 @@
                     let statusText = "รออนุมัติ";
                     let resubmitBtn = '';
 
+                    // 🛠️ ป้ายสถานะ
                     if (s._displayStatus === 'ส่งแก้ไขแล้ว') {
                         statusClass = "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800";
                         statusIcon = '<i data-lucide="refresh-cw" class="w-3 h-3 mr-1"></i>';
+                        // 🔥 ปรับข้อความเป็น "ส่งแก้ไขแล้ว (รอตรวจ)" และเอาปุ่มอัปโหลดออก (มันจะหายไปเองตามเงื่อนไขนี้) 🔥
                         statusText = "ส่งแก้ไขแล้ว (รอตรวจ)";
                     } else if (s._displayStatus === 'อนุมัติ') {
                         statusClass = "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700"; 
@@ -497,7 +538,8 @@
                         statusClass = "bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-700"; 
                         statusIcon = '<i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>';
                         statusText = "ไม่อนุมัติ (ต้องแก้ไข)";
-                        resubmitBtn = `<button onclick="prepareResubmit('${s._workType}')" class="mt-2 w-full text-[9px] sm:text-[10px] text-white bg-orange-500 hover:bg-orange-600 px-2 py-1.5 rounded-md flex items-center justify-center transition-colors shadow-sm"><i data-lucide="upload-cloud" class="w-3 h-3 mr-1"></i> ส่งไฟล์แก้ไข</button>`;
+                        // 🔥 เปลี่ยนเป็นเรียกใช้ Popup Function แทน! 🔥
+                        resubmitBtn = `<button onclick="prepareResubmitPopup('${s._workType}')" class="mt-2 w-full text-[9px] sm:text-[10px] text-white bg-orange-500 hover:bg-orange-600 px-2 py-1.5 rounded-md flex items-center justify-center transition-colors shadow-sm"><i data-lucide="upload-cloud" class="w-3 h-3 mr-1"></i> ส่งไฟล์แก้ไข</button>`;
                     }
                     
                     let isMe = (s['รหัสนักเรียน'] || "").toString().trim() === (studentId === "ไม่ระบุ" ? "" : studentId.trim());
@@ -508,10 +550,12 @@
                     let signatureButton = s._workType === 'แบบคำร้อง' ? '' : `<a href="${s['URL ลายเซ็น']}" target="_blank" class="btn-liquid text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg text-[10px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i> หน้าลายเซ็น</a>`;
                     let fileReportLabel = s._workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
                     
+                    // 🛠️ กล่องหมายเหตุ
                     let reasonHtml = '';
                     if (s._displayStatus === 'ไม่อนุมัติ' && s._reason) {
                         reasonHtml = `<div class="text-[10px] sm:text-xs text-rose-700 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-900/30 p-2.5 rounded-xl border border-rose-200 dark:border-rose-800/50 inline-block w-full max-w-[200px] whitespace-normal break-words shadow-sm text-left"><div class="font-bold flex items-center mb-1"><i data-lucide="message-square-warning" class="w-4 h-4 mr-1"></i> ต้องแก้ไข:</div>${s._reason}</div>`;
                     } else if (s._isResubmit && s._oldReason) {
+                        // 🔥 ในสถานะส่งแก้แล้ว ดึงเหตุผลจากรอบเก่ามาโชว์ 🔥
                         reasonHtml = `<div class="text-[10px] sm:text-xs text-blue-700 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-900/30 p-2.5 rounded-xl border border-blue-200 dark:border-blue-800/50 inline-block w-full max-w-[200px] whitespace-normal break-words shadow-sm text-left"><div class="font-bold flex items-center mb-1 opacity-80"><i data-lucide="info" class="w-4 h-4 mr-1"></i> อ้างอิงเหตุผลที่ต้องแก้ไข:</div>${s._oldReason}<div class="mt-2 text-[9px] sm:text-[10px] opacity-70 border-t border-blue-200 dark:border-blue-800/50 pt-1.5 font-semibold flex items-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> ถูกสั่งแก้เมื่อ: ${formatDateTime(s._oldRejectTime).replace('<br>', ' ')}</div></div>`;
                     } else {
                         reasonHtml = `<span class="text-neutral-300 dark:text-neutral-600">-</span>`;
