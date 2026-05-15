@@ -14,7 +14,11 @@
         if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
     </script>
     <style>
-        body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #fff7ed; }
+        /* 🔥 ปรับสเกลหน้าเว็บให้อาจารย์อ่านง่ายขึ้น เสมือน Zoom 125% 🔥 */
+        html { font-size: 18px; }
+        @media (max-width: 768px) { html { font-size: 14px; } }
+
+        body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #fff7ed; overflow-x: hidden; }
         .dark body { background-color: #0f172a; color: #f1f5f9; }
         .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); }
         .dark .glass-panel { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
@@ -32,6 +36,10 @@
         .dark table th { color: #cbd5e1 !important; border-color: rgba(255,255,255,0.1); }
         .dark table td { color: #f1f5f9 !important; border-color: rgba(255,255,255,0.05); }
         .dark .bg-slate-50 { background-color: rgba(15, 23, 42, 0.4) !important; }
+
+        /* 🔥 ซ่อน Scrollbar ของโมดัลโหลด และลดเส้นขยะ 🔥 */
+        body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
+        .swal2-container { overflow-y: hidden !important; }
 
         /* 🔥 ดีไซน์ Pop-up สไตล์ Minimalist วงกลมพาสเทล 🔥 */
         .swal2-popup { background: #ffffff !important; border-radius: 24px !important; border: none !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; padding: 2rem 1.5rem !important; }
@@ -100,7 +108,7 @@
 
         <div id="pendingSection" class="glass-panel rounded-3xl p-4 sm:p-6 hidden relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-amber-400"></div>
-            <h2 class="text-base sm:text-lg font-bold text-amber-600 dark:text-amber-400 mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><span class="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-2 py-0.5 sm:px-2.5 py-1 rounded-lg text-xs sm:text-sm mr-2 shadow-sm font-black" id="pendingCount">0</span> งานใหม่รอการตรวจสอบ</h2>
+            <h2 class="text-base sm:text-lg font-bold text-amber-600 dark:text-amber-400 mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><span class="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-2 py-0.5 sm:px-2.5 py-1 rounded-lg text-xs sm:text-sm mr-2 shadow-sm font-black" id="pendingCount">0</span> งานรอการตรวจสอบ (ส่งใหม่และแก้)</h2>
             <div class="overflow-x-auto w-full pb-2">
                 <table class="w-full text-left"><thead class="bg-slate-50 uppercase border-b text-[10px] sm:text-sm"><tr><th class="px-2 py-3 sm:px-4 py-4 font-semibold">เวลา</th><th class="px-2 py-3 sm:px-4 py-4 font-semibold min-w-[150px]">ข้อมูลนักเรียน</th><th class="px-2 py-3 sm:px-4 py-4 font-semibold">ประเภทงาน</th><th class="px-2 py-3 sm:px-4 py-4 text-center font-semibold">ไฟล์แนบ</th><th class="px-2 py-3 sm:px-4 py-4 text-center font-semibold">ดำเนินการ</th></tr></thead><tbody id="pendingTableBody"></tbody></table>
             </div>
@@ -108,7 +116,7 @@
 
         <div id="historySection" class="glass-panel rounded-3xl p-4 sm:p-6 hidden relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-slate-400"></div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ประวัติการอนุมัติ / ตรวจงานแล้ว</h2>
+            <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ประวัติการอนุมัติ / ตีกลับ</h2>
             <div class="overflow-x-auto w-full pb-2">
                 <table class="w-full text-left">
                     <thead class="bg-slate-50 uppercase border-b text-[10px] sm:text-sm">
@@ -186,6 +194,7 @@
             } catch (err) { Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message, confirmButtonColor: '#f97316' }); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 mr-2"></i> บันทึกรหัสผ่านใหม่'; lucide.createIcons(); }
         });
 
+        // ------------------ ตรรกะใหม่: เรียงประวัติการแก้ไขงาน ------------------
         async function loadDashboard() {
             try {
                 const response = await fetch(API_URL); const data = await response.json();
@@ -193,15 +202,55 @@
                     window.allProjects = data.projects || [];
                     const myStudentsWork = (data.submissions || []).filter(item => item['อ.ที่ปรึกษา'] === advisorName);
                     
-                    const pendingWorks = myStudentsWork.filter(item => (item['สถานะ'] || item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)']) === 'รออนุมัติ');
-                    const historyWorks = myStudentsWork.filter(item => (item['สถานะ'] || item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)']) !== 'รออนุมัติ');
+                    // กระบวนการคำนวณว่าอันไหนคือส่งครั้งแรก อันไหนคือส่งแก้
+                    let trackers = {};
+                    let processedWorks = [...myStudentsWork].sort((a, b) => new Date(a['Timestamp']) - new Date(b['Timestamp'])).map(s => {
+                        let workType = s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
+                        let rawStatus = s['สถานะ'] || s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] || 'รออนุมัติ';
+                        let reasonKey = Object.keys(s).find(k => String(k).includes('หมายเหตุ') || String(k).includes('เหตุผล'));
+                        let reason = (reasonKey && s[reasonKey]) ? s[reasonKey].toString().trim() : '';
+                        let projId = s['รหัสโครงงาน'];
+                        
+                        let trackerKey = `${projId}_${workType}`;
+                        if (!trackers[trackerKey]) trackers[trackerKey] = { lastRejectReason: '', lastRejectTime: null };
+                        
+                        let newSub = { ...s, _rawStatus: rawStatus, _workType: workType, _reason: reason };
+                        
+                        if (rawStatus === 'ไม่อนุมัติ') {
+                            trackers[trackerKey].lastRejectReason = reason;
+                            trackers[trackerKey].lastRejectTime = s['Timestamp'];
+                            newSub._displayStatus = 'ไม่อนุมัติ';
+                            newSub._isResubmit = false;
+                        } else if (rawStatus === 'รออนุมัติ') {
+                            if (trackers[trackerKey].lastRejectTime) {
+                                newSub._displayStatus = 'ส่งแก้ไขแล้ว';
+                                newSub._isResubmit = true;
+                                newSub._oldReason = trackers[trackerKey].lastRejectReason;
+                                newSub._oldRejectTime = trackers[trackerKey].lastRejectTime;
+                            } else {
+                                newSub._displayStatus = 'รออนุมัติ';
+                                newSub._isResubmit = false;
+                            }
+                        } else if (rawStatus === 'อนุมัติ') {
+                            newSub._displayStatus = 'อนุมัติ';
+                            newSub._isResubmit = false;
+                            // trackers[trackerKey] = { lastRejectReason: '', lastRejectTime: null };
+                        }
+                        return newSub;
+                    });
+
+                    const pendingWorks = processedWorks.filter(item => item._rawStatus === 'รออนุมัติ');
+                    const historyWorks = processedWorks.filter(item => item._rawStatus !== 'รออนุมัติ');
                     
-                    renderOverviewTable(window.allProjects, myStudentsWork); 
+                    renderOverviewTable(window.allProjects, processedWorks); 
                     renderPendingTable(pendingWorks.reverse()); 
                     renderHistoryTable(historyWorks.reverse());
-                    document.getElementById('loadingData').style.display = 'none'; document.getElementById('overviewSection').classList.remove('hidden'); document.getElementById('pendingSection').classList.remove('hidden'); document.getElementById('historySection').classList.remove('hidden');
+                    document.getElementById('loadingData').style.display = 'none'; 
+                    document.getElementById('overviewSection').classList.remove('hidden'); 
+                    document.getElementById('pendingSection').classList.remove('hidden'); 
+                    document.getElementById('historySection').classList.remove('hidden');
                 }
-            } catch (error) { document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ โหลดข้อมูลล้มเหลว</span>`; }
+            } catch (error) { document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold text-lg">❌ โหลดข้อมูลล้มเหลว</span>`; }
         }
 
         function generateStudentInfoHtml(submission) {
@@ -247,7 +296,7 @@
             return `<div><span class="font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 px-2 sm:px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs shadow-sm">${submission['รหัสโครงงาน'] || '-'}</span>${memberHtml}</div>`;
         }
 
-        function renderOverviewTable(projects, submissions) {
+        function renderOverviewTable(projects, processedWorks) {
             const tbody = document.getElementById('overviewTableBody'); tbody.innerHTML = '';
             const myProjects = projects.filter(p => p && p['อ. ที่ปรึกษา TH'] === advisorName);
             const uniqueProjectIds = [...new Set(myProjects.map(p => p['รหัสโครงงาน']).filter(id => id && id.toString().trim() !== ""))];
@@ -258,13 +307,19 @@
                     const pic = getProcessedImgUrl(m['รูปโปรไฟล์'], m['ชื่อ']);
                     return `<button type="button" onclick="viewStudentPopup('${m['ชื่อ']} ${m['นามสกุล']}', '${m['รหัสนักเรียน']}', '${m['เบอร์โทรศัพท์'] ? m['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 sm:gap-3 mb-2 bg-slate-50 dark:bg-slate-800/50 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 btn-liquid transition-colors"><img src="${pic}" class="w-7 h-7 sm:w-8 h-8 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm" loading="lazy"><div class="flex flex-col leading-tight overflow-hidden"><span class="text-[10px] sm:text-xs text-slate-700 dark:text-slate-200 font-bold truncate">${m['รหัสนักเรียน']}</span><span class="text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">${m['ชื่อ']} ${m['นามสกุล']}</span></div></button>`;
                 }).join('');
-                const memberIds = members.map(m => m['รหัสนักเรียน']); const projectSubs = submissions.filter(s => s && (s['รหัสโครงงาน'] == pid || memberIds.includes(s['รหัสนักเรียน'])));
+                const memberIds = members.map(m => m['รหัสนักเรียน']); 
+                const projectSubs = processedWorks.filter(s => s && (s['รหัสโครงงาน'] == pid || memberIds.includes(s['รหัสนักเรียน'])));
+                
                 const getStatusBadge = (workType) => {
-                    const subs = projectSubs.filter(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === workType);
+                    const subs = projectSubs.filter(s => s._workType === workType);
                     if (subs.length === 0) return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 opacity-60">➖ ยังไม่ส่ง</span>`;
-                    const status = subs[subs.length - 1]['สถานะ'] || subs[subs.length - 1]['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'];
-                    if (status === 'อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i> อนุมัติ</span>`;
-                    if (status === 'ไม่อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i> ไม่อนุมัติ</span>`;
+                    
+                    const latest = subs[subs.length - 1]; // Because we sorted chronological early on
+                    
+                    if (latest._displayStatus === 'อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i> อนุมัติ</span>`;
+                    if (latest._displayStatus === 'ไม่อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i> ตีกลับแก้ไข</span>`;
+                    if (latest._displayStatus === 'ส่งแก้ไขแล้ว') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 flex items-center justify-center"><i data-lucide="refresh-cw" class="w-3 h-3 mr-1"></i> ส่งแก้ไขแล้ว</span>`;
+                    
                     return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 flex items-center justify-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> รออนุมัติ</span>`;
                 };
                 const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-orange-50/30 dark:hover:bg-orange-900/20 transition-colors";
@@ -278,13 +333,34 @@
             const tbody = document.getElementById('pendingTableBody'); document.getElementById('pendingCount').innerText = works.length; tbody.innerHTML = '';
             if (works.length === 0) return;
             works.forEach(item => {
-                const workType = item['ประเภทงาน'] || item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
-                
-                let signatureButton = workType === 'แบบคำร้อง' ? '' : `<a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>`;
-                let fileReportLabel = workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
+                let signatureButton = item._workType === 'แบบคำร้อง' ? '' : `<a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>`;
+                let fileReportLabel = item._workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
+
+                // 🔥 ป้ายกำกับสถานะว่าส่งใหม่ หรือ ส่งแก้ 🔥
+                let statusBadge = item._isResubmit 
+                    ? `<span class="bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-400 px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold flex items-center w-fit mt-1"><i data-lucide="refresh-cw" class="w-3 h-3 mr-1"></i>งานส่งแก้ไขมาใหม่</span>` 
+                    : `<span class="bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold flex items-center w-fit mt-1"><i data-lucide="file-plus-2" class="w-3 h-3 mr-1"></i>งานส่งใหม่</span>`;
+
+                // 🔥 กล่องเหตุผล ถ้าเป็นงานแก้ ให้ดึงมาโชว์ 🔥
+                let reasonHtml = '';
+                if (item._isResubmit && item._oldReason) {
+                    reasonHtml = `<div class="text-[9px] sm:text-[11px] text-blue-700 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-900/30 p-2 rounded-xl border border-blue-200 dark:border-blue-800/50 mt-3"><div class="font-bold flex items-center mb-1 opacity-80"><i data-lucide="info" class="w-3 h-3 mr-1"></i> เหตุผลที่สั่งแก้รอบที่แล้ว:</div>${item._oldReason}<div class="mt-1.5 text-[8px] sm:text-[9px] opacity-70 border-t border-blue-200 dark:border-blue-800/50 pt-1 font-semibold flex items-center"><i data-lucide="clock" class="w-2.5 h-2.5 mr-1"></i> สั่งแก้ไปเมื่อ: ${formatDateTime(item._oldRejectTime).replace('<br>', ' ')}</div></div>`;
+                }
 
                 const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors";
-                tr.innerHTML = `<td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">${formatDateTime(item['Timestamp'])}</td><td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td><td class="px-2 py-4 sm:px-4 sm:py-5 font-bold text-orange-600 dark:text-orange-400 text-[10px] sm:text-sm align-middle leading-tight">${workType}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-1.5"><a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-orange-100 dark:border-orange-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>${fileReportLabel}</a>${signatureButton}</div></td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-2"><button onclick="updateStatus('${item['รหัสนักเรียน']}', '${workType}', 'อนุมัติ')" class="w-full btn-liquid btn-approve px-2 py-2 rounded-lg text-[10px] sm:text-xs font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i>อนุมัติ</button><button onclick="updateStatus('${item['รหัสนักเรียน']}', '${workType}', 'ไม่อนุมัติ')" class="w-full btn-liquid btn-reject px-2 py-2 rounded-lg text-[10px] sm:text-xs font-bold flex items-center justify-center"><i data-lucide="x" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i>ไม่อนุมัติ</button></div></td>`;
+                tr.innerHTML = `
+                    <td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">
+                        <span class="font-bold text-slate-700 dark:text-slate-300 text-xs">เวลาส่งปัจจุบัน:</span><br>${formatDateTime(item['Timestamp'])}
+                    </td>
+                    <td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td>
+                    <td class="px-2 py-4 sm:px-4 sm:py-5 align-middle leading-tight">
+                        <span class="font-bold text-orange-600 dark:text-orange-400 text-[11px] sm:text-sm">${item._workType}</span>
+                        ${statusBadge}
+                        ${reasonHtml}
+                    </td>
+                    <td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-1.5"><a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-orange-100 dark:border-orange-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>${fileReportLabel}</a>${signatureButton}</div></td>
+                    <td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-2"><button onclick="updateStatus('${item['รหัสนักเรียน']}', '${item._workType}', 'อนุมัติ')" class="w-full btn-liquid btn-approve px-2 py-2 rounded-lg text-[10px] sm:text-xs font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i>อนุมัติ</button><button onclick="updateStatus('${item['รหัสนักเรียน']}', '${item._workType}', 'ไม่อนุมัติ')" class="w-full btn-liquid btn-reject px-2 py-2 rounded-lg text-[10px] sm:text-xs font-bold flex items-center justify-center"><i data-lucide="x" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i>ไม่อนุมัติ</button></div></td>
+                `;
                 tbody.appendChild(tr);
             });
             lucide.createIcons();
@@ -294,20 +370,17 @@
             const tbody = document.getElementById('historyTableBody'); tbody.innerHTML = '';
             if (works.length === 0) return;
             works.forEach(item => {
-                const workType = item['ประเภทงาน'] || item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
-                const status = item['สถานะ'] || item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] || 'รออนุมัติ';
-                
-                let reasonKey = Object.keys(item).find(k => String(k).includes('หมายเหตุ') || String(k).includes('เหตุผล'));
-                let reason = (reasonKey && item[reasonKey]) ? item[reasonKey].toString().trim() : '';
-                
-                let signatureButton = workType === 'แบบคำร้อง' ? '' : `<a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>`;
-                let fileReportLabel = workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
+                let signatureButton = item._workType === 'แบบคำร้อง' ? '' : `<a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>`;
+                let fileReportLabel = item._workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
 
-                let reasonHtml = reason ? `<div class="text-[9px] sm:text-[11px] text-rose-500 font-medium bg-rose-50 dark:bg-rose-900/30 p-1.5 rounded-md inline-block w-full max-w-[150px] whitespace-normal break-words" title="${reason}">${reason}</div>` : `<span class="text-slate-300">-</span>`;
+                let reasonHtml = item._reason ? `<div class="text-[9px] sm:text-[11px] text-rose-600 font-medium bg-rose-50 dark:bg-rose-900/30 p-2 rounded-md border border-rose-100 dark:border-rose-800/50 inline-block w-full max-w-[150px] whitespace-normal break-words text-left shadow-sm"><span class="font-bold block mb-1">เหตุผล:</span>${item._reason}</div>` : `<span class="text-slate-300">-</span>`;
 
-                let badge = status === 'อนุมัติ' ? `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>อนุมัติแล้ว</span>` : `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>ไม่อนุมัติ</span>`;
+                let badge = item._displayStatus === 'อนุมัติ' 
+                    ? `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>อนุมัติแล้ว</span>` 
+                    : `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>ไม่อนุมัติ (ตีกลับ)</span>`;
+                
                 const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors";
-                tr.innerHTML = `<td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">${formatDateTime(item['Timestamp'])}</td><td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-slate-700 dark:text-slate-200 font-semibold text-[10px] sm:text-sm align-middle leading-tight">${workType}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">${reasonHtml}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-1.5"><a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-orange-100 dark:border-orange-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>${fileReportLabel}</a>${signatureButton}</div></td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">${badge}</td>`;
+                tr.innerHTML = `<td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">${formatDateTime(item['Timestamp'])}</td><td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-slate-700 dark:text-slate-200 font-semibold text-[10px] sm:text-sm align-middle leading-tight">${item._workType}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">${reasonHtml}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-1.5"><a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-orange-100 dark:border-orange-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>${fileReportLabel}</a>${signatureButton}</div></td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">${badge}</td>`;
                 tbody.appendChild(tr);
             });
             lucide.createIcons();
