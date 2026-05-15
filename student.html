@@ -18,6 +18,7 @@
         html { font-size: 18px; }
         @media (max-width: 768px) { html { font-size: 14px; } }
 
+        /* 🔥 เปลี่ยน Dark Mode ให้เป็นสีดำ (Neutral) แทนสีน้ำเงินเข้ม (Slate) 🔥 */
         body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #fff7ed; overflow-x: hidden; }
         .dark body { background-color: #0a0a0a; color: #f5f5f5; }
         
@@ -91,16 +92,26 @@
                             <span class="hidden sm:inline">ดาวน์โหลดแบบฟอร์ม</span><span class="sm:hidden">ฟอร์ม</span>
                             <i data-lucide="chevron-down" class="w-3 h-3 sm:w-4 sm:h-4 ml-1 text-blue-400"></i>
                         </button>
+                        
                         <div id="downloadDropdown" class="absolute right-0 mt-2 w-48 bg-white dark:bg-neutral-800 rounded-2xl shadow-xl border border-neutral-100 dark:border-neutral-700 hidden z-50 overflow-hidden transform opacity-100 transition-all duration-200 origin-top-right">
                             <div class="p-1.5">
-                                <a href="#" class="flex items-center px-3 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-xl transition-colors font-medium"><div class="bg-blue-50 dark:bg-blue-900/30 text-blue-500 p-1.5 rounded-lg mr-3"><i data-lucide="file-text" class="w-4 h-4"></i></div> โครงร่าง</a>
-                                <a href="#" class="flex items-center px-3 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-xl transition-colors font-medium"><div class="bg-purple-50 dark:bg-purple-900/30 text-purple-500 p-1.5 rounded-lg mr-3"><i data-lucide="trending-up" class="w-4 h-4"></i></div> ความก้าวหน้า</a>
-                                <a href="#" class="flex items-center px-3 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-xl transition-colors font-medium"><div class="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 p-1.5 rounded-lg mr-3"><i data-lucide="check-circle" class="w-4 h-4"></i></div> ฉบับสมบูรณ์</a>
+                                <a href="#" class="flex items-center px-3 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-xl transition-colors font-medium">
+                                    <div class="bg-blue-50 dark:bg-blue-900/30 text-blue-500 p-1.5 rounded-lg mr-3"><i data-lucide="file-text" class="w-4 h-4"></i></div> โครงร่าง
+                                </a>
+                                <a href="#" class="flex items-center px-3 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-xl transition-colors font-medium">
+                                    <div class="bg-purple-50 dark:bg-purple-900/30 text-purple-500 p-1.5 rounded-lg mr-3"><i data-lucide="trending-up" class="w-4 h-4"></i></div> ความก้าวหน้า
+                                </a>
+                                <a href="#" class="flex items-center px-3 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-xl transition-colors font-medium">
+                                    <div class="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 p-1.5 rounded-lg mr-3"><i data-lucide="check-circle" class="w-4 h-4"></i></div> ฉบับสมบูรณ์
+                                </a>
                                 <div class="h-px bg-neutral-100 dark:bg-neutral-700 my-1 mx-2"></div>
-                                <a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="flex items-center px-3 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-xl transition-colors font-medium"><div class="bg-amber-50 dark:bg-amber-900/30 text-amber-500 p-1.5 rounded-lg mr-3"><i data-lucide="folder" class="w-4 h-4"></i></div> คำร้องต่างๆ</a>
+                                <a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="flex items-center px-3 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-xl transition-colors font-medium">
+                                    <div class="bg-amber-50 dark:bg-amber-900/30 text-amber-500 p-1.5 rounded-lg mr-3"><i data-lucide="folder" class="w-4 h-4"></i></div> คำร้องต่างๆ
+                                </a>
                             </div>
                         </div>
                     </div>
+
                     <button onclick="toggleTheme()" class="btn-liquid bg-neutral-200/50 dark:bg-neutral-700/50 p-2 sm:p-2.5 rounded-full text-neutral-700 dark:text-neutral-200 outline-none hover:text-orange-500 flex-shrink-0"><i data-lucide="moon" class="w-4 h-4 sm:w-5 sm:h-5 dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 sm:w-5 sm:h-5 hidden dark:block"></i></button>
                     <button onclick="logout()" class="text-xs sm:text-sm text-red-600 dark:text-red-400 font-medium bg-red-50/50 dark:bg-red-900/20 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-red-100 dark:border-red-800 flex items-center btn-liquid flex-shrink-0"><i data-lucide="log-out" class="w-4 h-4 mr-1"></i> <span class="hidden sm:inline">ออกระบบ</span></button>
                 </div>
@@ -174,8 +185,8 @@
                         <input type="file" id="profilePicInput" accept="image/*" class="hidden" onchange="previewImage(event)">
                     </div>
                     <div><label class="block text-xs font-bold mb-1.5 text-neutral-700 dark:text-slate-300 ml-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label><input type="tel" id="profilePhone" required placeholder="0812345678" class="w-full text-sm rounded-xl p-3 glass-input outline-none focus:ring-2 focus:ring-orange-500 bg-white/20 dark:bg-neutral-800/50"></div>
-                    <div class="pt-3 border-t border-neutral-100 dark:border-neutral-700">
-                        <button type="button" onclick="togglePasswordSection()" class="w-full text-sm font-semibold text-neutral-600 dark:text-neutral-300 hover:text-orange-500 bg-neutral-50 dark:bg-neutral-700/50 flex items-center justify-center transition-colors py-2 rounded-xl btn-liquid"><i data-lucide="plus" id="pwdToggleIcon" class="w-4 h-4 mr-1.5"></i> เปลี่ยนรหัสผ่านใหม่</button>
+                    <div class="pt-3 border-t border-slate-100 dark:border-slate-700">
+                        <button type="button" onclick="togglePasswordSection()" class="w-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-500 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center transition-colors py-2 rounded-xl btn-liquid"><i data-lucide="plus" id="pwdToggleIcon" class="w-4 h-4 mr-1.5"></i> เปลี่ยนรหัสผ่านใหม่</button>
                         <div id="passwordSection" class="hidden mt-3 space-y-3">
                             <input type="password" id="oldPassword" placeholder="รหัสผ่านเดิม" class="w-full text-sm rounded-xl p-3 glass-input outline-none focus:ring-2 focus:ring-orange-500 bg-white/20 dark:bg-neutral-800/50">
                             <input type="password" id="newPassword" placeholder="รหัสผ่านใหม่" class="w-full text-sm rounded-xl p-3 glass-input outline-none focus:ring-2 focus:ring-orange-500 bg-white/20 dark:bg-neutral-800/50">
@@ -395,10 +406,11 @@
             }
         });
 
-        // 🔥 ตรรกะใหม่: ตรวจสอบการส่งแก้และดึงเหตุผลจากรอบก่อนมาโชว์ 🔥
+        // 🔥 ตรรกะแสดงผลตาราง: ดึงหมายเหตุเก่ามาโชว์ในงานที่ส่งแก้แบบถูกต้อง 🔥
         function renderTable(subs) {
             const tbody = document.getElementById('historyTableBody'); 
             
+            // เรียงจากเก่าไปใหม่ เพื่อไล่ลำดับเหตุการณ์ว่าถูกตีกลับตอนไหน แล้วส่งแก้ตอนไหน
             let trackers = {};
             let processedSubs = [...subs].sort((a, b) => new Date(a['Timestamp']) - new Date(b['Timestamp'])).map(s => {
                 let workType = s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
@@ -433,6 +445,7 @@
                 return newSub;
             });
 
+            // สลับกลับเอาอันใหม่ล่าสุดขึ้นด้านบน
             const mySubs = processedSubs.reverse(); 
 
             if(mySubs.length === 0) { 
@@ -444,11 +457,11 @@
                     let statusText = "รออนุมัติ";
                     let resubmitBtn = '';
 
-                    // 🛠️ กำหนดหน้าตาป้ายสถานะ
+                    // ตั้งค่าป้ายสถานะตามสถานะที่ประมวลผลแล้ว
                     if (s._displayStatus === 'ส่งแก้ไขแล้ว') {
                         statusClass = "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800";
                         statusIcon = '<i data-lucide="refresh-cw" class="w-3 h-3 mr-1"></i>';
-                        statusText = "ส่งแก้ไขเรียบร้อยแล้ว (รออนุมัติ)";
+                        statusText = "ส่งแก้ไขแล้ว (รอตรวจ)";
                     } else if (s._displayStatus === 'อนุมัติ') {
                         statusClass = "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700"; 
                         statusIcon = '<i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>';
@@ -468,7 +481,7 @@
                     let signatureButton = s._workType === 'แบบคำร้อง' ? '' : `<a href="${s['URL ลายเซ็น']}" target="_blank" class="btn-liquid text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg text-[10px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i> หน้าลายเซ็น</a>`;
                     let fileReportLabel = s._workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
                     
-                    // 🛠️ กล่องหมายเหตุ: โชว์ทั้งเหตุผลตีกลับปัจจุบัน หรือดึงของเก่ามาโชว์ตอนส่งแก้
+                    // 🔥 จัดการกล่องหมายเหตุให้แสดงผลถูกต้อง 🔥
                     let reasonHtml = '';
                     if (s._displayStatus === 'ไม่อนุมัติ' && s._reason) {
                         reasonHtml = `<div class="text-[10px] sm:text-xs text-rose-700 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-900/30 p-2.5 rounded-xl border border-rose-200 dark:border-rose-800/50 inline-block w-full max-w-[200px] whitespace-normal break-words shadow-sm text-left"><div class="font-bold flex items-center mb-1"><i data-lucide="message-square-warning" class="w-4 h-4 mr-1"></i> ต้องแก้ไข:</div>${s._reason}</div>`;
