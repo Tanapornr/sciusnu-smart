@@ -409,16 +409,21 @@
         });
 
         // 🔥 ตรรกะใหม่ 100%: อ่านค่าจากแถวแรกถึงแถวสุดท้าย เพื่อจำประวัติการตีกลับ 🔥
-        function renderTable(subs) {
+       function renderTable(subs) {
             const tbody = document.getElementById('historyTableBody'); 
             
-            // 1. รับข้อมูลจาก Google Sheet แบบปกติ (บนลงล่าง) 
-            // ตัวนี้จะไล่เช็คตั้งแต่การส่งครั้งแรก จนถึงครั้งล่าสุด
-            let processedSubs = [];
-            let trackers = {};
+            // 1. เรียงลำดับจากเก่าไปใหม่ตามเวลา
+            let sortedSubs = [...subs].sort((a, b) => {
+                let dA = new Date(a['Timestamp']); let dB = new Date(b['Timestamp']);
+                if (isNaN(dA)) dA = new Date(0); if (isNaN(dB)) dB = new Date(0);
+                return dA.getTime() - dB.getTime();
+            });
             
-            for (let i = 0; i < subs.length; i++) {
-                let s = subs[i];
+            let trackers = {};
+            let processedSubs = [];
+            
+            for (let i = 0; i < sortedSubs.length; i++) {
+                let s = sortedSubs[i];
                 let workType = (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ').toString().trim();
                 let rawStatusText = (s['สถานะ'] || s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] || '').toString().trim();
                 
@@ -427,21 +432,19 @@
                     parsedStatus = 'ไม่อนุมัติ';
                 } else if (rawStatusText === 'อนุมัติ' || rawStatusText.indexOf('อนุมัติแล้ว') > -1) {
                     parsedStatus = 'อนุมัติ';
-                } else {
-                    parsedStatus = 'รออนุมัติ';
                 }
-
+                
                 let reasonKey = Object.keys(s).find(k => String(k).includes('หมายเหตุ') || String(k).includes('เหตุผล'));
                 let reason = (reasonKey && s[reasonKey]) ? s[reasonKey].toString().trim() : '';
                 
-                let newSub = { ...s, _rawStatus: parsedStatus, _workType: workType, _reason: reason };
+                let newSub = { ...s, _workType: workType, _reason: reason };
                 
                 if (!trackers[workType]) {
                     trackers[workType] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
                 }
                 
                 if (parsedStatus === 'ไม่อนุมัติ') {
-                    // ถ้าโดนไม่อนุมัติ ให้จำเหตุผลและเวลาไว้
+                    // โดนตีกลับรอบนี้ จำไว้ไปใช้รอบหน้า
                     trackers[workType].lastRejectReason = reason;
                     trackers[workType].lastRejectTime = s['Timestamp'];
                     trackers[workType].isResubmit = true;
@@ -449,27 +452,28 @@
                     newSub._displayStatus = 'ไม่อนุมัติ';
                     newSub._isResubmit = false;
                 } else if (parsedStatus === 'รออนุมัติ') {
-                    // ถ้ารออนุมัติ ให้ดูว่าก่อนหน้านี้มีประวัติโดนตีกลับค้างอยู่ไหม
+                    // กำลังส่งใหม่ ให้ดูว่าเคยโดนตีกลับไหม
                     if (trackers[workType].isResubmit) {
                         newSub._displayStatus = 'ส่งแก้ไขแล้ว';
                         newSub._isResubmit = true;
                         newSub._oldReason = trackers[workType].lastRejectReason;
                         newSub._oldRejectTime = trackers[workType].lastRejectTime;
                     } else {
+                        // ไม่เคยโดนตีกลับ = ส่งครั้งแรก
                         newSub._displayStatus = 'รออนุมัติ';
                         newSub._isResubmit = false;
                     }
                 } else if (parsedStatus === 'อนุมัติ') {
-                    // ถ้าผ่านแล้ว ก็ล้างประวัติการตีกลับทิ้ง
                     newSub._displayStatus = 'อนุมัติ';
                     newSub._isResubmit = false;
+                    // ผ่านแล้ว ล้างประวัติการจำ
                     trackers[workType] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
                 }
                 
                 processedSubs.push(newSub);
             }
 
-            // 2. กลับด้านข้อมูลเอาอันใหม่ล่าสุดมาไว้บนสุด
+            // กลับให้ข้อมูลล่าสุดอยู่ด้านบน
             const mySubs = processedSubs.reverse(); 
 
             if(mySubs.length === 0) { 
@@ -481,7 +485,6 @@
                     let statusText = "รออนุมัติ";
                     let resubmitBtn = '';
 
-                    // กำหนดหน้าตาป้ายสถานะ
                     if (s._displayStatus === 'ส่งแก้ไขแล้ว') {
                         statusClass = "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800";
                         statusIcon = '<i data-lucide="refresh-cw" class="w-3 h-3 mr-1"></i>';
@@ -505,7 +508,6 @@
                     let signatureButton = s._workType === 'แบบคำร้อง' ? '' : `<a href="${s['URL ลายเซ็น']}" target="_blank" class="btn-liquid text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg text-[10px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i> หน้าลายเซ็น</a>`;
                     let fileReportLabel = s._workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
                     
-                    // 🔥 กล่องหมายเหตุ: โชว์ของใหม่ หรือดึงของเก่ามาโชว์ 🔥
                     let reasonHtml = '';
                     if (s._displayStatus === 'ไม่อนุมัติ' && s._reason) {
                         reasonHtml = `<div class="text-[10px] sm:text-xs text-rose-700 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-900/30 p-2.5 rounded-xl border border-rose-200 dark:border-rose-800/50 inline-block w-full max-w-[200px] whitespace-normal break-words shadow-sm text-left"><div class="font-bold flex items-center mb-1"><i data-lucide="message-square-warning" class="w-4 h-4 mr-1"></i> ต้องแก้ไข:</div>${s._reason}</div>`;
