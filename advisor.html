@@ -14,10 +14,8 @@
         if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
     </script>
     <style>
-        /* 🔥 ปรับสเกลหน้าเว็บให้อาจารย์อ่านง่ายขึ้น เสมือน Zoom 125% 🔥 */
         html { font-size: 18px; }
         @media (max-width: 768px) { html { font-size: 14px; } }
-
         body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #fff7ed; overflow-x: hidden; }
         .dark body { background-color: #0f172a; color: #f1f5f9; }
         .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); }
@@ -39,7 +37,6 @@
 
         body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
         .swal2-container { overflow-y: hidden !important; }
-
         .swal2-popup { background: #ffffff !important; border-radius: 24px !important; border: none !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; padding: 2rem 1.5rem !important; }
         .dark .swal2-popup { background: #1e293b !important; box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important; }
         .swal2-title { color: #0f172a !important; font-weight: 700 !important; font-size: 1.25rem !important; margin-bottom: 0.5rem !important; }
@@ -192,7 +189,7 @@
             } catch (err) { Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message, confirmButtonColor: '#f97316' }); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-5 h-5 mr-2"></i> บันทึกรหัสผ่านใหม่'; lucide.createIcons(); }
         });
 
-        // 🔥 ตรรกะใหม่: ตรวจสอบการส่งแก้และดึงเหตุผลจากรอบก่อนมาโชว์ให้อาจารย์เห็น 🔥
+        // 🔥 ตรรกะแสดงผลตารางเวอร์ชันใหม่: ดึงหมายเหตุเก่ามาโชว์ในงานที่ส่งแก้แบบถูกต้อง 100% 🔥
         async function loadDashboard() {
             try {
                 const response = await fetch(API_URL); const data = await response.json();
@@ -200,15 +197,11 @@
                     window.allProjects = data.projects || [];
                     const myStudentsWork = (data.submissions || []).filter(item => item['อ.ที่ปรึกษา'] === advisorName);
                     
-                    // 1. เรียงลำดับจากเก่าไปใหม่ตามเวลาจริง
-                    let sortedSubs = [...myStudentsWork].sort((a, b) => {
-                        let dA = new Date(a['Timestamp']); let dB = new Date(b['Timestamp']);
-                        if (isNaN(dA)) dA = new Date(0); if (isNaN(dB)) dB = new Date(0);
-                        return dA.getTime() - dB.getTime();
-                    });
-
                     let trackers = {};
-                    let processedWorks = sortedSubs.map(s => {
+                    
+                    let processedWorks = [];
+                    for (let i = 0; i < myStudentsWork.length; i++) {
+                        let s = myStudentsWork[i];
                         let workType = (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ').toString().trim();
                         let rawStatusText = (s['สถานะ'] || s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] || '').toString().trim();
                         
@@ -226,7 +219,10 @@
                         let projId = (s['รหัสโครงงาน'] || '').toString().trim();
                         
                         let trackerKey = `${projId}_${workType}`;
-                        if (!trackers[trackerKey]) trackers[trackerKey] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
+                        
+                        if (!trackers[trackerKey]) {
+                            trackers[trackerKey] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
+                        }
                         
                         let newSub = { ...s, _rawStatus: parsedStatus, _workType: workType, _reason: reason };
                         
@@ -251,20 +247,17 @@
                             newSub._isResubmit = false;
                             trackers[trackerKey] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
                         }
-                        return newSub;
-                    });
+                        processedWorks.push(newSub);
+                    }
 
-                    // 2. สลับข้อมูลให้ใบใหม่ล่าสุดอยู่ด้านบน
                     const reversedWorks = processedWorks.reverse();
 
-                    // แยกงานที่กำลังรออาจารย์ตรวจ กับ งานที่ตรวจแล้ว
                     const pendingWorks = reversedWorks.filter(item => item._displayStatus === 'รออนุมัติ' || item._displayStatus === 'ส่งแก้ไขแล้ว');
                     const historyWorks = reversedWorks.filter(item => item._displayStatus === 'อนุมัติ' || item._displayStatus === 'ไม่อนุมัติ');
                     
                     renderOverviewTable(window.allProjects, reversedWorks); 
                     renderPendingTable(pendingWorks); 
                     renderHistoryTable(historyWorks);
-                    
                     document.getElementById('loadingData').style.display = 'none'; document.getElementById('overviewSection').classList.remove('hidden'); document.getElementById('pendingSection').classList.remove('hidden'); document.getElementById('historySection').classList.remove('hidden');
                 }
             } catch (error) { document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold text-lg">❌ โหลดข้อมูลล้มเหลว กรุณารีเฟรชหน้าเว็บ</span>`; }
@@ -331,7 +324,7 @@
                     const subs = projectSubs.filter(s => s._workType === workType);
                     if (subs.length === 0) return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 opacity-60">➖ ยังไม่ส่ง</span>`;
                     
-                    const latest = subs[0]; // เรากลับด้านเอาอันใหม่สุดไว้บนสุด (index 0) แล้ว
+                    const latest = subs[0]; 
                     
                     if (latest._displayStatus === 'อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i> อนุมัติ</span>`;
                     if (latest._displayStatus === 'ไม่อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i> ตีกลับแก้ไข</span>`;
@@ -346,7 +339,6 @@
             lucide.createIcons();
         }
 
-        // 🔥 ตารางงานรอตรวจ (ดึงหมายเหตุเก่ามาโชว์ให้อาจารย์รู้ว่าแก้อะไรไป) 🔥
         function renderPendingTable(works) {
             const tbody = document.getElementById('pendingTableBody'); document.getElementById('pendingCount').innerText = works.length; tbody.innerHTML = '';
             if (works.length === 0) return;
@@ -354,10 +346,12 @@
                 let signatureButton = item._workType === 'แบบคำร้อง' ? '' : `<a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>`;
                 let fileReportLabel = item._workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
 
+                // 🔥 ป้ายกำกับสถานะว่าส่งใหม่ หรือ ส่งแก้ 🔥
                 let statusBadge = item._isResubmit 
                     ? `<span class="bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-400 px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold flex items-center w-fit mt-1.5 shadow-sm"><i data-lucide="refresh-cw" class="w-3 h-3 mr-1"></i> งานส่งแก้ไขมาใหม่</span>` 
                     : `<span class="bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold flex items-center w-fit mt-1.5 shadow-sm"><i data-lucide="file-plus-2" class="w-3 h-3 mr-1"></i> งานส่งครั้งแรก</span>`;
 
+                // 🔥 กล่องเหตุผลอ้างอิงรอบที่แล้ว ให้อาจารย์รู้ว่าเคยสั่งแก้อะไรไป 🔥
                 let reasonHtml = '';
                 if (item._isResubmit && item._oldReason) {
                     reasonHtml = `<div class="text-[10px] sm:text-[11px] text-blue-800 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-900/30 p-3 rounded-xl border border-blue-200 dark:border-blue-800/50 mt-3 shadow-sm"><div class="font-bold flex items-center mb-1.5 text-blue-600 dark:text-blue-400"><i data-lucide="info" class="w-4 h-4 mr-1"></i> อาจารย์เคยให้เหตุผลแก้ไว้ว่า:</div>${item._oldReason}<div class="mt-2 text-[9px] sm:text-[10px] opacity-70 border-t border-blue-200 dark:border-blue-800/50 pt-2 font-semibold flex items-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> ตีกลับไปเมื่อ: ${formatDateTime(item._oldRejectTime).replace('<br>', ' ')}</div></div>`;
@@ -382,7 +376,6 @@
             lucide.createIcons();
         }
 
-        // 🔥 ตารางประวัติ (History) 🔥
         function renderHistoryTable(works) {
             const tbody = document.getElementById('historyTableBody'); tbody.innerHTML = '';
             if (works.length === 0) return;
