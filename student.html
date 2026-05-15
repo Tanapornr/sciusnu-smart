@@ -179,14 +179,14 @@
                     <div class="flex flex-col items-center mb-5">
                         <div class="relative group cursor-pointer" onclick="document.getElementById('profilePicInput').click()">
                             <img id="profilePreview" src="" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-neutral-100 dark:border-neutral-700 shadow-md transition-all group-hover:border-orange-200">
-                            <div class="absolute inset-0 bg-slate-900/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs font-medium">เปลี่ยนรูป</span></div>
+                            <div class="absolute inset-0 bg-neutral-900/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs font-medium">เปลี่ยนรูป</span></div>
                             <div class="absolute bottom-0 right-0 bg-orange-500 rounded-full p-2 shadow-md border-2 border-white dark:border-neutral-800"><i data-lucide="camera" class="w-3.5 h-3.5 text-white"></i></div>
                         </div>
                         <input type="file" id="profilePicInput" accept="image/*" class="hidden" onchange="previewImage(event)">
                     </div>
                     <div><label class="block text-xs font-bold mb-1.5 text-neutral-700 dark:text-slate-300 ml-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label><input type="tel" id="profilePhone" required placeholder="0812345678" class="w-full text-sm rounded-xl p-3 glass-input outline-none focus:ring-2 focus:ring-orange-500 bg-white/20 dark:bg-neutral-800/50"></div>
                     <div class="pt-3 border-t border-slate-100 dark:border-slate-700">
-                        <button type="button" onclick="togglePasswordSection()" class="w-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-500 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center transition-colors py-2 rounded-xl btn-liquid"><i data-lucide="plus" id="pwdToggleIcon" class="w-4 h-4 mr-1.5"></i> เปลี่ยนรหัสผ่านใหม่</button>
+                        <button type="button" onclick="togglePasswordSection()" class="w-full text-sm font-semibold text-neutral-600 dark:text-neutral-300 hover:text-orange-500 bg-neutral-50 dark:bg-neutral-700/50 flex items-center justify-center transition-colors py-2 rounded-xl btn-liquid"><i data-lucide="plus" id="pwdToggleIcon" class="w-4 h-4 mr-1.5"></i> เปลี่ยนรหัสผ่านใหม่</button>
                         <div id="passwordSection" class="hidden mt-3 space-y-3">
                             <input type="password" id="oldPassword" placeholder="รหัสผ่านเดิม" class="w-full text-sm rounded-xl p-3 glass-input outline-none focus:ring-2 focus:ring-orange-500 bg-white/20 dark:bg-neutral-800/50">
                             <input type="password" id="newPassword" placeholder="รหัสผ่านใหม่" class="w-full text-sm rounded-xl p-3 glass-input outline-none focus:ring-2 focus:ring-orange-500 bg-white/20 dark:bg-neutral-800/50">
@@ -220,17 +220,20 @@
         const cachedName = localStorage.getItem('userName') || 'User';
         let cachedPic = localStorage.getItem('profileUrl') || `https://ui-avatars.com/api/?name=${encodeURIComponent(cachedName)}&background=random`;
         
+        // ตั้งค่ารูปภาพตั้งต้นทันที
         document.getElementById('headerProfilePic').src = cachedPic;
         document.getElementById('profilePreview').src = cachedPic;
         document.getElementById('headerMyName').innerText = cachedName;
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
+        // สคริปต์สำหรับ Dropdown แบบใหม่
         function toggleDownloadDropdown() {
             const dropdown = document.getElementById('downloadDropdown');
             dropdown.classList.toggle('hidden');
         }
 
+        // ปิด Dropdown เมื่อคลิกที่อื่น
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('downloadDropdown');
             const button = document.getElementById('downloadBtn');
@@ -282,6 +285,8 @@
             });
         };
 
+        // 🔥 ลบฟังก์ชัน showWelcomeMessage ทิ้งถาวร ไม่ต้องมีการโชว์ Pop-up ยินดีต้อนรับ 🔥
+
         async function loadData() {
             try {
                 const res = await fetch(API_URL); const data = await res.json();
@@ -300,6 +305,7 @@
                         else { document.getElementById('headerPartnerName').innerText = "- (เดี่ยว)"; document.getElementById('headerPartnerName').classList.add("opacity-60"); }
                         document.getElementById('headerProjectInfo').classList.remove('hidden');
                         
+                        // 🔥 ดึงภาพโปรไฟล์ล่าสุดจาก Database เพื่อให้ตรงกันตลอด 🔥
                         if (myProject['รูปโปรไฟล์']) {
                             let imgUrl = myProject['รูปโปรไฟล์'];
                             if (imgUrl.includes('drive.google.com')) {
@@ -326,12 +332,14 @@
                     renderTable(window.mySubmissions);
                     document.getElementById('loadingData').style.display = 'none'; 
                     document.getElementById('tableContainer').classList.remove('hidden'); 
+                    
                 }
             } catch (e) { 
                 document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรชหน้าเว็บ</span>`; 
             }
         }
 
+        // โชว์พรีวิวรูปทันทีก่อนกดยืนยัน
         function previewImage(event) {
             const file = event.target.files[0];
             if (file) { 
@@ -358,9 +366,9 @@
                 const payload = { action: "updateProfile", email: userEmail, phone: newPhone, oldPassword: oldPass, newPassword: newPass, newPicData: picData, newPicMime: picMime, existingPicUrl: localStorage.getItem('profileUrl') };
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
                 
+                // 🔥 เปลี่ยนรูปแบบ Real-Time ทันทีที่กดบันทึกสำเร็จ 🔥
                 if (result.status === 'success') { 
                     Swal.fire({ icon: 'success', title: 'อัปเดตข้อมูลเรียบร้อย!', showConfirmButton: false, timer: 1500 }); 
-                    
                     if (result.profileUrl) { 
                         cachedPic = result.profileUrl;
                         localStorage.setItem('profileUrl', result.profileUrl); 
@@ -410,42 +418,57 @@
         function renderTable(subs) {
             const tbody = document.getElementById('historyTableBody'); 
             
-            // เรียงจากเก่าไปใหม่ เพื่อไล่ลำดับเหตุการณ์ว่าถูกตีกลับตอนไหน แล้วส่งแก้ตอนไหน
+            // 1. เรียงลำดับจากเก่าไปใหม่ เพื่อไล่ประวัติว่าเคยโดนตีกลับตอนไหน
+            let processedSubs = [...subs].sort((a, b) => new Date(a['Timestamp']) - new Date(b['Timestamp']));
+            
+            // 2. สร้างตัวช่วยจำ (Tracker) ว่าแต่ละประเภทงาน โดนตีกลับครั้งล่าสุดเมื่อไหร่และเพราะอะไร
             let trackers = {};
-            let processedSubs = [...subs].sort((a, b) => new Date(a['Timestamp']) - new Date(b['Timestamp'])).map(s => {
+            
+            processedSubs = processedSubs.map(s => {
                 let workType = s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
                 let rawStatus = s['สถานะ'] || s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] || 'รออนุมัติ';
                 let reasonKey = Object.keys(s).find(k => String(k).includes('หมายเหตุ') || String(k).includes('เหตุผล'));
                 let reason = (reasonKey && s[reasonKey]) ? s[reasonKey].toString().trim() : '';
                 
+                // สร้างตัวแปรใหม่เก็บข้อมูลแบบ Custom
                 let newSub = { ...s, _rawStatus: rawStatus, _workType: workType, _reason: reason };
                 
-                if (!trackers[workType]) trackers[workType] = { lastRejectReason: '', lastRejectTime: null };
+                if (!trackers[workType]) {
+                    trackers[workType] = { lastRejectReason: '', lastRejectTime: null };
+                }
                 
+                // ถ้าเจอว่า "ไม่อนุมัติ" ให้จำเหตุผลและเวลาไว้
                 if (rawStatus === 'ไม่อนุมัติ') {
                     trackers[workType].lastRejectReason = reason;
                     trackers[workType].lastRejectTime = s['Timestamp'];
                     newSub._displayStatus = 'ไม่อนุมัติ';
                     newSub._isResubmit = false;
-                } else if (rawStatus === 'รออนุมัติ') {
+                } 
+                // ถ้าเจอว่า "รออนุมัติ" ให้เช็คก่อนว่ามีประวัติโดนตีกลับมาก่อนหน้านี้ไหม
+                else if (rawStatus === 'รออนุมัติ') {
                     if (trackers[workType].lastRejectTime) {
+                        // ถ้าเคยโดนตีกลับมาก่อน แสดงว่านี่คือ "งานส่งแก้"
                         newSub._displayStatus = 'ส่งแก้ไขแล้ว';
                         newSub._isResubmit = true;
                         newSub._oldReason = trackers[workType].lastRejectReason;
                         newSub._oldRejectTime = trackers[workType].lastRejectTime;
                     } else {
+                        // ถ้าไม่เคยโดนตีกลับ แสดงว่าส่งครั้งแรก
                         newSub._displayStatus = 'รออนุมัติ';
                         newSub._isResubmit = false;
                     }
-                } else if (rawStatus === 'อนุมัติ') {
+                } 
+                // ถ้าเจอว่า "อนุมัติ" ให้ล้างประวัติการตีกลับทิ้งไป (ผ่านแล้ว)
+                else if (rawStatus === 'อนุมัติ') {
                     newSub._displayStatus = 'อนุมัติ';
                     newSub._isResubmit = false;
                     trackers[workType] = { lastRejectReason: '', lastRejectTime: null };
                 }
+                
                 return newSub;
             });
 
-            // สลับกลับเอาอันใหม่ล่าสุดขึ้นด้านบน
+            // 3. สลับข้อมูลให้ใบใหม่ล่าสุดอยู่ด้านบน
             const mySubs = processedSubs.reverse(); 
 
             if(mySubs.length === 0) { 
@@ -457,11 +480,11 @@
                     let statusText = "รออนุมัติ";
                     let resubmitBtn = '';
 
-                    // ตั้งค่าป้ายสถานะตามสถานะที่ประมวลผลแล้ว
+                    // 🔥 กำหนดหน้าตาป้ายสถานะตามสถานะใหม่ที่ตั้งไว้ 🔥
                     if (s._displayStatus === 'ส่งแก้ไขแล้ว') {
                         statusClass = "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800";
                         statusIcon = '<i data-lucide="refresh-cw" class="w-3 h-3 mr-1"></i>';
-                        statusText = "ส่งแก้ไขแล้ว (รอตรวจ)";
+                        statusText = "ส่งการแก้ไขเรียบร้อยแล้ว (รอตรวจ)";
                     } else if (s._displayStatus === 'อนุมัติ') {
                         statusClass = "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700"; 
                         statusIcon = '<i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>';
@@ -481,12 +504,14 @@
                     let signatureButton = s._workType === 'แบบคำร้อง' ? '' : `<a href="${s['URL ลายเซ็น']}" target="_blank" class="btn-liquid text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg text-[10px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i> หน้าลายเซ็น</a>`;
                     let fileReportLabel = s._workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
                     
-                    // 🔥 จัดการกล่องหมายเหตุให้แสดงผลถูกต้อง 🔥
+                    // 🔥 กล่องหมายเหตุ: เลือกโชว์เหตุผลปัจจุบัน หรือ ดึงเหตุผลรอบที่แล้วมาโชว์ 🔥
                     let reasonHtml = '';
                     if (s._displayStatus === 'ไม่อนุมัติ' && s._reason) {
+                        // โชว์เหตุผลตอนโดนตีกลับ
                         reasonHtml = `<div class="text-[10px] sm:text-xs text-rose-700 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-900/30 p-2.5 rounded-xl border border-rose-200 dark:border-rose-800/50 inline-block w-full max-w-[200px] whitespace-normal break-words shadow-sm text-left"><div class="font-bold flex items-center mb-1"><i data-lucide="message-square-warning" class="w-4 h-4 mr-1"></i> ต้องแก้ไข:</div>${s._reason}</div>`;
                     } else if (s._isResubmit && s._oldReason) {
-                        reasonHtml = `<div class="text-[10px] sm:text-xs text-blue-700 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-900/30 p-2.5 rounded-xl border border-blue-200 dark:border-blue-800/50 inline-block w-full max-w-[200px] whitespace-normal break-words shadow-sm text-left"><div class="font-bold flex items-center mb-1 opacity-80"><i data-lucide="info" class="w-4 h-4 mr-1"></i> เหตุผลที่ถูกตีกลับ:</div>${s._oldReason}<div class="mt-2 text-[9px] sm:text-[10px] opacity-70 border-t border-blue-200 dark:border-blue-800/50 pt-1.5 font-semibold flex items-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> ถูกตีกลับเมื่อ: ${formatDateTime(s._oldRejectTime).replace('<br>', ' ')}</div></div>`;
+                        // โชว์เหตุผลอ้างอิงตอนส่งแก้
+                        reasonHtml = `<div class="text-[10px] sm:text-xs text-blue-700 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-900/30 p-2.5 rounded-xl border border-blue-200 dark:border-blue-800/50 inline-block w-full max-w-[200px] whitespace-normal break-words shadow-sm text-left"><div class="font-bold flex items-center mb-1 opacity-80"><i data-lucide="info" class="w-4 h-4 mr-1"></i> อ้างอิงเหตุผลที่ต้องแก้ไข:</div>${s._oldReason}<div class="mt-2 text-[9px] sm:text-[10px] opacity-70 border-t border-blue-200 dark:border-blue-800/50 pt-1.5 font-semibold flex items-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> ถูกสั่งแก้เมื่อ: ${formatDateTime(s._oldRejectTime).replace('<br>', ' ')}</div></div>`;
                     } else {
                         reasonHtml = `<span class="text-neutral-300 dark:text-neutral-600">-</span>`;
                     }
