@@ -7,9 +7,38 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2 family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
-        tailwind.config = { darkMode: 'class' };
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { prompt: ['Prompt', 'sans-serif'] },
+                    colors: { 
+                        expert: {
+                            orange: '#f97316',
+                            bg: '#fcfcfd',
+                            panel: '#ffffff',
+                            text: '#171717',
+                            muted: '#737373',
+                            border: '#f0f0f0',
+                        },
+                        "expert-dark": {
+                            bg: '#0a0a0a',
+                            panel: '#171717',
+                            text: '#f5f5f5',
+                            muted: '#a3a3a3',
+                            border: '#262626',
+                        }
+                    },
+                    boxShadow: {
+                        'expert-shadow': '0 4px 15px rgba(0, 0, 0, 0.015), 0 1px 3px rgba(0, 0, 0, 0.01)',
+                        'layered-shadow': '0 2px 8px rgba(0, 0, 0, 0.01), 0 1px 3px rgba(0, 0, 0, 0.01)',
+                        'soft-shadow': '0 10px 30px rgba(0,0,0,0.03)',
+                    }
+                }
+            }
+        };
         if (!localStorage.theme) localStorage.theme = 'light';
         if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
     </script>
@@ -20,64 +49,64 @@
         body { 
             font-family: 'Prompt', sans-serif; 
             transition: background-color 0.4s, color 0.4s; 
-            background-color: #fbfbfc; 
-            color: #1a1a1a; 
+            background-color: #fcfcfd; 
+            color: #171717; 
             overflow-x: hidden;
             line-height: 1.6;
             letter-spacing: 0.01em;
         }
-        .dark body { background-color: #0d0d0d; color: #f5f5f5; }
+        .dark body { background-color: #0a0a0a; color: #f5f5f5; }
         
-        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(0, 0, 0, 0.05); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02); }
-        .dark .glass-panel { background: rgba(26, 26, 26, 0.8); border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(0, 0, 0, 0.04); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01); }
+        .dark .glass-panel { background: rgba(23, 23, 23, 0.85); border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
         
-        .btn-liquid { position: relative; overflow: hidden; backdrop-filter: blur(10px); transition: all 0.2s ease; }
-        .btn-liquid::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0)); pointer-events: none; }
-        .btn-liquid:active { transform: scale(0.97); opacity: 0.8; }
+        .btn-expert { position: relative; overflow: hidden; backdrop-filter: blur(10px); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .btn-expert::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0)); pointer-events: none; }
+        .btn-expert:active { transform: scale(0.97); opacity: 0.85; }
         
-        .glass-input { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(0, 0, 0, 0.1); color: #171717; }
-        .dark .glass-input { background: rgba(38, 38, 38, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); color: #f5f5f5; }
+        .input-expert { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0, 0, 0, 0.08); color: #171717; transition: border-color 0.2s; }
+        .input-expert:focus { border-color: #f97316; }
+        .dark .input-expert { background: rgba(38, 38, 38, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); color: #f5f5f5; }
         
-        /* 🔥 ดีไซน์หัวตารางสไตล์ iPhone: สีอ่อน โล่ง 🔥 */
         .dark table th { color: #d4d4d4 !important; border-color: rgba(255,255,255,0.08); }
         .dark table td { color: #f5f5f5 !important; }
         
-        /* 🔥 ดีไซน์แถวตารางสไตล์ iPhone: เป็นการ์ดสีขาวแยกแถว 🔥 */
+        /* 🔥 ดีไซน์แถวตารางแบบ Card Row สไตล์ iPhone X Professional 🔥 */
         #historyTableBody tr {
             background-color: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.01);
-            transition: background-color 0.2s;
-            border-bottom: 8px solid #fbfbfc; /* สร้างช่องว่างระหว่างแถว */
+            border-radius: 18px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01);
+            transition: background-color 0.2s, box-shadow 0.2s;
+            border-bottom: 8px solid #fcfcfd;
         }
         .dark #historyTableBody tr {
-            background-color: #1a1a1a;
+            background-color: #171717;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            border-bottom: 8px solid #0d0d0d;
+            border-bottom: 8px solid #0a0a0a;
         }
         #historyTableBody tr:hover {
-            background-color: #fffaf5;
+            background-color: #fff9f5;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
         }
         .dark #historyTableBody tr:hover {
             background-color: #262626;
         }
         #historyTableBody td {
-            padding: 1rem;
+            padding: 1.1rem;
         }
         
-        /* 🔥 บังคับรูปโปรไฟล์ Modal ไม่ให้เบี้ยว 🔥 */
         #profilePreview {
             aspect-ratio: 1/1;
             object-fit: cover;
         }
 
-        .dark .bg-neutral-50 { background-color: rgba(38, 38, 38, 0.3) !important; }
+        .dark .bg-slate-50 { background-color: rgba(38, 38, 38, 0.3) !important; }
 
         body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
         .swal2-container { overflow-y: hidden !important; }
 
-        .swal2-popup { background: #ffffff !important; border-radius: 20px !important; border: none !important; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08) !important; padding: 1.25rem 1.5rem 1.5rem 1.5rem !important; }
-        .dark .swal2-popup { background: #1f2937 !important; border: 1px solid rgba(255,255,255,0.05) !important; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5) !important; }
+        .swal2-popup { background: #ffffff !important; border-radius: 20px !important; border: none !important; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06) !important; padding: 1.25rem 1.5rem 1.5rem 1.5rem !important; }
+        .dark .swal2-popup { background: #1f2937 !important; border: 1px solid rgba(255,255,255,0.05) !important; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important; }
         .swal2-title { color: #111827 !important; font-weight: 700 !important; font-size: 1.25rem !important; margin-bottom: 0.5rem !important; padding-top: 0 !important; }
         .dark .swal2-title { color: #f9fafb !important; }
         .swal2-html-container { color: #4b5563 !important; font-size: 0.95rem !important; margin: 0 !important;}
@@ -87,60 +116,60 @@
         .swal2-confirm { background-color: #f97316 !important; }
         .swal2-confirm:hover { background-color: #ea580c !important; }
         .swal2-cancel { background: #f3f4f6 !important; color: #374151 !important; border: 1px solid #e5e7eb !important; }
-        .swal2-cancel:hover { background: #e5e7eb !important; }
-        .dark .swal2-cancel { background: #374151 !important; color: #f9fafb !important; border-color: #4b5563 !important; }
         
         .swal2-icon { border: none !important; width: 50px !important; height: 50px !important; margin: 0 auto 0.5rem auto !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; }
         .swal2-icon.swal2-success { background-color: #dcfce7 !important; color: #10b981 !important; }
         .swal2-icon.swal2-error { background-color: #fee2e2 !important; color: #ef4444 !important; }
         .swal2-icon.swal2-warning { background-color: #fef08a !important; color: #eab308 !important; }
         .swal2-icon.swal2-info { background-color: #e0f2fe !important; color: #0284c7 !important; }
-        .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-ring { display: none !important; background: transparent !important; }
-        .swal2-icon.swal2-success [class^=swal2-success-line] { background-color: #10b981 !important; }
-        .swal2-icon.swal2-error [class^=swal2-x-mark-line] { background-color: #ef4444 !important; }
+        .swal2-ring { display: none !important; background: transparent !important; }
         .swal2-close { color: #a3a3a3 !important; border-radius: 50% !important; background: #f5f5f5 !important; width: 32px !important; height: 32px !important; margin: 8px 8px 0 0 !important; }
         
         .form-locked { opacity: 0.5; pointer-events: none; filter: grayscale(50%); }
 
-        /* 🔥 สไตล์กล่องข้อมูล 3 คอลัมน์ iOS Minimalist 🔥 */
-        .ios-info-box {
+        /* 🔥 สไตล์กล่องข้อมูล 3 คอลัมน์ Expert iOS Gradient Border 🔥 */
+        .expert-card {
             background-color: #ffffff;
             border-radius: 20px;
             padding: 1rem 0.75rem;
             border: 1px solid rgba(0, 0, 0, 0.03);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.01);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.015), 0 1px 3px rgba(0, 0, 0, 0.01);
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100%;
-            transition: transform 0.2s;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .ios-info-box:hover {
+        .expert-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
         }
-        .dark .ios-info-box {
-            background-color: #1a1a1a;
-            border: 1px solid rgba(255, 255, 255, 0.04);
+        .dark .expert-card {
+            background-color: #171717;
+            border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .dark-header-glass {
+            background: rgba(10, 10, 10, 0.85) !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
         }
     </style>
 </head>
-<body class="pb-10">
+<body class="pb-10 font-prompt text-neutral-800 dark:text-neutral-200">
 
     <header class="glass-panel border-b-0 shadow-sm relative overflow-visible sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 sm:py-5">
             <div class="flex flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-3 sm:gap-4 w-full">
-                    <button onclick="openProfileModal()" class="relative group outline-none rounded-full flex-shrink-0">
-                        <img id="headerProfilePic" src="" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-[3px] border-white dark:border-neutral-800 shadow-sm transition-all bg-white">
+                <div class="flex items-center gap-3 sm:gap-4 w-full min-w-0">
+                    <button onclick="openProfileModal()" class="relative group rounded-full flex-shrink-0">
+                        <img id="headerProfilePic" src="" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-[3px] border-white dark:border-neutral-800 shadow- expert-shadow transition-all group-hover:shadow-expert-muted">
                     </button>
                     <div class="flex-grow min-w-0 flex flex-col justify-center">
                         <div class="flex items-center gap-2 flex-wrap mb-0.5">
-                            <h1 class="text-base sm:text-lg font-extrabold text-neutral-800 dark:text-white leading-tight truncate"><span id="headerMyName">กำลังโหลด...</span></h1>
-                            <span id="badgeProjectId" class="hidden bg-orange-100 dark:bg-orange-950/50 text-orange-600 px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-bold items-center border border-orange-200 dark:border-orange-900/50"><i data-lucide="hash" class="w-3 h-3 mr-0.5 inline-block"></i><span id="headerTopProjectId"></span></span>
+                            <h1 class="text-base sm:text-xl font-extrabold text-neutral-800 dark:text-white leading-tight truncate"><span id="headerMyName">กำลังโหลด...</span></h1>
+                            <span id="badgeProjectId" class="hidden bg-orange-100 dark:bg-orange-950/50 text-orange-600 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold items-center border border-orange-200 dark:border-orange-900/50"><i data-lucide="hash" class="w-3 h-3 mr-0.5 inline-block opacity-80"></i><span id="headerTopProjectId"></span></span>
                         </div>
                         <p class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 flex items-center truncate">
                             <i data-lucide="user" class="w-3 h-3 mr-1 flex-shrink-0 opacity-70"></i> ID: <span id="displayStudentId" class="font-semibold text-orange-600 dark:text-orange-400 ml-1"></span>
@@ -150,52 +179,52 @@
                 
                 <div class="flex items-center gap-2 sm:gap-3 relative flex-shrink-0">
                     <div class="relative">
-                        <button id="downloadBtn" onclick="toggleDownloadDropdown()" class="text-[10px] sm:text-[13px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-blue-700 dark:text-blue-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-neutral-200 dark:border-neutral-700 flex items-center hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors outline-none">
+                        <button id="downloadBtn" onclick="toggleDownloadDropdown()" class="text-[10px] sm:text-[13px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-blue-700 dark:text-blue-400 px-3 py-1.5 sm:px-4.5 sm:py-2 rounded-full border border-neutral-200 dark:border-neutral-700 flex items-center hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors outline-none btn-expert">
                             <i data-lucide="download" class="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1.5 opacity-80"></i>
                             แบบฟอร์ม
                             <i data-lucide="chevron-down" class="w-3 h-3 sm:w-3.5 sm:h-3.5 ml-1 text-blue-400"></i>
                         </button>
                         
-                        <div id="downloadDropdown" class="absolute right-0 mt-2 w-48 bg-white dark:bg-neutral-900 rounded-2xl shadow-xl border border-neutral-100 dark:border-neutral-800 hidden z-50 overflow-hidden">
+                        <div id="downloadDropdown" class="absolute right-0 mt-2.5 w-48 bg-white dark:bg-neutral-900 rounded-2xl shadow- soft-shadow border border-neutral-100 dark:border-neutral-800 hidden z-50 overflow-hidden transform opacity-100 transition-all origin-top-right">
                             <div class="p-1.5">
-                                <a href="#" class="flex items-center px-3 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl transition-colors font-medium">
-                                    <div class="bg-blue-50 dark:bg-blue-900/30 text-blue-500 p-1.5 rounded-lg mr-3"><i data-lucide="file-text" class="w-4 h-4"></i></div> โครงร่าง
+                                <a href="#" class="flex items-center px-3.5 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl transition-colors font-medium">
+                                    <div class="bg-blue-50 dark:bg-blue-900/40 text-blue-500 p-1.5 rounded-lg mr-3"><i data-lucide="file-text" class="w-4 h-4"></i></div> โครงร่าง
                                 </a>
-                                <a href="#" class="flex items-center px-3 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl transition-colors font-medium">
-                                    <div class="bg-purple-50 dark:bg-purple-900/30 text-purple-500 p-1.5 rounded-lg mr-3"><i data-lucide="trending-up" class="w-4 h-4"></i></div> ความก้าวหน้า
+                                <a href="#" class="flex items-center px-3.5 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl transition-colors font-medium">
+                                    <div class="bg-purple-50 dark:bg-purple-900/40 text-purple-500 p-1.5 rounded-lg mr-3"><i data-lucide="trending-up" class="w-4 h-4"></i></div> ความก้าวหน้า
                                 </a>
-                                <a href="#" class="flex items-center px-3 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl transition-colors font-medium">
-                                    <div class="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 p-1.5 rounded-lg mr-3"><i data-lucide="check-circle" class="w-4 h-4"></i></div> ฉบับสมบูรณ์
+                                <a href="#" class="flex items-center px-3.5 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl transition-colors font-medium">
+                                    <div class="bg-emerald-50 dark:bg-emerald-900/40 text-emerald-500 p-1.5 rounded-lg mr-3"><i data-lucide="check-circle" class="w-4 h-4"></i></div> ฉบับสมบูรณ์
                                 </a>
-                                <div class="h-px bg-neutral-100 dark:bg-neutral-700 my-1 mx-2"></div>
-                                <a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="flex items-center px-3 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl transition-colors font-medium">
-                                    <div class="bg-amber-50 dark:bg-amber-900/30 text-amber-500 p-1.5 rounded-lg mr-3"><i data-lucide="folder" class="w-4 h-4"></i></div> คำร้องต่างๆ
+                                <div class="h-px bg-neutral-100 dark:bg-neutral-700 my-1.5 mx-2"></div>
+                                <a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="flex items-center px-3.5 py-2.5 text-xs sm:text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl transition-colors font-medium">
+                                    <div class="bg-amber-50 dark:bg-amber-900/40 text-amber-500 p-1.5 rounded-lg mr-3"><i data-lucide="folder" class="w-4 h-4"></i></div> คำร้องต่างๆ
                                 </a>
                             </div>
                         </div>
                     </div>
 
-                    <button onclick="toggleTheme()" class="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2 sm:p-2 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700"><i data-lucide="moon" class="w-4 h-4 sm:w-4 sm:h-4 dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 sm:w-4 sm:h-4 hidden dark:block"></i></button>
-                    <button onclick="logout()" class="text-xs sm:text-sm text-red-600 dark:text-red-400 font-semibold bg-red-50 dark:bg-red-950/50 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-red-100 dark:border-red-900/50 flex items-center btn-liquid flex-shrink-0"><i data-lucide="log-out" class="w-3.5 h-3.5 mr-1"></i> ออกระบบ</button>
+                    <button onclick="toggleTheme()" class="btn-expert bg-neutral-100 dark:bg-neutral-800 p-2 sm:p-2 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700"><i data-lucide="moon" class="w-4 h-4 sm:w-4 sm:h-4 dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 sm:w-4 sm:h-4 hidden dark:block"></i></button>
+                    <button onclick="logout()" class="text-xs sm:text-sm text-red-600 dark:text-red-400 font-semibold bg-red-50 dark:bg-red-950/40 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-red-100 dark:border-red-900/60 flex items-center btn-expert"><i data-lucide="log-out" class="w-3.5 h-3.5 mr-1.5 opacity-90"></i> ออกระบบ</button>
                 </div>
             </div>
             
-            <div id="headerProjectInfo" class="mt-4 hidden border-t border-neutral-100 dark:border-neutral-900 pt-4">
+            <div id="headerProjectInfo" class="mt-4.5 hidden border-t border-neutral-100 dark:border-neutral-900 pt-4">
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                     
-                    <div class="ios-info-box">
-                        <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-2"><i data-lucide="book-open" class="w-3.5 h-3.5 mr-1.5 text-orange-500 opacity-80"></i> ชื่อโครงงาน</p>
-                        <p id="headerProjectName" class="text-neutral-700 dark:text-neutral-200 text-xs sm:text-sm font-semibold leading-relaxed w-full line-clamp-2 px-1" title="-">-</p>
+                    <div class="expert-card">
+                        <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-2.5"><i data-lucide="book-open" class="w-3.5 h-3.5 mr-1.5 text-orange-500 opacity-80"></i> ชื่อโครงงาน TH</p>
+                        <p id="headerProjectName" class="text-neutral-800 dark:text-neutral-200 text-sm sm:text-base font-bold leading-relaxed w-full line-clamp-2 px-1" title="-">-</p>
                     </div>
 
-                    <div class="ios-info-box">
-                        <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-2"><i data-lucide="users" class="w-3.5 h-3.5 mr-1.5 text-blue-500 opacity-80"></i> คู่โครงงาน</p>
+                    <div class="expert-card">
+                        <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-2.5"><i data-lucide="users" class="w-3.5 h-3.5 mr-1.5 text-blue-500 opacity-80"></i> คู่โครงงาน</p>
                         <p id="headerPartnerName" class="font-semibold text-neutral-800 dark:text-neutral-200 text-xs sm:text-sm truncate w-full px-1">-</p>
                     </div>
 
-                    <div class="ios-info-box">
-                        <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-2"><i data-lucide="graduation-cap" class="w-3.5 h-3.5 mr-1.5 text-emerald-500 opacity-80"></i> อ.ที่ปรึกษา</p>
+                    <div class="expert-card">
+                        <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-2.5"><i data-lucide="graduation-cap" class="w-3.5 h-3.5 mr-1.5 text-emerald-500 opacity-80"></i> อ.ที่ปรึกษา</p>
                         <p id="headerAdvisor" class="font-semibold text-neutral-800 dark:text-neutral-200 text-xs sm:text-sm truncate w-full px-1">-</p>
                     </div>
                 </div>
@@ -203,51 +232,51 @@
         </div>
     </header>
 
-    <div class="max-w-7xl mx-auto mt-4 sm:mt-6 px-3 sm:px-4 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+    <div class="max-w-7xl mx-auto mt-4 sm:mt-6 px-3.5 grid grid-cols-1 lg:grid-cols-3 gap-4.5 sm:gap-6">
         
-        <div class="lg:col-span-1 space-y-4 sm:space-y-6 flex flex-col">
-            <div id="uploadBox" class="glass-panel rounded-[2rem] p-5 sm:p-6 transition-all duration-500 border-2 border-transparent">
-                <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-5 border-b border-neutral-100 dark:border-neutral-900 pb-3 flex items-center"><i data-lucide="send" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-orange-500"></i> ส่งงาน</h2>
-                <form id="uploadForm" class="space-y-4">
-                    <div><label class="block text-xs sm:text-sm font-semibold mb-1.5 text-neutral-700 dark:text-neutral-300">ประเภทงาน</label><select id="workType" required class="w-full text-xs sm:text-sm rounded-full p-2.5 sm:p-3 glass-input outline-none focus:ring-2 focus:ring-orange-300 dark:focus:ring-orange-800 bg-white dark:bg-neutral-900"><option value="">-- เลือกประเภทงาน --</option><option value="โครงร่าง (Proposal)">โครงร่าง (Proposal)</option><option value="รายงานความก้าวหน้า">รายงานความก้าวหน้า</option><option value="รายงานฉบับสมบูรณ์">รายงานฉบับสมบูรณ์</option><option value="แบบคำร้อง">แบบคำร้อง</option></select></div>
+        <div class="lg:col-span-1 space-y-4.5 sm:space-y-6 flex flex-col">
+            <div id="uploadBox" class="glass-panel rounded-[2rem] p-5.5 sm:p-7 transition-all duration-500 border border-neutral-100 dark:border-neutral-800 shadow- expert-shadow">
+                <h2 class="text-base sm:text-lg font-extrabold text-neutral-800 dark:text-white mb-5.5 border-b border-neutral-100 dark:border-neutral-900 pb-3.5 flex items-center"><i data-lucide="send-to-back" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-orange-500"></i> ส่งงานของกลุ่ม</h2>
+                <form id="uploadForm" class="space-y-4.5">
+                    <div><label class="block text-xs sm:text-sm font-semibold mb-1.5 text-neutral-700 dark:text-neutral-300 ml-1">ประเภทงานที่ต้องการส่ง <span class="text-orange-500">*</span></label><select id="workType" required class="w-full text-xs sm:text-sm rounded-full p-2.5 sm:p-3 input-expert outline-none focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-800 bg-white dark:bg-neutral-800 shadow-inner"><option value="">-- เลือกประเภทงาน --</option><option value="โครงร่าง (Proposal)">โครงร่าง (Proposal)</option><option value="รายงานความก้าวหน้า">รายงานความก้าวหน้า</option><option value="รายงานฉบับสมบูรณ์">รายงานฉบับสมบูรณ์</option><option value="แบบคำร้อง">แบบคำร้อง</option></select></div>
                     
                     <input type="hidden" id="projectId" required>
 
-                    <div id="lockWarning" class="hidden bg-rose-50 dark:bg-rose-950/30 p-3.5 rounded-xl border border-rose-100 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs sm:text-sm font-medium flex items-start shadow-sm">
-                        <i data-lucide="alert-triangle" class="w-5 h-5 mr-2.5 flex-shrink-0 mt-0.5"></i>
-                        <span>งานนี้อยู่ในสถานะไม่อนุมัติ กรุณาทำรายการที่ปุ่ม <b>"ส่งไฟล์แก้ไข"</b> ที่ตารางประวัติแทนครับ</span>
+                    <div id="lockWarning" class="hidden bg-rose-50 dark:bg-rose-950/40 p-4 rounded-xl border border-rose-100 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs sm:text-sm font-medium flex items-start shadow-layered-shadow">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5 text-rose-600"></i>
+                        <span>งานนี้ต้องได้รับการแก้ไข กรุณากดปุ่ม <b>"ส่งไฟล์แก้ไข"</b> ที่ตารางประวัติการส่งงานด้านขวาแทนครับ</span>
                     </div>
 
                     <div id="formFieldsContainer" class="space-y-4 pt-1">
-                        <div class="bg-orange-50 dark:bg-neutral-900 p-4 rounded-xl border border-orange-100 dark:border-neutral-800"><label id="labelFileReport" class="block text-xs sm:text-sm font-bold mb-2 text-orange-800 dark:text-orange-400 flex items-center"><i data-lucide="file" class="w-4 h-4 mr-2 opacity-80"></i> 1. ไฟล์รูปเล่ม (PDF)</label><input type="file" id="fileReport" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-neutral-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-orange-500 file:text-white cursor-pointer hover:file:bg-orange-600"></div>
-                        <div id="signatureSection" class="bg-amber-50 dark:bg-neutral-900 p-4 rounded-xl border border-amber-100 dark:border-neutral-800 transition-all duration-300"><label class="block text-xs sm:text-sm font-bold mb-2 text-amber-800 dark:text-amber-400 flex items-center"><i data-lucide="pen-tool" class="w-4 h-4 mr-2 opacity-80"></i> 2. หน้าลายเซ็น (PDF)</label><input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-neutral-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-amber-500 file:text-white cursor-pointer hover:file:bg-amber-600"></div>
-                        <button type="submit" id="submitBtn" class="w-full btn-liquid bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-3.5 rounded-full hover:shadow-lg text-sm flex items-center justify-center"><i data-lucide="cloud-upload" class="w-4 h-4 mr-2"></i> อัปโหลดส่งงาน</button>
+                        <div class="bg-orange-50 dark:bg-neutral-900 p-4 rounded-xl border border-orange-100 dark:border-neutral-800 shadow-layered-shadow"><label id="labelFileReport" class="block text-xs sm:text-sm font-bold mb-2.5 text-orange-800 dark:text-orange-400 flex items-center ml-1"><i data-lucide="file-up" class="w-4.5 h-4.5 mr-2 opacity-80"></i> 1. ไฟล์รูปเล่มรวม (PDF)</label><input type="file" id="fileReport" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-neutral-500 file:mr-3.5 file:py-1.5 file:px-3.5 file:rounded-full file:border-0 file:font-semibold file:bg-orange-500 file:text-white cursor-pointer hover:file:bg-orange-600 transition-colors"></div>
+                        <div id="signatureSection" class="bg-amber-50 dark:bg-neutral-900 p-4 rounded-xl border border-amber-100 dark:border-neutral-800 transition-all duration-300 shadow-layered-shadow"><label class="block text-xs sm:text-sm font-bold mb-2.5 text-amber-800 dark:text-amber-400 flex items-center ml-1"><i data-lucide="pen-tool" class="w-4.5 h-4.5 mr-2 opacity-80"></i> 2. หน้าลายเซ็นรวม (PDF)</label><input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-neutral-500 file:mr-3.5 file:py-1.5 file:px-3.5 file:rounded-full file:border-0 file:font-semibold file:bg-amber-500 file:text-white cursor-pointer hover:file:bg-amber-600 transition-colors"></div>
+                        <button type="submit" id="submitBtn" class="w-full btn-expert bg-neutral-800 dark:bg-neutral-700 text-white font-extrabold py-3.5 sm:py-4 rounded-full hover:shadow- soft-shadow hover:bg-neutral-900 dark:hover:bg-neutral-600 text-sm flex items-center justify-center mt-2 tracking-wide"><i data-lucide="upload-cloud" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดส่งงาน</button>
                     </div>
                 </form>
             </div>
         </div>
 
         <div class="lg:col-span-2">
-            <div class="glass-panel rounded-[2rem] p-5 sm:p-6 overflow-hidden">
-                <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-5 border-b border-neutral-100 dark:border-neutral-900 pb-3 flex items-center"><i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-neutral-700 dark:text-neutral-300"></i> ประวัติการส่งงานของกลุ่ม</h2>
+            <div class="glass-panel rounded-[2rem] p-5.5 sm:p-7 overflow-hidden border border-neutral-100 dark:border-neutral-800 shadow- expert-shadow">
+                <h2 class="text-base sm:text-lg font-extrabold text-neutral-800 dark:text-white mb-5.5 border-b border-neutral-100 dark:border-neutral-900 pb-3.5 flex items-center"><i data-lucide="history" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-neutral-700 dark:text-neutral-300 opacity-80"></i> ประวัติการส่งงานของกลุ่ม</h2>
                 
-                <div id="loadingData" class="text-center py-20 text-sm text-neutral-500 flex flex-col items-center">
-                    <svg class="animate-spin h-8 w-8 text-orange-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <div id="loadingData" class="text-center py-24 text-sm text-neutral-500 flex flex-col items-center">
+                    <svg class="animate-spin h-9 w-9 text-orange-500 mb-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span class="font-medium">กำลังซิงค์ข้อมูล...</span>
+                    <span class="font-semibold animate-pulse">กำลังซิงค์ข้อมูลล่าสุด...</span>
                 </div>
 
                 <div class="overflow-x-auto hidden w-full pb-2" id="tableContainer">
                     <table class="w-full text-left border-separate" style="border-spacing: 0 0;">
-                        <thead class="bg-neutral-50 dark:bg-neutral-900 uppercase text-[10px] sm:text-xs">
+                        <thead class="bg-neutral-50 dark:bg-neutral-900 text-[10px] sm:text-xs">
                             <tr>
-                                <th class="px-4 py-3 font-medium text-neutral-600 dark:text-neutral-400 rounded-l-xl">วันที่</th>
-                                <th class="px-4 py-3 font-medium text-neutral-600 dark:text-neutral-400">งาน / ผู้ส่ง</th>
-                                <th class="px-4 py-3 text-center font-medium text-neutral-600 dark:text-neutral-400">สถานะ</th>
-                                <th class="px-4 py-3 text-left font-medium text-neutral-600 dark:text-neutral-400 min-w-[150px]">หมายเหตุ</th>
-                                <th class="px-4 py-3 text-center font-medium text-neutral-600 dark:text-neutral-400 rounded-r-xl">ไฟล์</th>
+                                <th class="px-5 py-3.5 font-semibold text-neutral-600 dark:text-neutral-400 rounded-l-xl opacity-70">วันที่ส่ง</th>
+                                <th class="px-5 py-3.5 font-semibold text-neutral-600 dark:text-neutral-400 opacity-70">ประเภทงาน / ผู้ส่ง</th>
+                                <th class="px-5 py-3.5 text-center font-semibold text-neutral-600 dark:text-neutral-400 opacity-70">สถานะ</th>
+                                <th class="px-5 py-3.5 text-left font-semibold text-neutral-600 dark:text-neutral-400 min-w-[160px] opacity-70">หมายเหตุ / เหตุผล</th>
+                                <th class="px-5 py-3.5 text-center font-semibold text-neutral-600 dark:text-neutral-400 rounded-r-xl opacity-70">ไฟล์</th>
                             </tr>
                         </thead>
                         <tbody id="historyTableBody" class="text-neutral-700 dark:text-neutral-200">
@@ -259,32 +288,34 @@
     </div>
 
     <div id="profileModal" class="fixed inset-0 z-50 hidden bg-neutral-900/50 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity">
-        <div class="glass-panel bg-white/95 dark:bg-neutral-900 rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden relative flex flex-col border border-neutral-100 dark:border-neutral-800">
-            <button onclick="closeProfileModal()" class="absolute top-5 right-5 text-neutral-400 hover:text-neutral-700 dark:hover:text-white bg-neutral-100 dark:bg-neutral-800 rounded-full p-2 transition-colors z-10btn-liquid"><i data-lucide="x" class="w-4 h-4"></i></button>
-            <div class="p-6 sm:p-8 overflow-y-auto max-h-[85vh]">
-                <div class="text-center mb-6">
-                    <h2 class="text-xl font-bold text-neutral-800 dark:text-whitetracking-wide">ตั้งค่าโปรไฟล์</h2>
-                    <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">อัปเดตข้อมูลส่วนตัวของคุณ</p>
+        <div class="glass-panel bg-white/95 dark:bg-neutral-900 rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden relative flex flex-col border-2 border-transparent">
+            <div class="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-orange-400/20 via-transparent to-transparent opacity-60"></div>
+            
+            <button onclick="closeProfileModal()" class="absolute top-5 right-5 text-neutral-400 hover:text-neutral-700 dark:hover:text-white bg-neutral-100 dark:bg-neutral-800 rounded-full p-2 transition-colors z-10 btn-expert"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <div class="p-6 sm:p-8 overflow-y-auto max-h-[85vh] relative z-1">
+                <div class="text-center mb-6 pt-1">
+                    <h2 class="text-xl font-bold text-neutral-800 dark:text-white tracking-wide">ตั้งค่าโปรไฟล์</h2>
+                    <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1.5 font-medium">อัปเดตข้อมูลส่วนตัวของคุณ</p>
                 </div>
-                <form id="profileForm" class="space-y-4">
-                    <div class="flex flex-col items-center mb-6">
+                <form id="profileForm" class="space-y-4.5">
+                    <div class="flex flex-col items-center mb-6.5">
                         <div class="relative group cursor-pointer" onclick="document.getElementById('profilePicInput').click()">
-                            <img id="profilePreview" src="" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-[3px] border-neutral-100 dark:border-neutral-800 shadow-md transition-all group-hover:border-orange-300">
+                            <img id="profilePreview" src="" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-[3px] border-neutral-100 dark:border-neutral-800 shadow- layered-shadow transition-all group-hover:border-orange-300">
                             <div class="absolute inset-0 bg-neutral-900/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-white text-xs font-semibold">เปลี่ยนรูป</span></div>
-                            <div class="absolute bottom-1 right-1 bg-orange-500 rounded-full p-2 shadow-md border-2 border-white dark:border-neutral-900"><i data-lucide="camera" class="w-3.5 h-3.5 text-white"></i></div>
+                            <div class="absolute bottom-1 right-1 bg-orange-500 rounded-full p-2.5 shadow-md border-2 border-white dark:border-neutral-900"><i data-lucide="camera" class="w-3.5 h-3.5 text-white"></i></div>
                         </div>
                         <input type="file" id="profilePicInput" accept="image/*" class="hidden" onchange="previewImage(event)">
                     </div>
-                    <div><label class="block text-xs font-bold mb-1.5 text-neutral-700 dark:text-neutral-300 ml-1">เบอร์โทรศัพท์ <span class="text-rose-500">*</span></label><input type="tel" id="profilePhone" required placeholder="0812345678" class="w-full text-sm rounded-full p-3 glass-input outline-none focus:ring-2 focus:ring-orange-300 dark:focus:ring-orange-800 bg-white dark:bg-neutral-800"></div>
-                    <div class="pt-3 border-t border-neutral-100 dark:border-neutral-800">
-                        <button type="button" onclick="togglePasswordSection()" class="w-full text-xs font-semibold text-neutral-600 dark:text-neutral-300 hover:text-orange-500 bg-neutral-50 dark:bg-neutral-800 p-2.5 rounded-full flex items-center justify-center transition-colors btn-liquid border border-neutral-200 dark:border-neutral-700"><i data-lucide="plus" id="pwdToggleIcon" class="w-4 h-4 mr-1.5 opacity-80"></i> เปลี่ยนรหัสผ่านใหม่</button>
-                        <div id="passwordSection" class="hidden mt-3 space-y-3">
-                            <input type="password" id="oldPassword" placeholder="รหัสผ่านเดิม" class="w-full text-sm rounded-full p-3 glass-input outline-none focus:ring-2 focus:ring-orange-300 bg-white dark:bg-neutral-800">
-                            <input type="password" id="newPassword" placeholder="รหัสผ่านใหม่" class="w-full text-sm rounded-full p-3 glass-input outline-none focus:ring-2 focus:ring-orange-300 bg-white dark:bg-neutral-800">
-                            <input type="password" id="confirmPassword" placeholder="ยืนยันรหัสผ่านใหม่" class="w-full text-sm rounded-full p-3 glass-input outline-none focus:ring-2 focus:ring-orange-300 bg-white dark:bg-neutral-800">
+                    <div><label class="block text-xs font-bold mb-1.5 text-neutral-700 dark:text-neutral-300 ml-1">เบอร์โทรศัพท์ <span class="text-rose-500">*</span></label><input type="tel" id="profilePhone" required placeholder="0812345678" class="w-full text-sm rounded-full p-3 input-expert outline-none focus:ring-2 focus:ring-orange-300 dark:focus:ring-orange-800 bg-white dark:bg-neutral-800 shadow-inner"></div>
+                    <div class="pt-3.5 border-t border-neutral-100 dark:border-neutral-800">
+                        <button type="button" onclick="togglePasswordSection()" class="w-full text-xs font-semibold text-neutral-600 dark:text-neutral-300 hover:text-orange-500 bg-neutral-50 dark:bg-neutral-800 p-2.5 sm:p-3 rounded-full flex items-center justify-center transition-colors btn-expert border border-neutral-100 dark:border-neutral-700"><i data-lucide="key" id="pwdToggleIcon" class="w-4 h-4 mr-2 opacity-80"></i> เปลี่ยนรหัสผ่านใหม่</button>
+                        <div id="passwordSection" class="hidden mt-3.5 space-y-3.5">
+                            <input type="password" id="oldPassword" placeholder="รหัสผ่านเดิม" class="w-full text-sm rounded-full p-3 input-expert outline-none focus:ring-2 focus:ring-orange-300 bg-white dark:bg-neutral-800 shadow-inner">
+                            <input type="password" id="newPassword" placeholder="รหัสผ่านใหม่" class="w-full text-sm rounded-full p-3 input-expert outline-none focus:ring-2 focus:ring-orange-300 bg-white dark:bg-neutral-800 shadow-inner">
+                            <input type="password" id="confirmPassword" placeholder="ยืนยันรหัสผ่านใหม่" class="w-full text-sm rounded-full p-3 input-expert outline-none focus:ring-2 focus:ring-orange-300 bg-white dark:bg-neutral-800 shadow-inner">
                         </div>
                     </div>
-                    <button type="submit" id="btnSaveProfile" class="w-full btn-liquid bg-neutral-800 dark:bg-orange-600 text-white font-bold py-3.5 rounded-full hover:shadow-xl transition-all mt-5 flex items-center justify-center"><i data-lucide="save" class="w-4 h-4 mr-2"></i> บันทึกข้อมูล</button>
+                    <button type="submit" id="btnSaveProfile" class="w-full btn-expert bg-neutral-800 dark:bg-orange-600 text-white font-extrabold py-3.5 rounded-full hover:shadow-soft-shadow transition-all mt-6 flex items-center justify-center tracking-wide"><i data-lucide="save" class="w-4 h-4 mr-2"></i> บันทึกข้อมูล</button>
                 </form>
             </div>
         </div>
@@ -296,8 +327,20 @@
 
         function toggleTheme() {
             const html = document.documentElement;
-            if (html.classList.contains('dark')) { html.classList.remove('dark'); localStorage.theme = 'light'; } 
-            else { html.classList.add('dark'); localStorage.theme = 'dark'; }
+            const darkGlassClass = 'dark-header-glass';
+            if (html.classList.contains('dark')) { 
+                html.classList.remove('dark'); localStorage.theme = 'light'; 
+                document.querySelector('header').classList.remove(darkGlassClass);
+            } 
+            else { 
+                html.classList.add('dark'); localStorage.theme = 'dark'; 
+                document.querySelector('header').classList.add(darkGlassClass);
+            }
+        }
+        
+        // กู้คืนสถานะ Dark mode และธีมของ Header
+        if(localStorage.theme === 'dark' || document.documentElement.classList.contains('dark')) {
+            document.querySelector('header').classList.add('dark-header-glass');
         }
 
         const userRole = localStorage.getItem('userRole');
@@ -311,7 +354,6 @@
         const cachedName = localStorage.getItem('userName') || 'User';
         let cachedPic = localStorage.getItem('profileUrl') || `https://ui-avatars.com/api/?name=${encodeURIComponent(cachedName)}&background=f0f0f0&color=1a1a1a&background=f97316`;
         
-        // ตั้งค่ารูปภาพตั้งต้นทันที
         document.getElementById('headerProfilePic').src = cachedPic;
         document.getElementById('profilePreview').src = cachedPic;
         document.getElementById('headerMyName').innerText = cachedName;
@@ -335,13 +377,13 @@
 
         const profileModal = document.getElementById('profileModal');
         function openProfileModal() { profileModal.classList.remove('hidden'); }
-        function closeProfileModal() { profileModal.classList.add('hidden'); document.getElementById('passwordSection').classList.add('hidden'); document.getElementById('pwdToggleIcon').setAttribute('data-lucide', 'plus'); lucide.createIcons(); document.getElementById('oldPassword').value = ''; document.getElementById('newPassword').value = ''; document.getElementById('confirmPassword').value = ''; }
+        function closeProfileModal() { profileModal.classList.add('hidden'); document.getElementById('passwordSection').classList.add('hidden'); document.getElementById('pwdToggleIcon').setAttribute('data-lucide', 'key'); lucide.createIcons(); document.getElementById('oldPassword').value = ''; document.getElementById('newPassword').value = ''; document.getElementById('confirmPassword').value = ''; }
         profileModal.addEventListener('click', (e) => { if(e.target === profileModal) closeProfileModal(); });
 
         function togglePasswordSection() {
             const sec = document.getElementById('passwordSection'); const icon = document.getElementById('pwdToggleIcon');
-            if(sec.classList.contains('hidden')) { sec.classList.remove('hidden'); icon.setAttribute('data-lucide', 'minus'); } 
-            else { sec.classList.add('hidden'); icon.setAttribute('data-lucide', 'plus'); document.getElementById('oldPassword').value = ''; document.getElementById('newPassword').value = ''; document.getElementById('confirmPassword').value = ''; }
+            if(sec.classList.contains('hidden')) { sec.classList.remove('hidden'); icon.setAttribute('data-lucide', 'chevron-up'); } 
+            else { sec.classList.add('hidden'); icon.setAttribute('data-lucide', 'key'); document.getElementById('oldPassword').value = ''; document.getElementById('newPassword').value = ''; document.getElementById('confirmPassword').value = ''; }
             lucide.createIcons();
         }
 
@@ -349,53 +391,53 @@
             if (!rawStr) return "-"; 
             let d = new Date(rawStr);
             if (isNaN(d.getTime())) return rawStr;
-            return d.toLocaleDateString('th-TH') + '<br><span class="text-[9px] sm:text-[10px] opacity-70">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</span>';
+            return '<span class="font-medium text-neutral-800 dark:text-neutral-200">' + d.toLocaleDateString('th-TH') + '</span><br><span class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-normal">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</span>';
         }
 
         window.activeRejects = {}; 
 
-        // 🔥 เปิด Popup ยืนยันการอัปโหลดไฟล์แก้ไขใหม่ สไตล์ iPhone 🔥
+        // 🔥 เปิด Popup ยืนยันการอัปโหลดไฟล์แก้ไขใหม่ สไตล์ Expert iPhone X Premium 🔥
         window.prepareResubmitPopup = async function(type) {
             const isRequest = type === 'แบบคำร้อง';
             const signatureInputHtml = isRequest ? '' : `
-                <div class="text-left mt-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
-                    <label class="block text-[11px] sm:text-xs font-bold mb-1.5 text-amber-700 dark:text-amber-500">2. หน้าลายเซ็น (PDF)</label>
-                    <input type="file" id="popupFileSignature" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-amber-100 dark:file:bg-amber-950/50 file:text-amber-700 dark:file:text-amber-400 file:font-semibold hover:file:bg-amber-200 transition-colors cursor-pointer" required>
+                <div class="text-left mt-3.5 pt-3.5 border-t border-neutral-100 dark:border-neutral-800">
+                    <label class="block text-[11px] sm:text-xs font-bold mb-1.5 text-amber-700 dark:text-amber-500 ml-1">2. หน้าลายเซ็นรวมที่แก้ไข (PDF)</label>
+                    <input type="file" id="popupFileSignature" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3.5 file:rounded-full file:border-0 file:bg-amber-100 dark:file:bg-amber-950/60 file:text-amber-700 dark:file:text-amber-300 file:font-bold hover:file:bg-amber-200 transition-colors cursor-pointer" required>
                 </div>
             `;
 
             const { value: formValues } = await Swal.fire({
-                title: '<div class="flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg><span class="text-lg">ส่งไฟล์แก้ไขใหม่</span></div>',
+                title: '<div class="flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg><span class="text-lg font-bold">ส่งไฟล์แก้ไขใหม่</span></div>',
                 html: `
-                    <div class="text-xs text-left font-medium mb-3 text-neutral-500 dark:text-neutral-400 border-b border-neutral-100 dark:border-neutral-800 pb-2.5">งานที่ต้องส่งแก้: <span class="text-orange-600 font-bold">${type}</span></div>
-                    <div class="text-left bg-neutral-50 dark:bg-neutral-950 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800">
-                        <label class="block text-[11px] sm:text-xs font-bold mb-1.5 text-orange-600 dark:text-orange-500">1. ไฟล์รูปเล่ม (PDF)</label>
-                        <input type="file" id="popupFileReport" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-orange-100 dark:file:bg-orange-950/50 file:text-orange-700 dark:file:text-orange-400 file:font-semibold hover:file:bg-orange-200 transition-colors cursor-pointer" required>
+                    <div class="text-xs text-left font-medium mb-3 text-neutral-500 dark:text-neutral-400 border-b border-neutral-100 dark:border-neutral-800 pb-2.5">งานที่ต้องได้รับการแก้ไข: <span class="text-orange-600 font-bold">${type}</span></div>
+                    <div class="text-left bg-neutral-50 dark:bg-neutral-950/60 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800 shadow-inner">
+                        <label class="block text-[11px] sm:text-xs font-bold mb-1.5 text-orange-600 dark:text-orange-500 ml-1">1. ไฟล์รูปเล่มรวมที่แก้ไข (PDF)</label>
+                        <input type="file" id="popupFileReport" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3.5 file:rounded-full file:border-0 file:bg-orange-100 dark:file:bg-orange-950/60 file:text-orange-700 dark:file:text-orange-300 file:font-bold hover:file:bg-orange-200 transition-colors cursor-pointer" required>
                         ${signatureInputHtml}
                     </div>
                 `,
                 showCancelButton: true,
-                confirmButtonText: 'อัปโหลดทันที',
+                confirmButtonText: 'อัปโหลดส่งเดี๋ยวนี้',
                 cancelButtonText: 'ยกเลิก',
                 buttonsStyling: false,
                 customClass: { 
-                    popup: 'rounded-[1.5rem] w-[90%] max-w-sm border border-neutral-100 dark:border-neutral-800',
-                    confirmButton: 'bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-5 rounded-full text-sm mr-2 shadow-sm transition-colors',
-                    cancelButton: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 font-bold py-2.5 px-5 rounded-full text-sm shadow-sm transition-colors'
+                    popup: 'rounded-[1.8rem] w-[90%] max-w-sm border border-neutral-100 dark:border-neutral-800 shadow-soft-shadow',
+                    confirmButton: 'bg-orange-500 hover:bg-orange-600 text-white font-extrabold py-3 px-6 rounded-full text-xs sm:text-sm mr-2 shadow-layered-shadow transition-colors btn-expert tracking-wide',
+                    cancelButton: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 font-semibold py-3 px-6 rounded-full text-xs sm:text-sm shadow-inner transition-colorsbtn-expert tracking-wide'
                 },
                 didOpen: () => { lucide.createIcons(); },
                 preConfirm: () => {
                     const rFile = document.getElementById('popupFileReport').files[0];
                     const sFile = isRequest ? null : document.getElementById('popupFileSignature').files[0];
-                    if (!rFile) { Swal.showValidationMessage('กรุณาอัปโหลดไฟล์รูปเล่ม'); return false; }
-                    if (!isRequest && !sFile) { Swal.showValidationMessage('กรุณาอัปโหลดหน้าลายเซ็น'); return false; }
+                    if (!rFile) { Swal.showValidationMessage('กรุณาอัปโหลดไฟล์รูปเล่มแก้ไข'); return false; }
+                    if (!isRequest && !sFile) { Swal.showValidationMessage('กรุณาอัปโหลดหน้าลายเซ็นแก้ไข'); return false; }
                     return { rFile, sFile };
                 }
             });
 
             if (formValues) {
                 Swal.fire({
-                    title: 'กำลังอัปโหลด...',
+                    title: '<div class="font-bold text-base sm:text-lg">กำลังอัปโหลด...</div>',
                     allowOutsideClick: false,
                     didOpen: () => { Swal.showLoading(); },
                     customClass: { popup: 'rounded-[1.5rem]' }
@@ -417,14 +459,14 @@
                     const result = await res.json();
                     
                     if (result.status === 'success') {
-                        Swal.fire({ icon: 'success', title: 'ส่งงานแก้ไขสำเร็จ!', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-[1.5rem]' } }).then(() => {
+                        Swal.fire({ icon: 'success', title: '<div class="font-bold">ส่งงานแก้ไขสำเร็จ!</div>', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-[1.5rem]' } }).then(() => {
                             document.getElementById('tableContainer').classList.add('hidden');
                             document.getElementById('loadingData').style.display = 'flex';
                             loadData(); 
                         });
                     } else throw new Error(result.message);
                 } catch (err) {
-                    Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message, customClass: { popup: 'rounded-[1.5rem]' } });
+                    Swal.fire({ icon: 'error', title: '<div class="font-bold text-rose-600">ผิดพลาด</div>', text: err.message, customClass: { popup: 'rounded-[1.5rem]'} });
                 }
             }
         };
@@ -440,7 +482,6 @@
                     if (myProject && myProject['รหัสโครงงาน']) {
                         pid = (myProject['รหัสโครงงาน']||"").toString().trim();
                         
-                        // 🔥 ระบบค้นหาคอลัมน์ชื่อโครงงานแบบครอบจักรวาล (ดึงจากคอลัมน์ R ก่อนเป็นหลัก) 🔥
                         let projectNameTH = "-";
                         let keys = Object.keys(myProject);
                         if (keys.length > 17 && myProject[keys[17]]) {
@@ -459,14 +500,12 @@
                         document.getElementById('headerProjectName').innerText = projectNameTH;
                         document.getElementById('headerProjectName').title = projectNameTH; 
                         
-                        // 🟢 แสดงป้าย Badge รหัสโครงงานข้างชื่อจริงนักเรียน 🟢
                         document.getElementById('headerTopProjectId').innerText = pid;
                         document.getElementById('badgeProjectId').classList.remove('hidden');
                         document.getElementById('badgeProjectId').classList.add('flex');
                         
                         document.getElementById('projectId').value = pid;
                         
-                        // 🔥 แสดงผลอาจารย์และคู่โครงงาน 🔥
                         document.getElementById('headerAdvisor').innerText = myProject['อ. ที่ปรึกษา TH'] || "-";
                         document.getElementById('profilePhone').value = (myProject['เบอร์โทรศัพท์'] || "").replace(/'/g, ''); 
                         const partner = window.allProjects.find(p => p && (p['รหัสโครงงาน']||"").toString().trim() === pid && (p['รหัสนักเรียน']||"").toString().trim() !== studentId.trim());
@@ -474,7 +513,6 @@
                         else { document.getElementById('headerPartnerName').innerText = "- (เดี่ยว)"; document.getElementById('headerPartnerName').classList.add("opacity-60"); }
                         document.getElementById('headerProjectInfo').classList.remove('hidden');
                         
-                        // 🔥 อัปเดตรูปโปรไฟล์จริงจากฐานข้อมูลถ้ามี 🔥
                         if (myProject['รูปโปรไฟล์']) {
                             let imgUrl = myProject['รูปโปรไฟล์'];
                             if (imgUrl.includes('drive.google.com')) {
@@ -502,11 +540,10 @@
                     document.getElementById('loadingData').style.display = 'none'; 
                     document.getElementById('tableContainer').classList.remove('hidden'); 
                     
-                    // กระตุ้นอีเวนต์ Select เพื่อเช็คการล็อกฟอร์ม
                     document.getElementById('workType').dispatchEvent(new Event('change'));
                 }
             } catch (e) { 
-                document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold">❌ โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรชหน้าเว็บ</span>`; 
+                document.getElementById('loadingData').innerHTML = `<div class="text-rose-600 flex flex-col items-center gap-3"><i data-lucide="x-octagon" class="w-10 h-10"></i><span class="font-bold text-base">❌ โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรชหน้าเว็บ</span></div>`; lucide.createIcons();
             }
         }
 
@@ -531,13 +568,13 @@
             }
             
             if (selectedType === 'แบบคำร้อง') {
-                labelFileReport.innerHTML = '<i data-lucide="file" class="w-4 h-4 mr-2 opacity-80"></i> ไฟล์คำร้อง (PDF)';
-                submitBtn.innerHTML = '<i data-lucide="cloud-upload" class="w-4 h-4 mr-2"></i> ส่งแบบคำร้อง';
+                labelFileReport.innerHTML = '<i data-lucide="file-up" class="w-4.5 h-4.5 mr-2.5 opacity-80"></i> ไฟล์แบบคำร้อง (PDF)';
+                submitBtn.innerHTML = '<i data-lucide="cloud-upload" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดแบบคำร้อง';
                 signatureSection.classList.add('hidden'); 
                 fileSignature.removeAttribute('required'); 
             } else {
-                labelFileReport.innerHTML = '<i data-lucide="file" class="w-4 h-4 mr-2 opacity-80"></i> 1. ไฟล์รูปเล่ม (PDF)';
-                submitBtn.innerHTML = '<i data-lucide="cloud-upload" class="w-4 h-4 mr-2"></i> อัปโหลดส่งงาน';
+                labelFileReport.innerHTML = '<i data-lucide="file-up" class="w-4.5 h-4.5 mr-2.5 opacity-80"></i> 1. ไฟล์รูปเล่มรวม (PDF)';
+                submitBtn.innerHTML = '<i data-lucide="upload-cloud" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดส่งงาน';
                 signatureSection.classList.remove('hidden'); 
                 fileSignature.setAttribute('required', 'required'); 
             }
@@ -552,13 +589,13 @@
                     let cleanLastName = (existingSub['นามสกุล'] || "").split("และ")[0].trim();
                     const submitterName = `${cleanFirstName} ${cleanLastName}`;
                     if(submitterId !== (studentId === "ไม่ระบุ" ? "" : studentId.trim())) {
-                        Swal.fire({ icon: 'warning', title: 'เพื่อนส่งงานไปแล้ว!', html: `เพื่อนร่วมกลุ่มของคุณ <b>${submitterName} ${submitterId ? '(รหัส ' + studentId + ')' : ''}</b> <br>ได้ส่งงานประเภทนี้ไปแล้วและกำลังรอตรวจ<br><br><span class='text-rose-500 text-xs'>*หากคุณอัปโหลดใหม่ ไฟล์ของเพื่อนจะถูกแทนที่ทันที*</span>`, confirmButtonText: 'รับทราบ', confirmButtonColor: '#f59e0b', customClass: { popup: 'rounded-2xl'} });
+                        Swal.fire({ icon: 'warning', title: '<div class="font-bold">เพื่อนร่วมกลุ่มส่งงานไปแล้ว!</div>', html: `เพื่อนของคุณ <b>${submitterName}</b> <br>ได้ส่งงานประเภทนี้ไปแล้วและกำลังรอตรวจ<br><br><span class='text-rose-600 text-xs font-semibold'>*หากคุณอัปโหลดใหม่ ไฟล์ของเพื่อนจะถูกแทนที่ทันที*</span>`, confirmButtonText: 'ตกลง รับทราบ', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-2xl'} });
                     }
                 }
             }
         });
 
-        // 🔥 เรนเดอร์ตารางประวัติใหม่ สไตล์ลิสต์ไอโฟน 🔥
+        // 🔥 เรนเดอร์ตารางประวัติใหม่ Expert Card Row: Modern Typography & Micro-interactions 🔥
         function renderTable(subs) {
             const tbody = document.getElementById('historyTableBody'); 
             
@@ -625,64 +662,63 @@
             const mySubs = processedSubs.reverse(); 
 
             if(mySubs.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-neutral-500 text-xs sm:text-sm">ยินดีต้อนรับ! เริ่มส่งงานแรกกันเลยครับ</td></tr>'; 
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-12 text-neutral-500 text-xs sm:text-sm font-medium"><i data-lucide="smile" class="w-6 h-6 mr-2 inline-block opacity-70"></i> ยินดีต้อนรับ! เริ่มส่งงานแรกของกลุ่มกันเลยครับ</td></tr>'; 
             } else {
                 tbody.innerHTML = mySubs.map(s => {
-                    let statusClass = "bg-amber-100 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-200 dark:border-amber-900"; 
-                    let statusIcon = '<i data-lucide="clock" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-80"></i>';
+                    let statusClass = "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-900"; 
+                    let statusIcon = '<i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-90"></i>';
                     let statusText = "รอตรวจ";
                     let resubmitBtn = '';
 
                     if (s._displayStatus === 'ส่งแก้ไขแล้ว') {
-                        statusClass = "bg-blue-50 text-blue-800 border border-blue-100 dark:bg-blue-950/70 dark:text-blue-300 dark:border-blue-900";
-                        statusIcon = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-80"></i>';
+                        statusClass = "bg-blue-50 text-blue-800 border border-blue-100 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-900";
+                        statusIcon = '<i data-lucide="check-check" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-90"></i>';
                         statusText = "แก้ไขแล้ว (รอตรวจ)";
                     } else if (s._displayStatus === 'อนุมัติ') {
-                        statusClass = "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900"; 
-                        statusIcon = '<i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-80"></i>';
+                        statusClass = "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900"; 
+                        statusIcon = '<i data-lucide="star" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-90"></i>';
                         statusText = "อนุมัติ";
                     } else if (s._displayStatus === 'ไม่อนุมัติ') {
-                        statusClass = "bg-rose-50 text-rose-800 dark:bg-rose-950/70 dark:text-rose-300 border border-rose-100 dark:border-rose-900"; 
-                        statusIcon = '<i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-80"></i>';
+                        statusClass = "bg-rose-50 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-100 dark:border-rose-900"; 
+                        statusIcon = '<i data-lucide="alert-circle" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-90"></i>';
                         statusText = "ต้องแก้ไข";
                         if (window.activeRejects[s._workType]) {
-                            resubmitBtn = `<button onclick="prepareResubmitPopup('${s._workType}')" class="mt-2.5 w-full text-[10px] sm:text-[11px] text-white bg-rose-500 hover:bg-rose-600 px-3 py-2 rounded-full flex items-center justify-center transition-colors shadow font-semibold"><i data-lucide="cloud-upload" class="w-3.5 h-3.5 mr-1.5 opacity-90"></i> ส่งไฟล์แก้ไข</button>`;
+                            resubmitBtn = `<button onclick="prepareResubmitPopup('${s._workType}')" class="mt-2.5 w-full text-[10px] sm:text-[11px] text-white bg-rose-500 hover:bg-rose-600 px-3.5 py-2.5 rounded-full flex items-center justify-center transition-all shadow- soft-shadow font-extrabold btn-expert tracking-wide"><i data-lucide="cloud-upload" class="w-4 h-4 mr-1.5 opacity-90"></i> ส่งไฟล์แก้ไข</button>`;
                         }
                     }
                     
                     let isMe = (s['รหัสนักเรียน'] || "").toString().trim() === (studentId === "ไม่ระบุ" ? "" : studentId.trim());
                     let cleanFirstName = (s['ชื่อ'] || "").split("และ")[0].replace(/\(ผู้ส่ง\)/g, '').trim();
-                    let cleanLastName = (s['นามสกุล'] || "").split("และ")[0].trim();
-                    let submitterTag = isMe ? `<span class="text-orange-600 font-semibold">(คุณ)</span>` : `<span class="text-neutral-500">(${cleanFirstName})</span>`;
+                    let submitterTag = isMe ? `<span class="text-orange-600 font-semibold">(คุณส่ง)</span>` : `<span class="text-neutral-500 dark:text-neutral-400 font-medium">(${cleanFirstName})</span>`;
 
-                    let signatureButton = s._workType === 'แบบคำร้อง' ? '' : `<a href="${s['URL ลายเซ็น']}" target="_blank" class="btn-liquid text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-neutral-800 px-2.5 py-1.5 rounded-full text-[10px] sm:text-xs font-bold border border-amber-100 dark:border-neutral-700 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ลายเซ็น</a>`;
-                    let fileReportLabel = workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
+                    let signatureButton = s._workType === 'แบบคำร้อง' ? '' : `<a href="${s['URL ลายเซ็น']}" target="_blank" class="btn-expert text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-neutral-800 px-3 py-2 rounded-full text-[10px] sm:text-xs font-bold border border-amber-100 dark:border-neutral-700 flex items-center justify-center hover:bg-amber-100 dark:hover:bg-neutral-700 hover:border-amber-200"><i data-lucide="pen-tool" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> หน้าลายเซ็น</a>`;
+                    let fileReportLabel = s._workType === 'แบบคำร้อง' ? 'ไฟล์แบบคำร้อง' : 'ไฟล์รูปเล่ม';
                     
                     let reasonHtml = '';
                     if (s._displayStatus === 'ไม่อนุมัติ' && s._reason) {
-                        reasonHtml = `<div class="text-[10px] sm:text-xs text-rose-800 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-950/30 p-3 rounded-xl border border-rose-100 dark:border-rose-900 inline-block w-full whitespace-normal break-words shadow-inner text-left"><div class="font-bold flex items-center mb-1"><i data-lucide="alert-triangle" class="w-4 h-4 mr-1.5 text-rose-500"></i> เหตุผลที่ต้องแก้:</div>${s._reason}</div>`;
+                        reasonHtml = `<div class="text-[10px] sm:text-xs text-rose-800 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-950/30 p-3.5 rounded-xl border border-rose-100 dark:border-rose-900/60 inline-block w-full whitespace-normal break-words shadow-inner text-left"><div class="font-extrabold flex items-center mb-1.5"><i data-lucide="alert-triangle" class="w-4.5 h-4.5 mr-1.5 text-rose-600"></i> เหตุผลที่ต้องได้รับการแก้ไข:</div>${s._reason}</div>`;
                     } else if (s._isResubmit && s._oldReason) {
-                        reasonHtml = `<div class="text-[10px] sm:text-xs text-blue-800 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-950/30 p-3 rounded-xl border border-blue-100 dark:border-blue-900 inline-block w-full whitespace-normal break-words shadow-inner text-leftOpacity-80"><div class="font-bold flex items-center mb-1 opacity-80"><i data-lucide="info" class="w-4 h-4 mr-1.5"></i> อ้างอิงสาเหตุเก่า:</div>${s._oldReason}<div class="mt-2 text-[9px] opacity-70 border-t border-blue-100 dark:border-blue-800/50 pt-1.5 font-normal">ส่งแก้ไขเมื่อ: ${formatDateTime(s._oldRejectTime).replace('<br>', ' ')}</div></div>`;
+                        reasonHtml = `<div class="text-[10px] sm:text-xs text-blue-800 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-950/30 p-3.5 rounded-xl border border-blue-100 dark:border-blue-900/60 inline-block w-full whitespace-normal break-words shadow-inner text-leftOpacity-80"><div class="font-extrabold flex items-center mb-1.5 opacity-80"><i data-lucide="info" class="w-4.5 h-4.5 mr-1.5 text-blue-600 opacity-80"></i> อ้างอิงสาเหตุที่ต้องแก้เก่า:</div>${s._oldReason}<div class="mt-2 text-[9px] sm:text-[10px] opacity-70 border-t border-blue-100 dark:border-blue-800/40 pt-2 font-normal">ส่งแก้ไขล่าสุดเมื่อ: ${formatDateTime(s._oldRejectTime).replace('<br>', ' ')}</div></div>`;
                     } else {
-                        reasonHtml = `<span class="text-neutral-300 dark:text-neutral-700">-</span>`;
+                        reasonHtml = `<span class="text-neutral-300 dark:text-neutral-700 font-light opacity-50">-</span>`;
                     }
 
                     return `
                     <tr class="dark:text-neutral-300">
-                        <td class="text-[10px] sm:text-xs align-middle opacity-80">${formatDateTime(s['Timestamp'])}</td>
-                        <td class="font-semibold text-[10px] sm:text-sm align-middle leading-tight w-1/3">
-                            ${s._workType}<div class="mt-1.5 text-[9px] sm:text-[10px] font-normal opacity-80">${submitterTag}</div>
+                        <td class="text-[10px] sm:text-xs align-middle opacity-80 font-normal py-4">${formatDateTime(s['Timestamp'])}</td>
+                        <td class="font-extrabold text-[10px] sm:text-sm align-middle leading-tight w-1/3 py-4">
+                            <span class="font-bold text-neutral-800 dark:text-white">${s._workType}</span><div class="mt-1.5 text-[9px] sm:text-[10px] font-medium opacity-80">${submitterTag}</div>
                         </td>
-                        <td class="text-center align-middle px-1">
+                        <td class="text-center align-middle px-1.5 py-4">
                             <div class="flex flex-col items-center">
-                                <span class="px-3 py-1.5 rounded-full text-[9px] sm:text-xs font-bold ${statusClass} inline-flex items-center whitespace-nowrap justify-center">${statusIcon} ${statusText}</span>
+                                <span class="px-3.5 py-2 rounded-full text-[9px] sm:text-xs font-bold ${statusClass} inline-flex items-center whitespace-nowrap justify-center shadow-inner tracking-wide">${statusIcon} ${statusText}</span>
                                 ${resubmitBtn}
                             </div>
                         </td>
-                        <td class="text-left align-middle py-3 px-3">${reasonHtml}</td>
-                        <td class="text-center align-middle">
-                            <div class="flex flex-col sm:flex-row gap-1.5 justify-center items-center">
-                                <a href="${s['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid text-orange-800 dark:text-orange-300 bg-orange-50 dark:bg-neutral-800 px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold border border-orange-100 dark:border-neutral-700 flex items-center justify-center"><i data-lucide="file-text" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ${fileReportLabel}</a>
+                        <td class="text-left align-middle py-3 px-3 py-4">${reasonHtml}</td>
+                        <td class="text-center align-middle py-4">
+                            <div class="flex flex-col sm:flex-row gap-2 justify-center items-center">
+                                <a href="${s['URL ไฟล์เล่ม']}" target="_blank" class="btn-expert text-orange-800 dark:text-orange-300 bg-orange-50 dark:bg-neutral-800 px-3 py-2 rounded-full text-[10px] sm:text-xs font-bold border border-orange-100 dark:border-neutral-700 flex items-center justify-center hover:bg-orange-100 dark:hover:bg-neutral-700 hover:border-orange-200"><i data-lucide="file-text" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ${fileReportLabel}</a>
                                 ${signatureButton}
                             </div>
                         </td>
@@ -692,22 +728,62 @@
             document.getElementById('loadingData').style.display = 'none'; document.getElementById('tableContainer').classList.remove('hidden'); lucide.createIcons();
         }
 
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) { 
+                const reader = new FileReader(); 
+                reader.onload = function(e) { document.getElementById('profilePreview').src = e.target.result; }; 
+                reader.readAsDataURL(file); 
+            }
+        }
+        const toBase64 = file => new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res({ data: r.result.split(',')[1], mime: file.type }); r.onerror = rej; });
+
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const oldPass = document.getElementById('oldPassword').value.trim(); const newPass = document.getElementById('newPassword').value.trim(); const confPass = document.getElementById('confirmPassword').value.trim();
+            const pwdSection = document.getElementById('passwordSection');
+            if (!pwdSection.classList.contains('hidden') && (oldPass || newPass || confPass)) {
+                if (!oldPass) { Swal.fire({icon: 'warning', title: '<div class="font-bold">โปรดระบุรหัสผ่านเดิม</div>', confirmButtonColor: '#f97316', customClass: {popup: 'rounded-2xl'} }); return; }
+                if (newPass !== confPass) { Swal.fire({icon: 'warning', title: '<div class="font-bold">รหัสผ่านใหม่ไม่ตรงกัน</div>', confirmButtonColor: '#f97316', customClass: {popup: 'rounded-2xl'} }); return; }
+            }
+            const btn = document.getElementById('btnSaveProfile'); const newPhone = document.getElementById('profilePhone').value.trim(); const fileInput = document.getElementById('profilePicInput').files[0];
+            btn.disabled = true; btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังบันทึก...`;
+            try {
+                let picData = null; let picMime = null;
+                if(fileInput) { const base64File = await toBase64(fileInput); picData = base64File.data; picMime = base64File.mime; }
+                const payload = { action: "updateProfile", email: userEmail, phone: newPhone, oldPassword: oldPass, newPassword: newPass, newPicData: picData, newPicMime: picMime, existingPicUrl: localStorage.getItem('profileUrl') };
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
+                
+                if (result.status === 'success') { 
+                    Swal.fire({ icon: 'success', title: '<div class="font-bold text-lg">บันทึกข้อมูลเรียบร้อย!</div>', showConfirmButton: false, timer: 1500, customClass: {popup: 'rounded-2xl'} }); 
+                    
+                    if (result.profileUrl) { 
+                        cachedPic = result.profileUrl;
+                        localStorage.setItem('profileUrl', result.profileUrl); 
+                        document.getElementById('headerProfilePic').src = result.profileUrl; 
+                        document.getElementById('profilePreview').src = result.profileUrl;
+                    } 
+                    closeProfileModal(); 
+                } else throw new Error(result.message);
+            } catch (err) { Swal.fire({ icon: 'error', title: '<div class="font-bold text-rose-600">เกิดข้อผิดพลาด</div>', text: err.message, confirmButtonColor: '#f97316', customClass: {popup: 'rounded-2xl'} }); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 mr-2"></i> บันทึกข้อมูล'; lucide.createIcons(); }
+        });
+
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             if (document.getElementById('formFieldsContainer').classList.contains('form-locked')) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'กรุณาทำรายการที่ถูกต้อง',
-                    html: 'งานนี้ไม่อนุมัติ กรุณากดปุ่ม <b>"ส่งไฟล์แก้ไข"</b> ที่ตารางแทนครับ',
-                    confirmButtonText: 'ตกลง',
+                    title: '<div class="font-bold">กรุณาทำรายการที่ตาราง</div>',
+                    html: 'งานนี้ต้องแก้ กรุณากดปุ่ม <b>"ส่งไฟล์แก้ไข"</b> ที่ตารางด้านขวาแทนครับ',
+                    confirmButtonText: 'รับทราบ',
                     confirmButtonColor: '#e11d48',
-                    customClass: { popup: 'rounded-2xl' }
+                    customClass: { popup: 'rounded-[1.5rem]' }
                 });
                 return;
             }
             
             const userPhone = document.getElementById('profilePhone').value.trim();
-            if (!userPhone) { Swal.fire({ icon: 'warning', title: 'โปรดระบุเบอร์โทรศัพท์', confirmButtonText: 'ตกลง', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-2xl'} }).then(() => { openProfileModal(); document.getElementById('profilePhone').focus(); }); return; }
+            if (!userPhone) { Swal.fire({ icon: 'warning', title: '<div class="font-bold">โปรดระบุเบอร์โทรศัพท์</div>', confirmButtonText: 'ตกลง', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-2xl'} }).then(() => { openProfileModal(); document.getElementById('profilePhone').focus(); }); return; }
             
             const selectedWorkType = document.getElementById('workType').value;
             const existingSub = window.mySubmissions.find(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === selectedWorkType);
@@ -715,7 +791,7 @@
             if (existingSub && (existingSub['รหัสนักเรียน'] || "").toString().trim() !== (studentId === "ไม่ระบุ" ? "" : studentId.trim())) {
                 let cleanFirstName = (existingSub['ชื่อ'] || "").split("และ")[0].replace(/\(ผู้ส่ง\)/g, '').trim();
                 const result = await Swal.fire({
-                    title: 'ยืนยันการส่งแทนเพื่อน?', html: `เพื่อนของคุณ <b>${cleanFirstName}</b> ได้ส่งงานนี้ไปแล้ว<br>คุณต้องการส่งไฟล์ใหม่เพื่อ <b>"แทนที่"</b> ไฟล์เดิมใช่หรือไม่?`, icon: 'question', showCancelButton: true, confirmButtonColor: '#f97316', cancelButtonColor: '#94a3b8', confirmButtonText: 'ใช่, ส่งไฟล์แทนที่', cancelButtonText: 'ยกเลิก', customClass: { popup: 'rounded-2xl'}
+                    title: '<div class="font-bold text-base sm:text-lg">ยืนยันการส่งงานทับไฟล์เพื่อน?</div>', html: `เพื่อนของคุณ <b>${cleanFirstName}</b> ได้ส่งงานนี้ไปแล้ว<br>คุณต้องการส่งไฟล์ใหม่เพื่อ <b>"แทนที่"</b> ไฟล์เดิมใช่หรือไม่?`, icon: 'question', showCancelButton: true, confirmButtonColor: '#f97316', cancelButtonColor: '#94a3b8', confirmButtonText: 'ใช่, ส่งไฟล์แทนที่', cancelButtonText: 'ยกเลิก', customClass: { popup: 'rounded-2xl'}
                 });
                 if (!result.isConfirmed) return;
             }
@@ -725,7 +801,7 @@
             btn.disabled = true; btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังอัปโหลด...`;
             try {
                 const f1 = await toBase64(document.getElementById('fileReport').files[0]); 
-                let f2 = { data: "JVBERi0xLjAKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFsgMyAwIFIgXQovQ291bnQgMQo+PgplbmRvYmoKMyAwIG9iago8PAovVHlwZSAvUGFnZQovUGFyZW50IDIgMCBSCi9NZWRpYUJveCBbMCAwIDU5NSA4NDJdCj4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA2MCAwMDAwMCBuIAowMDAwMDAwMTQ3IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1NpemUgNAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMjQzCiUlRU9FCg==", mime: "application/pdf" };
+                let f2 = { data: "JVBERi0xLjAKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAw IFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFsgMyAw IFIgXQovQ291bnQgMQo+PgplbmRvYmoKMyAwIG9iago8PAovVHlwZSAvUGFnZQovUGFyZW50IDIgMCBSCi9NZWRpYUJveCBbMCAwIDU5NSA4NDJdCj4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA2MCAwMDAwMCBuIAowMDAwMDAwMTQ3IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1NpemUgNAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMjQzCiUlRU9FCg==", mime: "application/pdf" };
                 if (document.getElementById('fileSignature').files.length > 0) {
                     f2 = await toBase64(document.getElementById('fileSignature').files[0]);
                 }
@@ -735,7 +811,7 @@
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
                 
                 if (result && result.status === 'success') { 
-                    Swal.fire({ icon: 'success', title: 'อัปโหลดสำเร็จ!', timer: 2000, showConfirmButton: false, customClass: { popup: 'rounded-2xl'} }).then(() => { 
+                    Swal.fire({ icon: 'success', title: '<div class="font-bold text-lg">อัปโหลดสำเร็จ!</div>', showConfirmButton: false, timer: 2000, customClass: { popup: 'rounded-2xl'} }).then(() => { 
                         document.getElementById('workType').value = ""; 
                         document.getElementById('workType').dispatchEvent(new Event('change')); 
                         document.getElementById('fileReport').value = ""; 
@@ -745,11 +821,11 @@
                         loadData(); 
                     }); 
                 } else throw new Error(result.message);
-            } catch (err) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message, confirmButtonColor: '#f97316', customClass: { popup: 'rounded-2xl'} }); } 
+            } catch (err) { Swal.fire({ icon: 'error', title: '<div class="font-bold text-rose-600">ผิดพลาด</div>', text: err.message, confirmButtonColor: '#f97316', customClass: { popup: 'rounded-2xl'} }); } 
             finally { 
                 btn.disabled = false; 
                 const currentType = document.getElementById('workType').value;
-                btn.innerHTML = currentType === 'แบบคำร้อง' ? '<i data-lucide="cloud-upload" class="w-4 h-4 mr-2"></i> ส่งแบบคำร้อง' : '<i data-lucide="cloud-upload" class="w-4 h-4 mr-2"></i> อัปโหลดส่งงาน'; 
+                btn.innerHTML = currentType === 'แบบคำร้อง' ? '<i data-lucide="cloud-upload" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดแบบคำร้อง' : '<i data-lucide="upload-cloud" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดส่งงาน'; 
                 lucide.createIcons(); 
             }
         });
