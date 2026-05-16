@@ -20,7 +20,7 @@
         body { 
             font-family: 'Prompt', sans-serif; 
             transition: background-color 0.4s, color 0.4s; 
-            background-color: #f7f9fc; /* สีพื้นหลังสไตล์ iOS เรียบหรู */
+            background-color: #f7f9fc; 
             color: #1f2937; 
             overflow-x: hidden;
             line-height: 1.6;
@@ -28,11 +28,9 @@
         }
         .dark body { background-color: #0d0d0d; color: #f3f4f6; }
         
-        /* 🔥 Glass Panel สไตล์ iOS 17 🔥 */
         .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
         .dark .glass-panel { background: rgba(24, 24, 27, 0.75); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); }
         
-        /* ปรับปุ่มให้นุ่มนวล */
         .btn-liquid { position: relative; overflow: hidden; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .btn-liquid:active { transform: scale(0.96); opacity: 0.9; }
         
@@ -41,7 +39,6 @@
         .dark .glass-input { background: rgba(31, 41, 55, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); color: #f9fafb; }
         .dark .glass-input:focus { border-color: #ea580c; box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.15); }
 
-        /* 🔥 สไตล์ Popup ให้ดูแพงและชิดขอบบน 🔥 */
         body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
         .swal2-container { overflow-y: hidden !important; }
         .swal2-popup { 
@@ -128,7 +125,7 @@
                 <div class="flex items-center gap-3 sm:gap-4 w-full">
                     <button onclick="openProfileModal()" class="relative group outline-none rounded-full flex-shrink-0 transition-transform hover:scale-105">
                         <img id="headerProfilePic" src="" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-[3px] border-white dark:border-neutral-800 shadow-md bg-white">
-                        <div class="absolute bottom-0 right-0 bg-neutral-800 dark:bg-orange-600 rounded-full p-1 shadow-md border-2 border-white dark:border-neutral-800"><i data-lucide="settings" class="w-2.5 h-2.5 text-white"></i></div>
+                        <div class="absolute bottom-0 right-0 bg-neutral-800 dark:bg-orange-600 rounded-full p-1 shadow-md border-2 border-white dark:border-slate-800"><i data-lucide="settings" class="w-2.5 h-2.5 text-white"></i></div>
                     </button>
                     <div class="flex-grow min-w-0 flex flex-col justify-center">
                         <div class="flex items-center gap-2 flex-wrap mb-0.5">
@@ -143,7 +140,7 @@
                 
                 <div class="flex items-center gap-2 sm:gap-3 relative flex-shrink-0">
                     <div class="relative">
-                        <button id="downloadBtn" onclick="toggleDownloadDropdown()" class="text-[10px] sm:text-[13px] font-bold bg-white dark:bg-neutral-800 text-blue-600 dark:text-blue-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-neutral-200 dark:border-neutral-700 flex items-center hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors shadow-sm outline-none btn-liquid">
+                        <button id="downloadBtn" onclick="toggleDownloadDropdown()" class="text-[10px] sm:text-[13px] font-bold bg-white dark:bg-neutral-800 text-blue-600 dark:text-blue-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-blue-100 dark:border-blue-800/50 flex items-center hover:bg-blue-50 dark:hover:bg-neutral-700 transition-colors shadow-sm outline-none btn-liquid">
                             <i data-lucide="folder-down" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 opacity-80"></i>
                             <span class="hidden sm:inline">ดาวน์โหลด</span><span class="sm:hidden">ฟอร์ม</span>
                             <i data-lucide="chevron-down" class="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-1 opacity-70"></i>
@@ -169,7 +166,7 @@
                     </div>
 
                     <button onclick="toggleTheme()" class="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2 sm:p-2 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-transparent dark:border-neutral-700"><i data-lucide="moon" class="w-4 h-4 sm:w-4.5 sm:h-4.5 dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 sm:w-4.5 sm:h-4.5 hidden dark:block text-orange-400"></i></button>
-                    <button onclick="logout()" class="text-xs sm:text-sm text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-950/30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-rose-100 dark:border-rose-900/50 flex items-center btn-liquid flex-shrink-0"><i data-lucide="log-out" class="w-3.5 h-3.5 mr-1.5 opacity-90"></i> <span class="hidden sm:inline">ออกระบบ</span></button>
+                    <button onclick="logout()" class="text-xs sm:text-sm text-rose-600 dark:text-red-400 font-bold bg-rose-50 dark:bg-rose-950/30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-rose-100 dark:border-rose-900/50 flex items-center btn-liquid flex-shrink-0"><i data-lucide="log-out" class="w-3.5 h-3.5 mr-1.5 opacity-90"></i> <span class="hidden sm:inline">ออกระบบ</span></button>
                 </div>
             </div>
             
@@ -225,8 +222,8 @@
         </div>
 
         <div class="lg:col-span-2">
-            <div class="glass-panel rounded-3xl p-4 sm:p-6 overflow-hidden">
-                <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3.5 flex items-center"><i data-lucide="history" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-neutral-500 dark:text-neutral-400"></i> ประวัติการส่งงานของกลุ่ม</h2>
+            <div class="glass-panel rounded-[2rem] p-5 sm:p-6 overflow-hidden">
+                <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-5 border-b border-neutral-100 dark:border-neutral-900 pb-3.5 flex items-center"><i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-neutral-500 dark:text-neutral-400"></i> ประวัติการส่งงานของกลุ่ม</h2>
                 
                 <div id="loadingData" class="text-center py-20 text-sm text-neutral-500 flex flex-col items-center">
                     <svg class="animate-spin h-10 w-10 text-orange-500 mb-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -271,7 +268,7 @@
                         </div>
                         <input type="file" id="profilePicInput" accept="image/*" class="hidden" onchange="previewImage(event)">
                     </div>
-                    <div><label class="block text-xs font-bold mb-1.5 text-neutral-700 dark:text-neutral-300 ml-1">เบอร์โทรศัพท์ <span class="text-rose-500">*</span></label><input type="tel" id="profilePhone" required placeholder="0812345678" class="w-full text-sm rounded-2xl p-3.5 glass-input outline-none focus:ring-2 focus:ring-orange-400"></div>
+                    <div><label class="block text-xs font-bold mb-1.5 text-neutral-700 dark:text-neutral-300 ml-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label><input type="tel" id="profilePhone" required placeholder="0812345678" class="w-full text-sm rounded-2xl p-3.5 glass-input outline-none focus:ring-2 focus:ring-orange-400"></div>
                     <div class="pt-4 border-t border-neutral-100 dark:border-neutral-800">
                         <button type="button" onclick="togglePasswordSection()" class="w-full text-sm font-semibold text-neutral-600 dark:text-neutral-400 hover:text-orange-500 bg-neutral-50 dark:bg-neutral-800 p-3 rounded-2xl flex items-center justify-center transition-colors btn-liquid"><i data-lucide="plus" id="pwdToggleIcon" class="w-4 h-4 mr-2"></i> เปลี่ยนรหัสผ่านใหม่</button>
                         <div id="passwordSection" class="hidden mt-3.5 space-y-3.5">
@@ -305,7 +302,7 @@
         document.getElementById('displayStudentId').innerText = studentId;
 
         const cachedName = localStorage.getItem('userName') || 'User';
-        let cachedPic = localStorage.getItem('profileUrl') || `https://ui-avatars.com/api/?name=${encodeURIComponent(cachedName)}&background=random`;
+        let cachedPic = localStorage.getItem('profileUrl') || `https://ui-avatars.com/api/?name=${encodeURIComponent(cachedName)}&background=f0f0f0&color=1a1a1a&background=f97316`;
         
         document.getElementById('headerProfilePic').src = cachedPic;
         document.getElementById('profilePreview').src = cachedPic;
@@ -344,28 +341,27 @@
             if (!rawStr) return "-"; 
             let d = new Date(rawStr);
             if (isNaN(d.getTime())) return rawStr;
-            return '<div class="font-medium text-neutral-800 dark:text-neutral-200">' + d.toLocaleDateString('th-TH') + '</div><div class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</div>';
+            return '<span class="font-medium text-neutral-800 dark:text-neutral-200">' + d.toLocaleDateString('th-TH') + '</span><br><span class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5 font-normal">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</span>';
         }
 
         window.activeRejects = {}; 
 
-        // 🔥 เปิด Popup ยืนยันการอัปโหลดไฟล์แก้ไข โดยลดพื้นที่ว่างด้านบน 🔥
         window.prepareResubmitPopup = async function(type) {
             const isRequest = type === 'แบบคำร้อง';
             const signatureInputHtml = isRequest ? '' : `
                 <div class="text-left mt-3.5 pt-3.5 border-t border-neutral-100 dark:border-neutral-800">
-                    <label class="block text-[11px] sm:text-xs font-bold mb-1.5 text-amber-700 dark:text-amber-500 ml-1">2. หน้าลายเซ็น (PDF)</label>
-                    <input type="file" id="popupFileSignature" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-amber-100 dark:file:bg-amber-900/30 file:text-amber-700 dark:file:text-amber-400 file:font-semibold hover:file:bg-amber-200 transition-colors cursor-pointer" required>
+                    <label class="block text-[11px] sm:text-xs font-bold mb-1.5 text-amber-700 dark:text-amber-500 ml-1">2. หน้าลายเซ็นรวมที่แก้ไข (PDF)</label>
+                    <input type="file" id="popupFileSignature" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3.5 file:rounded-full file:border-0 file:bg-amber-100 dark:file:bg-amber-950/50 file:text-amber-700 dark:file:text-amber-400 file:font-semibold hover:file:bg-amber-200 transition-colors cursor-pointer" required>
                 </div>
             `;
 
             const { value: formValues } = await Swal.fire({
                 title: '<div class="flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg><span class="text-lg font-bold">ส่งไฟล์แก้ไขใหม่</span></div>',
                 html: `
-                    <div class="text-xs text-left font-medium mb-3 text-neutral-500 dark:text-neutral-400 border-b border-neutral-100 dark:border-neutral-800 pb-2.5">งานที่ส่งแก้: <span class="text-orange-500 font-bold">${type}</span></div>
-                    <div class="text-left bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800 shadow-inner">
-                        <label class="block text-[11px] sm:text-xs font-bold mb-1.5 text-orange-600 dark:text-orange-500 ml-1">1. ไฟล์รูปเล่ม (PDF)</label>
-                        <input type="file" id="popupFileReport" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-orange-100 dark:file:bg-orange-900/30 file:text-orange-700 dark:file:text-orange-400 file:font-semibold hover:file:bg-orange-200 transition-colors cursor-pointer" required>
+                    <div class="text-xs text-left font-medium mb-3 text-neutral-500 dark:text-neutral-400 border-b border-neutral-100 dark:border-neutral-800 pb-2.5">งานที่ต้องส่งแก้: <span class="text-orange-600 font-bold">${type}</span></div>
+                    <div class="text-left bg-neutral-50 dark:bg-neutral-950/50 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800 shadow-inner">
+                        <label class="block text-[11px] sm:text-xs font-bold mb-1.5 text-orange-600 dark:text-orange-500 ml-1">1. ไฟล์รูปเล่มรวมที่แก้ไข (PDF)</label>
+                        <input type="file" id="popupFileReport" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3.5 file:rounded-full file:border-0 file:bg-orange-100 dark:file:bg-orange-950/50 file:text-orange-700 dark:file:text-orange-400 file:font-semibold hover:file:bg-orange-200 transition-colors cursor-pointer" required>
                         ${signatureInputHtml}
                     </div>
                 `,
@@ -375,8 +371,8 @@
                 buttonsStyling: false,
                 customClass: { 
                     popup: 'rounded-[1.5rem] w-[90%] max-w-sm border border-neutral-100 dark:border-neutral-800',
-                    confirmButton: 'bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-6 rounded-full text-sm mr-2 shadow-sm transition-all',
-                    cancelButton: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 font-bold py-2.5 px-6 rounded-full text-sm shadow-inner transition-all'
+                    confirmButton: 'bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-6 rounded-full text-sm mr-2 shadow-sm transition-colors',
+                    cancelButton: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 font-bold py-2.5 px-6 rounded-full text-sm shadow-inner transition-colors'
                 },
                 didOpen: () => { lucide.createIcons(); },
                 preConfirm: () => {
@@ -399,7 +395,7 @@
                 try {
                     const pid = document.getElementById('projectId').value.trim();
                     const f1 = await toBase64(formValues.rFile);
-                    let f2 = { data: "JVBERi0xLjAKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFsgMyAwIFIgXQovQ291bnQgMQo+PgplbmRvYmoKMyAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFsgMyAwIFIgXQovQ291bnQgMQo+PgplbmRvYmoKMyAwIG9iago8PAovVHlwZSAvUGFnZQovUGFyZW50IDIgMCBSCi9NZWRpYUJveCBbMCAwIDU5NSA4NDJdCj4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA2MCAwMDAwMCBuIAowMDAwMDAwMTQ3IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1NpemUgNAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMjQzCiUlRU9FCg==", mime: "application/pdf" };
+                    let f2 = { data: "JVBERi0xLjAKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAw IFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFsgMyAw IFJdCi9Db3VudCAxCj4+CmVuZG9iagozIDAgb2JqCjw8Ci9UeXBlIC9QYWdlCi9QYXJlbnQgMiAwIFIKL01lZGlhQm94IFswIDAgNTk1IDg0Ml0KPj4KZW5kb2JqCnhyZWYKMCA0CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDYwIDAwMDAwIG4gCjAwMDAwMDAxNDcgMDAwMDAgbiAKdHJhaWxlcgo8PAovU2l6ZSA0Ci9Sb290IDEgMCBSCj4+CnN0YXJ0eHJlZgoyNDMKJSVFT0YK", mime: "application/pdf" };
                     if (formValues.sFile) f2 = await toBase64(formValues.sFile);
 
                     const uploader = window.allProjects.find(x => x['รหัสนักเรียน'] == studentId);
@@ -435,13 +431,11 @@
                     if (myProject && myProject['รหัสโครงงาน']) {
                         pid = (myProject['รหัสโครงงาน']||"").toString().trim();
                         
-                        // 🔥 ระบบค้นหาคอลัมน์ชื่อโครงงานแบบครอบจักรวาล (ดึงจากคอลัมน์ R ก่อนเป็นหลัก) 🔥
                         let projectNameTH = "-";
                         let keys = Object.keys(myProject);
                         if (keys.length > 17 && myProject[keys[17]]) {
                             projectNameTH = myProject[keys[17]]; 
                         } else {
-                            // ถ้าคอลัมน์ R ว่าง ให้ลองหาจากชื่อคอลัมน์
                             for (let key in myProject) {
                                 let cleanKey = key.toString().replace(/\s+/g, '').toLowerCase();
                                 if ((cleanKey.includes('ชื่อโครงงาน') || cleanKey.includes('projectname')) && !cleanKey.includes('รหัส')) {
@@ -451,18 +445,15 @@
                             }
                         }
 
-                        // แสดงผลชื่อโครงงาน
                         document.getElementById('headerProjectName').innerText = projectNameTH;
                         document.getElementById('headerProjectName').title = projectNameTH; 
                         
-                        // 🟢 แสดงป้าย Badge รหัสโครงงานข้างชื่อจริงนักเรียน 🟢
                         document.getElementById('headerTopProjectId').innerText = pid;
                         document.getElementById('badgeProjectId').classList.remove('hidden');
-                        document.getElementById('badgeProjectId').classList.add('inline-flex'); // ใช้ inline-flex ให้อยู่ข้างชื่อ
+                        document.getElementById('badgeProjectId').classList.add('inline-flex');
                         
                         document.getElementById('projectId').value = pid;
                         
-                        // 🔥 แสดงผลอาจารย์และคู่โครงงาน 🔥
                         document.getElementById('headerAdvisor').innerText = myProject['อ. ที่ปรึกษา TH'] || "-";
                         document.getElementById('profilePhone').value = (myProject['เบอร์โทรศัพท์'] || "").replace(/'/g, ''); 
                         const partner = window.allProjects.find(p => p && (p['รหัสโครงงาน']||"").toString().trim() === pid && (p['รหัสนักเรียน']||"").toString().trim() !== studentId.trim());
@@ -497,7 +488,6 @@
                     document.getElementById('loadingData').style.display = 'none'; 
                     document.getElementById('tableContainer').classList.remove('hidden'); 
                     
-                    // กระตุ้นการเลือกประเภทงานเพื่อเช็คสถานะล็อก
                     document.getElementById('workType').dispatchEvent(new Event('change'));
                 }
             } catch (e) { 
@@ -505,47 +495,6 @@
             }
         }
 
-        function previewImage(event) {
-            const file = event.target.files[0];
-            if (file) { 
-                const reader = new FileReader(); 
-                reader.onload = function(e) { document.getElementById('profilePreview').src = e.target.result; }; 
-                reader.readAsDataURL(file); 
-            }
-        }
-        const toBase64 = file => new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res({ data: r.result.split(',')[1], mime: file.type }); r.onerror = rej; });
-
-        document.getElementById('profileForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const oldPass = document.getElementById('oldPassword').value.trim(); const newPass = document.getElementById('newPassword').value.trim(); const confPass = document.getElementById('confirmPassword').value.trim();
-            const pwdSection = document.getElementById('passwordSection');
-            if (!pwdSection.classList.contains('hidden') && (oldPass || newPass || confPass)) {
-                if (!oldPass) { Swal.fire({icon: 'warning', title: '<div class="font-bold">โปรดระบุรหัสผ่านเดิม</div>', confirmButtonColor: '#f97316', customClass: {popup: 'rounded-2xl'} }); return; }
-                if (newPass !== confPass) { Swal.fire({icon: 'warning', title: '<div class="font-bold">รหัสผ่านใหม่ไม่ตรงกัน</div>', confirmButtonColor: '#f97316', customClass: {popup: 'rounded-2xl'} }); return; }
-            }
-            const btn = document.getElementById('btnSaveProfile'); const newPhone = document.getElementById('profilePhone').value.trim(); const fileInput = document.getElementById('profilePicInput').files[0];
-            btn.disabled = true; btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังบันทึก...`;
-            try {
-                let picData = null; let picMime = null;
-                if(fileInput) { const base64File = await toBase64(fileInput); picData = base64File.data; picMime = base64File.mime; }
-                const payload = { action: "updateProfile", email: userEmail, phone: newPhone, oldPassword: oldPass, newPassword: newPass, newPicData: picData, newPicMime: picMime, existingPicUrl: localStorage.getItem('profileUrl') };
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
-                
-                if (result.status === 'success') { 
-                    Swal.fire({ icon: 'success', title: '<div class="font-bold text-lg">บันทึกข้อมูลเรียบร้อย!</div>', showConfirmButton: false, timer: 1500, customClass: {popup: 'rounded-2xl'} }); 
-                    
-                    if (result.profileUrl) { 
-                        cachedPic = result.profileUrl;
-                        localStorage.setItem('profileUrl', result.profileUrl); 
-                        document.getElementById('headerProfilePic').src = result.profileUrl; 
-                        document.getElementById('profilePreview').src = result.profileUrl;
-                    } 
-                    closeProfileModal(); 
-                } else throw new Error(result.message);
-            } catch (err) { Swal.fire({ icon: 'error', title: '<div class="font-bold text-rose-600">เกิดข้อผิดพลาด</div>', text: err.message, confirmButtonColor: '#f97316', customClass: {popup: 'rounded-2xl'} }); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 mr-2"></i> บันทึกการตั้งค่า'; lucide.createIcons(); }
-        });
-
-        // 🔥 ตรวจสอบการล็อกฟอร์มเมื่อเลือกประเภทงาน 🔥
         document.getElementById('workType').addEventListener('change', (e) => {
             const selectedType = e.target.value;
             const labelFileReport = document.getElementById('labelFileReport');
@@ -555,7 +504,6 @@
             const formFieldsContainer = document.getElementById('formFieldsContainer');
             const lockWarning = document.getElementById('lockWarning');
             
-            // 🔒 บังคับล็อกฟอร์มซ้ายมือถ้ารายการนี้มีสถานะแก้ไขค้างอยู่ 🔒
             if (selectedType && window.activeRejects[selectedType]) {
                 formFieldsContainer.classList.add('form-locked');
                 lockWarning.classList.remove('hidden');
@@ -567,7 +515,7 @@
             
             if (selectedType === 'แบบคำร้อง') {
                 labelFileReport.innerHTML = '<i data-lucide="file-up" class="w-4.5 h-4.5 mr-2.5 opacity-80"></i> ไฟล์แบบคำร้อง (PDF)';
-                submitBtn.innerHTML = '<i data-lucide="cloud-upload" class="w-4.5 h-4.5 mr-2"></i> ส่งแบบคำร้อง';
+                submitBtn.innerHTML = '<i data-lucide="cloud-upload" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดแบบคำร้อง';
                 signatureSection.classList.add('hidden'); 
                 fileSignature.removeAttribute('required'); 
             } else {
@@ -578,7 +526,6 @@
             }
             lucide.createIcons();
             
-            // เช็คว่ามีเพื่อนในกลุ่มส่งงานที่กำลังรอตรวจอยู่หรือไม่
             if(selectedType && window.mySubmissions) {
                 const existingSub = window.mySubmissions.find(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === selectedType && (s['สถานะ'] || s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)']) === 'รออนุมัติ');
                 if(existingSub) {
@@ -587,13 +534,12 @@
                     let cleanLastName = (existingSub['นามสกุล'] || "").split("และ")[0].trim();
                     const submitterName = `${cleanFirstName} ${cleanLastName}`;
                     if(submitterId !== (studentId === "ไม่ระบุ" ? "" : studentId.trim())) {
-                        Swal.fire({ icon: 'warning', title: '<div class="font-bold">เพื่อนร่วมกลุ่มส่งงานไปแล้ว!</div>', html: `เพื่อนของคุณ <b>${submitterName}</b> <br>ได้ส่งงานประเภทนี้ไปแล้วและกำลังรอตรวจ<br><br><span class='text-rose-600 text-xs font-semibold'>*หากคุณอัปโหลดใหม่ ไฟล์ของเพื่อนจะถูกแทนที่ทันที*</span>`, confirmButtonText: 'ตกลง รับทราบ', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-[1.5rem]'} });
+                        Swal.fire({ icon: 'warning', title: '<div class="font-bold">เพื่อนร่วมกลุ่มส่งงานไปแล้ว!</div>', html: `เพื่อนของคุณ <b>${submitterName}</b> <br>ได้ส่งงานประเภทนี้ไปแล้วและกำลังรอตรวจ<br><br><span class='text-rose-600 text-xs font-semibold'>*หากคุณอัปโหลดใหม่ ไฟล์ของเพื่อนจะถูกแทนที่ทันที*</span>`, confirmButtonText: 'ตกลง รับทราบ', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-2xl'} });
                     }
                 }
             }
         });
 
-        // 🔥 เรนเดอร์ตารางสไตล์ iOS แยกการ์ดเป็นบรรทัดๆ 🔥
         function renderTable(subs) {
             const tbody = document.getElementById('historyTableBody'); 
             
@@ -663,60 +609,60 @@
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center py-12 text-neutral-500 text-xs sm:text-sm font-medium"><i data-lucide="smile" class="w-6 h-6 mr-2 inline-block opacity-70"></i> ยินดีต้อนรับ! เริ่มส่งงานแรกของกลุ่มกันเลยครับ</td></tr>'; 
             } else {
                 tbody.innerHTML = mySubs.map(s => {
-                    let statusClass = "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-900"; 
-                    let statusIcon = '<i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-90"></i>';
+                    let statusClass = "bg-amber-100 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-200 dark:border-amber-900"; 
+                    let statusIcon = '<i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-80"></i>';
                     let statusText = "รอตรวจ";
                     let resubmitBtn = '';
 
                     if (s._displayStatus === 'ส่งแก้ไขแล้ว') {
-                        statusClass = "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-900";
-                        statusIcon = '<i data-lucide="check-check" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-90"></i>';
+                        statusClass = "bg-blue-50 text-blue-800 border border-blue-100 dark:bg-blue-950/70 dark:text-blue-300 dark:border-blue-900";
+                        statusIcon = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-80"></i>';
                         statusText = "แก้ไขแล้ว (รอตรวจ)";
                     } else if (s._displayStatus === 'อนุมัติ') {
-                        statusClass = "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900"; 
-                        statusIcon = '<i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-90"></i>';
+                        statusClass = "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900"; 
+                        statusIcon = '<i data-lucide="star" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-80"></i>';
                         statusText = "อนุมัติ";
                     } else if (s._displayStatus === 'ไม่อนุมัติ') {
-                        statusClass = "bg-rose-50 text-rose-800 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200 dark:border-rose-900"; 
-                        statusIcon = '<i data-lucide="alert-circle" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-90"></i>';
+                        statusClass = "bg-rose-50 text-rose-800 dark:bg-rose-950/70 dark:text-rose-300 border border-rose-100 dark:border-rose-900"; 
+                        statusIcon = '<i data-lucide="alert-circle" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-80"></i>';
                         statusText = "ต้องแก้ไข";
                         if (window.activeRejects[s._workType]) {
-                            resubmitBtn = `<button onclick="prepareResubmitPopup('${s._workType}')" class="mt-2.5 w-full text-[10px] sm:text-[11px] text-white bg-rose-500 hover:bg-rose-600 px-3.5 py-2 rounded-full flex items-center justify-center transition-all shadow-sm font-bold tracking-wide"><i data-lucide="cloud-upload" class="w-4 h-4 mr-1.5 opacity-90"></i> ส่งไฟล์แก้ไข</button>`;
+                            resubmitBtn = `<button onclick="prepareResubmitPopup('${s._workType}')" class="mt-2.5 w-full text-[10px] sm:text-[11px] text-white bg-rose-500 hover:bg-rose-600 px-3.5 py-2.5 rounded-full flex items-center justify-center transition-all shadow font-semibold"><i data-lucide="cloud-upload" class="w-3.5 h-3.5 mr-1.5 opacity-90"></i> ส่งไฟล์แก้ไข</button>`;
                         }
                     }
                     
                     let isMe = (s['รหัสนักเรียน'] || "").toString().trim() === (studentId === "ไม่ระบุ" ? "" : studentId.trim());
                     let cleanFirstName = (s['ชื่อ'] || "").split("และ")[0].replace(/\(ผู้ส่ง\)/g, '').trim();
-                    let submitterTag = isMe ? `<span class="text-orange-600 font-semibold">(คุณส่ง)</span>` : `<span class="text-neutral-500 dark:text-neutral-400 font-medium">(${cleanFirstName})</span>`;
+                    let submitterTag = isMe ? `<span class="text-orange-600 font-semibold">(คุณ)</span>` : `<span class="text-neutral-500 dark:text-neutral-400 font-medium">(${cleanFirstName})</span>`;
 
-                    let signatureButton = s._workType === 'แบบคำร้อง' ? '' : `<a href="${s['URL ลายเซ็น']}" target="_blank" class="text-amber-800 dark:text-amber-400 bg-amber-50 dark:bg-neutral-800 px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold border border-amber-200 dark:border-neutral-700 flex items-center justify-center hover:bg-amber-100 dark:hover:bg-neutral-700 transition-colors"><i data-lucide="pen-tool" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ลายเซ็น</a>`;
-                    let fileReportLabel = s._workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'ไฟล์รูปเล่ม';
+                    let signatureButton = s._workType === 'แบบคำร้อง' ? '' : `<a href="${s['URL ลายเซ็น']}" target="_blank" class="text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-neutral-800 px-3 py-2 rounded-full text-[10px] sm:text-xs font-bold border border-amber-100 dark:border-neutral-700 flex items-center justify-center hover:bg-amber-100 dark:hover:bg-neutral-700 hover:border-amber-200 transition-all"><i data-lucide="pen-tool" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ลายเซ็น</a>`;
+                    let fileReportLabel = s._workType === 'แบบคำร้อง' ? 'ไฟล์แบบคำร้อง' : 'ไฟล์รูปเล่ม';
                     
                     let reasonHtml = '';
                     if (s._displayStatus === 'ไม่อนุมัติ' && s._reason) {
-                        reasonHtml = `<div class="text-[10px] sm:text-xs text-rose-800 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-950/40 p-3 rounded-xl border border-rose-100 dark:border-rose-900 inline-block w-full whitespace-normal break-words text-left"><div class="font-extrabold flex items-center mb-1.5"><i data-lucide="alert-triangle" class="w-4 h-4 mr-1.5 text-rose-600"></i> เหตุผลที่ต้องแก้ไข:</div>${s._reason}</div>`;
+                        reasonHtml = `<div class="text-[10px] sm:text-xs text-rose-800 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-950/30 p-3.5 rounded-xl border border-rose-100 dark:border-rose-900/60 inline-block w-full whitespace-normal break-words shadow-inner text-left"><div class="font-extrabold flex items-center mb-1.5"><i data-lucide="alert-triangle" class="w-4.5 h-4.5 mr-1.5 text-rose-600"></i> เหตุผลที่ต้องแก้ไข:</div>${s._reason}</div>`;
                     } else if (s._isResubmit && s._oldReason) {
-                        reasonHtml = `<div class="text-[10px] sm:text-xs text-blue-800 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-950/40 p-3 rounded-xl border border-blue-100 dark:border-blue-900 inline-block w-full whitespace-normal break-words text-left"><div class="font-extrabold flex items-center mb-1.5 opacity-80"><i data-lucide="info" class="w-4 h-4 mr-1.5 text-blue-600 opacity-80"></i> อ้างอิงสาเหตุเก่า:</div>${s._oldReason}<div class="mt-2 text-[9px] sm:text-[10px] opacity-70 border-t border-blue-200 dark:border-blue-800 pt-1.5 font-normal">ส่งแก้เมื่อ: ${formatDateTime(s._oldRejectTime).replace('<br>', ' ')}</div></div>`;
+                        reasonHtml = `<div class="text-[10px] sm:text-xs text-blue-800 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-950/30 p-3.5 rounded-xl border border-blue-100 dark:border-blue-900/60 inline-block w-full whitespace-normal break-words shadow-inner text-leftOpacity-80"><div class="font-extrabold flex items-center mb-1.5 opacity-80"><i data-lucide="info" class="w-4.5 h-4.5 mr-1.5 text-blue-600 opacity-80"></i> อ้างอิงเหตุผลเดิม:</div>${s._oldReason}<div class="mt-2 text-[9px] sm:text-[10px] opacity-70 border-t border-blue-100 dark:border-blue-800/40 pt-2 font-normal">ส่งแก้ไขล่าสุดเมื่อ: ${formatDateTime(s._oldRejectTime).replace('<br>', ' ')}</div></div>`;
                     } else {
                         reasonHtml = `<span class="text-neutral-300 dark:text-neutral-700 font-light opacity-50">-</span>`;
                     }
 
                     return `
-                    <tr class="dark:text-neutral-200">
-                        <td class="text-[10px] sm:text-xs align-middle font-normal">${formatDateTime(s['Timestamp'])}</td>
-                        <td class="font-extrabold text-[10px] sm:text-sm align-middle leading-tight w-1/3">
-                            <span class="text-neutral-800 dark:text-white">${s._workType}</span><div class="mt-1 text-[9px] sm:text-[10px] font-medium opacity-80">${submitterTag}</div>
+                    <tr class="dark:text-neutral-300">
+                        <td class="text-[10px] sm:text-xs align-middle opacity-80 font-normal py-4">${formatDateTime(s['Timestamp'])}</td>
+                        <td class="font-extrabold text-[10px] sm:text-sm align-middle leading-tight w-1/3 py-4">
+                            <span class="font-bold text-neutral-800 dark:text-white">${s._workType}</span><div class="mt-1.5 text-[9px] sm:text-[10px] font-medium opacity-80">${submitterTag}</div>
                         </td>
-                        <td class="text-center align-middle px-1">
+                        <td class="text-center align-middle px-1.5 py-4">
                             <div class="flex flex-col items-center">
-                                <span class="px-3.5 py-1.5 rounded-full text-[9px] sm:text-xs font-bold ${statusClass} inline-flex items-center whitespace-nowrap justify-center tracking-wide">${statusIcon} ${statusText}</span>
+                                <span class="px-3.5 py-2 rounded-full text-[9px] sm:text-xs font-bold ${statusClass} inline-flex items-center whitespace-nowrap justify-center shadow-inner tracking-wide">${statusIcon} ${statusText}</span>
                                 ${resubmitBtn}
                             </div>
                         </td>
-                        <td class="text-left align-middle px-2">${reasonHtml}</td>
-                        <td class="text-center align-middle">
-                            <div class="flex flex-col sm:flex-row gap-1.5 justify-center items-center">
-                                <a href="${s['URL ไฟล์เล่ม']}" target="_blank" class="text-orange-800 dark:text-orange-400 bg-orange-50 dark:bg-neutral-800 px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold border border-orange-200 dark:border-neutral-700 flex items-center justify-center hover:bg-orange-100 dark:hover:bg-neutral-700 transition-colors"><i data-lucide="file-text" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ${fileReportLabel}</a>
+                        <td class="text-left align-middle py-3 px-3 py-4">${reasonHtml}</td>
+                        <td class="text-center align-middle py-4">
+                            <div class="flex flex-col sm:flex-row gap-2 justify-center items-center">
+                                <a href="${s['URL ไฟล์เล่ม']}" target="_blank" class="text-orange-800 dark:text-orange-300 bg-orange-50 dark:bg-neutral-800 px-3 py-2 rounded-full text-[10px] sm:text-xs font-bold border border-orange-200 dark:border-neutral-700 flex items-center justify-center hover:bg-orange-100 dark:hover:bg-neutral-700 transition-all"><i data-lucide="file-text" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ${fileReportLabel}</a>
                                 ${signatureButton}
                             </div>
                         </td>
@@ -731,17 +677,17 @@
             if (document.getElementById('formFieldsContainer').classList.contains('form-locked')) {
                 Swal.fire({
                     icon: 'error',
-                    title: '<div class="font-bold">กรุณาทำรายการที่ตารางประวัติ</div>',
-                    html: 'งานประเภทนี้อยู่ในสถานะไม่อนุมัติ กรุณากดปุ่ม <b>"ส่งไฟล์แก้ไข"</b> ที่ตารางแทนครับ',
+                    title: '<div class="font-bold text-lg">กรุณาทำรายการที่ตารางประวัติ</div>',
+                    html: 'งานนี้ต้องแก้ กรุณากดปุ่ม <b>"ส่งไฟล์แก้ไข"</b> ที่ตารางด้านขวาแทนครับ',
                     confirmButtonText: 'ตกลง',
                     confirmButtonColor: '#e11d48',
-                    customClass: { popup: 'rounded-[1.5rem]' }
+                    customClass: { popup: 'rounded-2xl' }
                 });
                 return;
             }
             
             const userPhone = document.getElementById('profilePhone').value.trim();
-            if (!userPhone) { Swal.fire({ icon: 'warning', title: '<div class="font-bold">โปรดระบุเบอร์โทรศัพท์</div>', confirmButtonText: 'ตกลง', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-[1.5rem]'} }).then(() => { openProfileModal(); document.getElementById('profilePhone').focus(); }); return; }
+            if (!userPhone) { Swal.fire({ icon: 'warning', title: '<div class="font-bold">โปรดระบุเบอร์โทรศัพท์</div>', confirmButtonText: 'ตกลง', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-2xl'} }).then(() => { openProfileModal(); document.getElementById('profilePhone').focus(); }); return; }
             
             const selectedWorkType = document.getElementById('workType').value;
             const existingSub = window.mySubmissions.find(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === selectedWorkType);
@@ -749,7 +695,7 @@
             if (existingSub && (existingSub['รหัสนักเรียน'] || "").toString().trim() !== (studentId === "ไม่ระบุ" ? "" : studentId.trim())) {
                 let cleanFirstName = (existingSub['ชื่อ'] || "").split("และ")[0].replace(/\(ผู้ส่ง\)/g, '').trim();
                 const result = await Swal.fire({
-                    title: '<div class="font-bold text-lg">ยืนยันการส่งแทนเพื่อน?</div>', html: `เพื่อนของคุณ <b>${cleanFirstName}</b> ได้ส่งงานนี้ไปแล้ว<br>คุณต้องการส่งไฟล์ใหม่เพื่อ <b>"แทนที่"</b> ไฟล์เดิมใช่หรือไม่?`, icon: 'question', showCancelButton: true, confirmButtonColor: '#f97316', cancelButtonColor: '#94a3b8', confirmButtonText: 'ใช่, ส่งไฟล์แทนที่', cancelButtonText: 'ยกเลิก', customClass: { popup: 'rounded-[1.5rem]'}
+                    title: '<div class="font-bold text-base sm:text-lg">ยืนยันการส่งแทนเพื่อน?</div>', html: `เพื่อนของคุณ <b>${cleanFirstName}</b> ได้ส่งงานนี้ไปแล้ว<br>คุณต้องการส่งไฟล์ใหม่เพื่อ <b>"แทนที่"</b> ไฟล์เดิมใช่หรือไม่?`, icon: 'question', showCancelButton: true, confirmButtonColor: '#f97316', cancelButtonColor: '#94a3b8', confirmButtonText: 'ใช่, ส่งไฟล์แทนที่', cancelButtonText: 'ยกเลิก', customClass: { popup: 'rounded-[1.5rem]'}
                 });
                 if (!result.isConfirmed) return;
             }
@@ -759,7 +705,7 @@
             btn.disabled = true; btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังอัปโหลด...`;
             try {
                 const f1 = await toBase64(document.getElementById('fileReport').files[0]); 
-                let f2 = { data: "JVBERi0xLjAKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFsgMyAwIFIgXQovQ291bnQgMQo+PgplbmRvYmoKMyAwIG9iago8PAovVHlwZSAvUGFnZQovUGFyZW50IDIgMCBSCi9NZWRpYUJveCBbMCAwIDU5NSA4NDJdCj4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA2MCAwMDAwMCBuIAowMDAwMDAwMTQ3IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1NpemUgNAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMjQzCiUlRU9FCg==", mime: "application/pdf" };
+                let f2 = { data: "JVBERi0xLjAKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAw IFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFsgMyAw IFIgXQovQ291bnQgMQo+PgplbmRvYmoKMyAwIG9iago8PAovVHlwZSAvUGFnZQovUGFyZW50IDIgMCBSCi9NZWRpYUJveCBbMCAwIDU5NSA4NDJdCj4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA2MCAwMDAwMCBuIAowMDAwMDAwMTQ3IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1NpemUgNAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMjQzCiUlRU9FCg==", mime: "application/pdf" };
                 if (document.getElementById('fileSignature').files.length > 0) {
                     f2 = await toBase64(document.getElementById('fileSignature').files[0]);
                 }
@@ -769,7 +715,7 @@
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
                 
                 if (result && result.status === 'success') { 
-                    Swal.fire({ icon: 'success', title: '<div class="font-bold text-lg">อัปโหลดสำเร็จ!</div>', showConfirmButton: false, timer: 2000, customClass: { popup: 'rounded-[1.5rem]'} }).then(() => { 
+                    Swal.fire({ icon: 'success', title: '<div class="font-bold text-lg">อัปโหลดสำเร็จ!</div>', showConfirmButton: false, timer: 2000, customClass: { popup: 'rounded-2xl'} }).then(() => { 
                         document.getElementById('workType').value = ""; 
                         document.getElementById('workType').dispatchEvent(new Event('change')); 
                         document.getElementById('fileReport').value = ""; 
@@ -783,7 +729,7 @@
             finally { 
                 btn.disabled = false; 
                 const currentType = document.getElementById('workType').value;
-                btn.innerHTML = currentType === 'แบบคำร้อง' ? '<i data-lucide="cloud-upload" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดแบบคำร้อง' : '<i data-lucide="upload-cloud" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดส่งงาน'; 
+                btn.innerHTML = currentType === 'แบบคำร้อง' ? '<i data-lucide="cloud-upload" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดแบบคำร้อง' : '<i data-lucide="cloud-upload" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดส่งงาน'; 
                 lucide.createIcons(); 
             }
         });
