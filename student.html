@@ -85,11 +85,11 @@
         /* 🔥 สไตล์ iOS Minimalist สำหรับกล่องชื่อเรื่อง 🔥 */
         .ios-title-card {
             background-color: #ffffff;
-            border-radius: 28px;
-            padding: 1.5rem;
+            border-radius: 24px;
+            padding: 1.75rem 2rem;
             border: 1px solid rgba(0, 0, 0, 0.05);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-            text-align: left;
+            text-align: center;
             position: relative;
             overflow: hidden;
         }
@@ -98,34 +98,30 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
         
+        /* 🔥 แก้ปัญหาสระ และจัดชื่อโครงงานให้โดดเด่น 🔥 */
         .project-title-text {
-            color: #171717;
-            font-size: 1.25rem;
-            font-weight: 600;
-            line-height: 1.7; 
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.8; 
             letter-spacing: 0.02em; 
+            margin-top: 0.5rem;
         }
-        .dark .project-title-text {
-            color: #f5f5f5;
+        @media (max-width: 768px) {
+            .project-title-text { font-size: 1.25rem; }
         }
 
-        /* 🔥 สไตล์สำหรับรหัสโครงงานให้โดดเด่นสะดุดตาที่สุด 🔥 */
-        .project-id-highlight {
-            font-size: 2.2rem; 
+        .project-title-glow {
+            background: linear-gradient(90deg, #ea580c, #db2777);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             font-weight: 800;
-            line-height: 1;
-            background: linear-gradient(135deg, #f97316, #fbbf24);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 1px 1px 0px rgba(249, 115, 22, 0.1);
-            position: relative;
-            display: inline-block;
+            text-shadow: 0px 2px 4px rgba(234, 88, 12, 0.2);
         }
-        .dark .project-id-highlight {
-            background: linear-gradient(135deg, #fb923c, #fbbf24);
+        .dark .project-title-glow {
+            background: linear-gradient(90deg, #fb923c, #f472b6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 1px 1px 5px rgba(251, 146, 60, 0.3);
+            text-shadow: 0px 2px 10px rgba(251, 146, 60, 0.4);
         }
     </style>
 </head>
@@ -140,9 +136,12 @@
                         <img id="headerProfilePic" src="" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-[3px] border-white/50 shadow-md group-hover:opacity-90 transition-opacity bg-white">
                         <div class="absolute bottom-0 right-0 bg-neutral-800 dark:bg-orange-600 rounded-full p-1 shadow-md border-2 border-white dark:border-neutral-800"><i data-lucide="settings" class="w-3 h-3 text-white"></i></div>
                     </button>
-                    <div class="flex-grow min-w-0">
-                        <h1 class="text-lg sm:text-2xl font-bold text-neutral-800 dark:text-white leading-tight truncate"><span id="headerMyName">กำลังโหลด...</span></h1>
-                        <p class="text-[11px] sm:text-sm text-neutral-500 dark:text-neutral-400 mt-0.5 flex items-center truncate">
+                    <div class="flex-grow min-w-0 flex flex-col justify-center">
+                        <div class="flex items-center gap-2 flex-wrap mb-0.5">
+                            <h1 class="text-lg sm:text-2xl font-bold text-neutral-800 dark:text-white leading-tight truncate"><span id="headerMyName">กำลังโหลด...</span></h1>
+                            <span id="badgeProjectId" class="hidden bg-gradient-to-r from-orange-500 to-amber-500 text-white px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-bold shadow-sm items-center"><i data-lucide="hash" class="w-3 h-3 mr-0.5 inline-block"></i><span id="headerTopProjectId"></span></span>
+                        </div>
+                        <p class="text-[11px] sm:text-sm text-neutral-500 dark:text-neutral-400 flex items-center truncate">
                             <i data-lucide="user" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0"></i> ID: <span id="displayStudentId" class="font-semibold text-orange-600 dark:text-orange-400 ml-1"></span>
                         </p>
                     </div>
@@ -180,21 +179,16 @@
                 </div>
             </div>
             
-            <div id="headerProjectInfo" class="mt-4 sm:mt-5 grid grid-cols-1 md:grid-cols-3 gap-4 hidden border-t border-neutral-100 dark:border-neutral-700/50 pt-5">
+            <div id="headerProjectInfo" class="mt-4 sm:mt-5 grid grid-cols-1 gap-4 hidden border-t border-neutral-100 dark:border-neutral-700/50 pt-5">
                 
-                <div class="ios-title-card md:col-span-2 flex flex-col justify-between">
-                    <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 mb-2 flex items-center"><i data-lucide="book-open" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0"></i> ชื่อโครงงาน</p>
-                    <p id="headerProjectName" class="project-title-text">-</p>
+                <div class="ios-title-card flex flex-col justify-center items-center">
+                    <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-wider font-semibold"><i data-lucide="book-open" class="w-4 h-4 mr-1.5 flex-shrink-0 text-orange-500"></i> ชื่อโครงงาน</p>
+                    <p id="headerProjectName" class="project-title-text project-title-glow">-</p>
                 </div>
 
-                <div class="ios-title-card flex flex-col items-center justify-center text-center border-orange-100 dark:border-orange-900/50 bg-orange-50/50 dark:bg-orange-950/20 shadow-orange-500/5">
-                    <p class="text-[10px] sm:text-xs text-orange-400 dark:text-orange-500 mb-1 flex items-center justify-center w-full"><i data-lucide="hash" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0"></i> รหัสโครงงาน</p>
-                    <p id="headerProjectId" class="project-id-highlight">-</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 sm:gap-4 md:col-span-3 mt-1">
-                    <div class="bg-neutral-50 dark:bg-neutral-900/60 p-3 sm:p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex flex-col justify-center"><p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 mb-1 flex items-center"><i data-lucide="users" class="w-3.5 h-3.5 mr-1.5"></i> คู่โครงงาน</p><p id="headerPartnerName" class="font-medium text-neutral-700 dark:text-white text-xs sm:text-sm truncate">-</p></div>
-                    <div class="bg-neutral-50 dark:bg-neutral-900/60 p-3 sm:p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex flex-col justify-center"><p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 mb-1 flex items-center"><i data-lucide="graduation-cap" class="w-3.5 h-3.5 mr-1.5"></i> อ.ที่ปรึกษา</p><p id="headerAdvisor" class="font-medium text-neutral-700 dark:text-white text-xs sm:text-sm truncate">-</p></div>
+                <div class="grid grid-cols-2 gap-3 sm:gap-4 mt-1">
+                    <div class="bg-neutral-50 dark:bg-neutral-900/60 p-3 sm:p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex flex-col justify-center items-center text-center"><p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 mb-1 flex items-center"><i data-lucide="users" class="w-3.5 h-3.5 mr-1.5 text-blue-500"></i> คู่โครงงาน</p><p id="headerPartnerName" class="font-medium text-neutral-700 dark:text-white text-xs sm:text-sm truncate">-</p></div>
+                    <div class="bg-neutral-50 dark:bg-neutral-900/60 p-3 sm:p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex flex-col justify-center items-center text-center"><p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 mb-1 flex items-center"><i data-lucide="graduation-cap" class="w-3.5 h-3.5 mr-1.5 text-emerald-500"></i> อ.ที่ปรึกษา</p><p id="headerAdvisor" class="font-medium text-neutral-700 dark:text-white text-xs sm:text-sm truncate">-</p></div>
                 </div>
             </div>
         </div>
@@ -207,15 +201,16 @@
                 <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 border-b border-neutral-200 dark:border-neutral-700 pb-3 flex items-center"><i data-lucide="upload" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-neutral-700 dark:text-neutral-300"></i> ส่งงาน</h2>
                 <form id="uploadForm" class="space-y-4">
                     <div><label class="block text-xs sm:text-sm font-semibold mb-1 text-neutral-700 dark:text-neutral-300">ประเภทงาน</label><select id="workType" required class="w-full text-xs sm:text-sm rounded-xl p-2.5 sm:p-3 glass-input outline-none focus:ring-2 focus:ring-orange-500 bg-white/20 dark:bg-neutral-800/50"><option value="">-- เลือกประเภทงาน --</option><option value="โครงร่าง (Proposal)">โครงร่าง (Proposal)</option><option value="รายงานความก้าวหน้า">รายงานความก้าวหน้า</option><option value="รายงานฉบับสมบูรณ์">รายงานฉบับสมบูรณ์</option><option value="แบบคำร้อง">แบบคำร้อง</option></select></div>
-                    <div><label class="block text-xs sm:text-sm font-semibold mb-1 text-neutral-700 dark:text-neutral-300">รหัสโครงงาน</label><input list="projectList" id="projectId" required class="w-full text-xs sm:text-sm rounded-xl p-2.5 sm:p-3 glass-input bg-neutral-100/50 dark:bg-neutral-700/50 outline-none cursor-not-allowed" readonly></div>
+                    
+                    <input type="hidden" id="projectId" required>
 
-                    <div id="lockWarning" class="hidden bg-rose-50 dark:bg-rose-900/30 p-3 rounded-xl border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400 text-xs sm:text-sm font-semibold flex items-center shadow-sm">
-                        <i data-lucide="alert-circle" class="w-5 h-5 mr-2 flex-shrink-0"></i> งานนี้ต้องได้รับการแก้ไข กรุณากดปุ่ม "ส่งไฟล์แก้ไข" ที่ประวัติการส่งงานแทน
+                    <div id="lockWarning" class="hidden bg-rose-50 dark:bg-rose-950/30 p-3 rounded-xl border border-rose-100 dark:border-rose-900 text-rose-700 dark:text-rose-400 text-xs sm:text-sm font-medium flex items-center shadow-sm">
+                        <i data-lucide="alert-circle" class="w-6 h-6 mr-2 flex-shrink-0"></i> งานนี้ต้องได้รับการแก้ไข กรุณากดปุ่ม "ส่งไฟล์แก้ไข" ที่ประวัติการส่งงานแทน
                     </div>
 
                     <div id="formFieldsContainer" class="space-y-4">
                         <div class="bg-orange-50 dark:bg-orange-950/20 p-3 sm:p-4 rounded-xl border border-orange-100 dark:border-orange-900/30"><label id="labelFileReport" class="block text-xs sm:text-sm font-bold mb-2 text-orange-800 dark:text-orange-400 flex items-center"><i data-lucide="file" class="w-4 h-4 mr-1"></i> 1. ไฟล์รูปเล่ม (PDF)</label><input type="file" id="fileReport" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-orange-500 file:text-white cursor-pointer hover:file:bg-orange-600 transition-all"></div>
-                        <div id="signatureSection" class="bg-amber-50 dark:bg-amber-950/20 p-3 sm:p-4 rounded-xl border border-amber-100 dark:border-amber-900/30 transition-all duration-300"><label class="block text-xs sm:text-sm font-bold mb-2 text-amber-800 dark:text-amber-400 flex items-center"><i data-lucide="pen-tool" class="w-4 h-4 mr-1"></i> 2. หน้าลายเซ็น (PDF)</label><input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-slate-500 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-amber-500 file:text-white cursor-pointer hover:file:bg-amber-600 transition-all"></div>
+                        <div id="signatureSection" class="bg-amber-50 dark:bg-amber-950/20 p-3 sm:p-4 rounded-xl border border-amber-100 dark:border-amber-900/30 transition-all duration-300"><label class="block text-xs sm:text-sm font-bold mb-2 text-amber-800 dark:text-amber-400 flex items-center"><i data-lucide="pen-tool" class="w-4 h-4 mr-1"></i> 2. หน้าลายเซ็น (PDF)</label><input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-neutral-500 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-amber-500 file:text-white cursor-pointer hover:file:bg-amber-600 transition-all"></div>
                         <button type="submit" id="submitBtn" class="w-full btn-liquid bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-3.5 rounded-xl hover:shadow-lg transition-all text-sm flex items-center justify-center"><i data-lucide="send" class="w-4 h-4 mr-2"></i> ส่งงาน</button>
                     </div>
                 </form>
@@ -299,7 +294,6 @@
         const cachedName = localStorage.getItem('userName') || 'User';
         let cachedPic = localStorage.getItem('profileUrl') || `https://ui-avatars.com/api/?name=${encodeURIComponent(cachedName)}&background=random`;
         
-        // ตั้งค่ารูปภาพตั้งต้นทันที
         document.getElementById('headerProfilePic').src = cachedPic;
         document.getElementById('profilePreview').src = cachedPic;
         document.getElementById('headerMyName').innerText = cachedName;
@@ -342,13 +336,12 @@
 
         window.activeRejects = {}; 
 
-        // 🔥 เปิด Popup ยืนยันการอัปโหลดไฟล์แก้ไข โดยลดพื้นที่ว่างด้านบน 🔥
         window.prepareResubmitPopup = async function(type) {
             const isRequest = type === 'แบบคำร้อง';
             const signatureInputHtml = isRequest ? '' : `
                 <div class="text-left mt-3 border-t border-neutral-100 dark:border-neutral-700 pt-2">
                     <label class="block text-[11px] sm:text-xs font-bold mb-1 text-amber-700 dark:text-amber-400">2. หน้าลายเซ็น (PDF)</label>
-                    <input type="file" id="popupFileSignature" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-amber-500 file:text-white cursor-pointer" required>
+                    <input type="file" id="popupFileSignature" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-amber-500 file:text-white cursor-pointer" required>
                 </div>
             `;
 
@@ -392,7 +385,7 @@
                 try {
                     const pid = document.getElementById('projectId').value.trim();
                     const f1 = await toBase64(formValues.rFile);
-                    let f2 = { data: "JVBERi0xLjAKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFsgMyAwIFIgXQovQ291bnQgMQo+PgplbmRvYmoKMyAwIG9iago8PAovVHlwZSAvUGFnZQovUGFyZW50IDIgMCBSCi9NZWRpYUJveCBbMCAwIDU5NSA4NDJdCj4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA2MCAwMDAwMCBuIAowMDAwMDAwMTQ3IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1NpemUgNAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMjQzCiUlRU9FCg==", mime: "application/pdf" };
+                    let f2 = { data: "JVBERi0xLjAKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAw IFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFsgMyAwIFIgXQovQ291bnQgMQo+PgplbmRvYmoKMyAwIG9iago8PAovVHlwZSAvUGFnZQovUGFyZW50IDIgMCBSCi9NZWRpYUJveCBbMCAwIDU5NSA4NDJdCj4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA2MCAwMDAwMCBuIAowMDAwMDAwMTQ3IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1NpemUgNAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMjQzCiUlRU9FCg==", mime: "application/pdf" };
                     if (formValues.sFile) f2 = await toBase64(formValues.sFile);
 
                     const uploader = window.allProjects.find(x => x['รหัสนักเรียน'] == studentId);
@@ -441,8 +434,14 @@
                         document.getElementById('headerProjectName').innerText = projectNameTH;
                         document.getElementById('headerProjectName').title = projectNameTH; 
                         
+                        // 🟢 แสดงป้าย Badge รหัสโครงงานข้างชื่อจริง 🟢
+                        document.getElementById('headerTopProjectId').innerText = pid;
+                        document.getElementById('badgeProjectId').classList.remove('hidden');
+                        document.getElementById('badgeProjectId').classList.add('flex');
+                        
+                        // เอา Input รหัสโครงงานตรงฟอร์มออกไปเก็บเป็น hidden แทนแล้ว ให้ Value ไว้เพื่อใช้อัปโหลด
                         document.getElementById('projectId').value = pid;
-                        document.getElementById('headerProjectId').innerText = pid; 
+                        
                         document.getElementById('headerAdvisor').innerText = myProject['อ. ที่ปรึกษา TH'] || "-";
                         document.getElementById('profilePhone').value = (myProject['เบอร์โทรศัพท์'] || "").replace(/'/g, ''); 
                         const partner = window.allProjects.find(p => p && (p['รหัสโครงงาน']||"").toString().trim() === pid && (p['รหัสนักเรียน']||"").toString().trim() !== studentId.trim());
@@ -524,7 +523,6 @@
             } catch (err) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message, confirmButtonColor: '#f97316' }); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 mr-2"></i> บันทึกการตั้งค่า'; lucide.createIcons(); }
         });
 
-        // 🔥 ตรวจสอบการล็อกฟอร์มเมื่อเลือกประเภทงาน 🔥
         document.getElementById('workType').addEventListener('change', (e) => {
             const selectedType = e.target.value;
             const labelFileReport = document.getElementById('labelFileReport');
@@ -534,7 +532,6 @@
             const formFieldsContainer = document.getElementById('formFieldsContainer');
             const lockWarning = document.getElementById('lockWarning');
             
-            // 🔒 บังคับล็อกฟอร์มซ้ายมือถ้ารายการนี้มีสถานะแก้ไขค้างอยู่ 🔒
             if (selectedType && window.activeRejects[selectedType]) {
                 formFieldsContainer.classList.add('form-locked');
                 lockWarning.classList.remove('hidden');
@@ -556,7 +553,6 @@
             }
             lucide.createIcons();
             
-            // เช็คว่ามีเพื่อนในกลุ่มส่งงานที่กำลังรอตรวจอยู่หรือไม่ (เตือนเฉยๆ ไม่ล็อก)
             if(selectedType && window.mySubmissions) {
                 const existingSub = window.mySubmissions.find(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === selectedType && (s['สถานะ'] || s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)']) === 'รออนุมัติ');
                 if(existingSub) {
@@ -647,7 +643,6 @@
                     let statusText = "รออนุมัติ";
                     let resubmitBtn = '';
 
-                    // 🛠️ กำหนดป้ายสถานะและปุ่ม 🛠️
                     if (s._displayStatus === 'ส่งแก้ไขแล้ว') {
                         statusClass = "bg-blue-50 text-blue-700 border border-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800";
                         statusIcon = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0"></i>';
