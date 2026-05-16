@@ -20,7 +20,7 @@
         body { 
             font-family: 'Prompt', sans-serif; 
             transition: background-color 0.4s, color 0.4s; 
-            background-color: #fffaf5; 
+            background-color: #f9fafb; /* ปรับสีพื้นหลังให้คลีนขึ้นสไตล์ iOS */
             color: #262626; 
             overflow-x: hidden;
             line-height: 1.6;
@@ -28,8 +28,8 @@
         }
         .dark body { background-color: #0d0d0d; color: #f5f5f5; }
         
-        .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); }
-        .dark .glass-panel { background: rgba(26, 26, 26, 0.8); border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4); }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); }
+        .dark .glass-panel { background: rgba(26, 26, 26, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4); }
         
         .btn-liquid { position: relative; overflow: hidden; backdrop-filter: blur(10px); transition: all 0.3s ease; }
         .btn-liquid::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0)); pointer-events: none; }
@@ -85,9 +85,9 @@
         /* 🔥 สไตล์ iOS Minimalist สำหรับกล่องชื่อเรื่อง 🔥 */
         .ios-title-card {
             background-color: #ffffff;
-            border-radius: 28px;
-            padding: 2rem 2.5rem; /* ขยาย Padding ให้กล่องดูกว้างขึ้น */
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.03);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
             text-align: center;
             position: relative;
@@ -98,62 +98,82 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
         
-        /* 🔥 แก้ปัญหาสระ และจัดชื่อโครงงานให้โดดเด่น 🔥 */
+        /* 🔥 สไตล์สำหรับชื่อโครงงานให้โดดเด่น 🔥 */
         .project-title-text {
-            font-size: 1.6rem; /* เพิ่มขนาดตัวอักษรให้อ่านง่ายขึ้น */
+            font-size: 1.4rem;
             font-weight: 700;
             line-height: 1.8; 
             letter-spacing: 0.02em; 
-            margin-top: 0.5rem;
         }
         @media (max-width: 768px) {
-            .project-title-text { font-size: 1.25rem; }
-            .ios-title-card { padding: 1.5rem; } /* ปรับ padding บนมือถือ */
+            .project-title-text { font-size: 1.2rem; }
         }
-
         .project-title-glow {
             background: linear-gradient(90deg, #ea580c, #db2777);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 800;
-            text-shadow: 0px 2px 4px rgba(234, 88, 12, 0.2);
         }
         .dark .project-title-glow {
             background: linear-gradient(90deg, #fb923c, #f472b6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0px 2px 10px rgba(251, 146, 60, 0.4);
+        }
+        
+        /* 🔥 สไตล์สำหรับกล่องข้อมูลเล็ก (Badge style) ให้อยู่ในบรรทัดเดียวกัน 🔥 */
+        .ios-badge-container {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        @media (max-width: 640px) {
+            .ios-badge-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        .ios-info-badge {
+            background-color: #f9fafb;
+            border-radius: 16px;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #f3f4f6;
+            text-align: center;
+        }
+        .dark .ios-info-badge {
+            background-color: #262626;
+            border: 1px solid #404040;
         }
     </style>
 </head>
 <body class="pb-10">
 
     <header class="glass-panel border-b-0 shadow-sm relative overflow-visible sticky top-0 z-40">
-        <div class="absolute top-0 left-0 w-full h-1 bg-orange-500"></div>
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-pink-500"></div>
         <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 sm:py-5">
             <div class="flex flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-3 sm:gap-5 w-full">
+                <div class="flex items-center gap-3 sm:gap-4 w-full">
                     <button onclick="openProfileModal()" class="relative group outline-none rounded-full focus:ring-4 focus:ring-orange-100 dark:focus:ring-orange-900 transition-all flex-shrink-0">
-                        <img id="headerProfilePic" src="" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-[3px] border-white/50 shadow-md group-hover:opacity-90 transition-opacity bg-white">
-                        <div class="absolute bottom-0 right-0 bg-neutral-800 dark:bg-orange-600 rounded-full p-1 shadow-md border-2 border-white dark:border-neutral-800"><i data-lucide="settings" class="w-3 h-3 text-white"></i></div>
+                        <img id="headerProfilePic" src="" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-[3px] border-white/50 shadow-sm group-hover:opacity-90 transition-opacity bg-white">
+                        <div class="absolute bottom-0 right-0 bg-neutral-800 dark:bg-orange-600 rounded-full p-1 shadow-md border-2 border-white dark:border-neutral-800"><i data-lucide="settings" class="w-2.5 h-2.5 text-white"></i></div>
                     </button>
                     <div class="flex-grow min-w-0 flex flex-col justify-center">
-                        <div class="flex items-center gap-2 flex-wrap mb-0.5">
-                            <h1 class="text-lg sm:text-2xl font-bold text-neutral-800 dark:text-white leading-tight truncate"><span id="headerMyName">กำลังโหลด...</span></h1>
-                            <span id="badgeProjectId" class="hidden bg-gradient-to-r from-orange-500 to-amber-500 text-white px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-bold shadow-sm items-center"><i data-lucide="hash" class="w-3 h-3 mr-0.5 inline-block"></i><span id="headerTopProjectId"></span></span>
-                        </div>
-                        <p class="text-[11px] sm:text-sm text-neutral-500 dark:text-neutral-400 flex items-center truncate">
-                            <i data-lucide="user" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0"></i> ID: <span id="displayStudentId" class="font-semibold text-orange-600 dark:text-orange-400 ml-1"></span>
+                        <h1 class="text-base sm:text-xl font-bold text-neutral-800 dark:text-white leading-tight truncate"><span id="headerMyName">กำลังโหลด...</span></h1>
+                        <p class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 flex items-center truncate">
+                            <i data-lucide="user" class="w-3 h-3 mr-1 flex-shrink-0"></i> ID: <span id="displayStudentId" class="font-semibold text-orange-600 dark:text-orange-400 ml-1"></span>
                         </p>
                     </div>
                 </div>
                 
                 <div class="flex items-center gap-2 sm:gap-3 relative flex-shrink-0">
                     <div class="relative">
-                        <button id="downloadBtn" onclick="toggleDownloadDropdown()" class="text-[10px] sm:text-[13px] font-bold bg-white dark:bg-neutral-800 text-blue-600 dark:text-blue-400 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-blue-200 dark:border-blue-800/50 flex items-center hover:bg-blue-50 dark:hover:bg-neutral-700 transition-colors shadow-sm outline-none">
-                            <i data-lucide="download" class="w-3 h-3 sm:w-4 sm:h-4 mr-1.5"></i>
-                            <span class="hidden sm:inline">ดาวน์โหลดแบบฟอร์ม</span><span class="sm:hidden">ฟอร์ม</span>
-                            <i data-lucide="chevron-down" class="w-3 h-3 sm:w-4 sm:h-4 ml-1 text-blue-400"></i>
+                        <button id="downloadBtn" onclick="toggleDownloadDropdown()" class="text-[10px] sm:text-xs font-bold bg-white dark:bg-neutral-800 text-blue-600 dark:text-blue-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-blue-100 dark:border-blue-800/50 flex items-center hover:bg-blue-50 dark:hover:bg-neutral-700 transition-colors shadow-sm outline-none">
+                            <i data-lucide="download" class="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1.5"></i>
+                            <span class="hidden sm:inline">แบบฟอร์ม</span><span class="sm:hidden">ฟอร์ม</span>
+                            <i data-lucide="chevron-down" class="w-3 h-3 sm:w-3.5 sm:h-3.5 ml-1 text-blue-400"></i>
                         </button>
                         
                         <div id="downloadDropdown" class="absolute right-0 mt-2 w-48 bg-white dark:bg-neutral-800 rounded-2xl shadow-xl border border-neutral-100 dark:border-neutral-700 hidden z-50 overflow-hidden transform opacity-100 transition-all duration-200 origin-top-right">
@@ -175,26 +195,29 @@
                         </div>
                     </div>
 
-                    <button onclick="toggleTheme()" class="btn-liquid bg-neutral-200/50 dark:bg-neutral-700/50 p-2 sm:p-2.5 rounded-full text-neutral-700 dark:text-neutral-200 outline-none hover:text-orange-500 flex-shrink-0"><i data-lucide="moon" class="w-4 h-4 sm:w-5 sm:h-5 dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 sm:w-5 sm:h-5 hidden dark:block"></i></button>
-                    <button onclick="logout()" class="text-xs sm:text-sm text-red-600 dark:text-red-400 font-medium bg-red-50/50 dark:bg-red-900/20 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-red-100 dark:border-red-800 flex items-center btn-liquid flex-shrink-0"><i data-lucide="log-out" class="w-4 h-4 mr-1"></i> <span class="hidden sm:inline">ออกระบบ</span></button>
+                    <button onclick="toggleTheme()" class="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2 sm:p-2 rounded-full text-neutral-700 dark:text-neutral-200 outline-none hover:text-orange-500 flex-shrink-0 border border-neutral-200 dark:border-neutral-700"><i data-lucide="moon" class="w-4 h-4 sm:w-4 sm:h-4 dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 sm:w-4 sm:h-4 hidden dark:block"></i></button>
+                    <button onclick="logout()" class="text-xs sm:text-sm text-red-600 dark:text-red-400 font-medium bg-red-50 dark:bg-red-900/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-red-100 dark:border-red-800 flex items-center btn-liquid flex-shrink-0"><i data-lucide="log-out" class="w-3.5 h-3.5 mr-1"></i> <span class="hidden sm:inline">ออกระบบ</span></button>
                 </div>
             </div>
             
-            <div id="headerProjectInfo" class="mt-4 sm:mt-5 flex flex-col gap-4 hidden border-t border-neutral-100 dark:border-neutral-700/50 pt-5">
-                
-                <div class="ios-title-card flex flex-col justify-center items-center">
-                    <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-wider font-semibold"><i data-lucide="book-open" class="w-4 h-4 mr-1.5 flex-shrink-0 text-orange-500"></i> ชื่อโครงงาน</p>
+            <div id="headerProjectInfo" class="mt-4 sm:mt-5 hidden border-t border-neutral-100 dark:border-neutral-800 pt-4">
+                <div class="ios-title-card">
+                    <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center justify-center uppercase tracking-wider font-semibold mb-1"><i data-lucide="book-open" class="w-3.5 h-3.5 mr-1.5 text-orange-500"></i> ชื่อโครงงาน</p>
                     <p id="headerProjectName" class="project-title-text project-title-glow">-</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 sm:gap-4 mt-1">
-                    <div class="bg-neutral-50 dark:bg-neutral-900/60 p-3 sm:p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex flex-col justify-center items-center text-center">
-                        <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 mb-1 flex items-center"><i data-lucide="users" class="w-3.5 h-3.5 mr-1.5 text-blue-500"></i> คู่โครงงาน</p>
-                        <p id="headerPartnerName" class="font-medium text-neutral-700 dark:text-white text-xs sm:text-sm truncate">-</p>
-                    </div>
-                    <div class="bg-neutral-50 dark:bg-neutral-900/60 p-3 sm:p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex flex-col justify-center items-center text-center">
-                        <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 mb-1 flex items-center"><i data-lucide="graduation-cap" class="w-3.5 h-3.5 mr-1.5 text-emerald-500"></i> อ.ที่ปรึกษา</p>
-                        <p id="headerAdvisor" class="font-medium text-neutral-700 dark:text-white text-xs sm:text-sm truncate">-</p>
+                    
+                    <div class="ios-badge-container">
+                        <div class="ios-info-badge">
+                            <p class="text-[10px] sm:text-[11px] text-orange-500 dark:text-orange-400 mb-0.5 flex items-center justify-center font-semibold"><i data-lucide="hash" class="w-3 h-3 mr-1"></i> รหัสโครงงาน</p>
+                            <p id="headerProjectId" class="font-bold text-neutral-800 dark:text-white text-xs sm:text-sm">-</p>
+                        </div>
+                        <div class="ios-info-badge">
+                            <p class="text-[10px] sm:text-[11px] text-blue-500 dark:text-blue-400 mb-0.5 flex items-center justify-center font-semibold"><i data-lucide="users" class="w-3 h-3 mr-1"></i> คู่โครงงาน</p>
+                            <p id="headerPartnerName" class="font-medium text-neutral-700 dark:text-neutral-200 text-xs sm:text-sm truncate w-full">-</p>
+                        </div>
+                        <div class="ios-info-badge">
+                            <p class="text-[10px] sm:text-[11px] text-emerald-500 dark:text-emerald-400 mb-0.5 flex items-center justify-center font-semibold"><i data-lucide="graduation-cap" class="w-3 h-3 mr-1"></i> อ.ที่ปรึกษา</p>
+                            <p id="headerAdvisor" class="font-medium text-neutral-700 dark:text-neutral-200 text-xs sm:text-sm truncate w-full">-</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -205,19 +228,19 @@
         
         <div class="lg:col-span-1 space-y-4 sm:space-y-6 flex flex-col">
             <div id="uploadBox" class="glass-panel rounded-3xl p-4 sm:p-6 transition-all duration-500 border-2 border-transparent">
-                <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 border-b border-neutral-200 dark:border-neutral-700 pb-3 flex items-center"><i data-lucide="upload" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-neutral-700 dark:text-neutral-300"></i> ส่งงาน</h2>
+                <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><i data-lucide="upload" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-neutral-700 dark:text-neutral-300"></i> ส่งงาน</h2>
                 <form id="uploadForm" class="space-y-4">
-                    <div><label class="block text-xs sm:text-sm font-semibold mb-1 text-neutral-700 dark:text-neutral-300">ประเภทงาน</label><select id="workType" required class="w-full text-xs sm:text-sm rounded-xl p-2.5 sm:p-3 glass-input outline-none focus:ring-2 focus:ring-orange-500 bg-white/20 dark:bg-neutral-800/50"><option value="">-- เลือกประเภทงาน --</option><option value="โครงร่าง (Proposal)">โครงร่าง (Proposal)</option><option value="รายงานความก้าวหน้า">รายงานความก้าวหน้า</option><option value="รายงานฉบับสมบูรณ์">รายงานฉบับสมบูรณ์</option><option value="แบบคำร้อง">แบบคำร้อง</option></select></div>
+                    <div><label class="block text-xs sm:text-sm font-semibold mb-1 text-neutral-700 dark:text-neutral-300">ประเภทงาน</label><select id="workType" required class="w-full text-xs sm:text-sm rounded-xl p-2.5 sm:p-3 glass-input outline-none focus:ring-2 focus:ring-orange-500 bg-white/20 dark:bg-neutral-900/50"><option value="">-- เลือกประเภทงาน --</option><option value="โครงร่าง (Proposal)">โครงร่าง (Proposal)</option><option value="รายงานความก้าวหน้า">รายงานความก้าวหน้า</option><option value="รายงานฉบับสมบูรณ์">รายงานฉบับสมบูรณ์</option><option value="แบบคำร้อง">แบบคำร้อง</option></select></div>
                     
                     <input type="hidden" id="projectId" required>
 
-                    <div id="lockWarning" class="hidden bg-rose-50 dark:bg-rose-950/30 p-3 rounded-xl border border-rose-100 dark:border-rose-900 text-rose-700 dark:text-rose-400 text-xs sm:text-sm font-medium flex items-center shadow-sm">
+                    <div id="lockWarning" class="hidden bg-rose-50 dark:bg-rose-950/30 p-3 rounded-xl border border-rose-100 dark:border-rose-900/50 text-rose-700 dark:text-rose-400 text-xs sm:text-sm font-medium flex items-center shadow-sm">
                         <i data-lucide="alert-circle" class="w-6 h-6 mr-2 flex-shrink-0"></i> งานนี้ต้องได้รับการแก้ไข กรุณากดปุ่ม "ส่งไฟล์แก้ไข" ที่ประวัติการส่งงานแทน
                     </div>
 
                     <div id="formFieldsContainer" class="space-y-4">
-                        <div class="bg-orange-50 dark:bg-orange-950/20 p-3 sm:p-4 rounded-xl border border-orange-100 dark:border-orange-900/30"><label id="labelFileReport" class="block text-xs sm:text-sm font-bold mb-2 text-orange-800 dark:text-orange-400 flex items-center"><i data-lucide="file" class="w-4 h-4 mr-1"></i> 1. ไฟล์รูปเล่ม (PDF)</label><input type="file" id="fileReport" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-orange-500 file:text-white cursor-pointer hover:file:bg-orange-600 transition-all"></div>
-                        <div id="signatureSection" class="bg-amber-50 dark:bg-amber-950/20 p-3 sm:p-4 rounded-xl border border-amber-100 dark:border-amber-900/30 transition-all duration-300"><label class="block text-xs sm:text-sm font-bold mb-2 text-amber-800 dark:text-amber-400 flex items-center"><i data-lucide="pen-tool" class="w-4 h-4 mr-1"></i> 2. หน้าลายเซ็น (PDF)</label><input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-slate-500 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-amber-500 file:text-white cursor-pointer hover:file:bg-amber-600 transition-all"></div>
+                        <div class="bg-orange-50/50 dark:bg-orange-950/10 p-3 sm:p-4 rounded-xl border border-orange-100/50 dark:border-orange-900/20"><label id="labelFileReport" class="block text-xs sm:text-sm font-bold mb-2 text-orange-800 dark:text-orange-500 flex items-center"><i data-lucide="file" class="w-4 h-4 mr-1"></i> 1. ไฟล์รูปเล่ม (PDF)</label><input type="file" id="fileReport" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-orange-500 file:text-white cursor-pointer hover:file:bg-orange-600 transition-all"></div>
+                        <div id="signatureSection" class="bg-amber-50/50 dark:bg-amber-950/10 p-3 sm:p-4 rounded-xl border border-amber-100/50 dark:border-amber-900/20 transition-all duration-300"><label class="block text-xs sm:text-sm font-bold mb-2 text-amber-800 dark:text-amber-500 flex items-center"><i data-lucide="pen-tool" class="w-4 h-4 mr-1"></i> 2. หน้าลายเซ็น (PDF)</label><input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-neutral-500 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-amber-500 file:text-white cursor-pointer hover:file:bg-amber-600 transition-all"></div>
                         <button type="submit" id="submitBtn" class="w-full btn-liquid bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-3.5 rounded-xl hover:shadow-lg transition-all text-sm flex items-center justify-center"><i data-lucide="send" class="w-4 h-4 mr-2"></i> ส่งงาน</button>
                     </div>
                 </form>
@@ -226,14 +249,14 @@
 
         <div class="lg:col-span-2">
             <div class="glass-panel rounded-3xl p-4 sm:p-6 overflow-hidden">
-                <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 border-b border-neutral-200 dark:border-neutral-700 pb-3 flex items-center"><i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-neutral-700 dark:text-neutral-300"></i> ประวัติการส่งงานของกลุ่ม</h2>
+                <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-neutral-700 dark:text-neutral-300"></i> ประวัติการส่งงานของกลุ่ม</h2>
                 
                 <div id="loadingData" class="text-center py-16 text-sm text-neutral-500 flex flex-col items-center">
                     <svg class="animate-spin h-8 w-8 text-orange-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span class="font-semibold animate-pulse">กำลังซิงค์ข้อมูลจากระบบ...</span>
+                    <span class="font-semibold animate-pulse">กำลังซิงค์ข้อมูล...</span>
                 </div>
 
                 <div class="overflow-x-auto hidden w-full pb-2" id="tableContainer">
@@ -266,7 +289,7 @@
                         <input type="file" id="profilePicInput" accept="image/*" class="hidden" onchange="previewImage(event)">
                     </div>
                     <div><label class="block text-xs font-bold mb-1.5 text-slate-700 dark:text-slate-300 ml-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label><input type="tel" id="profilePhone" required placeholder="0812345678" class="w-full text-sm rounded-xl p-3 glass-input outline-none focus:ring-2 focus:ring-orange-500 bg-white/20 dark:bg-neutral-800/50"></div>
-                    <div class="pt-3 border-t border-slate-100 dark:border-slate-700">
+                    <div class="pt-3 border-t border-slate-100 dark:border-slate-800">
                         <button type="button" onclick="togglePasswordSection()" class="w-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-500 bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center transition-colors py-2 rounded-xl btn-liquid"><i data-lucide="plus" id="pwdToggleIcon" class="w-4 h-4 mr-1.5"></i> เปลี่ยนรหัสผ่านใหม่</button>
                         <div id="passwordSection" class="hidden mt-3 space-y-3">
                             <input type="password" id="oldPassword" placeholder="รหัสผ่านเดิม" class="w-full text-sm rounded-xl p-3 glass-input outline-none focus:ring-2 focus:ring-orange-500 bg-white/20 dark:bg-neutral-800/50">
@@ -274,7 +297,7 @@
                             <input type="password" id="confirmPassword" placeholder="ยืนยันรหัสผ่านใหม่" class="w-full text-sm rounded-xl p-3 glass-input outline-none focus:ring-2 focus:ring-orange-500 bg-white/20 dark:bg-neutral-800/50">
                         </div>
                     </div>
-                    <button type="submit" id="btnSaveProfile" class="w-full btn-liquid bg-slate-800 dark:bg-orange-600 text-white font-bold py-3.5 rounded-xl hover:shadow-lg transition-all mt-4 flex items-center justify-center"><i data-lucide="save" class="w-4 h-4 mr-2"></i> บันทึกการตั้งค่า</button>
+                    <button type="submit" id="btnSaveProfile" class="w-full btn-liquid bg-neutral-800 dark:bg-orange-600 text-white font-bold py-3.5 rounded-xl hover:shadow-lg transition-all mt-4 flex items-center justify-center"><i data-lucide="save" class="w-4 h-4 mr-2"></i> บันทึกการตั้งค่า</button>
                 </form>
             </div>
         </div>
@@ -343,23 +366,22 @@
 
         window.activeRejects = {}; 
 
-        // 🔥 เปิด Popup ยืนยันการอัปโหลดไฟล์แก้ไข โดยลดพื้นที่ว่างด้านบน 🔥
         window.prepareResubmitPopup = async function(type) {
             const isRequest = type === 'แบบคำร้อง';
             const signatureInputHtml = isRequest ? '' : `
-                <div class="text-left mt-3 border-t border-neutral-100 dark:border-neutral-700 pt-2">
-                    <label class="block text-[11px] sm:text-xs font-bold mb-1 text-amber-700 dark:text-amber-400">2. หน้าลายเซ็น (PDF)</label>
-                    <input type="file" id="popupFileSignature" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-amber-500 file:text-white cursor-pointer" required>
+                <div class="text-left mt-3 border-t border-neutral-100 dark:border-neutral-800 pt-3">
+                    <label class="block text-[11px] sm:text-xs font-bold mb-1.5 text-amber-600 dark:text-amber-500">2. หน้าลายเซ็น (PDF)</label>
+                    <input type="file" id="popupFileSignature" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-amber-100 dark:file:bg-amber-900/30 file:text-amber-700 dark:file:text-amber-400 file:font-semibold hover:file:bg-amber-200 transition-colors cursor-pointer" required>
                 </div>
             `;
 
             const { value: formValues } = await Swal.fire({
                 title: '<div class="flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg><span class="text-lg">ส่งไฟล์แก้ไขใหม่</span></div>',
                 html: `
-                    <div class="text-xs text-left font-medium mb-3 text-neutral-500 border-b border-neutral-100 dark:border-neutral-700 pb-2">งานที่ส่งแก้: <span class="text-orange-500 font-bold">${type}</span></div>
-                    <div class="text-left bg-neutral-50 dark:bg-neutral-800 p-3 rounded-xl border border-neutral-100 dark:border-neutral-700">
-                        <label class="block text-[11px] sm:text-xs font-bold mb-1 text-orange-700 dark:text-orange-400">1. ไฟล์รูปเล่ม (PDF)</label>
-                        <input type="file" id="popupFileReport" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-orange-500 file:text-white cursor-pointer" required>
+                    <div class="text-xs text-left font-medium mb-3 text-neutral-500 dark:text-neutral-400 border-b border-neutral-100 dark:border-neutral-800 pb-2">งานที่ส่งแก้: <span class="text-orange-500 font-bold">${type}</span></div>
+                    <div class="text-left bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800">
+                        <label class="block text-[11px] sm:text-xs font-bold mb-1.5 text-orange-600 dark:text-orange-500">1. ไฟล์รูปเล่ม (PDF)</label>
+                        <input type="file" id="popupFileReport" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-orange-100 dark:file:bg-orange-900/30 file:text-orange-700 dark:file:text-orange-400 file:font-semibold hover:file:bg-orange-200 transition-colors cursor-pointer" required>
                         ${signatureInputHtml}
                     </div>
                 `,
@@ -368,9 +390,9 @@
                 cancelButtonText: 'ยกเลิก',
                 buttonsStyling: false,
                 customClass: { 
-                    popup: 'rounded-[1.25rem] w-[90%] max-w-sm border border-neutral-100 dark:border-neutral-700',
-                    confirmButton: 'bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg text-sm mr-2 shadow-sm',
-                    cancelButton: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300 font-bold py-2 px-4 rounded-lg text-sm shadow-sm'
+                    popup: 'rounded-[1.5rem] w-[90%] max-w-sm border border-neutral-100 dark:border-neutral-800',
+                    confirmButton: 'bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg text-sm mr-2 shadow-sm transition-colors',
+                    cancelButton: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 font-bold py-2 px-4 rounded-lg text-sm shadow-sm transition-colors'
                 },
                 didOpen: () => { lucide.createIcons(); },
                 preConfirm: () => {
@@ -387,7 +409,7 @@
                     title: 'กำลังอัปโหลด...',
                     allowOutsideClick: false,
                     didOpen: () => { Swal.showLoading(); },
-                    customClass: { popup: 'rounded-[1.25rem]' }
+                    customClass: { popup: 'rounded-[1.5rem]' }
                 });
 
                 try {
@@ -406,14 +428,14 @@
                     const result = await res.json();
                     
                     if (result.status === 'success') {
-                        Swal.fire({ icon: 'success', title: 'ส่งงานแก้ไขสำเร็จ!', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-[1.25rem]' } }).then(() => {
+                        Swal.fire({ icon: 'success', title: 'ส่งงานแก้ไขสำเร็จ!', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-[1.5rem]' } }).then(() => {
                             document.getElementById('tableContainer').classList.add('hidden');
                             document.getElementById('loadingData').style.display = 'flex';
                             loadData(); 
                         });
                     } else throw new Error(result.message);
                 } catch (err) {
-                    Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message, customClass: { popup: 'rounded-[1.25rem]' } });
+                    Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message, customClass: { popup: 'rounded-[1.5rem]' } });
                 }
             }
         };
@@ -429,13 +451,11 @@
                     if (myProject && myProject['รหัสโครงงาน']) {
                         pid = (myProject['รหัสโครงงาน']||"").toString().trim();
                         
-                        // 🔥 ระบบค้นหาคอลัมน์ชื่อโครงงานแบบครอบจักรวาล (ดึงจากคอลัมน์ R ก่อนเป็นหลัก) 🔥
                         let projectNameTH = "-";
                         let keys = Object.keys(myProject);
                         if (keys.length > 17 && myProject[keys[17]]) {
-                            projectNameTH = myProject[keys[17]]; // ดึงคอลัมน์ที่ 18 (Index 17 = คอลัมน์ R) ก่อนเสมอ
+                            projectNameTH = myProject[keys[17]]; 
                         } else {
-                            // ถ้าคอลัมน์ R ว่าง ให้ลองหาจากชื่อคอลัมน์
                             for (let key in myProject) {
                                 let cleanKey = key.toString().replace(/\s+/g, '').toLowerCase();
                                 if ((cleanKey.includes('ชื่อโครงงาน') || cleanKey.includes('projectname')) && !cleanKey.includes('รหัส')) {
@@ -445,18 +465,11 @@
                             }
                         }
 
-                        // แสดงผลชื่อโครงงานแบบเต็มจอ
                         document.getElementById('headerProjectName').innerText = projectNameTH;
                         document.getElementById('headerProjectName').title = projectNameTH; 
                         
-                        // 🟢 แสดงป้าย Badge รหัสโครงงานข้างชื่อจริงนักเรียน 🟢
-                        document.getElementById('headerTopProjectId').innerText = pid;
-                        document.getElementById('badgeProjectId').classList.remove('hidden');
-                        document.getElementById('badgeProjectId').classList.add('flex');
-                        
-                        // เอา Input รหัสโครงงานตรงฟอร์มออกไปเก็บเป็น hidden แทนแล้ว ให้ Value ไว้เพื่อใช้อัปโหลด
                         document.getElementById('projectId').value = pid;
-                        
+                        document.getElementById('headerProjectId').innerText = pid; 
                         document.getElementById('headerAdvisor').innerText = myProject['อ. ที่ปรึกษา TH'] || "-";
                         document.getElementById('profilePhone').value = (myProject['เบอร์โทรศัพท์'] || "").replace(/'/g, ''); 
                         const partner = window.allProjects.find(p => p && (p['รหัสโครงงาน']||"").toString().trim() === pid && (p['รหัสนักเรียน']||"").toString().trim() !== studentId.trim());
@@ -538,7 +551,6 @@
             } catch (err) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message, confirmButtonColor: '#f97316' }); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 mr-2"></i> บันทึกการตั้งค่า'; lucide.createIcons(); }
         });
 
-        // 🔥 ตรวจสอบการล็อกฟอร์มเมื่อเลือกประเภทงาน 🔥
         document.getElementById('workType').addEventListener('change', (e) => {
             const selectedType = e.target.value;
             const labelFileReport = document.getElementById('labelFileReport');
@@ -548,7 +560,6 @@
             const formFieldsContainer = document.getElementById('formFieldsContainer');
             const lockWarning = document.getElementById('lockWarning');
             
-            // 🔒 บังคับล็อกฟอร์มซ้ายมือถ้ารายการนี้มีสถานะแก้ไขค้างอยู่ 🔒
             if (selectedType && window.activeRejects[selectedType]) {
                 formFieldsContainer.classList.add('form-locked');
                 lockWarning.classList.remove('hidden');
@@ -570,7 +581,6 @@
             }
             lucide.createIcons();
             
-            // เช็คว่ามีเพื่อนในกลุ่มส่งงานที่กำลังรอตรวจอยู่หรือไม่ (เตือนเฉยๆ ไม่ล็อก)
             if(selectedType && window.mySubmissions) {
                 const existingSub = window.mySubmissions.find(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === selectedType && (s['สถานะ'] || s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)']) === 'รออนุมัติ');
                 if(existingSub) {
@@ -595,7 +605,7 @@
             });
             
             let trackers = {};
-            window.activeRejects = {}; // เคลียร์สถานะล็อก
+            window.activeRejects = {}; 
             
             let processedSubs = sortedSubs.map(s => {
                 let workType = (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ').toString().trim();
@@ -623,7 +633,7 @@
                     trackers[workType].lastRejectReason = reason;
                     trackers[workType].lastRejectTime = s['Timestamp'];
                     trackers[workType].isResubmit = true;
-                    window.activeRejects[workType] = true; // ล็อกฟอร์มฝั่งซ้าย
+                    window.activeRejects[workType] = true; 
                     newSub._displayStatus = 'ไม่อนุมัติ';
                     newSub._isResubmit = false;
                 } else if (parsedStatus === 'รออนุมัติ') {
@@ -632,7 +642,7 @@
                         newSub._isResubmit = true;
                         newSub._oldReason = trackers[workType].lastRejectReason;
                         newSub._oldRejectTime = trackers[workType].lastRejectTime;
-                        window.activeRejects[workType] = false; // ปลดล็อกฟอร์มฝั่งซ้ายเมื่อส่งแก้แล้ว
+                        window.activeRejects[workType] = false; 
                     } else {
                         newSub._displayStatus = 'รออนุมัติ';
                         newSub._isResubmit = false;
@@ -648,7 +658,6 @@
                 return newSub;
             });
 
-            // อัปเดตสถานะล็อกของฟอร์มทันที
             document.getElementById('workType').dispatchEvent(new Event('change'));
 
             const mySubs = processedSubs.reverse(); 
@@ -662,12 +671,10 @@
                     let statusText = "รออนุมัติ";
                     let resubmitBtn = '';
 
-                    // 🛠️ กำหนดป้ายสถานะและปุ่ม 🛠️
                     if (s._displayStatus === 'ส่งแก้ไขแล้ว') {
                         statusClass = "bg-blue-50 text-blue-700 border border-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800";
                         statusIcon = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0"></i>';
                         statusText = "ส่งแก้ไขแล้ว (รอตรวจ)";
-                        // ❌ ไม่โชว์ปุ่มส่งแก้ซ้ำ
                     } else if (s._displayStatus === 'อนุมัติ') {
                         statusClass = "bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700"; 
                         statusIcon = '<i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0"></i>';
@@ -676,7 +683,6 @@
                         statusClass = "bg-rose-50 text-rose-700 border border-rose-100 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-700"; 
                         statusIcon = '<i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0"></i>';
                         statusText = "ไม่อนุมัติ (ต้องแก้ไข)";
-                        // ✅ โชว์ปุ่มส่งแก้แค่เฉพาะรายการที่กำลัง "ไม่อนุมัติ" และเป็นใบบนสุดของประเภทนั้น
                         if (window.activeRejects[s._workType]) {
                             resubmitBtn = `<button onclick="prepareResubmitPopup('${s._workType}')" class="mt-2.5 w-full text-[10px] sm:text-[11px] text-white bg-rose-500 hover:bg-rose-600 px-3 py-2 rounded-lg flex items-center justify-center transition-colors shadow-sm font-semibold"><i data-lucide="upload-cloud" class="w-3.5 h-3.5 mr-1.5"></i> ส่งไฟล์แก้ไข</button>`;
                         }
@@ -688,7 +694,7 @@
                     let submitterTag = isMe ? `<span class="text-orange-600 font-semibold">(คุณเป็นผู้ส่ง)</span>` : `<span class="text-amber-600 font-semibold">(ส่งโดย ${cleanFirstName} ${cleanLastName})</span>`;
 
                     let signatureButton = s._workType === 'แบบคำร้อง' ? '' : `<a href="${s['URL ลายเซ็น']}" target="_blank" class="btn-liquid text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg text-[10px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i> หน้าลายเซ็น</a>`;
-                    let fileReportLabel = s._workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
+                    let fileReportLabel = workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
                     
                     let reasonHtml = '';
                     if (s._displayStatus === 'ไม่อนุมัติ' && s._reason) {
@@ -726,9 +732,7 @@
 
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            // ตรวจสอบว่าฟอร์มถูกล็อกโดยสถานะ "ต้องแก้ไข" ในตารางหรือไม่
             if (document.getElementById('formFieldsContainer').classList.contains('form-locked')) {
-                // แจ้งเตือนถ้าผู้ใช้พยายามกดส่งงานทั้งที่โดนล็อก
                 Swal.fire({
                     icon: 'error',
                     title: 'งานนี้ต้องได้รับการแก้ไข!',
