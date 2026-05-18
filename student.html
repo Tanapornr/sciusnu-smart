@@ -28,10 +28,11 @@
         }
         .dark body { background-color: #0d0d0d; color: #f3f4f6; }
         
+        /* ❌ ตัด Scrollbar ทิ้งออกจากระบบถาวร ❌ */
         ::-webkit-scrollbar { display: none !important; }
         html, body { -ms-overflow-style: none; scrollbar-width: none; }
 
-        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
         .dark .glass-panel { background: rgba(24, 24, 27, 0.75); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); }
         
         .btn-liquid { position: relative; overflow: hidden; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;}
@@ -71,7 +72,7 @@
         .ios-card {
             background-color: #ffffff;
             border-radius: 20px;
-            padding: 1.2rem;
+            padding: 1rem 1.2rem;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01);
             position: relative;
             overflow: hidden;
@@ -84,25 +85,8 @@
         .project-title-glow { background: linear-gradient(135deg, #ea580c, #db2777); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; line-height: 1.6; }
         .dark .project-title-glow { background: linear-gradient(135deg, #fb923c, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        /* 🔥 สไตล์ปุ่ม Choose File แบบใหม่ 🔥 */
-        input[type="file"] {
-            font-family: 'Prompt', sans-serif;
-            font-size: 0.75rem;
-            color: #64748b;
-        }
-        input[type="file"]::file-selector-button {
-            border: none;
-            background: #f97316;
-            padding: 0.4rem 1rem;
-            border-radius: 9999px;
-            color: white;
-            cursor: pointer;
-            transition: background .2s ease-in-out;
-            font-weight: 700;
-            font-size: 0.75rem;
-            margin-right: 0.75rem;
-            box-shadow: 0 2px 4px rgba(249, 115, 22, 0.2);
-        }
+        input[type="file"] { font-family: 'Prompt', sans-serif; font-size: 0.75rem; color: #64748b; }
+        input[type="file"]::file-selector-button { border: none; background: #f97316; padding: 0.4rem 1rem; border-radius: 9999px; color: white; cursor: pointer; transition: background .2s ease-in-out; font-weight: 700; font-size: 0.75rem; margin-right: 0.75rem; box-shadow: 0 2px 4px rgba(249, 115, 22, 0.2); }
         input[type="file"]::file-selector-button:hover { background: #ea580c; }
         .dark input[type="file"]::file-selector-button { background: #ea580c; }
         .dark input[type="file"]::file-selector-button:hover { background: #c2410c; }
@@ -152,22 +136,38 @@
         </div>
         
         <div id="headerProjectInfo" class="mt-3 sm:mt-5 hidden border-t border-neutral-100 dark:border-neutral-800 pt-4 sm:pt-5 pb-1 max-w-7xl mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                <div class="ios-card md:col-span-2 text-left items-start p-4 sm:p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                
+                <div class="ios-card sm:col-span-2 md:col-span-4 text-left items-start p-4 sm:p-5">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-orange-400 to-pink-500"></div>
                     <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-1.5 ml-2"><i data-lucide="book-open" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 text-orange-500 opacity-90"></i> ชื่อโครงงานวิจัย</p>
                     <p id="headerProjectName" class="project-title-glow text-sm sm:text-base w-full px-2 whitespace-normal break-words" title="-">-</p>
                 </div>
-                <div class="ios-card text-left items-start p-4 sm:p-5">
+
+                <div class="ios-card text-left items-start p-3 sm:p-4">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-400"></div>
                     <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-1.5 ml-2"><i data-lucide="users" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 text-blue-500 opacity-90"></i> คู่โครงงาน</p>
-                    <p id="headerPartnerName" class="font-bold text-neutral-700 dark:text-neutral-200 text-xs sm:text-sm truncate w-full px-2">-</p>
+                    <p id="headerPartnerName" class="font-bold text-neutral-700 dark:text-neutral-200 text-[11px] sm:text-xs truncate w-full px-2">-</p>
                 </div>
-                <div class="ios-card text-left items-start p-4 sm:p-5">
+
+                <div class="ios-card text-left items-start p-3 sm:p-4">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-emerald-400"></div>
-                    <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-1.5 ml-2"><i data-lucide="graduation-cap" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 text-emerald-500 opacity-90"></i> อาจารย์ที่ปรึกษาหลัก</p>
-                    <p id="headerAdvisor" class="font-bold text-neutral-700 dark:text-neutral-200 text-xs sm:text-sm truncate w-full px-2">-</p>
+                    <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-1.5 ml-2"><i data-lucide="graduation-cap" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 text-emerald-500 opacity-90"></i> อ.ที่ปรึกษาหลัก</p>
+                    <p id="headerAdvisor" class="font-bold text-neutral-700 dark:text-neutral-200 text-[11px] sm:text-xs truncate w-full px-2">-</p>
                 </div>
+
+                <div class="ios-card text-left items-start p-3 sm:p-4">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-purple-400"></div>
+                    <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-1.5 ml-2"><i data-lucide="user-plus" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 text-purple-500 opacity-90"></i> อ.ที่ปรึกษาร่วม</p>
+                    <p id="headerCoAdvisor" class="font-bold text-neutral-700 dark:text-neutral-200 text-[11px] sm:text-xs truncate w-full px-2">-</p>
+                </div>
+
+                <div class="ios-card text-left items-start p-3 sm:p-4">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-teal-400"></div>
+                    <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-1.5 ml-2"><i data-lucide="school" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 text-teal-500 opacity-90"></i> อ.โรงเรียน</p>
+                    <p id="headerSchoolAdvisor" class="font-bold text-neutral-700 dark:text-neutral-200 text-[11px] sm:text-xs truncate w-full px-2">-</p>
+                </div>
+
             </div>
         </div>
     </header>
@@ -176,11 +176,11 @@
         
         <div class="lg:col-span-1 space-y-4 sm:space-y-6 flex flex-col">
             <div id="uploadBox" class="glass-panel rounded-3xl sm:rounded-[2rem] p-4 sm:p-6 transition-all duration-500 border border-transparent shadow-sm">
-                <h2 class="text-sm sm:text-base font-bold text-neutral-800 dark:text-white mb-3 sm:mb-4 border-b border-neutral-100 dark:border-neutral-800 pb-2.5 sm:pb-3 flex items-center"><i data-lucide="upload-cloud" class="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-orange-500"></i> อัปโหลดส่งงาน</h2>
-                <form id="uploadForm" class="space-y-3.5">
+                <h2 class="text-sm sm:text-base font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-2.5 sm:pb-3.5 flex items-center"><i data-lucide="upload-cloud" class="w-4.5 h-4.5 sm:w-5 sm:h-5 mr-2 text-orange-500"></i> อัปโหลดส่งงาน</h2>
+                <form id="uploadForm" class="space-y-4">
                     <div>
-                        <label class="block text-[10px] sm:text-xs font-semibold mb-1 text-neutral-600 dark:text-neutral-400 ml-1">ประเภทงาน <span class="text-rose-500">*</span></label>
-                        <select id="workType" required class="w-full text-[11px] sm:text-sm rounded-xl p-2.5 glass-input outline-none focus:ring-2 focus:ring-orange-400">
+                        <label class="block text-[11px] sm:text-xs font-semibold mb-1.5 text-neutral-600 dark:text-neutral-400 ml-1">ประเภทงาน <span class="text-rose-500">*</span></label>
+                        <select id="workType" required class="w-full text-xs sm:text-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 glass-input outline-none focus:ring-2 focus:ring-orange-400">
                             <option value="">-- กรุณาเลือก --</option>
                             <option value="โครงร่าง (Proposal)">โครงร่าง (Proposal)</option>
                             <option value="รายงานความก้าวหน้า">รายงานความก้าวหน้า</option>
@@ -191,17 +191,17 @@
                     
                     <input type="hidden" id="projectId" required>
 
-                    <div id="lockWarning" class="hidden bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-100 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-[9px] sm:text-[11px] font-medium flex items-start shadow-sm">
-                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 flex-shrink-0 mt-0.5 text-rose-500"></i>
+                    <div id="lockWarning" class="hidden bg-rose-50 dark:bg-rose-950/40 p-3 rounded-xl border border-rose-100 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-[10px] sm:text-xs font-medium flex items-start shadow-sm">
+                        <i data-lucide="alert-triangle" class="w-4 h-4 sm:w-4.5 sm:h-4.5 mr-2 flex-shrink-0 mt-0.5 text-rose-500"></i>
                         <span>งานนี้ต้องแก้ไข กรุณากดปุ่ม <b>"ส่งไฟล์แก้ไข"</b> ที่ตารางประวัติส่งงานแทนครับ</span>
                     </div>
 
-                    <div id="formFieldsContainer" class="space-y-3">
-                        <div class="bg-orange-50/50 dark:bg-orange-950/20 p-2.5 sm:p-3 rounded-xl border border-orange-100/80 dark:border-orange-900/30">
-                            <label id="labelFileReport" class="block text-[10px] sm:text-[11px] font-bold mb-1.5 text-orange-800 dark:text-orange-400 flex items-center ml-0.5"><i data-lucide="file-text" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ไฟล์แนบ (PDF)</label>
-                            <input type="file" id="fileReport" accept="application/pdf" required class="w-full text-xs text-neutral-500 cursor-pointer outline-none pl-1">
+                    <div id="formFieldsContainer" class="space-y-3.5">
+                        <div class="bg-orange-50/50 dark:bg-orange-950/20 p-3 sm:p-4 rounded-xl border border-orange-100/80 dark:border-orange-900/30">
+                            <label id="labelFileReport" class="block text-[10px] sm:text-xs font-bold mb-2 text-orange-800 dark:text-orange-400 flex items-center ml-0.5"><i data-lucide="file-text" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 opacity-80"></i> ไฟล์แนบ (PDF)</label>
+                            <input type="file" id="fileReport" accept="application/pdf" required class="w-full text-[9px] sm:text-[10px] text-neutral-500 cursor-pointer outline-none">
                         </div>
-                        <button type="submit" id="submitBtn" class="w-full btn-liquid bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-2.5 rounded-xl hover:shadow-md transition-all text-xs sm:text-sm flex items-center justify-center tracking-wide"><i data-lucide="send" class="w-3.5 h-3.5 mr-1.5"></i> กดส่งข้อมูล</button>
+                        <button type="submit" id="submitBtn" class="w-full btn-liquid bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-2.5 sm:py-3 rounded-xl sm:rounded-2xl hover:shadow-md transition-all text-xs sm:text-sm flex items-center justify-center mt-1 tracking-wide"><i data-lucide="send" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5"></i> กดส่งข้อมูล</button>
                     </div>
                 </form>
             </div>
@@ -216,7 +216,7 @@
                     <span class="font-medium tracking-wide">กำลังซิงค์ข้อมูลล่าสุด...</span>
                 </div>
 
-                <div class="overflow-x-auto hidden w-full pb-2" id="tableContainer">
+                <div class="overflow-x-auto hidden w-full pb-4" id="tableContainer">
                     <table class="w-full text-left border-separate">
                         <thead class="bg-transparent text-[9px] sm:text-[10px] text-neutral-400">
                             <tr>
@@ -327,7 +327,6 @@
             return '<div class="font-medium text-neutral-800 dark:text-neutral-200">' + d.toLocaleDateString('th-TH') + '</div><div class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</div>';
         }
 
-        // 🔥 เปิด Popup ยืนยันการอัปโหลดไฟล์แก้ไข ตัดหน้าลายเซ็นออก 🔥
         window.prepareResubmitPopup = async function(type) {
             const { value: formValues } = await Swal.fire({
                 title: '<div class="flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg><span class="text-base sm:text-lg font-bold">ส่งไฟล์แก้ไขใหม่</span></div>',
@@ -367,10 +366,10 @@
                     const pid = document.getElementById('projectId').value.trim();
                     const f1 = await toBase64(formValues.rFile);
 
-                    const uploader = window.allProjects.find(x => x['รหัสนักเรียน'] == studentId);
+                    const uploader = window.allProjects.find(x => getVal(x, ['รหัสนักเรียน', 'studentid']) == studentId);
                     const payload = { 
-                        studentId: studentId, firstName: uploader ? uploader['ชื่อ'] : "", lastName: uploader ? uploader['นามสกุล'] : "", 
-                        projectId: pid, workType: type, advisorName: (window.allProjects[0] ? window.allProjects[0]['อ. ที่ปรึกษา TH'] : ""), 
+                        studentId: studentId, firstName: uploader ? getVal(uploader, ['ชื่อ']) : "", lastName: uploader ? getVal(uploader, ['นามสกุล']) : "", 
+                        projectId: pid, workType: type, advisorName: (window.allProjects[0] ? getVal(window.allProjects[0], ['อ.ที่ปรึกษาหลัก', 'อ.ที่ปรึกษาth']) : ""), 
                         file1Data: f1.data, file1Mime: f1.mime, file2Data: "", file2Mime: "" 
                     };
                     const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); 
@@ -389,7 +388,7 @@
             }
         };
 
-        // ฟังก์ชันช่วยเหลือสำหรับหาข้อมูล
+        // ฟังก์ชันช่วยเหลือสำหรับหาข้อมูล (แก้บั๊กชื่อคอลัมน์)
         function getVal(obj, keywords) {
             for (let key in obj) {
                 let lowerKey = key.replace(/\s+/g, '').toLowerCase();
@@ -427,7 +426,11 @@
                         
                         document.getElementById('projectId').value = pid;
                         
-                        document.getElementById('headerAdvisor').innerText = getVal(myProject, ['อ.ที่ปรึกษาหลัก', 'mainadvisor', 'อ.ที่ปรึกษา th']) || "-";
+                        // 🔥 ดึงชื่ออาจารย์มาแสดงครบ 3 คนให้สวยงาม 🔥
+                        document.getElementById('headerAdvisor').innerText = getVal(myProject, ['อ.ที่ปรึกษาหลัก', 'อ.ที่ปรึกษาth', 'mainadvisor']) || "-";
+                        document.getElementById('headerCoAdvisor').innerText = getVal(myProject, ['อ.ที่ปรึกษาร่วม', 'coadvisor']) || "-";
+                        document.getElementById('headerSchoolAdvisor').innerText = getVal(myProject, ['อ.ที่ปรึกษาโรงเรียน', 'schooladvisor']) || "-";
+
                         document.getElementById('profilePhone').value = getVal(myProject, ['เบอร์โทร', 'phone']).replace(/'/g, ''); 
                         
                         const partner = window.allProjects.find(p => p && getVal(p, ['รหัสโครงงาน', 'projectid']) === pid && getVal(p, ['รหัสนักเรียน', 'studentid']) !== studentId.trim());
