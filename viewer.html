@@ -27,14 +27,13 @@
         }
         .dark body { background-color: #0d0d0d; color: #f3f4f6; }
         
-        /* สไตล์ Glass */
         .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
         .dark .glass-panel { background: rgba(24, 24, 27, 0.75); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); }
         
-        .btn-liquid { position: relative; overflow: hidden; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .btn-liquid { position: relative; overflow: hidden; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .btn-liquid:active { transform: scale(0.96); opacity: 0.9; }
 
-        /* สไตล์ตารางให้เหมือนการ์ด iOS */
+        /* ตารางสไตล์การ์ด iOS */
         #allWorksTableBody tr, #overviewTableBody tr {
             background-color: #ffffff;
             border-radius: 16px;
@@ -48,10 +47,9 @@
         #allWorksTableBody tr:hover, #overviewTableBody tr:hover { transform: scale(1.01); }
 
         table { border-spacing: 0 0.5rem !important; border-collapse: separate; }
-        .dark table th { color: #d4d4d4 !important; }
-        .dark table td { color: #f5f5f5 !important; border-color: rgba(255,255,255,0.05); }
+        .dark table th { color: #d4d4d4 !important; border-color: rgba(255,255,255,0.08); }
+        .dark table td { color: #f5f5f5 !important; }
 
-        /* การปรับแต่ง Popup (Swal2) */
         .swal2-shown { overflow: hidden !important; }
         .swal2-popup { background: #ffffff !important; border-radius: 1.5rem !important; border: none !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important; padding: 1.5rem !important; }
         .dark .swal2-popup { background: #1f2937 !important; border: 1px solid rgba(255,255,255,0.05) !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important; }
@@ -67,13 +65,13 @@
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-4 mt-1">
             <div class="flex items-center gap-4">
                 <div>
-                    <h1 class="text-lg sm:text-xl font-extrabold text-neutral-800 dark:text-white flex items-center tracking-wide"><i data-lucide="eye" class="w-5 h-5 mr-2 text-cyan-500"></i> ศูนย์ติดตามโครงงาน (Viewer)</h1>
+                    <h1 class="text-lg sm:text-xl font-extrabold text-neutral-800 dark:text-white flex items-center tracking-wide"><i data-lucide="eye" class="w-5 h-5 mr-2 text-cyan-500"></i> ศูนย์ติดตามโครงงาน</h1>
                     <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-0.5 flex items-center font-medium"><i data-lucide="user" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ผู้ประเมิน/ที่ปรึกษา: <span id="displayViewerName" class="font-bold text-cyan-600 dark:text-cyan-400 ml-1"></span></p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="toggleTheme()" class="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2.5 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-transparent dark:border-neutral-700"><i data-lucide="moon" class="w-4.5 h-4.5 dark:hidden"></i><i data-lucide="sun" class="w-4.5 h-4.5 hidden dark:block text-orange-400"></i></button>
-                <button onclick="logout()" class="text-xs sm:text-sm text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-950/30 px-4 py-2 rounded-full border border-rose-100 dark:border-rose-900/50 flex items-center btn-liquid"><i data-lucide="log-out" class="w-3.5 h-3.5 mr-1.5 opacity-90"></i> <span class="hidden sm:inline">ออกจากระบบ</span></button>
+                <button onclick="logout()" class="text-xs sm:text-sm text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-950/30 px-4 py-2 rounded-full border border-rose-100 dark:border-rose-900/50 flex items-center btn-liquid"><i data-lucide="log-out" class="w-3.5 h-3.5 mr-1.5 opacity-90"></i> ออกระบบ</button>
             </div>
         </div>
     </nav>
@@ -81,10 +79,7 @@
     <div class="max-w-7xl mx-auto mt-4 sm:mt-8 px-3 sm:px-4 space-y-4 sm:space-y-6">
 
         <div id="loadingData" class="text-center py-20 text-sm text-neutral-500 flex flex-col items-center glass-panel rounded-[2rem]">
-            <svg class="animate-spin h-10 w-10 text-cyan-500 mb-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
+            <svg class="animate-spin h-10 w-10 text-cyan-500 mb-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             <span class="font-medium tracking-wide">กำลังโหลดข้อมูลกลุ่มของคุณ...</span>
         </div>
 
@@ -92,18 +87,17 @@
             <i data-lucide="info" class="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 flex-shrink-0 mt-0.5"></i>
             <div class="flex-grow">
                 <p class="text-sm sm:text-base text-blue-800 dark:text-blue-300 font-bold mb-1">สิทธิ์การเข้าถึงข้อมูล (Read-Only)</p>
-                <p class="text-xs sm:text-sm text-blue-700/80 dark:text-blue-200/80">ระบบแสดงเฉพาะรายชื่อกลุ่มโครงงานที่คุณรับผิดชอบมาแสดงเท่านั้น คุณสามารถติดตามสถานะความคืบหน้าของนักเรียนได้ <span class="font-bold underline">แต่จะไม่สามารถดาวน์โหลดหรือดูไฟล์ของนักเรียนได้ครับ</span></p>
+                <p class="text-xs sm:text-sm text-blue-700/80 dark:text-blue-200/80">ระบบแสดงเฉพาะรายชื่อกลุ่มโครงงานที่คุณรับผิดชอบมาแสดงเท่านั้น คุณสามารถติดตามสถานะความคืบหน้าของนักเรียนได้ <span class="font-bold underline">แต่ระบบจะสงวนสิทธิ์การดาวน์โหลดหรือดูไฟล์ของนักเรียนไว้</span></p>
             </div>
         </div>
 
         <div id="overviewSection" class="glass-panel rounded-[2rem] p-5 sm:p-7 hidden relative overflow-hidden">
             <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><i data-lucide="bar-chart-2" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-cyan-500"></i> ภาพรวมสถานะโครงงานของกลุ่มที่คุณดูแล</h2>
-            
             <div class="overflow-x-auto w-full pb-4">
                 <table class="w-full text-left">
                     <thead class="text-[10px] sm:text-xs">
                         <tr>
-                            <th class="px-4 py-3 font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider min-w-[250px]">ชื่อโครงงาน / รหัสโครงงาน</th>
+                            <th class="px-4 py-3 font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider min-w-[250px]">รหัสโครงงาน / ชื่อโครงงาน</th>
                             <th class="px-4 py-3 font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider min-w-[200px]">นักเรียนในกลุ่ม</th>
                             <th class="px-4 py-3 text-center font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">โครงร่าง</th>
                             <th class="px-4 py-3 text-center font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">ความก้าวหน้า</th>
@@ -116,14 +110,14 @@
         </div>
 
         <div id="allWorksSection" class="glass-panel rounded-[2rem] p-5 sm:p-7 hidden relative overflow-hidden">
-            <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><i data-lucide="folder-open" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-indigo-500"></i> ประวัติการส่งงานและข้อความ</h2>
+            <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><i data-lucide="folder-open" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-indigo-500"></i> ประวัติการส่งงานทั้งหมดของกลุ่ม</h2>
             
             <div class="overflow-x-auto w-full pb-4">
                 <table class="w-full text-left">
                     <thead class="text-[10px] sm:text-xs">
                         <tr>
                             <th class="px-3 py-3 font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">วันที่ส่ง</th>
-                            <th class="px-3 py-3 font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider min-w-[200px]">ข้อมูลผู้ส่ง</th>
+                            <th class="px-3 py-3 font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider min-w-[200px]">ข้อมูลนักเรียน</th>
                             <th class="px-3 py-3 font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">ประเภทงาน</th>
                             <th class="px-3 py-3 text-left font-semibold text-neutral-500 dark:text-neutral-400 min-w-[150px] uppercase tracking-wider">หมายเหตุ</th>
                             <th class="px-3 py-3 text-center font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">สถานะ</th>
@@ -149,74 +143,50 @@
         const userEmail = localStorage.getItem('userEmail') || "";
         const currentUserRole = localStorage.getItem('userRole'); 
 
-        // ตรวจสอบสิทธิ์ว่าล็อกอินมาจริงๆ
         if (!currentUserRole) { window.location.href = 'index.html'; }
         document.getElementById('displayViewerName').innerText = viewerName;
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
-        // ฟังก์ชันสร้าง URL รูปภาพ
         function getProcessedImgUrl(url, studentName) {
             if (!url || url === "-") return `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=f0f0f0&color=1a1a1a`;
-            if (url.includes('drive.google.com')) { 
-                const match = url.match(/[-\w]{25,}/); 
-                if (match) return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`; 
-            }
+            if (url.includes('drive.google.com')) { const match = url.match(/[-\w]{25,}/); if (match) return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`; }
             return url;
         }
 
-        // จัดรูปแบบวันเวลา
         function formatDateTime(rawStr) {
-            if (!rawStr) return "-"; 
-            let d = new Date(rawStr);
+            if (!rawStr) return "-"; let d = new Date(rawStr);
             if (isNaN(d.getTime())) return rawStr;
             return '<div class="font-medium text-neutral-800 dark:text-neutral-200">' + d.toLocaleDateString('th-TH') + '</div><div class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</div>';
         }
 
-        // 팝อัปแสดงข้อมูลนักเรียน สไตล์ iOS X
-        window.viewStudentPopup = function(name, id, phone, picUrl) {
+        function viewStudentPopup(name, id, phone, picUrl) {
             Swal.fire({
-                html: `
-                <div class="text-center pt-2">
-                    <img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-cyan-50 dark:border-neutral-800 shadow-md bg-white" loading="lazy">
-                    <h3 class="text-lg sm:text-xl font-bold text-neutral-800 dark:text-white leading-tight">${name}</h3>
-                    <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mb-5 mt-1 font-medium">รหัสประจำตัว: ${id}</p>
-                    <div class="bg-cyan-50 dark:bg-neutral-900/50 rounded-2xl p-3 sm:p-4 inline-block w-full max-w-[200px] border border-cyan-100 dark:border-neutral-800">
-                        <p class="text-[10px] sm:text-xs text-cyan-600 dark:text-cyan-400 mb-1 font-bold uppercase flex items-center justify-center"><i data-lucide="phone" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> เบอร์โทรติดต่อ</p>
-                        <p class="text-base sm:text-lg font-bold text-cyan-800 dark:text-white tracking-wide">${phone || 'ไม่มีข้อมูล'}</p>
-                    </div>
-                </div>`,
-                showConfirmButton: true, confirmButtonText: 'ปิดหน้าต่าง', buttonsStyling: false, 
-                customClass: { popup: 'rounded-[2rem] p-4 sm:p-6 border border-neutral-100 dark:border-neutral-800 shadow-2xl', confirmButton: 'bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-3 px-8 rounded-full mt-4 hover:bg-neutral-900 transition-colors text-sm' }, 
-                backdrop: `rgba(0, 0, 0, 0.4)`, didOpen: () => { lucide.createIcons(); }
+                html: `<div class="text-center pt-2"><img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-cyan-50 dark:border-neutral-800 shadow-md bg-white" loading="lazy"><h3 class="text-lg sm:text-xl font-bold text-neutral-800 dark:text-white leading-tight">${name}</h3><p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mb-5 mt-1 font-medium">รหัสประจำตัว: ${id}</p><div class="bg-cyan-50 dark:bg-neutral-900/50 rounded-2xl p-3 sm:p-4 inline-block w-full max-w-[200px] border border-cyan-100 dark:border-neutral-800"><p class="text-[10px] sm:text-xs text-cyan-600 dark:text-cyan-400 mb-1 font-bold uppercase flex items-center justify-center"><i data-lucide="phone" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> เบอร์โทรติดต่อ</p><p class="text-base sm:text-lg font-bold text-cyan-800 dark:text-white tracking-wide">${phone || 'ไม่มีข้อมูล'}</p></div></div>`,
+                showConfirmButton: true, confirmButtonText: 'ปิดหน้าต่าง', buttonsStyling: false, customClass: { popup: 'rounded-[2rem] p-4 sm:p-6 border border-neutral-100 dark:border-neutral-800 shadow-2xl', confirmButton: 'bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-3 px-8 rounded-full mt-4 hover:bg-neutral-900 transition-colors text-sm' }, backdrop: `rgba(0, 0, 0, 0.4)`, didOpen: () => { lucide.createIcons(); }
             });
         }
 
         window.myAssignedProjects = []; 
         window.myAssignedSubmissions = [];
 
-        // 🔥 โหลดและกรองข้อมูลหลัก 🔥
         async function loadDashboard() {
             try {
-                const response = await fetch(API_URL); 
-                const data = await response.json();
-                
+                const response = await fetch(API_URL); const data = await response.json();
                 if (data.status === 'success') {
                     const allP = data.projects || []; 
                     const allS = data.submissions || [];
                     
-                    // แจ้งเตือนสิทธิ์การดูไฟล์
                     if (currentUserRole !== 'admin') {
                         document.getElementById('permissionWarning').classList.remove('hidden');
                     }
 
-                    // 🔴 กรองข้อมูล ให้แสดงเฉพาะงานของกลุ่มอาจารย์ 🔴
+                    // 🔴 กรองให้เห็นเฉพาะกลุ่มของตัวเอง โดยไม่ต้องมีช่องค้นหา 🔴
                     if (currentUserRole === 'admin') {
                         window.myAssignedProjects = allP;
                         window.myAssignedSubmissions = allS;
                     } else {
-                        // ปรับการกรองอีเมลให้มีความยืดหยุ่นขึ้น (ป้องกันการพิมพ์ใหญ่เล็กและเว้นวรรค)
-                        const searchEmail = userEmail.trim().toLowerCase();
+                        const searchEmail = userEmail.toLowerCase().trim();
                         
                         window.myAssignedProjects = allP.filter(p => {
                             let coAdv = (p['อีเมล อ.ที่ปรึกษาร่วม'] || "").toString().trim().toLowerCase();
@@ -224,36 +194,26 @@
                             return (coAdv === searchEmail || schAdv === searchEmail);
                         });
 
-                        // ดึงรหัสโปรเจกต์ที่เป็นของตัวเองออกมา
                         const myProjIds = [...new Set(window.myAssignedProjects.map(p => p['รหัสโครงงาน']).filter(id => id))];
                         
-                        // กรองประวัติการส่งงาน เฉพาะที่มีรหัสโปรเจกต์ตรงกัน
                         window.myAssignedSubmissions = allS.filter(s => {
                             let pid = (s['รหัสโครงงาน'] || "").toString().trim();
                             return myProjIds.includes(pid);
                         });
                     }
                     
-                    // ดึงรหัสโปรเจกต์แบบไม่ซ้ำ สำหรับสร้างตาราง Overview
                     const allProjectIds = [...new Set(window.myAssignedProjects.map(p => p['รหัสโครงงาน']).filter(id => id && id.toString().trim() !== ""))];
 
-                    // นำข้อมูลไปสร้างตาราง
                     renderOverviewTable(allProjectIds, window.myAssignedSubmissions); 
                     renderAllWorksTable(window.myAssignedSubmissions.slice().reverse()); 
                     
-                    // ปิดหน้าจอโหลด แสดงตาราง
                     document.getElementById('loadingData').style.display = 'none'; 
                     document.getElementById('overviewSection').classList.remove('hidden'); 
                     document.getElementById('allWorksSection').classList.remove('hidden');
                 }
-            } catch (error) { 
-                console.error("Error loading data:", error);
-                document.getElementById('loadingData').innerHTML = `<div class="text-rose-600 flex flex-col items-center gap-3"><i data-lucide="x-octagon" class="w-10 h-10"></i><span class="font-bold text-base">❌ โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรชหน้าเว็บ</span></div>`; 
-                lucide.createIcons(); 
-            }
+            } catch (error) { document.getElementById('loadingData').innerHTML = `<div class="text-rose-600 flex flex-col items-center gap-3"><i data-lucide="x-octagon" class="w-10 h-10"></i><span class="font-bold text-base">❌ โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรชหน้าเว็บ</span></div>`; lucide.createIcons(); }
         }
 
-        // สร้าง HTML รายชื่อนักเรียนพร้อมเบอร์โทรและรูป
         function generateStudentInfoHtml(submission) {
             let targetProjId = (submission['รหัสโครงงาน'] || "").toString().replace(/\s/g, '').toLowerCase(); 
             let targetStuId = (submission['รหัสนักเรียน'] || "").toString().replace(/\s/g, '').toLowerCase(); 
@@ -271,19 +231,14 @@
                 let rowProjId = (window.myAssignedProjects[i]['รหัสโครงงาน'] || "").toString().replace(/\s/g, '').toLowerCase();
                 let rowStuId = (window.myAssignedProjects[i]['รหัสนักเรียน'] || "").toString().replace(/\s/g, '').toLowerCase();
                 let isMatch = false;
-                
-                if (targetProjId !== "" && rowProjId === targetProjId) isMatch = true; 
-                else if (targetStuId !== "" && rowStuId === targetStuId) isMatch = true;
-                
+                if (targetProjId !== "" && rowProjId === targetProjId) isMatch = true; else if (targetStuId !== "" && rowStuId === targetStuId) isMatch = true;
                 if (isMatch && rowStuId !== "") {
                     let originalStuId = (window.myAssignedProjects[i]['รหัสนักเรียน'] || "").toString().trim();
-                    let fName = (window.myAssignedProjects[i]['ชื่อ'] || "").toString().trim();
-                    let lName = (window.myAssignedProjects[i]['นามสกุล'] || "").toString().trim();
                     if (!groupMembers.find(m => m.id === originalStuId)) {
                         groupMembers.push({
-                            id: originalStuId, firstName: fName, lastName: lName,
+                            id: originalStuId, firstName: (window.myAssignedProjects[i]['ชื่อ'] || "").toString().trim(), lastName: (window.myAssignedProjects[i]['นามสกุล'] || "").toString().trim(),
                             phone: (window.myAssignedProjects[i]['เบอร์โทรศัพท์'] || "").toString().replace(/'/g, ''),
-                            picUrl: getProcessedImgUrl(window.myAssignedProjects[i]['รูปโปรไฟล์'], fName)
+                            picUrl: getProcessedImgUrl((window.myAssignedProjects[i]['รูปโปรไฟล์'] || "").toString().trim(), (window.myAssignedProjects[i]['ชื่อ'] || "").toString().trim())
                         });
                     }
                 }
@@ -293,7 +248,7 @@
                 let isSender = (m.id.toLowerCase() === targetStuId);
                 let senderTag = isSender ? ' <span class="bg-cyan-500 text-white px-1.5 py-0.5 rounded-lg text-[8px] sm:text-[9px] font-bold ml-1">ผู้ส่ง</span>' : '';
                 return `
-                <button type="button" onclick="window.viewStudentPopup('${m.firstName} ${m.lastName}', '${m.id}', '${m.phone}', '${m.picUrl}')" class="w-full text-left flex items-center gap-2.5 mt-2 bg-neutral-50 dark:bg-neutral-800/60 hover:bg-neutral-100 dark:hover:bg-neutral-700/80 p-2 sm:p-2.5 rounded-2xl border border-neutral-100 dark:border-neutral-700 transition-colors btn-liquid">
+                <button type="button" onclick="viewStudentPopup('${m.firstName} ${m.lastName}', '${m.id}', '${m.phone}', '${m.picUrl}')" class="w-full text-left flex items-center gap-2.5 mt-2 bg-neutral-50 dark:bg-neutral-800/60 hover:bg-neutral-100 dark:hover:bg-neutral-700/80 p-2 sm:p-2.5 rounded-2xl border border-neutral-100 dark:border-neutral-700 transition-colors btn-liquid">
                     <img src="${m.picUrl}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-neutral-600 shadow-sm bg-white" loading="lazy">
                     <div class="flex flex-col leading-tight overflow-hidden"><p class="text-[10px] sm:text-xs font-bold text-neutral-700 dark:text-neutral-200 truncate">${m.id} ${m.firstName} ${m.lastName}${senderTag}</p></div>
                 </button>`;
@@ -302,7 +257,7 @@
             return `<div><span class="font-extrabold text-neutral-800 dark:text-white bg-neutral-100 dark:bg-neutral-800 px-2.5 py-1 rounded-md border border-neutral-200 dark:border-neutral-700 text-[10px] sm:text-xs shadow-sm"><i data-lucide="hash" class="w-3 h-3 inline-block mr-0.5 text-cyan-600"></i> ${submission['รหัสโครงงาน'] || '-'}</span>${memberHtml}</div>`;
         }
 
-        // 🔥 ตาราง 1: ภาพรวมสถานะ 🔥
+        // 1. ตารางภาพรวม (Overview)
         function renderOverviewTable(projectIds, submissions) {
             const tbody = document.getElementById('overviewTableBody'); tbody.innerHTML = '';
             if (projectIds.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 sm:py-16 text-center text-neutral-500 font-medium">ไม่มีข้อมูลโครงงานที่ท่านดูแล</td></tr>'; return; }
@@ -314,7 +269,6 @@
                 if(members.length > 0) {
                     let pData = members[0];
                     let keys = Object.keys(pData);
-                    // ดึงคอลัมน์ชื่อโครงงาน
                     if (keys.length > 17 && pData[keys[17]]) {
                         projectNameTH = pData[keys[17]]; 
                     } else {
@@ -336,36 +290,31 @@
 
                 const memberHtml = members.map(m => {
                     const pic = getProcessedImgUrl(m['รูปโปรไฟล์'], m['ชื่อ']);
-                    return `<button type="button" onclick="window.viewStudentPopup('${m['ชื่อ']} ${m['นามสกุล']}', '${m['รหัสนักเรียน']}', '${m['เบอร์โทรศัพท์'] ? m['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2.5 mb-2.5 bg-neutral-50 dark:bg-neutral-800/60 p-2 sm:p-2.5 rounded-2xl border border-neutral-100 dark:border-neutral-700 btn-liquid transition-colors"><img src="${pic}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-neutral-600 shadow-sm bg-white" loading="lazy"><div class="flex flex-col leading-tight overflow-hidden"><span class="text-[10px] sm:text-[11px] text-neutral-700 dark:text-neutral-200 font-bold truncate">${m['รหัสนักเรียน']}</span><span class="text-[9px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 font-medium truncate mt-0.5">${m['ชื่อ']} ${m['นามสกุล']}</span></div></button>`;
+                    return `<button type="button" onclick="viewStudentPopup('${m['ชื่อ']} ${m['นามสกุล']}', '${m['รหัสนักเรียน']}', '${m['เบอร์โทรศัพท์'] ? m['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2.5 mb-2.5 bg-neutral-50 dark:bg-neutral-800/60 p-2 sm:p-2.5 rounded-2xl border border-neutral-100 dark:border-neutral-700 btn-liquid transition-colors"><img src="${pic}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-neutral-600 shadow-sm bg-white" loading="lazy"><div class="flex flex-col leading-tight overflow-hidden"><span class="text-[10px] sm:text-[11px] text-neutral-700 dark:text-neutral-200 font-bold truncate">${m['รหัสนักเรียน']}</span><span class="text-[9px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 font-medium truncate mt-0.5">${m['ชื่อ']} ${m['นามสกุล']}</span></div></button>`;
                 }).join('');
-                
-                const memberIds = members.map(m => m['รหัสนักเรียน']); 
-                const projectSubs = submissions.filter(s => s && (s['รหัสโครงงาน'] == pid || memberIds.includes(s['รหัสนักเรียน'])));
+                const memberIds = members.map(m => m['รหัสนักเรียน']); const projectSubs = submissions.filter(s => s && (s['รหัสโครงงาน'] == pid || memberIds.includes(s['รหัสนักเรียน'])));
                 
                 const getStatusBadge = (workType) => {
                     const subs = projectSubs.filter(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === workType);
                     if (subs.length === 0) return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-400 opacity-70 border border-neutral-200 dark:border-neutral-700">➖ ยังไม่ส่ง</span>`;
-                    
                     const status = subs[subs.length - 1]['สถานะ'] || subs[subs.length - 1]['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'];
                     if (status === 'อนุมัติ') return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-900/60 shadow-sm"><i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> อนุมัติ</span>`;
                     if (status === 'ไม่อนุมัติ') return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 flex items-center justify-center border border-rose-100 dark:border-rose-900/60 shadow-sm"><i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ต้องแก้ไข</span>`;
-                    
                     return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center border border-amber-100 dark:border-amber-900/60 shadow-sm"><i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> รอตรวจ</span>`;
                 };
 
                 const tr = document.createElement('tr'); 
-                // ซ่อนคอลัมน์ไฟล์แนบออกแล้ว 100% มีแค่ 5 td
+                // ซ่อนคอลัมน์ไฟล์ออกแล้ว 100%
                 tr.innerHTML = `<td class="px-4 py-5 align-top">${projectTitleHtml}</td><td class="px-3 py-4 align-top">${memberHtml}</td><td class="px-2 py-5 align-top text-center">${getStatusBadge('โครงร่าง (Proposal)')}</td><td class="px-2 py-5 align-top text-center">${getStatusBadge('รายงานความก้าวหน้า')}</td><td class="px-2 py-5 align-top text-center">${getStatusBadge('รายงานฉบับสมบูรณ์')}</td>`;
                 tbody.appendChild(tr);
             });
             lucide.createIcons();
         }
 
-        // 🔥 ตาราง 2: ประวัติทั้งหมด 🔥
+        // 2. ตารางประวัติการทำงาน (History) - ตัดปุ่มดูไฟล์ทิ้ง 100%
         function renderAllWorksTable(works) {
             const tbody = document.getElementById('allWorksTableBody'); tbody.innerHTML = '';
             if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-16 text-center text-neutral-500 font-medium">ยังไม่มีประวัติการส่งงานจากกลุ่มที่ดูแล</td></tr>'; return; }
-            
             works.forEach(item => {
                 const workType = item['ประเภทงาน'] || item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
                 const status = item['สถานะ'] || item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] || 'รออนุมัติ';
@@ -377,7 +326,7 @@
 
                 let badge = status === 'อนุมัติ' ? `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 shadow-sm flex items-center justify-center border border-emerald-100 dark:border-emerald-900/60"><i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>อนุมัติแล้ว</span>` : status === 'ไม่อนุมัติ' ? `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 shadow-sm flex items-center justify-center border border-rose-100 dark:border-rose-900/60"><i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>ไม่อนุมัติ</span>` : `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 shadow-sm flex items-center justify-center border border-amber-100 dark:border-amber-900/60"><i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>รอตรวจ</span>`;
                 
-                // 🔴 นำคอลัมน์ไฟล์แนบทิ้งทั้งหมด (เหลือแค่ 5 <td> ตามที่พี่หนึ่งขอครับ) 🔴
+                // 🔴 คอลัมน์ไฟล์แนบถูกตัดทิ้งแล้ว มีแค่ 5 <td> 🔴
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="px-3 py-5 align-middle opacity-80">${formatDateTime(item['Timestamp'])}</td>
@@ -391,7 +340,6 @@
             lucide.createIcons();
         }
 
-        // เริ่มรันระบบดึงข้อมูล
         loadDashboard();
     </script>
 </body>
