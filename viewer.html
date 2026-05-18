@@ -28,6 +28,10 @@
         }
         .dark body { background-color: #0d0d0d; color: #f3f4f6; }
         
+        /* ❌ ตัด Scrollbar ทิ้งออกจากระบบถาวร ❌ */
+        ::-webkit-scrollbar { display: none !important; }
+        html, body { -ms-overflow-style: none; scrollbar-width: none; }
+
         .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
         .dark .glass-panel { background: rgba(24, 24, 27, 0.75); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); }
         
@@ -51,10 +55,6 @@
         }
         #allWorksTableBody tr:hover, #overviewTableBody tr:hover { transform: scale(1.005); }
 
-        /* ❌ ตัดสกอร์บาร์ทิ้งออกจากระบบถาวร ❌ */
-        ::-webkit-scrollbar { display: none !important; }
-        html, body { -ms-overflow-style: none; scrollbar-width: none; }
-
         .swal2-shown { overflow: hidden !important; }
         .swal2-popup { background: #ffffff !important; border-radius: 1.5rem !important; border: none !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important; padding: 1.5rem !important; }
         .dark .swal2-popup { background: #1f2937 !important; border: 1px solid rgba(255,255,255,0.05) !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important; }
@@ -75,7 +75,7 @@
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-4 mt-1">
             <div class="flex items-center gap-4">
                 <div>
-                    <h1 class="text-lg sm:text-xl font-extrabold text-neutral-800 dark:text-white flex items-center tracking-wide"><i data-lucide="eye" class="w-5 h-5 mr-2 text-cyan-500"></i> ศูนย์ติดตามโครงงาน (Viewer)</h1>
+                    <h1 class="text-lg sm:text-xl font-extrabold text-neutral-800 dark:text-white flex items-center tracking-wide"><i data-lucide="eye" class="w-5 h-5 mr-2 text-cyan-500"></i> ศูนย์ติดตามโครงงาน</h1>
                     <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-0.5 flex items-center font-medium"><i data-lucide="user" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ผู้ประเมิน/ที่ปรึกษา: <span id="displayViewerName" class="font-bold text-cyan-600 dark:text-cyan-400 ml-1"></span></p>
                 </div>
             </div>
@@ -86,10 +86,13 @@
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto mt-4 sm:mt-6 px-3 sm:px-4 space-y-4 sm:space-y-6">
+    <div class="max-w-7xl mx-auto mt-4 sm:mt-8 px-3 sm:px-4 space-y-4 sm:space-y-6">
 
         <div id="loadingData" class="text-center py-20 text-sm text-neutral-500 flex flex-col items-center glass-panel rounded-[2rem]">
-            <svg class="animate-spin h-10 w-10 text-cyan-500 mb-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <svg class="animate-spin h-10 w-10 text-cyan-500 mb-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
             <span class="font-medium tracking-wide">กำลังโหลดข้อมูลกลุ่มของคุณ...</span>
         </div>
 
@@ -97,18 +100,18 @@
             <i data-lucide="info" class="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 flex-shrink-0 mt-0.5"></i>
             <div class="flex-grow">
                 <p class="text-sm sm:text-base text-blue-800 dark:text-blue-300 font-bold mb-1">สิทธิ์การเข้าถึงข้อมูล (Read-Only)</p>
-                <p class="text-xs sm:text-sm text-blue-700/80 dark:text-blue-200/80">ระบบได้กรองรายชื่อกลุ่มโครงงานที่คุณรับผิดชอบมาแสดงโดยเฉพาะ คุณสามารถติดตามสถานะความคืบหน้าได้ <span class="font-bold underline">แต่ระบบจะสงวนสิทธิ์การดาวน์โหลดหรือดูไฟล์เนื้อหาไว้ครับ</span></p>
+                <p class="text-xs sm:text-sm text-blue-700/80 dark:text-blue-200/80">ระบบได้กรองเฉพาะรายชื่อกลุ่มโครงงานที่คุณรับผิดชอบมาแสดงเท่านั้น คุณสามารถติดตามสถานะความคืบหน้าของนักเรียนได้ <span class="font-bold underline">แต่ระบบจะสงวนสิทธิ์การดาวน์โหลดไฟล์เนื้อหาไว้ครับ</span></p>
             </div>
         </div>
 
         <div id="overviewSection" class="glass-panel rounded-[2rem] p-4 sm:p-7 hidden relative overflow-hidden">
-            <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><i data-lucide="bar-chart-2" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-cyan-500"></i> ภาพรวมสถานะโครงงานของกลุ่มที่คุณดูแล</h2>
+            <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><i data-lucide="bar-chart-2" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-cyan-500"></i> ภาพรวมสถานะโครงงาน</h2>
             <div class="overflow-x-auto w-full pb-2">
                 <table class="w-full text-left">
                     <thead class="text-[10px] sm:text-xs text-neutral-500">
                         <tr>
                             <th class="px-3 py-3 font-semibold uppercase tracking-wider min-w-[250px]">รหัสโครงงาน / ชื่อโครงงาน</th>
-                            <th class="px-3 py-3 font-semibold uppercase tracking-wider min-w-[200px]">นักเรียนในกลุ่ม</th>
+                            <th class="px-3 py-3 font-semibold uppercase tracking-wider min-w-[200px]">รายชื่อนักเรียนในกลุ่ม</th>
                             <th class="px-2 py-3 text-center font-semibold uppercase tracking-wider">โครงร่าง</th>
                             <th class="px-2 py-3 text-center font-semibold uppercase tracking-wider">ความก้าวหน้า</th>
                             <th class="px-2 py-3 text-center font-semibold uppercase tracking-wider">ฉบับสมบูรณ์</th>
@@ -120,15 +123,15 @@
         </div>
 
         <div id="allWorksSection" class="glass-panel rounded-[2rem] p-4 sm:p-7 hidden relative overflow-hidden">
-            <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><i data-lucide="folder-open" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-indigo-500"></i> ประวัติการส่งงานทั้งหมดของกลุ่ม</h2>
+            <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><i data-lucide="folder-open" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-indigo-500"></i> ประวัติการส่งงานทั้งหมด</h2>
             <div class="overflow-x-auto w-full pb-2">
                 <table class="w-full text-left">
                     <thead class="text-[10px] sm:text-xs text-neutral-500">
                         <tr>
                             <th class="px-3 py-3 font-semibold uppercase tracking-wider">วันที่ส่ง</th>
-                            <th class="px-3 py-3 font-semibold uppercase tracking-wider min-w-[200px]">ข้อมูลนักเรียน</th>
+                            <th class="px-3 py-3 font-semibold uppercase tracking-wider min-w-[200px]">ข้อมูลผู้ส่งและกลุ่ม</th>
                             <th class="px-3 py-3 font-semibold uppercase tracking-wider">ประเภทงาน</th>
-                            <th class="px-3 py-3 text-left font-semibold uppercase tracking-wider min-w-[150px]">หมายเหตุ</th>
+                            <th class="px-3 py-3 text-left font-semibold uppercase tracking-wider min-w-[150px]">หมายเหตุจากอาจารย์</th>
                             <th class="px-3 py-3 text-center font-semibold uppercase tracking-wider">สถานะ</th>
                         </tr>
                     </thead>
@@ -139,63 +142,28 @@
     </div>
 
     <script>
-        // ฟังก์ชันช่วยดึงค่าคุณสมบัติแบบยืดหยุ่น ป้องกันชื่อคอลัมน์จากชีตรวน
-        function getProjectID(obj) {
-            if (!obj) return "";
-            for (let k in obj) {
-                let nk = k.replace(/\s+/g, '').toLowerCase();
-                if (nk === 'รหัสโครงงาน' || nk === 'projectid' || nk === 'รหัสโปรเจกต์') return obj[k].toString().trim();
-            }
-            for (let k in obj) {
-                if (k.includes('รหัสโครงงาน') || k.toLowerCase().includes('projectid')) return obj[k].toString().trim();
-            }
-            return "";
+        // ใส่ลิงก์ Web App ตรงนี้
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxvlQjACPTdbvpF7TuK4ye2gmjrBu83a26_nAoHqkoIULD1RiuFt9J-RxmnkcCUBjySaw/exec';
+        
+        lucide.createIcons();
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) { html.classList.remove('dark'); localStorage.theme = 'light'; } 
+            else { html.classList.add('dark'); localStorage.theme = 'dark'; }
         }
 
-        function getStudentID(obj) {
-            if (!obj) return "";
-            for (let k in obj) {
-                let nk = k.replace(/\s+/g, '').toLowerCase();
-                if (nk === 'รหัสนักเรียน' || nk === 'studentid' || nk === 'รหัสประจำตัว') return obj[k].toString().trim();
-            }
-            for (let k in obj) {
-                let nk = k.replace(/\s+/g, '').toLowerCase();
-                if ((nk.includes('รหัสนักเรียน') || nk.includes('studentid') || nk.includes('รหัสประจำตัว')) && !nk.includes('อาจารย์') && !nk.includes('ครู')) return obj[k].toString().trim();
-            }
-            return "";
-        }
+        const viewerName = localStorage.getItem('userName') || "ผู้ประเมินโครงงาน"; 
+        const userEmail = localStorage.getItem('userEmail') || "";
+        const currentUserRole = localStorage.getItem('userRole'); 
 
-        function getStudentFName(obj) { return obj ? (obj['ชื่อ'] || obj['ชื่อจริง'] || obj['firstname'] || obj['Name'] || "") : ""; }
-        function getStudentLName(obj) { return obj ? (obj['นามสกุล'] || obj['lastname'] || "") : ""; }
+        // เตะออกถ้ายืนยันตัวตนไม่ผ่าน
+        if (!currentUserRole) { window.location.href = 'index.html'; }
+        document.getElementById('displayViewerName').innerText = viewerName;
 
-        function getProjectName(obj) {
-            if (!obj) return "";
-            let keys = Object.keys(obj);
-            if (keys.length > 17 && obj[keys[17]]) return obj[keys[17]].toString().trim();
-            for (let k in obj) {
-                if (k.includes('ชื่อโครงงาน') || k.toLowerCase().includes('projectname')) return obj[k].toString().trim();
-            }
-            return "";
-        }
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
-        function getStudentPhone(obj) {
-            if (!obj) return "";
-            for (let k in obj) {
-                let nk = k.replace(/\s+/g, '').toLowerCase();
-                if (nk.includes('เบอร์โทร') || nk.includes('phone') || nk.includes('ติดต่อ')) return obj[k].toString().trim().replace(/'/g, '');
-            }
-            return "";
-        }
-
-        function getStudentPic(obj) {
-            if (!obj) return "";
-            for (let k in obj) {
-                let nk = k.replace(/\s+/g, '').toLowerCase();
-                if (nk.includes('รูปโปรไฟล์') || nk.includes('รูปถ่าย') || nk.includes('profilepic') || nk.includes('รูป')) return obj[k].toString().trim();
-            }
-            return "";
-        }
-
+        // ดึงและแปลง URL ของรูปภาพให้แสดงผลเร็วขึ้น
         function getProcessedImgUrl(url, studentName) {
             if (!url || url === "-" || url === "") return `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=f0f0f0&color=1a1a1a`;
             if (url.includes('drive.google.com')) { 
@@ -205,6 +173,7 @@
             return url;
         }
 
+        // ฟอร์แมตเวลา
         function formatDateTime(rawStr) {
             if (!rawStr) return "-"; let d = new Date(rawStr);
             if (isNaN(d.getTime())) return rawStr;
@@ -220,14 +189,28 @@
             });
         }
 
+        window.allProjectsRaw = []; // เก็บตัวดิบทั้งหมด
         window.myAssignedProjects = []; 
         window.myAssignedSubmissions = [];
 
+        // ฟังก์ชันช่วยหาข้อมูลให้เจอแน่นอน ไม่ว่าคอลัมน์ชื่ออะไร
+        function getVal(obj, keywords) {
+            for (let key in obj) {
+                let lowerKey = key.replace(/\s+/g, '').toLowerCase();
+                for (let word of keywords) {
+                    if (lowerKey.includes(word)) return obj[key].toString().trim();
+                }
+            }
+            return "";
+        }
+
         async function loadDashboard() {
             try {
-                const response = await fetch(API_URL); const data = await response.json();
+                const response = await fetch(API_URL); 
+                const data = await response.json();
+                
                 if (data.status === 'success') {
-                    const allP = data.projects || []; 
+                    window.allProjectsRaw = data.projects || []; 
                     const allS = data.submissions || [];
                     
                     if (currentUserRole !== 'admin') {
@@ -237,30 +220,36 @@
                     const searchEmail = userEmail.toLowerCase().trim();
                     
                     if (currentUserRole === 'admin') {
-                        window.myAssignedProjects = allP;
+                        window.myAssignedProjects = window.allProjectsRaw;
                         window.myAssignedSubmissions = allS;
                     } else {
-                        // 1. ค้นหารหัสโครงงานทั้งหมดที่มีอีเมลของอาจารย์ท่านนี้ระบุอยู่
+                        // 1. ค้นหารหัสโครงงานทั้งหมดที่อาจารย์คนนี้มีเอี่ยว (เช็คทุกช่องเผื่อเหนียว)
                         let myProjectIds = [];
-                        allP.forEach(p => {
-                            let matchesEmail = Object.values(p).some(val => val && val.toString().toLowerCase().trim() === searchEmail);
-                            if (matchesEmail) {
-                                let pid = getProjectID(p);
+                        window.allProjectsRaw.forEach(p => {
+                            let matchEmail = Object.values(p).some(val => val && val.toString().toLowerCase().trim() === searchEmail);
+                            if (matchEmail) {
+                                let pid = getVal(p, ['รหัสโครงงาน', 'projectid', 'รหัสโปรเจกต์']);
                                 if (pid) myProjectIds.push(pid);
                             }
                         });
                         myProjectIds = [...new Set(myProjectIds)];
 
-                        // 2. ดึงเด็กทุกคนในรหัสโครงงานเดียวกันมาแสดงผล (ดึงคู่และเพื่อนร่วมกลุ่มมาทั้งหมด 100%)
-                        window.myAssignedProjects = allP.filter(p => myProjectIds.includes(getProjectID(p)));
+                        // 2. ดึงเด็กทุกคนในรหัสโครงงานนั้นมาแสดง (แก้ปัญหาเพื่อนในกลุ่มไม่ขึ้น)
+                        window.myAssignedProjects = window.allProjectsRaw.filter(p => {
+                            let pid = getVal(p, ['รหัสโครงงาน', 'projectid']);
+                            return myProjectIds.includes(pid);
+                        });
                         
-                        // 3. กรองงานส่งทั้งหมดที่ตรงกับกลุ่มโครงงานที่ได้รับมอบหมาย
-                        window.myAssignedSubmissions = allS.filter(s => myProjectIds.includes(getProjectID(s)));
+                        // 3. กรองงานส่งทั้งหมดที่ตรงกับรหัสโครงงานนั้น
+                        window.myAssignedSubmissions = allS.filter(s => {
+                            let pid = getVal(s, ['รหัสโครงงาน', 'projectid']);
+                            return myProjectIds.includes(pid);
+                        });
                     }
                     
-                    const allProjectIds = [...new Set(window.myAssignedProjects.map(p => getProjectID(p)).filter(id => id !== ""))];
+                    const finalProjIds = [...new Set(window.myAssignedProjects.map(p => getVal(p, ['รหัสโครงงาน'])).filter(id => id !== ""))];
 
-                    renderOverviewTable(allProjectIds, window.myAssignedSubmissions); 
+                    renderOverviewTable(finalProjIds, window.myAssignedSubmissions); 
                     renderAllWorksTable(window.myAssignedSubmissions.slice().reverse()); 
                     
                     document.getElementById('loadingData').style.display = 'none'; 
@@ -268,109 +257,117 @@
                     document.getElementById('allWorksSection').classList.remove('hidden');
                 }
             } catch (error) { 
-                console.error("Error loading:", error);
-                document.getElementById('loadingData').innerHTML = `<div class="text-rose-600 flex flex-col items-center gap-3"><i data-lucide="x-octagon" class="w-10 h-10"></i><span class="font-bold text-base">❌ โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรชหน้าเว็บใหม่</span></div>`; lucide.createIcons();
+                console.error(error);
+                document.getElementById('loadingData').innerHTML = `<div class="text-rose-600 flex flex-col items-center gap-3"><i data-lucide="x-octagon" class="w-10 h-10"></i><span class="font-bold text-base">❌ โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรชหน้าเว็บ</span></div>`; 
+                lucide.createIcons();
             }
         }
 
-        // ฟังก์ชันเจเนอเรตเพื่อนร่วมกลุ่มในประวัติการส่งงาน
         function generateStudentInfoHtml(submission) {
-            let targetProjId = getProjectID(submission).toLowerCase();
-            let targetStuId = getStudentID(submission).toLowerCase();
+            let targetProjId = getVal(submission, ['รหัสโครงงาน', 'projectid']).toLowerCase();
+            let targetStuId = getVal(submission, ['รหัสนักเรียน', 'studentid', 'รหัสประจำตัว']).toLowerCase();
 
             let groupMembers = [];
+            // วนลูปหาข้อมูลนักเรียนทุกคนที่อยู่โปรเจกต์เดียวกับคนที่ส่งงาน
             for (let i = 0; i < window.myAssignedProjects.length; i++) {
-                let rowProjId = getProjectID(window.myAssignedProjects[i]).toLowerCase();
-                let rowStuId = getStudentID(window.myAssignedProjects[i]).toLowerCase();
+                let p = window.myAssignedProjects[i];
+                let rowProjId = getVal(p, ['รหัสโครงงาน']).toLowerCase();
                 
                 if (targetProjId !== "" && rowProjId === targetProjId) {
-                    let stuId = getStudentID(window.myAssignedProjects[i]);
-                    if (!groupMembers.find(m => getStudentID(m) === stuId)) {
-                        groupMembers.push(window.myAssignedProjects[i]);
+                    let stuId = getVal(p, ['รหัสนักเรียน', 'studentid']);
+                    if (!groupMembers.find(m => m.id === stuId)) {
+                        groupMembers.push({
+                            id: stuId,
+                            firstName: getVal(p, ['ชื่อ', 'firstname']),
+                            lastName: getVal(p, ['นามสกุล', 'lastname']),
+                            phone: getVal(p, ['เบอร์โทร', 'phone']).replace(/'/g, ''),
+                            picUrl: getProcessedImgUrl(getVal(p, ['รูปโปรไฟล์', 'pic']), getVal(p, ['ชื่อ', 'firstname']))
+                        });
                     }
                 }
             }
 
             let memberHtml = groupMembers.map(m => {
-                let mId = getStudentID(m);
-                let mFName = getStudentFName(m);
-                let mLName = getStudentLName(m);
-                let mPhone = getStudentPhone(m);
-                let mPic = getProcessedImgUrl(getStudentPic(m), mFName);
-                
-                let isSender = (mId.toLowerCase() === targetStuId);
+                let isSender = (m.id.toLowerCase() === targetStuId);
                 let senderTag = isSender ? ' <span class="bg-cyan-500 text-white px-1.5 py-0.5 rounded-lg text-[8px] sm:text-[9px] font-bold ml-1">ผู้ส่ง</span>' : '';
                 return `
-                <button type="button" onclick="viewStudentPopup('${mFName} ${mLName}', '${mId}', '${mPhone}', '${mPic}')" class="w-full text-left flex items-center gap-2.5 mt-2 bg-neutral-50 dark:bg-neutral-800/60 hover:bg-neutral-100 dark:hover:bg-neutral-700/80 p-2 rounded-xl border border-neutral-100 dark:border-neutral-700 transition-colors btn-liquid">
-                    <img src="${mPic}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-neutral-600 shadow-sm bg-white" loading="lazy">
-                    <div class="flex flex-col leading-tight overflow-hidden"><p class="text-[10px] sm:text-xs font-bold text-neutral-700 dark:text-neutral-200 truncate">${mId} ${mFName} ${mLName}${senderTag}</p></div>
+                <button type="button" onclick="viewStudentPopup('${m.firstName} ${m.lastName}', '${m.id}', '${m.phone}', '${m.picUrl}')" class="w-full text-left flex items-center gap-2.5 mt-2 bg-neutral-50 dark:bg-neutral-800/60 hover:bg-neutral-100 dark:hover:bg-neutral-700/80 p-2 rounded-xl border border-neutral-100 dark:border-neutral-700 transition-colors btn-liquid">
+                    <img src="${m.picUrl}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-neutral-600 shadow-sm bg-white" loading="lazy">
+                    <div class="flex flex-col leading-tight overflow-hidden"><p class="text-[10px] sm:text-xs font-bold text-neutral-700 dark:text-neutral-200 truncate">${m.id} ${m.firstName} ${m.lastName}${senderTag}</p></div>
                 </button>`;
             }).join('');
 
-            return `<div><span class="font-extrabold text-neutral-800 dark:text-white bg-neutral-100 dark:bg-neutral-800 px-2.5 py-1 rounded-md border border-neutral-200 dark:border-neutral-700 text-[10px] sm:text-xs shadow-sm"><i data-lucide="hash" class="w-3 h-3 inline-block mr-0.5 text-cyan-600"></i> ${getProjectID(submission) || '-'}</span>${memberHtml}</div>`;
+            return `<div><span class="font-extrabold text-neutral-800 dark:text-white bg-neutral-100 dark:bg-neutral-800 px-2.5 py-1 rounded-md border border-neutral-200 dark:border-neutral-700 text-[10px] sm:text-xs shadow-sm"><i data-lucide="hash" class="w-3 h-3 inline-block mr-0.5 text-cyan-600"></i> ${getVal(submission, ['รหัสโครงงาน']) || '-'}</span>${memberHtml}</div>`;
         }
 
-        // เรนเดอร์ตารางภาพรวมโครงงาน
+        // 🔥 ตารางที่ 1: ภาพรวมสถานะ 🔥
         function renderOverviewTable(projectIds, submissions) {
             const tbody = document.getElementById('overviewTableBody'); tbody.innerHTML = '';
             if (projectIds.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 text-center text-neutral-500 font-medium">ไม่มีข้อมูลโครงงานที่ท่านดูแล</td></tr>'; return; }
             
             projectIds.forEach(pid => {
-                const members = window.myAssignedProjects.filter(p => getProjectID(p) === pid);
-                let projectNameTH = members.length > 0 ? getProjectName(members[0]) : "-";
+                const members = window.myAssignedProjects.filter(p => getVal(p, ['รหัสโครงงาน']) === pid);
+                let projectNameTH = members.length > 0 ? getVal(members[0], ['ชื่อโครงงาน', 'projectname']) : "-";
+                // ใช้ fallback ไปดึงคอลัมน์ที่ 18 (index 17) ถ้าหาไม่เจอจริงๆ
+                if (!projectNameTH || projectNameTH === "-") {
+                   let keys = Object.keys(members[0]);
+                   if (keys.length > 17) projectNameTH = members[0][keys[17]];
+                }
 
                 let projectTitleHtml = `
                     <div class="flex flex-col items-start gap-1">
                         <div class="font-extrabold text-neutral-800 dark:text-white bg-neutral-100 dark:bg-neutral-800 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-xs sm:text-sm shadow-sm"><span class="text-cyan-600 dark:text-cyan-400">#</span> ${pid}</div>
-                        <div class="text-xs sm:text-sm font-bold text-neutral-700 dark:text-neutral-200 mt-1 pl-1 whitespace-normal break-words w-full" style="max-width:350px;">${projectNameTH}</div>
+                        <div class="text-xs sm:text-sm font-bold text-neutral-700 dark:text-neutral-200 mt-1 pl-1 whitespace-normal break-words w-full" style="max-width:350px; line-height: 1.6;">${projectNameTH}</div>
                     </div>
                 `;
 
                 const memberHtml = members.map(m => {
-                    const mId = getStudentID(m);
-                    const mFName = getStudentFName(m);
-                    const mLName = getStudentLName(m);
-                    const mPhone = getStudentPhone(m);
-                    const pic = getProcessedImgUrl(getStudentPic(m), mFName);
+                    const mId = getVal(m, ['รหัสนักเรียน', 'studentid']);
+                    const mFName = getVal(m, ['ชื่อ', 'firstname']);
+                    const mLName = getVal(m, ['นามสกุล', 'lastname']);
+                    const mPhone = getVal(m, ['เบอร์โทร', 'phone']).replace(/'/g, '');
+                    const pic = getProcessedImgUrl(getVal(m, ['รูปโปรไฟล์']), mFName);
                     return `<button type="button" onclick="viewStudentPopup('${mFName} ${mLName}', '${mId}', '${mPhone}', '${pic}')" class="w-full text-left flex items-center gap-2.5 mb-2.5 bg-neutral-50 dark:bg-neutral-800/60 p-2 sm:p-2.5 rounded-2xl border border-neutral-100 dark:border-neutral-700 btn-liquid transition-colors"><img src="${pic}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-neutral-600 shadow-sm bg-white" loading="lazy"><div class="flex flex-col leading-tight overflow-hidden"><span class="text-[10px] sm:text-[11px] text-neutral-700 dark:text-neutral-200 font-bold truncate">${mId}</span><span class="text-[9px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 font-medium truncate mt-0.5">${mFName} ${mLName}</span></div></button>`;
                 }).join('');
                 
-                const memberIds = members.map(m => getStudentID(m)); 
-                const projectSubs = submissions.filter(s => s && (getProjectID(s) == pid || memberIds.includes(getStudentID(s))));
+                const memberIds = members.map(m => getVal(m, ['รหัสนักเรียน', 'studentid'])); 
+                const projectSubs = submissions.filter(s => s && (getVal(s, ['รหัสโครงงาน']) == pid || memberIds.includes(getVal(s, ['รหัสนักเรียน']))));
                 
                 const getStatusBadge = (workType) => {
-                    const subs = projectSubs.filter(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === workType);
+                    const subs = projectSubs.filter(s => getVal(s, ['ประเภทงาน']) === workType);
                     if (subs.length === 0) return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-400 opacity-70 border border-neutral-200 dark:border-neutral-700">➖ ยังไม่ส่ง</span>`;
-                    const status = subs[subs.length - 1]['สถานะ'] || subs[subs.length - 1]['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'];
-                    if (status === 'อนุมัติ') return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-900/60 shadow-sm"><i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> อนุมัติ</span>`;
-                    if (status === 'ไม่อนุมัติ') return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 flex items-center justify-center border border-rose-100 dark:border-rose-900/60 shadow-sm"><i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ต้องแก้ไข</span>`;
+                    const status = getVal(subs[subs.length - 1], ['สถานะ', 'status']);
+                    if (status.includes('อนุมัติแล้ว') || status === 'อนุมัติ') return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-900/60 shadow-sm"><i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> อนุมัติ</span>`;
+                    if (status.includes('ไม่อนุมัติ')) return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 flex items-center justify-center border border-rose-100 dark:border-rose-900/60 shadow-sm"><i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ต้องแก้ไข</span>`;
                     return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center border border-amber-100 dark:border-amber-900/60 shadow-sm"><i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> รอตรวจ</span>`;
                 };
 
                 const tr = document.createElement('tr'); 
+                // มีแค่ 5 Columns
                 tr.innerHTML = `<td class="px-3 py-4 align-top">${projectTitleHtml}</td><td class="px-3 py-3 align-top">${memberHtml}</td><td class="px-2 py-4 align-top text-center">${getStatusBadge('โครงร่าง (Proposal)')}</td><td class="px-2 py-4 align-top text-center">${getStatusBadge('รายงานความก้าวหน้า')}</td><td class="px-2 py-4 align-top text-center">${getStatusBadge('รายงานฉบับสมบูรณ์')}</td>`;
                 tbody.appendChild(tr);
             });
             lucide.createIcons();
         }
 
-        // เรนเดอร์ตารางประวัติ
+        // 🔥 ตารางที่ 2: ประวัติการส่งทั้งหมด 🔥
         function renderAllWorksTable(works) {
             const tbody = document.getElementById('allWorksTableBody'); tbody.innerHTML = '';
             if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-12 text-center text-neutral-500 font-medium">ยังไม่มีประวัติการส่งงานจากกลุ่มที่ดูแล</td></tr>'; return; }
             
             works.forEach(item => {
-                const workType = item['ประเภทงาน'] || item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
-                const status = item['สถานะ'] || item['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] || 'รออนุมัติ';
-                let reasonKey = Object.keys(item).find(k => String(k).includes('หมายเหตุ') || String(k).includes('เหตุผล'));
-                let reason = (reasonKey && item[reasonKey]) ? item[reasonKey].toString().trim() : '';
+                const workType = getVal(item, ['ประเภทงาน']) || 'ไม่ระบุ';
+                const status = getVal(item, ['สถานะ', 'status']) || 'รออนุมัติ';
+                let reason = getVal(item, ['หมายเหตุ', 'เหตุผล']);
 
                 let reasonHtml = reason ? `<div class="text-[10px] sm:text-[11px] text-rose-700 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl inline-block w-full max-w-[200px] whitespace-normal break-words border border-rose-100 dark:border-rose-900/60 text-left shadow-inner"><div class="font-bold flex items-center mb-1"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 mr-1 text-rose-500"></i> ข้อความอาจารย์:</div>${reason}</div>` : `<span class="text-neutral-300 dark:text-neutral-700">-</span>`;
-                let badge = status === 'อนุมัติ' ? `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 shadow-sm flex items-center justify-center border border-emerald-100 dark:border-emerald-900/60"><i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>อนุมัติแล้ว</span>` : status === 'ไม่อนุมัติ' ? `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 shadow-sm flex items-center justify-center border border-rose-100 dark:border-rose-900/60"><i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>ไม่อนุมัติ</span>` : `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 shadow-sm flex items-center justify-center border border-amber-100 dark:border-amber-900/60"><i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>รอตรวจ</span>`;
+
+                let badge = status.includes('อนุมัติ') && !status.includes('ไม่') ? `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 shadow-sm flex items-center justify-center border border-emerald-100 dark:border-emerald-900/60"><i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>อนุมัติแล้ว</span>` : status.includes('ไม่อนุมัติ') ? `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 shadow-sm flex items-center justify-center border border-rose-100 dark:border-rose-900/60"><i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>ไม่อนุมัติ</span>` : `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 shadow-sm flex items-center justify-center border border-amber-100 dark:border-amber-900/60"><i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>รอตรวจ</span>`;
                 
+                // 🔴 นำปุ่มดาวน์โหลดไฟล์ทิ้งทั้งหมด มีแค่ 5 <td> 🔴
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="px-3 py-4 align-middle opacity-80">${formatDateTime(item['Timestamp'])}</td>
+                    <td class="px-3 py-4 align-middle opacity-80">${formatDateTime(getVal(item, ['timestamp', 'เวลา']))}</td>
                     <td class="px-3 py-3 align-middle">${generateStudentInfoHtml(item)}</td>
                     <td class="px-3 py-4 font-bold text-indigo-700 dark:text-indigo-400 text-[10px] sm:text-sm align-middle leading-tight">${workType}</td>
                     <td class="px-3 py-4 text-left align-middle">${reasonHtml}</td>
