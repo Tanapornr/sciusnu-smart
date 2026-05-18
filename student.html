@@ -147,30 +147,39 @@
                 <div class="ios-card text-left items-start p-3 sm:p-4">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-400"></div>
                     <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-1.5 ml-2"><i data-lucide="users" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 text-blue-500 opacity-90"></i> คู่โครงงาน</p>
-                    <p id="headerPartnerName" class="font-bold text-neutral-700 dark:text-neutral-200 text-[11px] sm:text-xs truncate w-full px-2">-</p>
+                    <div id="headerPartnerName" class="font-bold text-neutral-700 dark:text-neutral-200 text-[11px] sm:text-xs truncate w-full px-2">-</div>
                 </div>
 
                 <div class="ios-card text-left items-start p-3 sm:p-4">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-emerald-400"></div>
                     <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-1.5 ml-2"><i data-lucide="graduation-cap" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 text-emerald-500 opacity-90"></i> อ.ที่ปรึกษาหลัก</p>
-                    <p id="headerAdvisor" class="font-bold text-neutral-700 dark:text-neutral-200 text-[11px] sm:text-xs truncate w-full px-2">-</p>
+                    <div id="headerAdvisor" class="w-full px-2">
+                        <div class="font-bold text-neutral-700 dark:text-neutral-200 text-[11px] sm:text-xs truncate" id="advisorNameText">-</div>
+                        <div class="text-[9px] sm:text-[10px] text-neutral-400 dark:text-neutral-500 truncate mt-0.5" id="advisorEmailText"></div>
+                    </div>
                 </div>
 
                 <div class="ios-card text-left items-start p-3 sm:p-4">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-purple-400"></div>
                     <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-1.5 ml-2"><i data-lucide="user-plus" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 text-purple-500 opacity-90"></i> อ.ที่ปรึกษาร่วม</p>
-                    <p id="headerCoAdvisor" class="font-bold text-neutral-700 dark:text-neutral-200 text-[11px] sm:text-xs truncate w-full px-2">-</p>
+                    <div id="headerCoAdvisor" class="w-full px-2">
+                        <div class="font-bold text-neutral-700 dark:text-neutral-200 text-[11px] sm:text-xs truncate" id="coAdvisorNameText">-</div>
+                        <div class="text-[9px] sm:text-[10px] text-neutral-400 dark:text-neutral-500 truncate mt-0.5" id="coAdvisorEmailText"></div>
+                    </div>
                 </div>
 
                 <div class="ios-card text-left items-start p-3 sm:p-4">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-teal-400"></div>
-                    <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-1.5 ml-2"><i data-lucide="school" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 text-teal-500 opacity-90"></i> อ.โรงเรียน</p>
-                    <p id="headerSchoolAdvisor" class="font-bold text-neutral-700 dark:text-neutral-200 text-[11px] sm:text-xs truncate w-full px-2">-</p>
+                    <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-1.5 ml-2"><i data-lucide="school" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 text-teal-500 opacity-90"></i> อ.ที่ปรึกษาโรงเรียน</p>
+                    <div id="headerSchoolAdvisor" class="w-full px-2">
+                        <div class="font-bold text-neutral-700 dark:text-neutral-200 text-[11px] sm:text-xs truncate" id="schoolAdvisorNameText">-</div>
+                        <div class="text-[9px] sm:text-[10px] text-neutral-400 dark:text-neutral-500 truncate mt-0.5" id="schoolAdvisorEmailText"></div>
+                    </div>
                 </div>
 
             </div>
         </div>
-    </header>
+    </nav>
 
     <div class="max-w-7xl mx-auto mt-4 sm:mt-6 px-3 sm:px-4 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         
@@ -388,7 +397,7 @@
             }
         };
 
-        // ฟังก์ชันช่วยเหลือสำหรับหาข้อมูล (แก้บั๊กชื่อคอลัมน์)
+        // ฟังก์ชันค้นหาคำทั่วไปในอ็อบเจกต์
         function getVal(obj, keywords) {
             for (let key in obj) {
                 let lowerKey = key.replace(/\s+/g, '').toLowerCase();
@@ -397,6 +406,36 @@
                 }
             }
             return "";
+        }
+
+        // 🔥 ฟังก์ชันพิเศษเพื่อแยกดึงเฉพาะ ชื่อ หรือ อีเมล แบบยืดหยุ่น 🔥
+        function getValWithEmail(obj, keywords, getEmail = false) {
+            let foundKey = null;
+            for (let key in obj) {
+                let lowerKey = key.replace(/\s+/g, '').toLowerCase();
+                for (let word of keywords) {
+                    if (lowerKey.includes(word)) {
+                        foundKey = key;
+                        break;
+                    }
+                }
+                if (foundKey) break;
+            }
+
+            if (!foundKey) return "";
+            let fullText = obj[foundKey].toString().trim();
+            if (!fullText) return "";
+
+            // ตรวจสอบว่ามีอีเมลในข้อความหรือไม่ (มองหาเครื่องหมาย < > หรือ รูปแบบ @)
+            let emailMatch = fullText.match(/<([^>]+)>/) || fullText.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
+            
+            if (getEmail) {
+                return emailMatch ? emailMatch[1].trim() : "";
+            } else {
+                // คืนค่าเฉพาะชื่อ โดยตัดส่วนที่เป็นอีเมลออกไป
+                let nameOnly = fullText.replace(/<[^>]+>/g, '').replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g, '').trim();
+                return nameOnly || fullText;
+            }
         }
 
         async function loadData() {
@@ -426,10 +465,47 @@
                         
                         document.getElementById('projectId').value = pid;
                         
-                        // 🔥 ดึงชื่ออาจารย์มาแสดงครบ 3 คนให้สวยงาม 🔥
-                        document.getElementById('headerAdvisor').innerText = getVal(myProject, ['อ.ที่ปรึกษาหลัก', 'อ.ที่ปรึกษาth', 'mainadvisor']) || "-";
-                        document.getElementById('headerCoAdvisor').innerText = getVal(myProject, ['อ.ที่ปรึกษาร่วม', 'coadvisor']) || "-";
-                        document.getElementById('headerSchoolAdvisor').innerText = getVal(myProject, ['อ.ที่ปรึกษาโรงเรียน', 'schooladvisor']) || "-";
+                        // 🔥 ดึงชื่อและอีเมลอาจารย์มาแสดงตามรูปแบบที่ปรับปรุงใหม่ 🔥
+                        
+                        // 1. อ.ที่ปรึกษาหลัก
+                        let mainAdvisorName = getValWithEmail(myProject, ['อ.ที่ปรึกษาหลัก', 'อ.ที่ปรึกษาth', 'mainadvisor'], false);
+                        let mainAdvisorEmail = getValWithEmail(myProject, ['อ.ที่ปรึกษาหลัก', 'อ.ที่ปรึกษาth', 'mainadvisor'], true);
+                        document.getElementById('advisorNameText').innerText = mainAdvisorName || "-";
+                        document.getElementById('advisorEmailText').innerText = mainAdvisorEmail || "";
+
+                        // 2. อ.ที่ปรึกษาร่วม (ดึงคอลัมน์ N หรือคีย์ที่มีคำว่า coadvisor)
+                        let coAdvisorName = "";
+                        let coAdvisorEmail = "";
+                        let keys = Object.keys(myProject);
+                        // เข้าถึงตามตำแหน่งดัชนีคอลัมน์ N (ดัชนีที่ 13) เป็นตัวเลือกแรก ถ้าไม่มีให้ใช้ค้นหาคำตามคีย์
+                        if (keys.length > 13 && keys[13].replace(/\s+/g, '').toLowerCase().includes('ร่วม')) {
+                            let rawCo = myProject[keys[13]].toString().trim();
+                            let emailMatch = rawCo.match(/<([^>]+)>/) || rawCo.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
+                            coAdvisorEmail = emailMatch ? emailMatch[1].trim() : "";
+                            coAdvisorName = rawCo.replace(/<[^>]+>/g, '').replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g, '').trim() || rawCo;
+                        } else {
+                            coAdvisorName = getValWithEmail(myProject, ['อ.ที่ปรึกษาร่วม', 'coadvisor'], false);
+                            coAdvisorEmail = getValWithEmail(myProject, ['อ.ที่ปรึกษาร่วม', 'coadvisor'], true);
+                        }
+                        document.getElementById('coAdvisorNameText').innerText = coAdvisorName || "-";
+                        document.getElementById('coAdvisorEmailText').innerText = coAdvisorEmail || "";
+
+                        // 3. อ.ที่ปรึกษาโรงเรียน (ดึงคอลัมน์ Q หรือคีย์ที่มีคำว่า schooladvisor)
+                        let schoolAdvisorName = "";
+                        let schoolAdvisorEmail = "";
+                        // เข้าถึงตามตำแหน่งดัชนีคอลัมน์ Q (ดัชนีที่ 16) เป็นตัวเลือกแรก ถ้าไม่มีให้ใช้ค้นหาคำตามคีย์
+                        if (keys.length > 16 && keys[16].replace(/\s+/g, '').toLowerCase().includes('โรงเรียน')) {
+                            let rawSchool = myProject[keys[16]].toString().trim();
+                            let emailMatch = rawSchool.match(/<([^>]+)>/) || rawSchool.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
+                            schoolAdvisorEmail = emailMatch ? emailMatch[1].trim() : "";
+                            schoolAdvisorName = rawSchool.replace(/<[^>]+>/g, '').replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g, '').trim() || rawSchool;
+                        } else {
+                            schoolAdvisorName = getValWithEmail(myProject, ['อ.ที่ปรึกษาโรงเรียน', 'อ.โรงเรียน', 'schooladvisor'], false);
+                            schoolAdvisorEmail = getValWithEmail(myProject, ['อ.ที่ปรึกษาโรงเรียน', 'อ.โรงเรียน', 'schooladvisor'], true);
+                        }
+                        document.getElementById('schoolAdvisorNameText').innerText = schoolAdvisorName || "-";
+                        document.getElementById('schoolAdvisorEmailText').innerText = schoolAdvisorEmail || "";
+
 
                         document.getElementById('profilePhone').value = getVal(myProject, ['เบอร์โทร', 'phone']).replace(/'/g, ''); 
                         
