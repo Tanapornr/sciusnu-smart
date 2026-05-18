@@ -41,20 +41,16 @@
 
         body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
         .swal2-container { overflow-y: hidden !important; }
-        .swal2-popup { 
-            background: #ffffff !important; 
-            border-radius: 1.5rem !important; 
-            border: none !important; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important; 
-            padding: 1.5rem !important; 
-        }
+        
+        /* 🔥 สไตล์ Popup ให้ชิดขอบบน 🔥 */
+        .swal2-popup { background: #ffffff !important; border-radius: 1.5rem !important; border: none !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important; padding: 1.5rem !important; }
         .dark .swal2-popup { background: #1f2937 !important; border: 1px solid rgba(255,255,255,0.05) !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important; }
         .swal2-title { color: #111827 !important; font-weight: 700 !important; font-size: 1.25rem !important; margin-bottom: 0.5rem !important; padding-top: 0 !important; }
         .dark .swal2-title { color: #f9fafb !important; }
         .swal2-html-container { color: #4b5563 !important; font-size: 0.95rem !important; margin: 0 !important;}
         .dark .swal2-html-container { color: #9ca3af !important; }
         .swal2-actions { gap: 12px !important; width: 100%; justify-content: center; margin-top: 1.5rem !important; }
-        .swal2-styled { border-radius: 0.75rem !important; font-weight: 600 !important; padding: 12px 24px !important; transition: all 0.2s !important; box-shadow: none !important; font-size: 0.95rem !important; }
+        .swal2-styled { border-radius: 0.75rem !important; font-weight: 600 !important; padding: 10px 24px !important; transition: all 0.2s !important; box-shadow: none !important; font-size: 0.95rem !important; }
         .swal2-confirm { background-color: #f97316 !important; }
         .swal2-confirm:hover { background-color: #ea580c !important; }
         .swal2-cancel { background: #f3f4f6 !important; color: #374151 !important; border: 1px solid #e5e7eb !important; }
@@ -92,6 +88,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 800;
+            line-height: 1.7; /* ระยะบรรทัดกว้างขึ้น สระไม่เบียด */
         }
         .dark .project-title-glow {
             background: linear-gradient(135deg, #fb923c, #f472b6);
@@ -99,7 +96,7 @@
             -webkit-text-fill-color: transparent;
         }
         
-        /* สไตล์ตารางสุดมินิมอล */
+        /* สไตล์ตารางสุดมินิมอลแบบการ์ดซ้อนกัน */
         #historyTableBody tr {
             background-color: #ffffff;
             border-radius: 16px;
@@ -113,6 +110,8 @@
             border-bottom: 8px solid #0d0d0d;
         }
         #historyTableBody tr:hover { transform: scale(1.01); }
+        .dark table th { color: #d4d4d4 !important; border-color: rgba(255,255,255,0.08); }
+        .dark table td { color: #f5f5f5 !important; }
     </style>
 </head>
 <body class="pb-10 font-prompt">
@@ -166,14 +165,12 @@
                     </div>
 
                     <button onclick="toggleTheme()" class="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2 sm:p-2 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-transparent dark:border-neutral-700"><i data-lucide="moon" class="w-4 h-4 sm:w-4.5 sm:h-4.5 dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 sm:w-4.5 sm:h-4.5 hidden dark:block text-orange-400"></i></button>
-                    <button onclick="logout()" class="text-xs sm:text-sm text-rose-600 dark:text-red-400 font-bold bg-rose-50 dark:bg-rose-950/30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-rose-100 dark:border-rose-900/50 flex items-center btn-liquid flex-shrink-0"><i data-lucide="log-out" class="w-3.5 h-3.5 mr-1.5 opacity-90"></i> <span class="hidden sm:inline">ออกระบบ</span></button>
+                    <button onclick="logout()" class="text-xs sm:text-sm text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-950/30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-rose-100 dark:border-rose-900/50 flex items-center btn-liquid flex-shrink-0"><i data-lucide="log-out" class="w-3.5 h-3.5 mr-1.5 opacity-90"></i> <span class="hidden sm:inline">ออกระบบ</span></button>
                 </div>
             </div>
             
             <div id="headerProjectInfo" class="mt-4 sm:mt-5 hidden border-t border-neutral-100 dark:border-neutral-800 pt-5 pb-1">
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
-                    
                     <div class="ios-card md:col-span-2">
                         <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-orange-400 to-pink-500"></div>
                         <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-1.5"><i data-lucide="book-open" class="w-4 h-4 mr-2 text-orange-500 opacity-90"></i> ชื่อโครงงานวิจัย</p>
@@ -191,7 +188,6 @@
                         <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-1.5"><i data-lucide="graduation-cap" class="w-4 h-4 mr-2 text-emerald-500 opacity-90"></i> อาจารย์ที่ปรึกษาหลัก</p>
                         <p id="headerAdvisor" class="font-bold text-neutral-700 dark:text-neutral-200 text-xs sm:text-sm truncate w-full px-2">-</p>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -213,8 +209,7 @@
                     </div>
 
                     <div id="formFieldsContainer" class="space-y-4">
-                        <div class="bg-orange-50/70 dark:bg-orange-950/20 p-4 rounded-2xl border border-orange-100/80 dark:border-orange-900/30"><label id="labelFileReport" class="block text-[11px] sm:text-sm font-bold mb-2.5 text-orange-800 dark:text-orange-400 flex items-center ml-1"><i data-lucide="file-text" class="w-4.5 h-4.5 mr-2 opacity-80"></i> 1. ไฟล์รูปเล่มรวม (PDF)</label><input type="file" id="fileReport" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-neutral-500 file:mr-3 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-orange-500 file:text-white cursor-pointer hover:file:bg-orange-600 transition-all"></div>
-                        <div id="signatureSection" class="bg-amber-50/70 dark:bg-amber-950/20 p-4 rounded-2xl border border-amber-100/80 dark:border-amber-900/30 transition-all duration-300"><label class="block text-[11px] sm:text-sm font-bold mb-2.5 text-amber-800 dark:text-amber-400 flex items-center ml-1"><i data-lucide="pen-tool" class="w-4.5 h-4.5 mr-2 opacity-80"></i> 2. หน้าลายเซ็นรวม (PDF)</label><input type="file" id="fileSignature" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-neutral-500 file:mr-3 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-amber-500 file:text-white cursor-pointer hover:file:bg-amber-600 transition-all"></div>
+                        <div class="bg-orange-50/70 dark:bg-orange-950/20 p-4 rounded-2xl border border-orange-100/80 dark:border-orange-900/30"><label id="labelFileReport" class="block text-[11px] sm:text-sm font-bold mb-2.5 text-orange-800 dark:text-orange-400 flex items-center ml-1"><i data-lucide="file-text" class="w-4.5 h-4.5 mr-2 opacity-80"></i> ไฟล์แนบ (PDF)</label><input type="file" id="fileReport" accept="application/pdf" required class="w-full text-[10px] sm:text-xs text-neutral-500 file:mr-3 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-orange-500 file:text-white cursor-pointer hover:file:bg-orange-600 transition-all"></div>
                         <button type="submit" id="submitBtn" class="w-full btn-liquid bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-4 rounded-2xl hover:shadow-lg transition-all text-sm flex items-center justify-center mt-2 tracking-wide"><i data-lucide="send" class="w-4.5 h-4.5 mr-2"></i> กดส่งข้อมูล</button>
                     </div>
                 </form>
@@ -223,7 +218,7 @@
 
         <div class="lg:col-span-2">
             <div class="glass-panel rounded-[2rem] p-5 sm:p-6 overflow-hidden">
-                <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-5 border-b border-neutral-100 dark:border-neutral-900 pb-3.5 flex items-center"><i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-neutral-500 dark:text-neutral-400"></i> ประวัติการส่งงานของกลุ่ม</h2>
+                <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-5 border-b border-neutral-100 dark:border-neutral-900 pb-3.5 flex items-center"><i data-lucide="history" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-neutral-500 dark:text-neutral-400"></i> ประวัติการส่งงานของกลุ่ม</h2>
                 
                 <div id="loadingData" class="text-center py-20 text-sm text-neutral-500 flex flex-col items-center">
                     <svg class="animate-spin h-10 w-10 text-orange-500 mb-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -257,7 +252,7 @@
             <div class="p-6 sm:p-8 overflow-y-auto max-h-[85vh]">
                 <div class="text-center mb-6">
                     <h2 class="text-xl font-bold text-neutral-800 dark:text-white tracking-wide">ตั้งค่าโปรไฟล์</h2>
-                    <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">อัปเดตข้อมูลส่วนตัวของคุณ</p>
+                    <p class="text-xs text-neutral-500 dark:text-slate-400 mt-1">อัปเดตข้อมูลส่วนตัว</p>
                 </div>
                 <form id="profileForm" class="space-y-4.5">
                     <div class="flex flex-col items-center mb-6">
@@ -302,7 +297,7 @@
         document.getElementById('displayStudentId').innerText = studentId;
 
         const cachedName = localStorage.getItem('userName') || 'User';
-        let cachedPic = localStorage.getItem('profileUrl') || `https://ui-avatars.com/api/?name=${encodeURIComponent(cachedName)}&background=f0f0f0&color=1a1a1a&background=f97316`;
+        let cachedPic = localStorage.getItem('profileUrl') || `https://ui-avatars.com/api/?name=${encodeURIComponent(cachedName)}&background=random`;
         
         document.getElementById('headerProfilePic').src = cachedPic;
         document.getElementById('profilePreview').src = cachedPic;
@@ -341,28 +336,20 @@
             if (!rawStr) return "-"; 
             let d = new Date(rawStr);
             if (isNaN(d.getTime())) return rawStr;
-            return '<span class="font-medium text-neutral-800 dark:text-neutral-200">' + d.toLocaleDateString('th-TH') + '</span><br><span class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5 font-normal">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</span>';
+            return '<div class="font-medium text-neutral-800 dark:text-neutral-200">' + d.toLocaleDateString('th-TH') + '</div><div class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</div>';
         }
 
         window.activeRejects = {}; 
 
+        // 🔥 เปิด Popup ยืนยันการอัปโหลดไฟล์แก้ไข ตัดช่องลายเซ็นออก 🔥
         window.prepareResubmitPopup = async function(type) {
-            const isRequest = type === 'แบบคำร้อง';
-            const signatureInputHtml = isRequest ? '' : `
-                <div class="text-left mt-3.5 pt-3.5 border-t border-neutral-100 dark:border-neutral-800">
-                    <label class="block text-[11px] sm:text-xs font-bold mb-1.5 text-amber-700 dark:text-amber-500 ml-1">2. หน้าลายเซ็นรวมที่แก้ไข (PDF)</label>
-                    <input type="file" id="popupFileSignature" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3.5 file:rounded-full file:border-0 file:bg-amber-100 dark:file:bg-amber-950/50 file:text-amber-700 dark:file:text-amber-400 file:font-semibold hover:file:bg-amber-200 transition-colors cursor-pointer" required>
-                </div>
-            `;
-
             const { value: formValues } = await Swal.fire({
                 title: '<div class="flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg><span class="text-lg font-bold">ส่งไฟล์แก้ไขใหม่</span></div>',
                 html: `
-                    <div class="text-xs text-left font-medium mb-3 text-neutral-500 dark:text-neutral-400 border-b border-neutral-100 dark:border-neutral-800 pb-2.5">งานที่ต้องส่งแก้: <span class="text-orange-600 font-bold">${type}</span></div>
-                    <div class="text-left bg-neutral-50 dark:bg-neutral-950/50 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800 shadow-inner">
-                        <label class="block text-[11px] sm:text-xs font-bold mb-1.5 text-orange-600 dark:text-orange-500 ml-1">1. ไฟล์รูปเล่มรวมที่แก้ไข (PDF)</label>
+                    <div class="text-xs text-left font-medium mb-3 text-neutral-500 dark:text-neutral-400 border-b border-neutral-100 dark:border-neutral-800 pb-2.5">งานที่ต้องส่งแก้: <span class="text-orange-500 font-bold">${type}</span></div>
+                    <div class="text-left bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800 shadow-inner">
+                        <label class="block text-[11px] sm:text-xs font-bold mb-1.5 text-orange-600 dark:text-orange-500 ml-1">ไฟล์แนบที่แก้ไข (PDF)</label>
                         <input type="file" id="popupFileReport" accept="application/pdf" class="w-full text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3.5 file:rounded-full file:border-0 file:bg-orange-100 dark:file:bg-orange-950/50 file:text-orange-700 dark:file:text-orange-400 file:font-semibold hover:file:bg-orange-200 transition-colors cursor-pointer" required>
-                        ${signatureInputHtml}
                     </div>
                 `,
                 showCancelButton: true,
@@ -372,15 +359,13 @@
                 customClass: { 
                     popup: 'rounded-[1.5rem] w-[90%] max-w-sm border border-neutral-100 dark:border-neutral-800',
                     confirmButton: 'bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-6 rounded-full text-sm mr-2 shadow-sm transition-colors',
-                    cancelButton: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 font-bold py-2.5 px-6 rounded-full text-sm shadow-inner transition-colors'
+                    cancelButton: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 font-bold py-2.5 px-6 rounded-full text-sm shadow-sm transition-colors'
                 },
                 didOpen: () => { lucide.createIcons(); },
                 preConfirm: () => {
                     const rFile = document.getElementById('popupFileReport').files[0];
-                    const sFile = isRequest ? null : document.getElementById('popupFileSignature').files[0];
-                    if (!rFile) { Swal.showValidationMessage('กรุณาอัปโหลดไฟล์รูปเล่ม'); return false; }
-                    if (!isRequest && !sFile) { Swal.showValidationMessage('กรุณาอัปโหลดหน้าลายเซ็น'); return false; }
-                    return { rFile, sFile };
+                    if (!rFile) { Swal.showValidationMessage('กรุณาอัปโหลดไฟล์'); return false; }
+                    return { rFile };
                 }
             });
 
@@ -395,14 +380,12 @@
                 try {
                     const pid = document.getElementById('projectId').value.trim();
                     const f1 = await toBase64(formValues.rFile);
-                    let f2 = { data: "JVBERi0xLjAKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAw IFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFsgMyAw IFJdCi9Db3VudCAxCj4+CmVuZG9iagozIDAgb2JqCjw8Ci9UeXBlIC9QYWdlCi9QYXJlbnQgMiAwIFIKL01lZGlhQm94IFswIDAgNTk1IDg0Ml0KPj4KZW5kb2JqCnhyZWYKMCA0CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDYwIDAwMDAwIG4gCjAwMDAwMDAxNDcgMDAwMDAgbiAKdHJhaWxlcgo8PAovU2l6ZSA0Ci9Sb290IDEgMCBSCj4+CnN0YXJ0eHJlZgoyNDMKJSVFT0YK", mime: "application/pdf" };
-                    if (formValues.sFile) f2 = await toBase64(formValues.sFile);
 
                     const uploader = window.allProjects.find(x => x['รหัสนักเรียน'] == studentId);
                     const payload = { 
                         studentId: studentId, firstName: uploader ? uploader['ชื่อ'] : "", lastName: uploader ? uploader['นามสกุล'] : "", 
                         projectId: pid, workType: type, advisorName: (window.allProjects[0] ? window.allProjects[0]['อ. ที่ปรึกษา TH'] : ""), 
-                        file1Data: f1.data, file1Mime: f1.mime, file2Data: f2.data, file2Mime: f2.mime 
+                        file1Data: f1.data, file1Mime: f1.mime, file2Data: "", file2Mime: "" 
                     };
                     const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); 
                     const result = await res.json();
@@ -450,7 +433,7 @@
                         
                         document.getElementById('headerTopProjectId').innerText = pid;
                         document.getElementById('badgeProjectId').classList.remove('hidden');
-                        document.getElementById('badgeProjectId').classList.add('inline-flex');
+                        document.getElementById('badgeProjectId').classList.add('inline-flex'); 
                         
                         document.getElementById('projectId').value = pid;
                         
@@ -495,12 +478,11 @@
             }
         }
 
+        // 🔥 ตรวจสอบการล็อกฟอร์มเมื่อเลือกประเภทงาน 🔥
         document.getElementById('workType').addEventListener('change', (e) => {
             const selectedType = e.target.value;
             const labelFileReport = document.getElementById('labelFileReport');
             const submitBtn = document.getElementById('submitBtn');
-            const signatureSection = document.getElementById('signatureSection');
-            const fileSignature = document.getElementById('fileSignature');
             const formFieldsContainer = document.getElementById('formFieldsContainer');
             const lockWarning = document.getElementById('lockWarning');
             
@@ -516,13 +498,9 @@
             if (selectedType === 'แบบคำร้อง') {
                 labelFileReport.innerHTML = '<i data-lucide="file-up" class="w-4.5 h-4.5 mr-2.5 opacity-80"></i> ไฟล์แบบคำร้อง (PDF)';
                 submitBtn.innerHTML = '<i data-lucide="cloud-upload" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดแบบคำร้อง';
-                signatureSection.classList.add('hidden'); 
-                fileSignature.removeAttribute('required'); 
             } else {
-                labelFileReport.innerHTML = '<i data-lucide="file-up" class="w-4.5 h-4.5 mr-2.5 opacity-80"></i> 1. ไฟล์รูปเล่มรวม (PDF)';
+                labelFileReport.innerHTML = '<i data-lucide="file-up" class="w-4.5 h-4.5 mr-2.5 opacity-80"></i> ไฟล์รูปเล่ม (PDF)';
                 submitBtn.innerHTML = '<i data-lucide="upload-cloud" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดส่งงาน';
-                signatureSection.classList.remove('hidden'); 
-                fileSignature.setAttribute('required', 'required'); 
             }
             lucide.createIcons();
             
@@ -540,6 +518,7 @@
             }
         });
 
+        // 🔥 เรนเดอร์ตารางประวัติ 🔥
         function renderTable(subs) {
             const tbody = document.getElementById('historyTableBody'); 
             
@@ -616,7 +595,7 @@
 
                     if (s._displayStatus === 'ส่งแก้ไขแล้ว') {
                         statusClass = "bg-blue-50 text-blue-800 border border-blue-100 dark:bg-blue-950/70 dark:text-blue-300 dark:border-blue-900";
-                        statusIcon = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-80"></i>';
+                        statusIcon = '<i data-lucide="check-check" class="w-3.5 h-3.5 mr-1.5 flex-shrink-0 opacity-80"></i>';
                         statusText = "แก้ไขแล้ว (รอตรวจ)";
                     } else if (s._displayStatus === 'อนุมัติ') {
                         statusClass = "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900"; 
@@ -633,16 +612,15 @@
                     
                     let isMe = (s['รหัสนักเรียน'] || "").toString().trim() === (studentId === "ไม่ระบุ" ? "" : studentId.trim());
                     let cleanFirstName = (s['ชื่อ'] || "").split("และ")[0].replace(/\(ผู้ส่ง\)/g, '').trim();
-                    let submitterTag = isMe ? `<span class="text-orange-600 font-semibold">(คุณ)</span>` : `<span class="text-neutral-500 dark:text-neutral-400 font-medium">(${cleanFirstName})</span>`;
+                    let submitterTag = isMe ? `<span class="text-orange-600 font-semibold">(คุณส่ง)</span>` : `<span class="text-neutral-500 dark:text-neutral-400 font-medium">(${cleanFirstName})</span>`;
 
-                    let signatureButton = s._workType === 'แบบคำร้อง' ? '' : `<a href="${s['URL ลายเซ็น']}" target="_blank" class="text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-neutral-800 px-3 py-2 rounded-full text-[10px] sm:text-xs font-bold border border-amber-100 dark:border-neutral-700 flex items-center justify-center hover:bg-amber-100 dark:hover:bg-neutral-700 hover:border-amber-200 transition-all"><i data-lucide="pen-tool" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ลายเซ็น</a>`;
-                    let fileReportLabel = s._workType === 'แบบคำร้อง' ? 'ไฟล์แบบคำร้อง' : 'ไฟล์รูปเล่ม';
+                    let fileReportLabel = s._workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'ไฟล์รูปเล่ม';
                     
                     let reasonHtml = '';
                     if (s._displayStatus === 'ไม่อนุมัติ' && s._reason) {
                         reasonHtml = `<div class="text-[10px] sm:text-xs text-rose-800 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-950/30 p-3.5 rounded-xl border border-rose-100 dark:border-rose-900/60 inline-block w-full whitespace-normal break-words shadow-inner text-left"><div class="font-extrabold flex items-center mb-1.5"><i data-lucide="alert-triangle" class="w-4.5 h-4.5 mr-1.5 text-rose-600"></i> เหตุผลที่ต้องแก้ไข:</div>${s._reason}</div>`;
                     } else if (s._isResubmit && s._oldReason) {
-                        reasonHtml = `<div class="text-[10px] sm:text-xs text-blue-800 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-950/30 p-3.5 rounded-xl border border-blue-100 dark:border-blue-900/60 inline-block w-full whitespace-normal break-words shadow-inner text-leftOpacity-80"><div class="font-extrabold flex items-center mb-1.5 opacity-80"><i data-lucide="info" class="w-4.5 h-4.5 mr-1.5 text-blue-600 opacity-80"></i> อ้างอิงเหตุผลเดิม:</div>${s._oldReason}<div class="mt-2 text-[9px] sm:text-[10px] opacity-70 border-t border-blue-100 dark:border-blue-800/40 pt-2 font-normal">ส่งแก้ไขล่าสุดเมื่อ: ${formatDateTime(s._oldRejectTime).replace('<br>', ' ')}</div></div>`;
+                        reasonHtml = `<div class="text-[10px] sm:text-xs text-blue-800 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-950/30 p-3.5 rounded-xl border border-blue-100 dark:border-blue-900/60 inline-block w-full whitespace-normal break-words shadow-inner text-leftOpacity-80"><div class="font-extrabold flex items-center mb-1.5 opacity-80"><i data-lucide="info" class="w-4.5 h-4.5 mr-1.5 text-blue-600 opacity-80"></i> อ้างอิงสาเหตุเก่า:</div>${s._oldReason}<div class="mt-2 text-[9px] sm:text-[10px] opacity-70 border-t border-blue-100 dark:border-blue-800/40 pt-2 font-normal">ส่งแก้ไขล่าสุดเมื่อ: ${formatDateTime(s._oldRejectTime).replace('<br>', ' ')}</div></div>`;
                     } else {
                         reasonHtml = `<span class="text-neutral-300 dark:text-neutral-700 font-light opacity-50">-</span>`;
                     }
@@ -662,8 +640,7 @@
                         <td class="text-left align-middle py-3 px-3 py-4">${reasonHtml}</td>
                         <td class="text-center align-middle py-4">
                             <div class="flex flex-col sm:flex-row gap-2 justify-center items-center">
-                                <a href="${s['URL ไฟล์เล่ม']}" target="_blank" class="text-orange-800 dark:text-orange-300 bg-orange-50 dark:bg-neutral-800 px-3 py-2 rounded-full text-[10px] sm:text-xs font-bold border border-orange-200 dark:border-neutral-700 flex items-center justify-center hover:bg-orange-100 dark:hover:bg-neutral-700 transition-all"><i data-lucide="file-text" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ${fileReportLabel}</a>
-                                ${signatureButton}
+                                <a href="${s['URL ไฟล์เล่ม']}" target="_blank" class="btn-expert text-orange-800 dark:text-orange-300 bg-orange-50 dark:bg-neutral-800 px-3 py-2 rounded-full text-[10px] sm:text-xs font-bold border border-orange-100 dark:border-neutral-700 flex items-center justify-center hover:bg-orange-100 dark:hover:bg-neutral-700 hover:border-orange-200 transition-all"><i data-lucide="file-text" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ${fileReportLabel}</a>
                             </div>
                         </td>
                     </tr>`;
@@ -681,13 +658,13 @@
                     html: 'งานนี้ต้องแก้ กรุณากดปุ่ม <b>"ส่งไฟล์แก้ไข"</b> ที่ตารางด้านขวาแทนครับ',
                     confirmButtonText: 'ตกลง',
                     confirmButtonColor: '#e11d48',
-                    customClass: { popup: 'rounded-2xl' }
+                    customClass: { popup: 'rounded-[1.5rem]' }
                 });
                 return;
             }
             
             const userPhone = document.getElementById('profilePhone').value.trim();
-            if (!userPhone) { Swal.fire({ icon: 'warning', title: '<div class="font-bold">โปรดระบุเบอร์โทรศัพท์</div>', confirmButtonText: 'ตกลง', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-2xl'} }).then(() => { openProfileModal(); document.getElementById('profilePhone').focus(); }); return; }
+            if (!userPhone) { Swal.fire({ icon: 'warning', title: '<div class="font-bold">โปรดระบุเบอร์โทรศัพท์</div>', confirmButtonText: 'ตกลง', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-[1.5rem]'} }).then(() => { openProfileModal(); document.getElementById('profilePhone').focus(); }); return; }
             
             const selectedWorkType = document.getElementById('workType').value;
             const existingSub = window.mySubmissions.find(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === selectedWorkType);
@@ -705,21 +682,17 @@
             btn.disabled = true; btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังอัปโหลด...`;
             try {
                 const f1 = await toBase64(document.getElementById('fileReport').files[0]); 
-                let f2 = { data: "JVBERi0xLjAKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAw IFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFsgMyAw IFIgXQovQ291bnQgMQo+PgplbmRvYmoKMyAwIG9iago8PAovVHlwZSAvUGFnZQovUGFyZW50IDIgMCBSCi9NZWRpYUJveCBbMCAwIDU5NSA4NDJdCj4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA2MCAwMDAwMCBuIAowMDAwMDAwMTQ3IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1NpemUgNAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMjQzCiUlRU9FCg==", mime: "application/pdf" };
-                if (document.getElementById('fileSignature').files.length > 0) {
-                    f2 = await toBase64(document.getElementById('fileSignature').files[0]);
-                }
+                let f2 = { data: "", mime: "" };
 
                 const uploader = members.find(x => x['รหัสนักเรียน'] == studentId); 
                 const payload = { studentId: studentId === "ไม่ระบุ" ? "" : studentId, firstName: uploader ? uploader['ชื่อ'] : "", lastName: uploader ? uploader['นามสกุล'] : "", projectId: pid, workType: selectedWorkType, advisorName: (members[0] ? members[0]['อ. ที่ปรึกษา TH'] : ""), file1Data: f1.data, file1Mime: f1.mime, file2Data: f2.data, file2Mime: f2.mime };
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
                 
                 if (result && result.status === 'success') { 
-                    Swal.fire({ icon: 'success', title: '<div class="font-bold text-lg">อัปโหลดสำเร็จ!</div>', showConfirmButton: false, timer: 2000, customClass: { popup: 'rounded-2xl'} }).then(() => { 
+                    Swal.fire({ icon: 'success', title: '<div class="font-bold text-lg">อัปโหลดสำเร็จ!</div>', showConfirmButton: false, timer: 2000, customClass: { popup: 'rounded-[1.5rem]'} }).then(() => { 
                         document.getElementById('workType').value = ""; 
                         document.getElementById('workType').dispatchEvent(new Event('change')); 
                         document.getElementById('fileReport').value = ""; 
-                        document.getElementById('fileSignature').value = ""; 
                         document.getElementById('tableContainer').classList.add('hidden'); 
                         document.getElementById('loadingData').style.display = 'flex'; 
                         loadData(); 
@@ -729,7 +702,7 @@
             finally { 
                 btn.disabled = false; 
                 const currentType = document.getElementById('workType').value;
-                btn.innerHTML = currentType === 'แบบคำร้อง' ? '<i data-lucide="cloud-upload" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดแบบคำร้อง' : '<i data-lucide="cloud-upload" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดส่งงาน'; 
+                btn.innerHTML = currentType === 'แบบคำร้อง' ? '<i data-lucide="cloud-upload" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดแบบคำร้อง' : '<i data-lucide="upload-cloud" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดส่งงาน'; 
                 lucide.createIcons(); 
             }
         });
