@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advisor Dashboard - โครงการ วมว. มน.</title>
+    <title>Main Advisor Dashboard - โครงการ วมว. มน.</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = { darkMode: 'class' };
         if (!localStorage.theme) localStorage.theme = 'light';
@@ -17,131 +17,135 @@
         html { font-size: 18px; }
         @media (max-width: 768px) { html { font-size: 14px; } }
 
-        body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; background-color: #fff7ed; overflow-x: hidden; }
-        .dark body { background-color: #0f172a; color: #f1f5f9; }
-        .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); }
-        .dark .glass-panel { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
-        .btn-liquid { position: relative; overflow: hidden; backdrop-filter: blur(10px); transition: all 0.3s ease; }
-        .btn-liquid::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0)); pointer-events: none; }
-        .btn-liquid:active { transform: scale(0.96); }
-        .btn-approve { background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); color: #059669; }
-        .dark .btn-approve { background: rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.4); color: #34d399; }
-        .btn-approve:hover { background: rgba(16, 185, 129, 0.3); }
-        .btn-reject { background: rgba(244, 63, 94, 0.2); border: 1px solid rgba(244, 63, 94, 0.5); color: #e11d48; }
-        .dark .btn-reject { background: rgba(244, 63, 94, 0.25); border-color: rgba(244, 63, 94, 0.4); color: #fb7185; }
-        .btn-reject:hover { background: rgba(244, 63, 94, 0.3); }
-        .glass-input { background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(255, 255, 255, 0.6); color: #334155; }
-        .dark .glass-input { background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); color: #f1f5f9; }
-        .dark table th { color: #cbd5e1 !important; border-color: rgba(255,255,255,0.1); }
-        .dark table td { color: #f1f5f9 !important; border-color: rgba(255,255,255,0.05); }
-        .dark .bg-slate-50 { background-color: rgba(15, 23, 42, 0.4) !important; }
+        body { 
+            font-family: 'Prompt', sans-serif; 
+            transition: background-color 0.4s, color 0.4s; 
+            background-color: #f7f9fc; 
+            color: #1f2937; 
+            overflow-x: hidden;
+            line-height: 1.6;
+            letter-spacing: 0.01em;
+        }
+        .dark body { background-color: #0d0d0d; color: #f3f4f6; }
+        
+        /* ❌ ตัด Scrollbar ทิ้งออกจากระบบถาวร ❌ */
+        ::-webkit-scrollbar { display: none !important; }
+        html, body { -ms-overflow-style: none; scrollbar-width: none; }
 
-        body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
-        .swal2-container { overflow-y: hidden !important; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
+        .dark .glass-panel { background: rgba(24, 24, 27, 0.75); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); }
+        
+        .btn-liquid { position: relative; overflow: hidden; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;}
+        .btn-liquid:active { transform: scale(0.96); opacity: 0.9; }
 
-        .swal2-popup { background: #ffffff !important; border-radius: 24px !important; border: none !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; padding: 2rem 1.5rem !important; }
-        .dark .swal2-popup { background: #1e293b !important; box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important; }
-        .swal2-title { color: #0f172a !important; font-weight: 700 !important; font-size: 1.25rem !important; margin-bottom: 0.5rem !important; }
-        .dark .swal2-title { color: #f8fafc !important; }
-        .swal2-html-container { color: #475569 !important; font-size: 0.95rem !important; }
-        .dark .swal2-html-container { color: #cbd5e1 !important; }
-        .swal2-actions { gap: 12px !important; width: 100%; justify-content: center; margin-top: 1.5rem !important; }
-        .swal2-styled { border-radius: 12px !important; font-weight: 600 !important; padding: 10px 24px !important; transition: all 0.2s !important; box-shadow: none !important; }
-        .swal2-cancel { background: #ffffff !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; }
-        .swal2-cancel:hover { background: #f8fafc !important; }
-        .dark .swal2-cancel { background: transparent !important; color: #f8fafc !important; border-color: #475569 !important; }
-        .dark .swal2-cancel:hover { background: #334155 !important; }
-        .swal2-icon { border: none !important; width: 80px !important; height: 80px !important; margin: 0 auto 1.5rem auto !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; }
-        .swal2-icon.swal2-success { background-color: #dcfce7 !important; color: #10b981 !important; }
-        .swal2-icon.swal2-error { background-color: #fee2e2 !important; color: #ef4444 !important; }
-        .swal2-icon.swal2-warning { background-color: #fef08a !important; color: #eab308 !important; }
-        .swal2-icon.swal2-info { background-color: #ffedd5 !important; color: #f97316 !important; }
-        .swal2-icon.swal2-question { background-color: #f3e8ff !important; color: #8b5cf6 !important; }
-        .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix, .swal2-success-ring { display: none !important; }
-        .swal2-icon.swal2-success [class^=swal2-success-line] { background-color: #10b981 !important; }
-        .swal2-icon.swal2-error [class^=swal2-x-mark-line] { background-color: #ef4444 !important; }
-        .swal2-close { color: #94a3b8 !important; border-radius: 50% !important; background: #f1f5f9 !important; width: 32px !important; height: 32px !important; margin: 8px 8px 0 0 !important; }
-        .swal2-close:hover { background: #e2e8f0 !important; color: #0f172a !important; }
-        .dark .swal2-close { background: #334155 !important; color: #94a3b8 !important; }
-        .dark .swal2-close:hover { background: #475569 !important; color: #f8fafc !important; }
+        /* 🔥 ดีไซน์ตารางสไตล์ iOS Minimalist การ์ดมนแยกแถว 🔥 */
+        table { border-spacing: 0 0.5rem !important; border-collapse: separate; width: 100%; }
+        .dark table th { color: #d4d4d4 !important; border-color: rgba(255,255,255,0.08); }
+        .dark table td { color: #f5f5f5 !important; }
+        
+        #allWorksTableBody tr, #overviewTableBody tr {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s;
+        }
+        .dark #allWorksTableBody tr, .dark #overviewTableBody tr {
+            background-color: #1f2937;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        #allWorksTableBody tr:hover, #overviewTableBody tr:hover { transform: scale(1.005); }
+
+        .swal2-shown { overflow: hidden !important; }
+        .swal2-popup { background: #ffffff !important; border-radius: 1.5rem !important; border: none !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important; padding: 1.5rem !important; }
+        .dark .swal2-popup { background: #1f2937 !important; border: 1px solid rgba(255,255,255,0.05) !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important; }
+        .swal2-title { color: #111827 !important; font-weight: 700 !important; font-size: 1.25rem !important; margin-bottom: 0.5rem !important; padding-top: 0 !important; }
+        .dark .swal2-title { color: #f9fafb !important; }
+        .swal2-html-container { color: #4b5563 !important; font-size: 0.95rem !important; margin: 0 !important;}
+        .dark .swal2-html-container { color: #9ca3af !important; }
+        .swal2-confirm { background-color: #06b6d4 !important; border-radius: 9999px !important; padding: 10px 24px !important; font-weight: bold !important;}
+        .swal2-close { color: #a3a3a3 !important; border-radius: 50% !important; background: #f5f5f5 !important; width: 34px !important; height: 34px !important; margin: 10px 10px 0 0 !important; }
+        .swal2-close:hover { background: #e5e5e5 !important; color: #171717 !important; }
+        .dark .swal2-close { background: #262626 !important; color: #a3a3a3 !important; }
     </style>
 </head>
-<body class="pb-10">
+<body class="pb-10 font-prompt">
 
-    <nav class="glass-panel border-b-0 shadow-sm sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-4">
+    <nav class="glass-panel border-b-0 shadow-sm sticky top-0 z-40 relative">
+        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-cyan-500 to-blue-500"></div>
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-4 mt-1">
             <div class="flex items-center gap-4">
                 <div>
-                    <h1 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">Advisor Space</h1>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center"><i data-lucide="user-check" class="w-4 h-4 mr-1 text-orange-500"></i> อ.ที่ปรึกษา: <span id="displayAdvisorName" class="font-semibold text-orange-600 dark:text-orange-400 ml-1"></span></p>
+                    <h1 class="text-lg sm:text-xl font-extrabold text-neutral-800 dark:text-white flex items-center tracking-wide"><i data-lucide="shield-check" class="w-5 h-5 mr-2 text-cyan-500"></i> ศูนย์ติดตามโครงงาน (ที่ปรึกษาหลัก)</h1>
+                    <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-0.5 flex items-center font-medium"><i data-lucide="user" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> อาจารย์ที่ปรึกษาหลัก: <span id="displayAdvisorName" class="font-bold text-cyan-600 dark:text-cyan-400 ml-1"></span></p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="toggleTheme()" class="btn-liquid bg-slate-200/50 dark:bg-slate-700/50 p-2.5 rounded-full text-slate-700 dark:text-slate-200 outline-none hover:text-orange-500"><i data-lucide="moon" class="w-5 h-5 dark:hidden"></i><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i></button>
-                <button onclick="openSettingsModal()" class="btn-liquid bg-slate-200/50 dark:bg-slate-700/50 p-2.5 rounded-full text-slate-700 dark:text-slate-200 outline-none hover:text-orange-500"><i data-lucide="settings" class="w-5 h-5"></i></button>
-                <button onclick="logout()" class="text-xs sm:text-sm text-red-600 dark:text-red-400 font-medium bg-red-50/50 dark:bg-red-900/20 px-4 py-2.5 rounded-xl border border-red-100 dark:border-red-800 flex items-center btn-liquid"><i data-lucide="log-out" class="w-4 h-4 mr-1"></i> <span class="hidden sm:inline">ออกจากระบบ</span></button>
+                <button onclick="toggleTheme()" class="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2.5 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-transparent dark:border-neutral-700"><i data-lucide="moon" class="w-4.5 h-4.5 dark:hidden"></i><i data-lucide="sun" class="w-4.5 h-4.5 hidden dark:block text-orange-400"></i></button>
+                <button onclick="logout()" class="text-xs sm:text-sm text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-950/30 px-4 py-2 rounded-full border border-rose-100 dark:border-rose-900/50 flex items-center btn-liquid"><i data-lucide="log-out" class="w-3.5 h-3.5 mr-1.5 opacity-90"></i> ออกระบบ</button>
             </div>
         </div>
     </nav>
 
     <div class="max-w-7xl mx-auto mt-4 sm:mt-6 px-3 sm:px-4 space-y-4 sm:space-y-6">
-        <div class="glass-panel rounded-3xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between border-l-4 border-l-orange-500">
-            <div class="mb-3 md:mb-0"><h2 class="text-sm sm:text-base font-bold text-slate-800 dark:text-white flex items-center"><i data-lucide="download" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ดาวน์โหลดแบบฟอร์ม / Template</h2></div>
-            <div class="flex flex-wrap gap-2 sm:gap-3">
-                <a href="#" target="_blank" class="flex items-center text-[11px] sm:text-sm bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-3 py-1.5 sm:px-4 py-2 rounded-xl font-bold border border-orange-100 dark:border-orange-800 transition-colors btn-liquid"><i data-lucide="file-text" class="w-4 h-4 sm:w-5 sm:h-5 mr-1.5"></i> Template โครงร่าง</a>
-                <a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" class="flex items-center text-[11px] sm:text-sm bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-3 py-1.5 sm:px-4 py-2 rounded-xl font-bold border border-orange-100 dark:border-orange-800 transition-colors btn-liquid"><i data-lucide="folder-open" class="w-4 h-4 sm:w-5 sm:h-5 mr-1.5"></i> คำร้องต่างๆ</a>
-            </div>
-        </div>
-        
-        <div id="loadingData" class="text-center py-10 sm:py-16 text-sm text-slate-500 flex flex-col items-center glass-panel rounded-3xl"><svg class="animate-spin h-6 w-6 sm:h-8 sm:w-8 text-orange-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="font-semibold text-base">กำลังโหลดข้อมูลโครงงาน...</span></div>
 
-        <div id="overviewSection" class="glass-panel rounded-3xl p-4 sm:p-6 hidden relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-orange-500"></div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><i data-lucide="pie-chart" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ภาพรวมสถานะโครงงานในการดูแล</h2>
-            <div class="overflow-x-auto w-full pb-2">
-                <table class="w-full text-left"><thead class="bg-slate-50 uppercase border-b text-[11px] sm:text-sm"><tr><th class="px-2 py-3 sm:px-4 py-4 font-semibold whitespace-nowrap">รหัสโครงงาน</th><th class="px-2 py-3 sm:px-4 py-4 font-semibold min-w-[150px]">นักเรียนในกลุ่ม</th><th class="px-2 py-3 sm:px-4 py-4 text-center font-semibold">โครงร่าง</th><th class="px-2 py-3 sm:px-4 py-4 text-center font-semibold">ความก้าวหน้า</th><th class="px-2 py-3 sm:px-4 py-4 text-center font-semibold">ฉบับสมบูรณ์</th></tr></thead><tbody id="overviewTableBody"></tbody></table>
-            </div>
+        <div id="loadingData" class="text-center py-20 text-sm text-neutral-500 flex flex-col items-center glass-panel rounded-[2rem]">
+            <svg class="animate-spin h-10 w-10 text-cyan-500 mb-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="font-medium tracking-wide">กำลังโหลดข้อมูลกลุ่มโครงงานของคุณ...</span>
         </div>
 
-        <div id="pendingSection" class="glass-panel rounded-3xl p-4 sm:p-6 hidden relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-amber-400"></div>
-            <h2 class="text-base sm:text-lg font-bold text-amber-600 dark:text-amber-400 mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><span class="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-3 py-1 sm:px-3 py-1 rounded-lg text-sm sm:text-base mr-2 shadow-sm font-black" id="pendingCount">0</span> งานรอการตรวจสอบ (ส่งใหม่และแก้)</h2>
-            <div class="overflow-x-auto w-full pb-2">
-                <table class="w-full text-left"><thead class="bg-slate-50 uppercase border-b text-[11px] sm:text-sm"><tr><th class="px-2 py-3 sm:px-4 py-4 font-semibold">เวลาที่ส่ง</th><th class="px-2 py-3 sm:px-4 py-4 font-semibold min-w-[150px]">ข้อมูลนักเรียน</th><th class="px-2 py-3 sm:px-4 py-4 font-semibold">ประเภทงาน</th><th class="px-2 py-3 sm:px-4 py-4 text-center font-semibold">ไฟล์แนบ</th><th class="px-2 py-3 sm:px-4 py-4 text-center font-semibold">ดำเนินการ</th></tr></thead><tbody id="pendingTableBody"></tbody></table>
+        <div id="permissionWarning" class="hidden mb-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 p-4 rounded-[1.5rem] flex items-start gap-3 shadow-sm">
+            <i data-lucide="info" class="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 flex-shrink-0 mt-0.5"></i>
+            <div class="flex-grow">
+                <p class="text-sm sm:text-base text-blue-800 dark:text-blue-300 font-bold mb-1">สิทธิ์การเข้าถึงข้อมูล (Read-Only)</p>
+                <p class="text-xs sm:text-sm text-blue-700/80 dark:text-blue-200/80">ระบบได้กรองเฉพาะรายชื่อกลุ่มโครงงานที่คุณรับผิดชอบเป็นที่ปรึกษาหลักมาแสดงเท่านั้น คุณสามารถติดตามสถานะความคืบหน้าของนักเรียนได้ <span class="font-bold underline">แต่ระบบจะสงวนสิทธิ์การดาวน์โหลดไฟล์เนื้อหาไว้ครับ</span></p>
             </div>
         </div>
 
-        <div id="historySection" class="glass-panel rounded-3xl p-4 sm:p-6 hidden relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-slate-400"></div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><i data-lucide="clipboard-list" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300"></i> ประวัติการอนุมัติ / ตีกลับ</h2>
+        <div id="overviewSection" class="glass-panel rounded-[2rem] p-4 sm:p-7 hidden relative overflow-hidden">
+            <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><i data-lucide="bar-chart-2" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-cyan-500"></i> ภาพรวมสถานะโครงงาน</h2>
             <div class="overflow-x-auto w-full pb-2">
                 <table class="w-full text-left">
-                    <thead class="bg-slate-50 uppercase border-b text-[11px] sm:text-sm">
-                        <tr><th class="px-2 py-3 sm:px-4 py-4 font-semibold">เวลา</th><th class="px-2 py-3 sm:px-4 py-4 font-semibold min-w-[150px]">ข้อมูลนักเรียน</th><th class="px-2 py-3 sm:px-4 py-4 font-semibold">ประเภทงาน</th><th class="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold min-w-[120px]">หมายเหตุ</th><th class="px-2 py-3 sm:px-4 py-4 text-center font-semibold">ไฟล์แนบ</th><th class="px-2 py-3 sm:px-4 py-4 text-center font-semibold">สถานะ</th></tr>
+                    <thead class="text-[10px] sm:text-xs text-neutral-500">
+                        <tr>
+                            <th class="px-3 py-3 font-semibold uppercase tracking-wider min-w-[250px]">รหัสโครงงาน / ชื่อโครงงาน</th>
+                            <th class="px-3 py-3 font-semibold uppercase tracking-wider min-w-[200px]">รายชื่อนักเรียนในกลุ่ม</th>
+                            <th class="px-2 py-3 text-center font-semibold uppercase tracking-wider">โครงร่าง</th>
+                            <th class="px-2 py-3 text-center font-semibold uppercase tracking-wider">ความก้าวหน้า</th>
+                            <th class="px-2 py-3 text-center font-semibold uppercase tracking-wider">ฉบับสมบูรณ์</th>
+                        </tr>
                     </thead>
-                    <tbody id="historyTableBody"></tbody>
+                    <tbody id="overviewTableBody" class="text-neutral-700 dark:text-neutral-200 text-xs sm:text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="allWorksSection" class="glass-panel rounded-[2rem] p-4 sm:p-7 hidden relative overflow-hidden">
+            <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><i data-lucide="folder-open" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-indigo-500"></i> ประวัติการส่งงานทั้งหมด</h2>
+            <div class="overflow-x-auto w-full pb-2">
+                <table class="w-full text-left">
+                    <thead class="text-[10px] sm:text-xs text-neutral-500">
+                        <tr>
+                            <th class="px-3 py-3 font-semibold uppercase tracking-wider">วันที่ส่ง</th>
+                            <th class="px-3 py-3 font-semibold uppercase tracking-wider min-w-[200px]">ข้อมูลผู้ส่งและกลุ่ม</th>
+                            <th class="px-3 py-3 font-semibold uppercase tracking-wider">ประเภทงาน</th>
+                            <th class="px-3 py-3 text-left font-semibold uppercase tracking-wider min-w-[150px]">หมายเหตุจากอาจารย์</th>
+                            <th class="px-3 py-3 text-center font-semibold uppercase tracking-wider">สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allWorksTableBody" class="text-neutral-700 dark:text-neutral-200 text-xs sm:text-sm"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity">
-        <div class="glass-panel bg-white/95 dark:bg-slate-800/95 rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden relative flex flex-col">
-            <button onclick="closeSettingsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-100/50 dark:bg-slate-700/50 rounded-full p-2 transition-colors z-10 btn-liquid"><i data-lucide="x" class="w-5 h-5"></i></button>
-            <div class="p-6 sm:p-8"><div class="text-center mb-6"><h2 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white tracking-wide">ตั้งค่าบัญชี</h2><p class="text-xs text-slate-500 dark:text-slate-400 mt-1">เปลี่ยนรหัสผ่านสำหรับการเข้าสู่ระบบ</p></div>
-                <form id="settingsForm" class="space-y-4">
-                    <div><input type="password" id="advOldPass" required placeholder="รหัสผ่านเดิม" class="w-full text-sm rounded-xl p-3 sm:p-3.5 glass-input outline-none focus:ring-2 focus:ring-orange-500"></div>
-                    <div><input type="password" id="advNewPass" required placeholder="รหัสผ่านใหม่" class="w-full text-sm rounded-xl p-3 sm:p-3.5 glass-input outline-none focus:ring-2 focus:ring-orange-500"></div>
-                    <div><input type="password" id="advConfPass" required placeholder="ยืนยันรหัสผ่านใหม่" class="w-full text-sm rounded-xl p-3 sm:p-3.5 glass-input outline-none focus:ring-2 focus:ring-orange-500"></div>
-                    <button type="submit" id="btnSaveSettings" class="w-full btn-liquid bg-slate-800 dark:bg-orange-600 text-white font-bold py-3 sm:py-3.5 rounded-xl hover:shadow-lg transition-all mt-4 flex items-center justify-center"><i data-lucide="save" class="w-5 h-5 mr-2"></i> บันทึกรหัสผ่านใหม่</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <script>
+        // ใส่ลิงก์ Web App ตรงนี้
         const API_URL = 'https://script.google.com/macros/s/AKfycbxvlQjACPTdbvpF7TuK4ye2gmjrBu83a26_nAoHqkoIULD1RiuFt9J-RxmnkcCUBjySaw/exec';
-        lucide.createIcons(); 
+        
+        lucide.createIcons();
 
         function toggleTheme() {
             const html = document.documentElement;
@@ -149,149 +153,140 @@
             else { html.classList.add('dark'); localStorage.theme = 'dark'; }
         }
 
-        const advisorName = localStorage.getItem('userName'); const advisorEmail = localStorage.getItem('userEmail'); const advisorRole = localStorage.getItem('userRole'); 
-        if (!advisorName || advisorRole !== 'advisor') window.location.href = 'index.html'; 
+        // 🏷️ ปรับบทบาทให้ตรงกับที่ปรึกษาหลัก
+        const advisorName = localStorage.getItem('userName') || "อาจารย์ที่ปรึกษา"; 
+        const userEmail = localStorage.getItem('userEmail') || "";
+        const currentUserRole = localStorage.getItem('userRole'); 
+
+        // 🔥 ตรวจสอบบทบาท advisor_main 🔥
+        if (currentUserRole !== 'advisor_main' && currentUserRole !== 'admin') { window.location.href = 'index.html'; }
         document.getElementById('displayAdvisorName').innerText = advisorName;
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
+        // ดึงและแปลง URL ของรูปภาพให้แสดงผลเร็วขึ้น
         function getProcessedImgUrl(url, studentName) {
-            if (!url || url === "-") return `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=random`;
-            if (url.includes('drive.google.com')) { const match = url.match(/[-\w]{25,}/); if (match) return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`; }
+            if (!url || url === "-" || url === "") return `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=f0f0f0&color=1a1a1a`;
+            if (url.includes('drive.google.com')) { 
+                const match = url.match(/[-\w]{25,}/); 
+                if (match) return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`; 
+            }
             return url;
         }
 
+        // ฟอร์แมตเวลา
         function formatDateTime(rawStr) {
             if (!rawStr) return "-"; let d = new Date(rawStr);
             if (isNaN(d.getTime())) return rawStr;
-            return d.toLocaleDateString('th-TH') + '<br><span class="text-[11px] sm:text-[12px] opacity-80">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</span>';
+            return '<div class="font-bold text-neutral-800 dark:text-neutral-200">' + d.toLocaleDateString('th-TH') + '</div><div class="text-[9px] text-neutral-400 mt-0.5">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</div>';
         }
 
+        // 📱 หน้าต่างคลิกดูข้อมูลนักเรียน แสดงรูปและเบอร์โทรคมชัด (ตามภาพแนบที่ 2) 📱
         function viewStudentPopup(name, id, phone, picUrl) {
             Swal.fire({
-                html: `<div class="text-center pt-2"><img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-orange-50 dark:border-orange-900/50 shadow-md bg-white" loading="lazy"><h3 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white leading-tight">${name}</h3><p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mb-5 mt-1">รหัสประจำตัว: ${id}</p><div class="bg-orange-50 dark:bg-orange-900/30 rounded-2xl p-3 sm:p-4 inline-block w-full max-w-[200px] border border-orange-100 dark:border-orange-800"><p class="text-xs sm:text-sm text-orange-500 dark:text-orange-400 mb-1 font-semibold uppercase flex items-center justify-center"><i data-lucide="phone" class="w-4 h-4 mr-1"></i> เบอร์โทรติดต่อ</p><p class="text-base sm:text-lg font-bold text-orange-700 dark:text-orange-300">${phone || 'ไม่มีข้อมูล'}</p></div></div>`,
-                showConfirmButton: true, confirmButtonText: 'ปิดหน้าต่าง', confirmButtonColor: '#334155', customClass: { popup: 'rounded-[2rem] p-4 sm:p-6' }, backdrop: `rgba(15, 23, 42, 0.7)`, didOpen: () => { lucide.createIcons(); }
+                html: `<div class="text-center pt-2"><img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-cyan-100 dark:border-neutral-800 shadow-md bg-white" loading="lazy"><h3 class="text-lg sm:text-xl font-bold text-neutral-800 dark:text-white leading-tight">${name}</h3><p class="text-xs sm:text-sm text-neutral-400 dark:text-neutral-500 mb-5 mt-1 font-medium">รหัสประจำตัวนักเรียน: ${id}</p><div class="bg-cyan-50 dark:bg-cyan-950/40 rounded-2xl p-3 sm:p-4 inline-block w-full border border-cyan-100 dark:border-cyan-900/50"><p class="text-[10px] sm:text-xs text-cyan-600 dark:text-cyan-400 mb-1.5 font-bold uppercase flex items-center justify-center"><i data-lucide="phone" class="w-3.5 h-3.5 mr-1.5"></i> เบอร์โทรติดต่อ</p><p class="text-base sm:text-lg font-extrabold text-cyan-800 dark:text-cyan-300 tracking-wide">${phone || 'ไม่มีข้อมูลติดต่อ'}</p></div></div>`,
+                showConfirmButton: true, confirmButtonText: 'ปิดหน้าต่าง', buttonsStyling: false, 
+                customClass: { popup: 'rounded-[1.5rem] w-[90%] max-w-sm border border-neutral-100 dark:border-neutral-800 shadow-2xl', confirmButton: 'bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-3 px-8 rounded-full mt-5 hover:bg-neutral-900 transition-colors text-sm w-full btn-liquid' }, backdrop: `rgba(0, 0, 0, 0.4)`, didOpen: () => { lucide.createIcons(); }
             });
         }
 
-        const settingsModal = document.getElementById('settingsModal');
-        function openSettingsModal() { settingsModal.classList.remove('hidden'); }
-        function closeSettingsModal() { settingsModal.classList.add('hidden'); document.getElementById('advOldPass').value = ''; document.getElementById('advNewPass').value = ''; document.getElementById('advConfPass').value = ''; }
-        settingsModal.addEventListener('click', (e) => { if(e.target === settingsModal) closeSettingsModal(); });
+        window.allProjectsRaw = []; // เก็บตัวดิบทั้งหมด
+        window.myAssignedProjects = []; 
+        window.myAssignedSubmissions = [];
 
-        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const oldPass = document.getElementById('advOldPass').value.trim(); const newPass = document.getElementById('advNewPass').value.trim(); const confPass = document.getElementById('advConfPass').value.trim();
-            if (newPass !== confPass) { Swal.fire({icon: 'warning', title: 'รหัสผ่านไม่ตรงกัน', confirmButtonColor: '#f97316'}); return; }
-            const btn = document.getElementById('btnSaveSettings'); btn.disabled = true; btn.innerHTML = `กำลังบันทึก...`;
-            try {
-                const payload = { action: "updateAdvisorPassword", email: advisorEmail, role: advisorRole, oldPassword: oldPass, newPassword: newPass };
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
-                if (result.status === 'success') { Swal.fire({ icon: 'success', title: 'สำเร็จ!', showConfirmButton: false, timer: 1500 }); closeSettingsModal(); } else throw new Error(result.message);
-            } catch (err) { Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message, confirmButtonColor: '#f97316' }); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-5 h-5 mr-2"></i> บันทึกรหัสผ่านใหม่'; lucide.createIcons(); }
-        });
-
-        // 🔥 ตรรกะแสดงผลใหม่ : อ่านจากแถวบนลงแถวล่าง เพื่อจำว่างานไหนถูกตีกลับและส่งแก้ใหม่ 🔥
-        async function loadDashboard() {
-            try {
-                const response = await fetch(API_URL); const data = await response.json();
-                if (data.status === 'success') {
-                    window.allProjects = data.projects || [];
-                    const myStudentsWork = (data.submissions || []).filter(item => item['อ.ที่ปรึกษา'] === advisorName);
-                    
-                    let trackers = {};
-                    let processedWorks = [];
-                    
-                    for (let i = 0; i < myStudentsWork.length; i++) {
-                        let s = myStudentsWork[i];
-                        let workType = (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ').toString().trim();
-                        let rawStatusText = (s['สถานะ'] || s['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'] || '').toString().trim();
-                        
-                        let parsedStatus = 'รออนุมัติ';
-                        if (rawStatusText === 'ไม่อนุมัติ' || rawStatusText.indexOf('ไม่') > -1) {
-                            parsedStatus = 'ไม่อนุมัติ';
-                        } else if (rawStatusText === 'อนุมัติ' || rawStatusText.indexOf('อนุมัติแล้ว') > -1) {
-                            parsedStatus = 'อนุมัติ';
-                        } else {
-                            parsedStatus = 'รออนุมัติ';
-                        }
-
-                        let reasonKey = Object.keys(s).find(k => String(k).includes('หมายเหตุ') || String(k).includes('เหตุผล'));
-                        let reason = (reasonKey && s[reasonKey]) ? s[reasonKey].toString().trim() : '';
-                        let projId = (s['รหัสโครงงาน'] || '').toString().trim();
-                        
-                        let trackerKey = `${projId}_${workType}`;
-                        
-                        if (!trackers[trackerKey]) {
-                            trackers[trackerKey] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
-                        }
-                        
-                        let newSub = { ...s, _rawStatus: parsedStatus, _workType: workType, _reason: reason };
-                        
-                        if (parsedStatus === 'ไม่อนุมัติ') {
-                            trackers[trackerKey].lastRejectReason = reason;
-                            trackers[trackerKey].lastRejectTime = s['Timestamp'];
-                            trackers[trackerKey].isResubmit = true;
-                            newSub._displayStatus = 'ไม่อนุมัติ';
-                            newSub._isResubmit = false;
-                        } else if (parsedStatus === 'รออนุมัติ') {
-                            if (trackers[trackerKey].isResubmit) {
-                                newSub._displayStatus = 'ส่งแก้ไขแล้ว';
-                                newSub._isResubmit = true;
-                                newSub._oldReason = trackers[trackerKey].lastRejectReason;
-                                newSub._oldRejectTime = trackers[trackerKey].lastRejectTime;
-                            } else {
-                                newSub._displayStatus = 'รออนุมัติ';
-                                newSub._isResubmit = false;
-                            }
-                        } else if (parsedStatus === 'อนุมัติ') {
-                            newSub._displayStatus = 'อนุมัติ';
-                            newSub._isResubmit = false;
-                            trackers[trackerKey] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
-                        }
-                        processedWorks.push(newSub);
-                    }
-
-                    // สลับเอาอันใหม่ล่าสุดขึ้นข้างบน
-                    const reversedWorks = processedWorks.reverse();
-
-                    const pendingWorks = reversedWorks.filter(item => item._displayStatus === 'รออนุมัติ' || item._displayStatus === 'ส่งแก้ไขแล้ว');
-                    const historyWorks = reversedWorks.filter(item => item._displayStatus === 'อนุมัติ' || item._displayStatus === 'ไม่อนุมัติ');
-                    
-                    renderOverviewTable(window.allProjects, reversedWorks); 
-                    renderPendingTable(pendingWorks); 
-                    renderHistoryTable(historyWorks);
-                    
-                    document.getElementById('loadingData').style.display = 'none'; document.getElementById('overviewSection').classList.remove('hidden'); document.getElementById('pendingSection').classList.remove('hidden'); document.getElementById('historySection').classList.remove('hidden');
-                }
-            } catch (error) { document.getElementById('loadingData').innerHTML = `<span class="text-red-500 font-semibold text-lg">❌ โหลดข้อมูลล้มเหลว กรุณารีเฟรชหน้าเว็บ</span>`; }
-        }
-
-        function generateStudentInfoHtml(submission) {
-            let targetProjId = (submission['รหัสโครงงาน'] || "").toString().replace(/\s/g, '').toLowerCase(); 
-            let targetStuId = (submission['รหัสนักเรียน'] || "").toString().replace(/\s/g, '').toLowerCase(); 
-            
-            if (targetProjId === "") {
-                for (let i = 0; i < window.allProjects.length; i++) {
-                    if ((window.allProjects[i]['รหัสนักเรียน'] || "").toString().replace(/\s/g, '').toLowerCase() === targetStuId) {
-                        targetProjId = (window.allProjects[i]['รหัสโครงงาน'] || "").toString().replace(/\s/g, '').toLowerCase(); break;
-                    }
+        // ฟังก์ชันช่วยหาข้อมูลให้เจอแน่นอน ไม่ว่าคอลัมน์ชื่ออะไร
+        function getVal(obj, keywords) {
+            for (let key in obj) {
+                let lowerKey = key.replace(/\s+/g, '').toLowerCase();
+                for (let word of keywords) {
+                    if (lowerKey.includes(word)) return obj[key].toString().trim();
                 }
             }
+            return "";
+        }
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch(API_URL); 
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    window.allProjectsRaw = data.projects || []; 
+                    const allS = data.submissions || [];
+                    
+                    if (currentUserRole !== 'admin') {
+                        document.getElementById('permissionWarning').classList.remove('hidden');
+                    }
+
+                    const searchEmail = userEmail.toLowerCase().trim();
+                    
+                    if (currentUserRole === 'admin') {
+                        window.myAssignedProjects = window.allProjectsRaw;
+                        window.myAssignedSubmissions = allS;
+                    } else {
+                        // 1. 🔥 ค้นหารหัสโครงงานทั้งหมดที่อาจารย์คนนี้เป็น "ที่ปรึกษาหลัก" 🔥
+                        // โดยเช็คคอลัมน์ "อีเมล อ.ที่ปรึกษาหลัก TH" (หรือคีย์เวิร์ดที่เกี่ยวข้อง)
+                        let myProjectIds = [];
+                        window.allProjectsRaw.forEach(p => {
+                            // หาคอลัมน์ที่เกี่ยวข้องกับอีเมลที่ปรึกษาหลัก
+                            let advisorEmail = getVal(p, ['อีเมลอที่ปรึกษาหลัก', 'mainadvisoremail']);
+                            
+                            if (advisorEmail.toLowerCase() === searchEmail) {
+                                let pid = getVal(p, ['รหัสโครงงาน', 'projectid', 'รหัสโปรเจกต์']);
+                                if (pid) myProjectIds.push(pid);
+                            }
+                        });
+                        myProjectIds = [...new Set(myProjectIds)];
+
+                        // 2. ดึงเด็กทุกคนในรหัสโครงงานนั้นมาแสดง (รวมเพื่อนร่วมกลุ่มมาให้ครบ)
+                        window.myAssignedProjects = window.allProjectsRaw.filter(p => {
+                            let pid = getVal(p, ['รหัสโครงงาน', 'projectid']);
+                            return myProjectIds.includes(pid);
+                        });
+                        
+                        // 3. กรองงานส่งทั้งหมดที่ตรงกับรหัสโครงงานนั้น
+                        window.myAssignedSubmissions = allS.filter(s => {
+                            let pid = getVal(s, ['รหัสโครงงาน', 'projectid']);
+                            return myProjectIds.includes(pid);
+                        });
+                    }
+                    
+                    const finalProjIds = [...new Set(window.myAssignedProjects.map(p => getVal(p, ['รหัสโครงงาน'])).filter(id => id !== ""))];
+
+                    renderOverviewTable(finalProjIds, window.myAssignedSubmissions); 
+                    renderAllWorksTable(window.myAssignedSubmissions.slice().reverse()); 
+                    
+                    document.getElementById('loadingData').style.display = 'none'; 
+                    document.getElementById('overviewSection').classList.remove('hidden'); 
+                    document.getElementById('allWorksSection').classList.remove('hidden');
+                }
+            } catch (error) { 
+                console.error(error);
+                document.getElementById('loadingData').innerHTML = `<div class="text-rose-600 flex flex-col items-center gap-3"><i data-lucide="x-octagon" class="w-10 h-10"></i><span class="font-bold text-base">❌ โหลดข้อมูลไม่สำเร็จ กรุณารีเฟรชหน้าเว็บ</span></div>`; 
+                lucide.createIcons();
+            }
+        }
+
+        // ฟังก์ชันเจเนอเรตรายชื่อนักเรียนในกลุ่ม (ตามภาพแนบที่ 2 - คลิกดูโปรไฟล์ได้)
+        function generateStudentInfoHtml(submission) {
+            let targetProjId = getVal(submission, ['รหัสโครงงาน', 'projectid']).toLowerCase();
+            let targetStuId = getVal(submission, ['รหัสนักเรียน', 'studentid', 'รหัสประจำตัว']).toLowerCase();
 
             let groupMembers = [];
-            for (let i = 0; i < window.allProjects.length; i++) {
-                let rowProjId = (window.allProjects[i]['รหัสโครงงาน'] || "").toString().replace(/\s/g, '').toLowerCase();
-                let rowStuId = (window.allProjects[i]['รหัสนักเรียน'] || "").toString().replace(/\s/g, '').toLowerCase();
-                let isMatch = false;
-                if (targetProjId !== "" && rowProjId === targetProjId) isMatch = true; else if (targetStuId !== "" && rowStuId === targetStuId) isMatch = true;
-                if (isMatch && rowStuId !== "") {
-                    let originalStuId = (window.allProjects[i]['รหัสนักเรียน'] || "").toString().trim();
-                    if (!groupMembers.find(m => m.id === originalStuId)) {
+            // วนลูปหาข้อมูลนักเรียนทุกคนที่อยู่โปรเจกต์เดียวกับคนที่ส่งงาน
+            for (let i = 0; i < window.myAssignedProjects.length; i++) {
+                let p = window.myAssignedProjects[i];
+                let rowProjId = getVal(p, ['รหัสโครงงาน']).toLowerCase();
+                
+                if (targetProjId !== "" && rowProjId === targetProjId) {
+                    let stuId = getVal(p, ['รหัสนักเรียน', 'studentid']);
+                    if (!groupMembers.find(m => m.id === stuId)) {
                         groupMembers.push({
-                            id: originalStuId, firstName: (window.allProjects[i]['ชื่อ'] || "").toString().trim(), lastName: (window.allProjects[i]['นามสกุล'] || "").toString().trim(),
-                            phone: (window.allProjects[i]['เบอร์โทรศัพท์'] || "").toString().replace(/'/g, ''),
-                            picUrl: getProcessedImgUrl((window.allProjects[i]['รูปโปรไฟล์'] || "").toString().trim(), (window.allProjects[i]['ชื่อ'] || "").toString().trim())
+                            id: stuId,
+                            firstName: getVal(p, ['ชื่อ', 'firstname']),
+                            lastName: getVal(p, ['นามสกุล', 'lastname']),
+                            phone: getVal(p, ['เบอร์โทร', 'phone']).replace(/'/g, ''),
+                            picUrl: getProcessedImgUrl(getVal(p, ['รูปโปรไฟล์', 'pic']), getVal(p, ['ชื่อ', 'firstname']))
                         });
                     }
                 }
@@ -299,153 +294,96 @@
 
             let memberHtml = groupMembers.map(m => {
                 let isSender = (m.id.toLowerCase() === targetStuId);
-                let senderTag = isSender ? ' <span class="bg-orange-500 text-white px-1.5 py-0.5 rounded-lg text-[8px] sm:text-[9px] font-bold ml-1">ผู้ส่ง</span>' : '';
+                let senderTag = isSender ? ' <span class="bg-cyan-500 text-white px-1.5 py-0.5 rounded-lg text-[8px] sm:text-[9px] font-bold ml-1">ผู้ส่ง</span>' : '';
                 return `
-                <button type="button" onclick="viewStudentPopup('${m.firstName} ${m.lastName}', '${m.id}', '${m.phone}', '${m.picUrl}')" class="w-full text-left flex items-center gap-2 mt-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 transition-colors btn-liquid">
-                    <img src="${m.picUrl}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm bg-white" loading="lazy">
-                    <div class="flex flex-col leading-tight overflow-hidden"><p class="text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 truncate">${m.id} ${m.firstName} ${m.lastName}${senderTag}</p></div>
+                <button type="button" onclick="viewStudentPopup('${m.firstName} ${m.lastName}', '${m.id}', '${m.phone}', '${m.picUrl}')" class="w-full text-left flex items-center gap-2.5 mt-2 bg-neutral-50 dark:bg-neutral-800/60 hover:bg-neutral-100 dark:hover:bg-neutral-700/80 p-2 rounded-xl border border-neutral-100 dark:border-neutral-700 transition-colors btn-liquid">
+                    <img src="${m.picUrl}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-neutral-600 shadow-sm bg-white" loading="lazy">
+                    <div class="flex flex-col leading-tight overflow-hidden"><p class="text-[10px] sm:text-xs font-bold text-neutral-700 dark:text-neutral-200 truncate">${m.id} ${m.firstName} ${m.lastName}${senderTag}</p></div>
                 </button>`;
             }).join('');
 
-            return `<div><span class="font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 px-2 sm:px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs shadow-sm">${submission['รหัสโครงงาน'] || '-'}</span>${memberHtml}</div>`;
+            return `<div><span class="font-extrabold text-neutral-800 dark:text-white bg-neutral-100 dark:bg-neutral-800 px-2.5 py-1 rounded-md border border-neutral-200 dark:border-neutral-700 text-[10px] sm:text-xs shadow-sm"><i data-lucide="hash" class="w-3 h-3 inline-block mr-0.5 text-cyan-600"></i> ${getVal(submission, ['รหัสโครงงาน']) || '-'}</span>${memberHtml}</div>`;
         }
 
-        function renderOverviewTable(projects, reversedWorks) {
+        // 🔥 ตารางที่ 1: ภาพรวมสถานะ 🔥
+        function renderOverviewTable(projectIds, submissions) {
             const tbody = document.getElementById('overviewTableBody'); tbody.innerHTML = '';
-            const myProjects = projects.filter(p => p && p['อ. ที่ปรึกษา TH'] === advisorName);
-            const uniqueProjectIds = [...new Set(myProjects.map(p => p['รหัสโครงงาน']).filter(id => id && id.toString().trim() !== ""))];
-            if (uniqueProjectIds.length === 0) return;
-            uniqueProjectIds.forEach(pid => {
-                const members = myProjects.filter(p => p['รหัสโครงงาน'] === pid);
+            if (projectIds.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-10 text-center text-neutral-500 font-medium">ไม่มีข้อมูลโครงงานที่คุณเป็นที่ปรึกษาหลัก</td></tr>'; return; }
+            
+            projectIds.forEach(pid => {
+                const members = window.myAssignedProjects.filter(p => getVal(p, ['รหัสโครงงาน']) === pid);
+                let projectNameTH = members.length > 0 ? getVal(members[0], ['ชื่อโครงงาน', 'projectname']) : "-";
+                // ใช้ fallback ไปดึงคอลัมน์ที่ 18 (index 17) ถ้าหาไม่เจอจริงๆ
+                if (!projectNameTH || projectNameTH === "-") {
+                   let keys = Object.keys(members[0]);
+                   if (keys.length > 17) projectNameTH = members[0][keys[17]];
+                }
+
+                let projectTitleHtml = `
+                    <div class="flex flex-col items-start gap-1">
+                        <div class="font-extrabold text-neutral-800 dark:text-white bg-neutral-100 dark:bg-neutral-800 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-xs sm:text-sm shadow-sm"><span class="text-cyan-600 dark:text-cyan-400">#</span> ${pid}</div>
+                        <div class="text-xs sm:text-sm font-bold text-neutral-700 dark:text-neutral-200 mt-1 pl-1 whitespace-normal break-words w-full" style="max-width:350px; line-height: 1.6;">${projectNameTH}</div>
+                    </div>
+                `;
+
+                // รายชื่อนักเรียนในตารางภาพรวม
                 const memberHtml = members.map(m => {
-                    const pic = getProcessedImgUrl(m['รูปโปรไฟล์'], m['ชื่อ']);
-                    return `<button type="button" onclick="viewStudentPopup('${m['ชื่อ']} ${m['นามสกุล']}', '${m['รหัสนักเรียน']}', '${m['เบอร์โทรศัพท์'] ? m['เบอร์โทรศัพท์'].replace(/'/g, '') : ""}', '${pic}')" class="w-full text-left flex items-center gap-2 sm:gap-3 mb-2 bg-slate-50 dark:bg-slate-800/50 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 btn-liquid transition-colors"><img src="${pic}" class="w-7 h-7 sm:w-8 h-8 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm" loading="lazy"><div class="flex flex-col leading-tight overflow-hidden"><span class="text-[10px] sm:text-xs text-slate-700 dark:text-slate-200 font-bold truncate">${m['รหัสนักเรียน']}</span><span class="text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">${m['ชื่อ']} ${m['นามสกุล']}</span></div></button>`;
+                    const mId = getVal(m, ['รหัสนักเรียน', 'studentid']);
+                    const mFName = getVal(m, ['ชื่อ', 'firstname']);
+                    const mLName = getVal(m, ['นามสกุล', 'lastname']);
+                    const mPhone = getVal(m, ['เบอร์โทร', 'phone']).replace(/'/g, '');
+                    const pic = getProcessedImgUrl(getVal(m, ['รูปโปรไฟล์']), mFName);
+                    return `<button type="button" onclick="viewStudentPopup('${mFName} ${mLName}', '${mId}', '${mPhone}', '${pic}')" class="w-full text-left flex items-center gap-2.5 mb-2.5 bg-neutral-50 dark:bg-neutral-800/60 p-2 sm:p-2.5 rounded-2xl border border-neutral-100 dark:border-neutral-700 btn-liquid transition-colors"><img src="${pic}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-neutral-600 shadow-sm bg-white" loading="lazy"><div class="flex flex-col leading-tight overflow-hidden"><span class="text-[10px] sm:text-[11px] text-neutral-700 dark:text-neutral-200 font-bold truncate">${mId}</span><span class="text-[9px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 font-medium truncate mt-0.5">${mFName} ${mLName}</span></div></button>`;
                 }).join('');
-                const memberIds = members.map(m => m['รหัสนักเรียน']); 
-                const projectSubs = reversedWorks.filter(s => s && (s['รหัสโครงงาน'] == pid || memberIds.includes(s['รหัสนักเรียน'])));
+                
+                const memberIds = members.map(m => getVal(m, ['รหัสนักเรียน', 'studentid'])); 
+                const projectSubs = submissions.filter(s => s && (getVal(s, ['รหัสโครงงาน']) == pid || memberIds.includes(getVal(s, ['รหัสนักเรียน']))));
                 
                 const getStatusBadge = (workType) => {
-                    const subs = projectSubs.filter(s => s._workType === workType);
-                    if (subs.length === 0) return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 opacity-60">➖ ยังไม่ส่ง</span>`;
-                    
-                    const latest = subs[0]; // เรากลับด้านเอาอันใหม่สุดไว้บนสุด (index 0) แล้ว
-                    
-                    if (latest._displayStatus === 'อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i> อนุมัติ</span>`;
-                    if (latest._displayStatus === 'ไม่อนุมัติ') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i> ตีกลับแก้ไข</span>`;
-                    if (latest._displayStatus === 'ส่งแก้ไขแล้ว') return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 flex items-center justify-center"><i data-lucide="refresh-cw" class="w-3 h-3 mr-1"></i> ส่งแก้ไขแล้ว</span>`;
-                    
-                    return `<span class="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 flex items-center justify-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> รออนุมัติ</span>`;
+                    const subs = projectSubs.filter(s => getVal(s, ['ประเภทงาน']) === workType);
+                    if (subs.length === 0) return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-400 opacity-70 border border-neutral-200 dark:border-neutral-700">➖ ยังไม่ส่ง</span>`;
+                    const status = getVal(subs[subs.length - 1], ['สถานะ', 'status']);
+                    if (status.includes('อนุมัติแล้ว') || status === 'อนุมัติ') return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-900/60 shadow-sm"><i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> อนุมัติ</span>`;
+                    if (status.includes('ไม่อนุมัติ')) return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 flex items-center justify-center border border-rose-100 dark:border-rose-900/60 shadow-sm"><i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ต้องแก้ไข</span>`;
+                    return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center border border-amber-100 dark:border-amber-900/60 shadow-sm"><i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> รอตรวจ</span>`;
                 };
-                const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-orange-50/30 dark:hover:bg-orange-900/20 transition-colors";
-                tr.innerHTML = `<td class="px-2 py-4 sm:px-4 sm:py-5 align-top font-bold text-slate-800 dark:text-slate-200 text-xs sm:text-sm border-r border-slate-50 dark:border-slate-700/50">${pid}</td><td class="px-2 py-2 sm:px-4 sm:py-3 align-top border-r border-slate-50 dark:border-slate-700/50">${memberHtml}</td><td class="px-2 py-4 sm:px-4 sm:py-5 align-top text-center">${getStatusBadge('โครงร่าง (Proposal)')}</td><td class="px-2 py-4 sm:px-4 sm:py-5 align-top text-center">${getStatusBadge('รายงานความก้าวหน้า')}</td><td class="px-2 py-4 sm:px-4 sm:py-5 align-top text-center">${getStatusBadge('รายงานฉบับสมบูรณ์')}</td>`;
+
+                const tr = document.createElement('tr'); 
+                // มีแค่ 5 Columns เหมือนภาพแนบ
+                tr.innerHTML = `<td class="px-3 py-4 align-top">${projectTitleHtml}</td><td class="px-3 py-3 align-top">${memberHtml}</td><td class="px-2 py-4 align-top text-center">${getStatusBadge('โครงร่าง (Proposal)')}</td><td class="px-2 py-4 align-top text-center">${getStatusBadge('รายงานความก้าวหน้า')}</td><td class="px-2 py-4 align-top text-center">${getStatusBadge('รายงานฉบับสมบูรณ์')}</td>`;
                 tbody.appendChild(tr);
             });
             lucide.createIcons();
         }
 
-        // 🔥 ตารางงานรอตรวจ (ดึงหมายเหตุเก่ามาโชว์ให้อาจารย์รู้ว่าแก้อะไรไป) 🔥
-        function renderPendingTable(works) {
-            const tbody = document.getElementById('pendingTableBody'); document.getElementById('pendingCount').innerText = works.length; tbody.innerHTML = '';
-            if (works.length === 0) return;
+        // 🔥 ตารางที่ 2: ประวัติการส่งทั้งหมด (ซ่อนปุ่มไฟล์แนบเหมือนภาพแนบ) 🔥
+        function renderAllWorksTable(works) {
+            const tbody = document.getElementById('allWorksTableBody'); tbody.innerHTML = '';
+            if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-12 text-center text-neutral-500 font-medium">ยังไม่มีประวัติการส่งงานในกลุ่มของคุณ</td></tr>'; return; }
+            
             works.forEach(item => {
-                let signatureButton = item._workType === 'แบบคำร้อง' ? '' : `<a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>`;
-                let fileReportLabel = item._workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
+                const workType = getVal(item, ['ประเภทงาน']) || 'ไม่ระบุ';
+                const status = getVal(item, ['สถานะ', 'status']) || 'รออนุมัติ';
+                let reason = getVal(item, ['หมายเหตุ', 'เหตุผล']);
 
-                // 🔥 เปลี่ยนข้อความป้ายกำกับตามภาพ 🔥
-                let statusBadge = item._isResubmit 
-                    ? `<span class="bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-400 px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold flex items-center w-fit mt-1.5 shadow-sm"><i data-lucide="refresh-cw" class="w-3 h-3 mr-1"></i> ส่งใหม่และแก้ไข</span>` 
-                    : ``; // งานส่งครั้งแรก ไม่ให้แสดงป้ายนี้
+                let reasonHtml = reason ? `<div class="text-[10px] sm:text-[11px] text-rose-700 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl inline-block w-full max-w-[200px] whitespace-normal break-words border border-rose-100 dark:border-rose-900/60 text-left shadow-inner"><div class="font-bold flex items-center mb-1"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 mr-1 text-rose-500"></i> ข้อความอาจารย์:</div>${reason}</div>` : `<span class="text-neutral-300 dark:text-neutral-700">-</span>`;
 
-                let reasonHtml = '';
-                if (item._isResubmit && item._oldReason) {
-                    reasonHtml = `<div class="text-[10px] sm:text-[11px] text-blue-800 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-900/30 p-3 rounded-xl border border-blue-200 dark:border-blue-800/50 mt-3 shadow-sm"><div class="font-bold flex items-center mb-1.5 text-blue-600 dark:text-blue-400"><i data-lucide="info" class="w-4 h-4 mr-1"></i> อาจารย์เคยให้เหตุผลแก้ไว้ว่า:</div>${item._oldReason}<div class="mt-2 text-[9px] sm:text-[10px] opacity-70 border-t border-blue-200 dark:border-blue-800/50 pt-2 font-semibold flex items-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i> ตีกลับไปเมื่อ: ${formatDateTime(item._oldRejectTime).replace('<br>', ' ')}</div></div>`;
-                }
-
-                const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors";
+                let badge = status.includes('อนุมัติ') && !status.includes('ไม่') ? `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 shadow-sm flex items-center justify-center border border-emerald-100 dark:border-emerald-900/60"><i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>อนุมัติแล้ว</span>` : status.includes('ไม่อนุมัติ') ? `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 shadow-sm flex items-center justify-center border border-rose-100 dark:border-rose-900/60"><i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>ไม่อนุมัติ</span>` : `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 shadow-sm flex items-center justify-center border border-amber-100 dark:border-amber-900/60"><i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>รอตรวจ</span>`;
+                
+                // 🔴 นำปุ่มดาวน์โหลดไฟล์ทิ้งทั้งหมด (Read-Only เหมือนภาพแนบ) 🔴
+                const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">
-                        <span class="font-bold text-slate-700 dark:text-slate-300 text-xs">เวลาที่ส่งมาตรวจ:</span><br>${formatDateTime(item['Timestamp'])}
-                    </td>
-                    <td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td>
-                    <td class="px-2 py-4 sm:px-4 sm:py-5 align-middle leading-tight">
-                        <span class="font-bold text-orange-600 dark:text-orange-400 text-sm sm:text-base">${item._workType}</span>
-                        ${statusBadge}
-                        ${reasonHtml}
-                    </td>
-                    <td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-1.5"><a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-orange-100 dark:border-orange-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>${fileReportLabel}</a>${signatureButton}</div></td>
-                    <td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-2"><button onclick="updateStatus('${item['รหัสนักเรียน']}', '${item._workType}', 'อนุมัติ')" class="w-full btn-liquid btn-approve px-2 py-2 rounded-lg text-[10px] sm:text-xs font-bold flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i>อนุมัติ</button><button onclick="updateStatus('${item['รหัสนักเรียน']}', '${item._workType}', 'ไม่อนุมัติ')" class="w-full btn-liquid btn-reject px-2 py-2 rounded-lg text-[10px] sm:text-xs font-bold flex items-center justify-center"><i data-lucide="x" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i>ไม่อนุมัติ</button></div></td>
+                    <td class="px-3 py-4 align-middle opacity-80">${formatDateTime(getVal(item, ['timestamp', 'เวลา']))}</td>
+                    <td class="px-3 py-3 align-middle">${generateStudentInfoHtml(item)}</td>
+                    <td class="px-3 py-4 font-bold text-indigo-700 dark:text-indigo-400 text-[10px] sm:text-sm align-middle leading-tight">${workType}</td>
+                    <td class="px-3 py-4 text-left align-middle">${reasonHtml}</td>
+                    <td class="px-3 py-4 text-center align-middle">${badge}</td>
                 `;
                 tbody.appendChild(tr);
             });
             lucide.createIcons();
         }
 
-        // 🔥 ตารางประวัติ (History) 🔥
-        function renderHistoryTable(works) {
-            const tbody = document.getElementById('historyTableBody'); tbody.innerHTML = '';
-            if (works.length === 0) return;
-            works.forEach(item => {
-                let signatureButton = item._workType === 'แบบคำร้อง' ? '' : `<a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i>หน้าลายเซ็น</a>`;
-                let fileReportLabel = item._workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
-
-                let reasonHtml = item._reason ? `<div class="text-[10px] sm:text-[11px] text-rose-700 font-medium bg-rose-50 dark:bg-rose-900/30 p-2.5 rounded-xl border border-rose-100 dark:border-rose-800/50 inline-block w-full max-w-[200px] whitespace-normal break-words text-left shadow-sm"><span class="font-bold flex items-center mb-1 text-rose-600"><i data-lucide="message-square-warning" class="w-3 h-3 mr-1"></i> เหตุผลที่สั่งแก้:</span>${item._reason}</div>` : `<span class="text-slate-300">-</span>`;
-
-                let badge = item._displayStatus === 'อนุมัติ' 
-                    ? `<span class="px-2 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>อนุมัติแล้ว</span>` 
-                    : `<span class="px-2 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>ไม่อนุมัติ (ตีกลับ)</span>`;
-                
-                const tr = document.createElement('tr'); tr.className = "border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors";
-                tr.innerHTML = `<td class="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle"><span class="font-bold text-slate-700 dark:text-slate-300 text-xs">เวลาที่สั่งแก้/อนุมัติ:</span><br>${formatDateTime(item['Timestamp'])}</td><td class="px-2 py-3 sm:px-4 sm:py-4 align-middle">${generateStudentInfoHtml(item)}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-slate-800 dark:text-slate-200 font-bold text-xs sm:text-sm align-middle leading-tight">${item._workType}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">${reasonHtml}</td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle"><div class="flex flex-col gap-1.5"><a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-orange-100 dark:border-orange-800 flex items-center justify-center"><i data-lucide="file-text" class="w-3 h-3 mr-1"></i>${fileReportLabel}</a>${signatureButton}</div></td><td class="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">${badge}</td>`;
-                tbody.appendChild(tr);
-            });
-            lucide.createIcons();
-        }
-
-        async function updateStatus(studentId, workType, newStatus) {
-            let reasonText = '';
-            
-            if (newStatus === 'ไม่อนุมัติ') {
-                const result = await Swal.fire({
-                    title: 'ยืนยันผลการตรวจ?',
-                    html: `คุณต้องการปรับสถานะเป็น <br><b class="text-rose-500 text-lg sm:text-xl">${newStatus}</b> ใช่หรือไม่?<br><br><div class="text-left text-sm text-slate-600 font-bold mb-2">ระบุเหตุผลที่ต้องแก้ไข (ถ้ามี):</div>`,
-                    icon: 'question',
-                    input: 'textarea',
-                    inputPlaceholder: 'พิมพ์เหตุผลการไม่อนุมัติที่นี่... (ไม่บังคับ)',
-                    showCancelButton: true,
-                    confirmButtonColor: '#f43f5e',
-                    cancelButtonColor: '#64748b',
-                    confirmButtonText: 'ยืนยันไม่อนุมัติ',
-                    cancelButtonText: 'ยกเลิก',
-                    customClass: {
-                        input: 'rounded-xl border-slate-300 focus:ring-rose-500 focus:border-rose-500 text-sm p-3 shadow-sm',
-                        popup: 'rounded-[2rem] p-6'
-                    }
-                });
-                if (!result.isConfirmed) return;
-                reasonText = result.value || '';
-            } else {
-                const result = await Swal.fire({
-                    title: `ยืนยันผลการตรวจ?`,
-                    html: `คุณต้องการปรับสถานะเป็น <br><b class="text-emerald-500 text-lg sm:text-xl">${newStatus}</b> ใช่หรือไม่?`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#10b981',
-                    cancelButtonColor: '#64748b',
-                    confirmButtonText: 'ยืนยัน',
-                    cancelButtonText: 'ยกเลิก',
-                    customClass: { popup: 'rounded-[2rem] p-6' }
-                });
-                if (!result.isConfirmed) return;
-            }
-
-            Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-            try {
-                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "updateStatus", studentId: studentId, workType: workType, status: newStatus, reason: reasonText }) }); 
-                const data = await response.json();
-                if (data.status === 'success') { await Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500 }); loadDashboard(); } else throw new Error(data.message);
-            } catch (error) { Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message, confirmButtonColor: '#f97316' }); }
-        }
-        
         loadDashboard();
     </script>
 </body>
