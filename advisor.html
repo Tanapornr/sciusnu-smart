@@ -179,7 +179,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwRP3Vn_ksMP0C7ENQ6xsRLA-kZAUrl4qYowfmktRhY14vlTi33c3FQ7iyQoTr9IC7mzg/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbx8EK03qeYH64nMZZi2BrMrO1IzkQKB6gF9qRmkNMmvqEzG5JKJeg89Xt1BL98WgHhaBw/exec';
         
         lucide.createIcons();
 
@@ -194,7 +194,7 @@
         const currentUserRole = localStorage.getItem('userRole'); 
 
         // 🔥 แก้ไขบักจุดนี้: อนุญาตให้ advisor เข้าได้ 🔥
-        if (currentUserRole !== 'advisor_main' && currentUserRole !== 'advisor' && currentUserRole !== 'admin') {
+      if (currentUserRole !== 'advisor_main' && currentUserRole !== 'admin') {
     window.location.href = 'index.html';
 }
         
@@ -508,15 +508,15 @@ function parseSubmissionStatus(rawStatus) {
         });
 
         try {
-            const payload = {
-                action: "updateStatus",
-                studentId: studentId,
-                workType: workType,
-                status: result.value.status,
-                reason: result.value.reason || "",
-                reviewerEmail: localStorage.getItem("userEmail"),
-                role: localStorage.getItem("userRole")
-            };
+       const payload = {
+  action: "updateStatus",
+  studentId: studentId,
+  workType: workType,
+  status: result.value.status,
+  reason: result.value.reason || "",
+  reviewerEmail: localStorage.getItem("userEmail"),
+  role: "advisor_main"
+};
 
             const res = await fetch(API_URL, {
                 method: 'POST',
