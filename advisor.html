@@ -658,6 +658,8 @@ async function loadDashboard() {
 
              const parsedStatus = parseSubmissionStatus(status);
 
+const parsedStatus = parseSubmissionStatus(status);
+
 let badge = '';
 if (parsedStatus === 'อนุมัติ') {
     badge = `<span class="px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold bg-emerald-50 text-emerald-600 border border-emerald-200 inline-flex items-center justify-center whitespace-nowrap"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 mr-1.5"></i>อนุมัติ</span>`;
@@ -674,7 +676,7 @@ let fileButton = fileUrl
     ? `<a href="${fileUrl}" target="_blank" class="btn-liquid text-orange-800 dark:text-orange-300 bg-orange-50 dark:bg-neutral-800 px-4 py-2 rounded-lg text-xs font-extrabold border border-orange-200 dark:border-neutral-700 inline-flex items-center justify-center whitespace-nowrap hover:bg-orange-100 transition-colors"><i data-lucide="file-text" class="w-4 h-4 mr-1.5 opacity-80"></i> ไฟล์รูปเล่ม</a>`
     : `<span class="text-neutral-300 text-xs">-</span>`;
 
-const canReviewWork = canCurrentUserReviewSubmission(item);
+const canReviewWork = true;
 
 let reviewButton = canReviewWork
     ? `<button onclick="openActionModal('${studentIdStr}', '${workType}', '${status}', '${reason}')" class="btn-liquid text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-neutral-800 px-4 py-2 rounded-lg text-xs font-extrabold border border-indigo-200 dark:border-neutral-700 inline-flex items-center justify-center whitespace-nowrap hover:bg-indigo-100 transition-colors">
@@ -689,7 +691,7 @@ let reviewButton = canReviewWork
                     <td class="px-3 py-4 font-bold text-indigo-700 dark:text-indigo-400 text-[10px] sm:text-sm align-middle leading-tight">${workType}</td>
                     <td class="px-3 py-4 text-left align-middle">${reasonHtml}</td>
                     <td class="px-3 py-4 text-center align-middle">${badge}</td>
-                    <td class="px-3 py-4 text-center align-middle">${fileButton}</td>
+                   <td class="px-3 py-4 text-center align-middle">${fileButton}</td>
                     <td class="px-3 py-4 text-center align-middle">${reviewButton}</td>
                 `;
                 tbody.appendChild(tr);
