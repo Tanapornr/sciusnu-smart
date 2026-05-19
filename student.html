@@ -107,116 +107,142 @@
         
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(249, 115, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
     
-    /* iOS Minimal Project Header */
-.ios-dashboard {
-    background: rgba(255, 255, 255, 0.72);
+    /* Compact iOS Project Summary */
+.compact-project-shell {
     border-top: 1px solid rgba(15, 23, 42, 0.06);
+    background: rgba(255, 255, 255, 0.62);
 }
 
-.dark .ios-dashboard {
-    background: rgba(13, 13, 13, 0.45);
+.dark .compact-project-shell {
     border-top-color: rgba(255, 255, 255, 0.06);
+    background: rgba(13, 13, 13, 0.45);
 }
 
-.ios-soft-card {
+.compact-card {
     position: relative;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.88);
+    background: rgba(255, 255, 255, 0.9);
     border: 1px solid rgba(15, 23, 42, 0.06);
-    border-radius: 26px;
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.055);
-    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+    border-radius: 22px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
 }
 
-.ios-soft-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
-    border-color: rgba(15, 23, 42, 0.09);
-}
-
-.dark .ios-soft-card {
-    background: rgba(24, 24, 27, 0.82);
+.dark .compact-card {
+    background: rgba(24, 24, 27, 0.84);
     border-color: rgba(255, 255, 255, 0.07);
-    box-shadow: 0 22px 55px rgba(0, 0, 0, 0.34);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.32);
 }
 
-.ios-project-card {
-    min-height: 126px;
+.compact-title-card {
     background:
-        linear-gradient(135deg, rgba(255, 247, 237, 0.88), rgba(255, 255, 255, 0.92)),
+        linear-gradient(135deg, rgba(255, 247, 237, 0.9), rgba(255, 255, 255, 0.94)),
         rgba(255, 255, 255, 0.9);
 }
 
-.dark .ios-project-card {
+.dark .compact-title-card {
     background:
-        linear-gradient(135deg, rgba(67, 42, 28, 0.45), rgba(24, 24, 27, 0.92)),
+        linear-gradient(135deg, rgba(67, 42, 28, 0.42), rgba(24, 24, 27, 0.92)),
         rgba(24, 24, 27, 0.86);
 }
 
-.ios-accent {
+.compact-accent {
     position: absolute;
     inset: 0 auto 0 0;
     width: 5px;
     border-radius: 999px;
 }
 
-.ios-label {
+.compact-label {
     color: #94a3b8;
-    letter-spacing: .03em;
+    letter-spacing: .02em;
 }
 
-.ios-project-title {
+.compact-title {
     color: #ea580c;
     font-weight: 800;
-    line-height: 1.55;
+    line-height: 1.45;
 }
 
-.dark .ios-project-title {
+.dark .compact-title {
     color: #fb923c;
 }
 
-.ios-person-button {
-    background: rgba(248, 250, 252, 0.92);
-    border: 1px solid rgba(15, 23, 42, 0.06);
-    border-radius: 20px;
-    transition: background .2s ease, transform .2s ease, border-color .2s ease;
+.compact-info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: .65rem;
 }
 
-.ios-person-button:hover {
-    background: #ffffff;
-    border-color: rgba(59, 130, 246, 0.18);
-    transform: translateY(-1px);
+@media (min-width: 640px) {
+    .compact-info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
-.dark .ios-person-button {
-    background: rgba(39, 39, 42, 0.72);
+.compact-info-item {
+    min-height: 74px;
+    background: rgba(248, 250, 252, 0.76);
+    border: 1px solid rgba(15, 23, 42, 0.055);
+    border-radius: 18px;
+    padding: .85rem .95rem;
+}
+
+.dark .compact-info-item {
+    background: rgba(39, 39, 42, 0.58);
     border-color: rgba(255, 255, 255, 0.07);
 }
 
-.ios-icon-chip {
-    width: 2rem;
-    height: 2rem;
+.compact-icon {
+    width: 1.9rem;
+    height: 1.9rem;
     border-radius: 999px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(248, 250, 252, 0.9);
+    background: #ffffff;
     border: 1px solid rgba(15, 23, 42, 0.06);
+    flex-shrink: 0;
 }
 
-.dark .ios-icon-chip {
-    background: rgba(39, 39, 42, 0.8);
+.dark .compact-icon {
+    background: rgba(24, 24, 27, 0.9);
     border-color: rgba(255, 255, 255, 0.07);
 }
 
-.ios-status-card {
-    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(248,250,252,0.88));
+.compact-partner-btn {
+    width: 100%;
+    min-height: 50px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    border-radius: 16px;
+    transition: transform .18s ease, background .18s ease, border-color .18s ease;
 }
 
-.dark .ios-status-card {
-    background: linear-gradient(180deg, rgba(24,24,27,0.88), rgba(18,18,20,0.9));
+.compact-partner-btn:hover {
+    transform: translateY(-1px);
+    background: #ffffff;
+    border-color: rgba(59, 130, 246, 0.18);
 }
-     
+
+.dark .compact-partner-btn {
+    background: rgba(24, 24, 27, 0.68);
+    border-color: rgba(255, 255, 255, 0.07);
+}
+
+.compact-status-card .timeline-step {
+    padding-bottom: 1.05rem;
+}
+
+.compact-status-card .timeline-step::before {
+    left: .95rem;
+    top: 1.8rem;
+}
+
+.compact-status-card .timeline-icon {
+    width: 1.9rem;
+    height: 1.9rem;
+    font-size: .9rem;
+}
     
     </style>
 </head>
@@ -262,112 +288,110 @@
             </div>
         </div>
         
-       <div id="headerProjectInfo" class="ios-dashboard mt-2 hidden pt-4 sm:pt-5 pb-3 max-w-7xl mx-auto px-4">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div id="headerProjectInfo" class="compact-project-shell mt-2 hidden pt-3 sm:pt-4 pb-3 max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
 
-        <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="ios-soft-card ios-project-card sm:col-span-2 text-left p-5 sm:p-6">
-                <div class="ios-accent bg-gradient-to-b from-orange-400 to-pink-500"></div>
-                <p class="ios-label text-[11px] sm:text-xs flex items-center uppercase font-bold mb-2 ml-2">
-                    <span class="ios-icon-chip mr-2 text-orange-500">
+        <div class="lg:col-span-8 space-y-3">
+            <div class="compact-card compact-title-card p-4 sm:p-5">
+                <div class="compact-accent bg-gradient-to-b from-orange-400 to-pink-500"></div>
+                <p class="compact-label text-[11px] sm:text-xs flex items-center font-bold mb-1.5 ml-2">
+                    <span class="compact-icon mr-2 text-orange-500">
                         <i data-lucide="book-open" class="w-4 h-4"></i>
                     </span>
                     ชื่อโครงงานวิจัย
                 </p>
-                <p id="headerProjectName" class="ios-project-title text-base sm:text-xl w-full px-2 whitespace-normal break-words" title="-">-</p>
+                <p id="headerProjectName" class="compact-title text-sm sm:text-lg w-full px-2 whitespace-normal break-words line-clamp-2" title="-">-</p>
             </div>
 
-            <div class="ios-soft-card text-left p-4 sm:p-5">
-                <div class="ios-accent bg-blue-400"></div>
-                <p class="ios-label text-[11px] sm:text-xs flex items-center uppercase font-bold mb-3 ml-2">
-                    <span class="ios-icon-chip mr-2 text-blue-500">
-                        <i data-lucide="users" class="w-4 h-4"></i>
-                    </span>
-                    คู่โครงงาน
-                </p>
-                <div id="headerPartnerContainer" class="w-full"></div>
-            </div>
-
-            <div class="ios-soft-card text-left p-4 sm:p-5">
-                <div class="ios-accent bg-emerald-400"></div>
-                <p class="ios-label text-[11px] sm:text-xs flex items-center uppercase font-bold mb-3 ml-2">
-                    <span class="ios-icon-chip mr-2 text-emerald-500">
-                        <i data-lucide="graduation-cap" class="w-4 h-4"></i>
-                    </span>
-                    อ.ที่ปรึกษาหลัก
-                </p>
-                <div id="headerAdvisor" class="w-full px-2">
-                    <div class="font-extrabold text-neutral-800 dark:text-neutral-100 text-sm sm:text-base truncate" id="advisorNameText">-</div>
-                    <div class="text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400 truncate mt-1" id="advisorEmailText"></div>
+            <div class="compact-info-grid">
+                <div class="compact-info-item">
+                    <div class="flex items-center mb-2">
+                        <span class="compact-icon mr-2 text-blue-500">
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                        </span>
+                        <p class="compact-label text-[11px] sm:text-xs font-bold">คู่โครงงาน</p>
+                    </div>
+                    <div id="headerPartnerContainer" class="w-full"></div>
                 </div>
-            </div>
 
-            <div class="ios-soft-card text-left p-4 sm:p-5">
-                <div class="ios-accent bg-purple-400"></div>
-                <p class="ios-label text-[11px] sm:text-xs flex items-center uppercase font-bold mb-3 ml-2">
-                    <span class="ios-icon-chip mr-2 text-purple-500">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i>
-                    </span>
-                    อ.ที่ปรึกษาร่วม
-                </p>
-                <div id="headerCoAdvisor" class="w-full px-2">
-                    <div class="font-extrabold text-neutral-800 dark:text-neutral-100 text-sm sm:text-base truncate" id="coAdvisorNameText">-</div>
-                    <div class="text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400 truncate mt-1" id="coAdvisorEmailText"></div>
+                <div class="compact-info-item">
+                    <div class="flex items-center mb-2">
+                        <span class="compact-icon mr-2 text-emerald-500">
+                            <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                        </span>
+                        <p class="compact-label text-[11px] sm:text-xs font-bold">อ.ที่ปรึกษาหลัก</p>
+                    </div>
+                    <div id="headerAdvisor" class="w-full">
+                        <div class="font-extrabold text-neutral-800 dark:text-neutral-100 text-xs sm:text-sm truncate" id="advisorNameText">-</div>
+                        <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5" id="advisorEmailText"></div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="ios-soft-card text-left p-4 sm:p-5">
-                <div class="ios-accent bg-teal-400"></div>
-                <p class="ios-label text-[11px] sm:text-xs flex items-center uppercase font-bold mb-3 ml-2">
-                    <span class="ios-icon-chip mr-2 text-teal-500">
-                        <i data-lucide="school" class="w-4 h-4"></i>
-                    </span>
-                    อ.ที่ปรึกษาโรงเรียน
-                </p>
-                <div id="headerSchoolAdvisor" class="w-full px-2">
-                    <div class="font-extrabold text-neutral-800 dark:text-neutral-100 text-sm sm:text-base truncate" id="schoolAdvisorNameText">-</div>
-                    <div class="text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400 truncate mt-1" id="schoolAdvisorEmailText"></div>
+                <div class="compact-info-item">
+                    <div class="flex items-center mb-2">
+                        <span class="compact-icon mr-2 text-purple-500">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        </span>
+                        <p class="compact-label text-[11px] sm:text-xs font-bold">อ.ที่ปรึกษาร่วม</p>
+                    </div>
+                    <div id="headerCoAdvisor" class="w-full">
+                        <div class="font-extrabold text-neutral-800 dark:text-neutral-100 text-xs sm:text-sm truncate" id="coAdvisorNameText">-</div>
+                        <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5" id="coAdvisorEmailText"></div>
+                    </div>
+                </div>
+
+                <div class="compact-info-item">
+                    <div class="flex items-center mb-2">
+                        <span class="compact-icon mr-2 text-teal-500">
+                            <i data-lucide="school" class="w-4 h-4"></i>
+                        </span>
+                        <p class="compact-label text-[11px] sm:text-xs font-bold">อ.ที่ปรึกษาโรงเรียน</p>
+                    </div>
+                    <div id="headerSchoolAdvisor" class="w-full">
+                        <div class="font-extrabold text-neutral-800 dark:text-neutral-100 text-xs sm:text-sm truncate" id="schoolAdvisorNameText">-</div>
+                        <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5" id="schoolAdvisorEmailText"></div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="ios-soft-card ios-status-card md:col-span-1 text-left p-5 sm:p-6 flex flex-col justify-center min-h-full">
-            <p class="text-sm sm:text-base text-neutral-800 dark:text-neutral-100 font-extrabold mb-5 w-full border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center">
-                <span class="ios-icon-chip mr-2.5 text-indigo-500">
-                    <i data-lucide="truck" class="w-5 h-5"></i>
+        <div class="compact-card compact-status-card lg:col-span-4 p-4 sm:p-5">
+            <p class="text-sm sm:text-base text-neutral-800 dark:text-neutral-100 font-extrabold mb-3 w-full border-b border-neutral-100 dark:border-neutral-800 pb-2.5 flex items-center">
+                <span class="compact-icon mr-2 text-indigo-500">
+                    <i data-lucide="truck" class="w-4 h-4"></i>
                 </span>
                 สถานะการส่งงาน
             </p>
 
-            <div class="w-full pl-1 sm:pl-2">
+            <div class="w-full pl-1">
                 <div class="timeline-step">
                     <div class="timeline-icon" id="icon-proposal">1</div>
-                    <div class="ml-4 sm:ml-5">
+                    <div class="ml-4">
                         <p class="text-xs sm:text-sm font-extrabold text-neutral-800 dark:text-neutral-200">โครงร่าง (Proposal)</p>
-                        <p class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-500 mt-1" id="text-proposal">ยังไม่มีข้อมูล</p>
+                        <p class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-500 mt-0.5" id="text-proposal">ยังไม่มีข้อมูล</p>
                     </div>
                 </div>
 
                 <div class="timeline-step">
                     <div class="timeline-icon" id="icon-progress">2</div>
-                    <div class="ml-4 sm:ml-5">
+                    <div class="ml-4">
                         <p class="text-xs sm:text-sm font-extrabold text-neutral-800 dark:text-neutral-200">รายงานความก้าวหน้า</p>
-                        <p class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-500 mt-1" id="text-progress">รอการส่งงาน</p>
+                        <p class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-500 mt-0.5" id="text-progress">รอการส่งงาน</p>
                     </div>
                 </div>
 
                 <div class="timeline-step">
                     <div class="timeline-icon" id="icon-final">3</div>
-                    <div class="ml-4 sm:ml-5">
+                    <div class="ml-4">
                         <p class="text-xs sm:text-sm font-extrabold text-neutral-800 dark:text-neutral-200">รายงานฉบับสมบูรณ์</p>
-                        <p class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-500 mt-1" id="text-final">รอการส่งงาน</p>
+                        <p class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-500 mt-0.5" id="text-final">รอการส่งงาน</p>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
+        
     </nav>
 
     <div class="max-w-7xl mx-auto mt-4 sm:mt-6 px-3 sm:px-4 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -778,7 +802,7 @@
                                 let pPhone = getVal(partner, ['เบอร์โทร', 'phone']).replace(/'/g, '');
                                 let pPic = getProcessedImgUrl(getVal(partner, ['รูปโปรไฟล์', 'pic']), fName);
                                 
-                               html += `<button type="button" onclick="viewStudentPopup('${fName} ${lName}', '${pId}', '${pPhone}', '${pPic}')" class="ios-person-button w-full text-left flex items-center gap-3 mb-2 p-3 btn-liquid"><img src="${pPic}" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-white dark:border-neutral-700 shadow-sm bg-white" loading="lazy"><div class="flex flex-col leading-tight overflow-hidden"><span class="text-xs sm:text-sm text-neutral-800 dark:text-neutral-100 font-extrabold truncate">${pId}</span><span class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 font-medium truncate mt-1">${fName} ${lName}</span></div><i data-lucide="chevron-right" class="w-4 h-4 ml-auto text-neutral-300 dark:text-neutral-600 flex-shrink-0"></i></button>`;
+                              html += `<button type="button" onclick="viewStudentPopup('${fName} ${lName}', '${pId}', '${pPhone}', '${pPic}')" class="compact-partner-btn text-left flex items-center gap-2.5 p-2.5 btn-liquid"><img src="${pPic}" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-neutral-700 shadow-sm bg-white" loading="lazy"><div class="flex flex-col leading-tight overflow-hidden"><span class="text-xs sm:text-sm text-neutral-800 dark:text-neutral-100 font-extrabold truncate">${pId}</span><span class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 font-medium truncate mt-0.5">${fName} ${lName}</span></div><i data-lucide="chevron-right" class="w-4 h-4 ml-auto text-neutral-300 dark:text-neutral-600 flex-shrink-0"></i></button>`;
                             });
                             partnerContainer.innerHTML = html;
                         } else { 
