@@ -270,16 +270,6 @@
             return "";
         }
 
-        function getVal(obj, keywords) {
-    for (let key in obj) {
-        let lowerKey = key.replace(/\s+/g, '').toLowerCase();
-        for (let word of keywords) {
-            if (lowerKey.includes(word)) return obj[key].toString().trim();
-        }
-    }
-    return "";
-}
-
 function parseSubmissionStatus(rawStatus) {
     const status = String(rawStatus || '').replace(/\s+/g, '').toLowerCase();
 
