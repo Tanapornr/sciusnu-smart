@@ -640,6 +640,37 @@
             return "";
         }
 
+        function parseSubmissionStatus(rawStatus) {
+    const status = String(rawStatus || '').replace(/\s+/g, '').toLowerCase();
+
+    if (!status) return 'รออนุมัติ';
+
+    if (
+        status.includes('ไม่อนุมัติ') ||
+        status.includes('แก้ไข') ||
+        status.includes('reject')
+    ) {
+        return 'ไม่อนุมัติ';
+    }
+
+    if (
+        status.includes('รอ') ||
+        status.includes('pending') ||
+        status.includes('wait')
+    ) {
+        return 'รออนุมัติ';
+    }
+
+    if (
+        status === 'อนุมัติ' ||
+        status === 'อนุมัติแล้ว' ||
+        status === 'approved'
+    ) {
+        return 'อนุมัติ';
+    }
+
+    return 'รออนุมัติ';
+}
         // 🔥 ดึงอีเมลอาจารย์มาแสดงอย่างถูกต้อง 🔥
         // เปลี่ยนมาใช้การระบุคอลัมน์ตรงๆ ตามที่คุณครูขอ เพื่อความแม่นยำ 100%
         function getEmailFromIndex(obj, index) {
@@ -1073,9 +1104,7 @@ if (fileInput) {
                 let workType = getVal(s, ['ประเภทงาน']) || 'ไม่ระบุ';
                 let rawStatusText = getVal(s, ['สถานะ', 'status']) || '';
                 
-                let parsedStatus = 'รออนุมัติ';
-                if (rawStatusText.includes('ไม่')) parsedStatus = 'ไม่อนุมัติ';
-                else if (rawStatusText.includes('อนุมัติ')) parsedStatus = 'อนุมัติ';
+                let parsedStatus = parseSubmissionStatus(rawStatusText);
 
                 let reason = getVal(s, ['หมายเหตุ', 'เหตุผล']);
                 let newSub = { ...s, _rawStatus: parsedStatus, _workType: workType, _reason: reason };
