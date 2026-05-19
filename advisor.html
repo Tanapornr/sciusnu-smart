@@ -143,7 +143,8 @@
                             <th class="px-3 py-3 font-semibold uppercase tracking-wider">ประเภทงาน</th>
                             <th class="px-3 py-3 text-left font-semibold uppercase tracking-wider min-w-[150px]">หมายเหตุ</th>
                             <th class="px-3 py-3 text-center font-semibold uppercase tracking-wider">สถานะ</th>
-                            <th class="px-3 py-3 text-center font-semibold uppercase tracking-wider min-w-[180px]">การจัดการไฟล์</th>
+                            <th class="px-3 py-3 text-center font-semibold uppercase tracking-wider min-w-[130px]">ไฟล์แนบ</th>
+                            <th class="px-3 py-3 text-center font-semibold uppercase tracking-wider min-w-[140px]">ตรวจงาน</th>
                         </tr>
                     </thead>
                     <tbody id="allWorksTableBody" class="text-neutral-700 dark:text-neutral-200 text-xs sm:text-sm"></tbody>
@@ -193,7 +194,9 @@
         const currentUserRole = localStorage.getItem('userRole'); 
 
         // 🔥 แก้ไขบักจุดนี้: อนุญาตให้ advisor เข้าได้ 🔥
-        if (currentUserRole !== 'advisor' && currentUserRole !== 'admin') { window.location.href = 'index.html'; }
+        if (currentUserRole !== 'advisor_main' && currentUserRole !== 'advisor' && currentUserRole !== 'admin') {
+    window.location.href = 'index.html';
+}
         
         document.getElementById('displayAdvisorName').innerText = advisorName;
 
@@ -266,6 +269,48 @@
             }
             return "";
         }
+
+        function getVal(obj, keywords) {
+    for (let key in obj) {
+        let lowerKey = key.replace(/\s+/g, '').toLowerCase();
+        for (let word of keywords) {
+            if (lowerKey.includes(word)) return obj[key].toString().trim();
+        }
+    }
+    return "";
+}
+
+function parseSubmissionStatus(rawStatus) {
+    const status = String(rawStatus || '').replace(/\s+/g, '').toLowerCase();
+
+    if (!status) return 'รอตรวจ';
+
+    if (
+        status.includes('ไม่อนุมัติ') ||
+        status.includes('แก้ไข') ||
+        status.includes('reject')
+    ) {
+        return 'ไม่อนุมัติ';
+    }
+
+    if (
+        status.includes('รอ') ||
+        status.includes('pending') ||
+        status.includes('wait')
+    ) {
+        return 'รอตรวจ';
+    }
+
+    if (
+        status === 'อนุมัติ' ||
+        status === 'อนุมัติแล้ว' ||
+        status === 'approved'
+    ) {
+        return 'อนุมัติ';
+    }
+
+    return 'รอตรวจ';
+}
 
         async function loadDashboard() {
             try {
@@ -405,72 +450,112 @@
         }
 
         // 🔥 เปิดหน้าต่างประเมิน อนุมัติ/ไม่อนุมัติ 🔥
-        window.openActionModal = function(studentId, workType, currentStatus, currentReason) {
+    window.openActionModal = function(studentId, workType, currentStatus, currentReason) {
+    const parsedStatus = parseSubmissionStatus(currentStatus);
+
+    Swal.fire({
+        title: '<div class="flex items-center justify-center gap-2 text-indigo-600 dark:text-indigo-400"><i data-lucide="clipboard-check" class="w-6 h-6"></i> ตรวจงาน</div>',
+        html: `
+            <div class="text-left mt-2">
+                <label class="block text-xs font-bold mb-2 text-neutral-700 dark:text-neutral-300 ml-1">ผลการตรวจ</label>
+                <select id="evalStatus" class="w-full p-3 rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-sm mb-4 outline-none focus:ring-2 focus:ring-indigo-400">
+                    <option value="">-- เลือกผลการตรวจ --</option>
+                    <option value="อนุมัติ" ${parsedStatus === 'อนุมัติ' ? 'selected' : ''}>อนุมัติ</option>
+                    <option value="ไม่อนุมัติ" ${parsedStatus === 'ไม่อนุมัติ' ? 'selected' : ''}>ไม่อนุมัติ / ส่งแก้ไข</option>
+                </select>
+
+                <label class="block text-xs font-bold mb-2 text-neutral-700 dark:text-neutral-300 ml-1">หมายเหตุถึงนักเรียน</label>
+                <textarea id="evalReason" class="w-full p-3 rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-sm outline-none focus:ring-2 focus:ring-indigo-400" rows="3" placeholder="ระบุเหตุผลเมื่อต้องการให้นักเรียนแก้ไข...">${currentReason || ''}</textarea>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'บันทึกผลตรวจ',
+        cancelButtonText: 'ยกเลิก',
+        buttonsStyling: false,
+        customClass: {
+            popup: 'rounded-[1.5rem] w-[90%] max-w-sm border border-neutral-100 dark:border-neutral-800',
+            confirmButton: 'bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-full text-sm mr-2 shadow-sm transition-colors',
+            cancelButton: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 font-bold py-3 px-6 rounded-full text-sm shadow-sm transition-colors'
+        },
+        didOpen: () => { lucide.createIcons(); },
+        preConfirm: () => {
+            const selectedStatus = document.getElementById('evalStatus').value;
+            const evalReason = document.getElementById('evalReason').value.trim();
+
+            if (!selectedStatus) {
+                Swal.showValidationMessage('กรุณาเลือกผลการตรวจ');
+                return false;
+            }
+
+            if (selectedStatus === 'ไม่อนุมัติ' && !evalReason) {
+                Swal.showValidationMessage('กรุณาระบุเหตุผลที่ต้องแก้ไข');
+                return false;
+            }
+
+            return {
+                status: selectedStatus,
+                reason: evalReason
+            };
+        }
+    }).then(async (result) => {
+        if (!result.isConfirmed) return;
+
+        Swal.fire({
+            title: '<div class="font-bold text-base sm:text-lg">กำลังบันทึก...</div>',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); },
+            customClass: { popup: 'rounded-[1.5rem]' }
+        });
+
+        try {
+            const payload = {
+                action: "updateStatus",
+                studentId: studentId,
+                workType: workType,
+                status: result.value.status,
+                reason: result.value.reason || "",
+                reviewerEmail: localStorage.getItem("userEmail"),
+                role: localStorage.getItem("userRole")
+            };
+
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
+            if (data.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: '<div class="font-bold">บันทึกผลตรวจเรียบร้อย</div>',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    customClass: { popup: 'rounded-[1.5rem]' }
+                }).then(() => {
+                    document.getElementById('overviewSection').classList.add('hidden');
+                    document.getElementById('allWorksSection').classList.add('hidden');
+                    document.getElementById('loadingData').style.display = 'flex';
+                    loadDashboard();
+                });
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (e) {
             Swal.fire({
-                title: '<div class="flex items-center justify-center gap-2 text-indigo-600 dark:text-indigo-400"><i data-lucide="edit" class="w-6 h-6"></i> ประเมินผลการส่งงาน</div>',
-                html: `
-                    <div class="text-left mt-2">
-                        <label class="block text-xs font-bold mb-2 text-neutral-700 dark:text-neutral-300 ml-1">ผลการพิจารณา</label>
-                        <select id="evalStatus" class="w-full p-3 rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-sm mb-4 outline-none focus:ring-2 focus:ring-indigo-400">
-                            <option value="อนุมัติ" ${currentStatus.includes('อนุมัติ') && !currentStatus.includes('ไม่') ? 'selected' : ''}>✅ ผ่าน (อนุมัติ)</option>
-                            <option value="ไม่อนุมัติ" ${currentStatus.includes('ไม่อนุมัติ') ? 'selected' : ''}>❌ ไม่ผ่าน (ต้องแก้ไข)</option>
-                            <option value="รออนุมัติ" ${currentStatus.includes('รออนุมัติ') ? 'selected' : ''}>⏳ รอพิจารณา</option>
-                        </select>
-                        <label class="block text-xs font-bold mb-2 text-neutral-700 dark:text-neutral-300 ml-1">หมายเหตุ / เหตุผลที่ต้องแก้ไข (ถ้ามี)</label>
-                        <textarea id="evalReason" class="w-full p-3 rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-sm outline-none focus:ring-2 focus:ring-indigo-400" rows="3" placeholder="ระบุเหตุผล หรือข้อเสนอแนะให้นักเรียน...">${currentReason || ''}</textarea>
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'บันทึกการประเมิน',
-                cancelButtonText: 'ยกเลิก',
-                buttonsStyling: false,
-                customClass: { 
-                    popup: 'rounded-[1.5rem] w-[90%] max-w-sm border border-neutral-100 dark:border-neutral-800',
-                    confirmButton: 'bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-full text-sm mr-2 shadow-sm transition-colors',
-                    cancelButton: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 font-bold py-3 px-6 rounded-full text-sm shadow-sm transition-colors'
-                },
-                didOpen: () => { lucide.createIcons(); },
-                preConfirm: () => {
-                    return {
-                        status: document.getElementById('evalStatus').value,
-                        reason: document.getElementById('evalReason').value
-                    }
-                }
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({ title: '<div class="font-bold text-base sm:text-lg">กำลังบันทึก...</div>', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }, customClass: { popup: 'rounded-[1.5rem]' }});
-                    try {
-                        const payload = {
-                          action: "updateStatus",
-                          studentId: studentId,
-                          workType: workType,
-                          status: selectedStatus,
-                          reason: reason || "",
-                          reviewerEmail: localStorage.getItem("userEmail"),
-                          role: localStorage.getItem("userRole")
-                        };
-                        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-                        const data = await res.json();
-                        if (data.status === 'success') {
-                            Swal.fire({ icon: 'success', title: '<div class="font-bold">บันทึกเรียบร้อย!</div>', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-[1.5rem]' } }).then(() => {
-                                document.getElementById('tableContainer').classList.add('hidden');
-                                document.getElementById('loadingData').style.display = 'flex';
-                                loadDashboard();
-                            });
-                        } else {
-                            throw new Error(data.message);
-                        }
-                    } catch (e) {
-                        Swal.fire({ icon: 'error', title: '<div class="font-bold text-rose-600">ผิดพลาด</div>', text: e.message, customClass: { popup: 'rounded-[1.5rem]' } });
-                    }
-                }
+                icon: 'error',
+                title: '<div class="font-bold text-rose-600">ผิดพลาด</div>',
+                text: e.message,
+                customClass: { popup: 'rounded-[1.5rem]' }
             });
         }
+    });
+};
 
         // 🔥 ตารางที่ 2: ประวัติการส่งทั้งหมด (สำหรับที่ปรึกษาหลัก จะมีปุ่มจัดการ) 🔥
         function renderAllWorksTable(works) {
             const tbody = document.getElementById('allWorksTableBody'); tbody.innerHTML = '';
-            if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-12 text-center text-neutral-500 font-medium">ยังไม่มีประวัติการส่งงานจากกลุ่มที่ดูแล</td></tr>'; return; }
+            if (works.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-12 text-center text-neutral-500 font-medium">ยังไม่มีประวัติการส่งงานจากกลุ่มที่ดูแล</td></tr>'; return; }
             
             works.forEach(item => {
                 const workType = getVal(item, ['ประเภทงาน']) || 'ไม่ระบุ';
@@ -482,21 +567,29 @@
 
                 let reasonHtml = reason ? `<div class="text-[10px] sm:text-[11px] text-rose-700 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl inline-block w-full max-w-[200px] whitespace-normal break-words border border-rose-100 dark:border-rose-900/60 text-left shadow-inner"><div class="font-bold flex items-center mb-1"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 mr-1 text-rose-500"></i> ข้อความอาจารย์:</div>${reason}</div>` : `<span class="text-neutral-300 dark:text-neutral-700">-</span>`;
 
-                let badge = status.includes('อนุมัติ') && !status.includes('ไม่') ? `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 shadow-sm flex items-center justify-center border border-emerald-100 dark:border-emerald-900/60"><i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>อนุมัติแล้ว</span>` : status.includes('ไม่อนุมัติ') ? `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 shadow-sm flex items-center justify-center border border-rose-100 dark:border-rose-900/60"><i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>ไม่อนุมัติ</span>` : `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 shadow-sm flex items-center justify-center border border-amber-100 dark:border-amber-900/60"><i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i>รอตรวจ</span>`;
+             const parsedStatus = parseSubmissionStatus(status);
+
+let badge = '';
+if (parsedStatus === 'อนุมัติ') {
+    badge = `<span class="px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold bg-emerald-50 text-emerald-600 border border-emerald-200 inline-flex items-center justify-center whitespace-nowrap"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 mr-1.5"></i>อนุมัติ</span>`;
+} else if (parsedStatus === 'ไม่อนุมัติ') {
+    badge = `<span class="px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold bg-rose-50 text-rose-600 border border-rose-200 inline-flex items-center justify-center whitespace-nowrap"><i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5"></i>ไม่อนุมัติ</span>`;
+} else {
+    badge = `<span class="px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold bg-amber-50 text-amber-700 border border-amber-200 inline-flex items-center justify-center whitespace-nowrap"><i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5"></i>รอตรวจ</span>`;
+}
                 
                 // 🔴 ปุ่มสำหรับที่ปรึกษาหลัก: ดูไฟล์เล่ม + หน้าลายเซ็น + ปุ่มประเมิน 🔴
-                let fileReportLabel = workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'ไฟล์รูปเล่ม';
-                let signatureButton = workType === 'แบบคำร้อง' ? '' : `<a href="${item['URL ลายเซ็น']}" target="_blank" class="btn-liquid text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-neutral-800 px-3 py-1.5 rounded-full text-[10px] font-bold border border-amber-200 dark:border-neutral-700 flex items-center justify-center hover:bg-amber-100 transition-colors"><i data-lucide="pen-tool" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ลายเซ็น</a>`;
-                
-                let actionButtons = `
-                    <div class="flex flex-col gap-2 justify-center items-center">
-                        <div class="flex flex-row gap-2">
-                            <a href="${item['URL ไฟล์เล่ม']}" target="_blank" class="btn-liquid text-orange-800 dark:text-orange-300 bg-orange-50 dark:bg-neutral-800 px-3 py-1.5 rounded-full text-[10px] font-bold border border-orange-200 dark:border-neutral-700 flex items-center justify-center hover:bg-orange-100 transition-colors"><i data-lucide="file-text" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ${fileReportLabel}</a>
-                            ${signatureButton}
-                        </div>
-                        <button onclick="openActionModal('${studentIdStr}', '${workType}', '${status}', '${reason}')" class="btn-liquid w-full text-white bg-indigo-600 px-3 py-2 rounded-full text-[10px] font-bold shadow-md flex items-center justify-center hover:bg-indigo-700 transition-colors tracking-wide"><i data-lucide="edit-3" class="w-3.5 h-3.5 mr-1.5 opacity-90"></i> ประเมินผลงาน</button>
-                    </div>
-                `;
+            let fileUrl = item['URL ไฟล์เล่ม'] || getVal(item, ['urlไฟล์เล่ม', 'ไฟล์']);
+
+let fileButton = fileUrl
+    ? `<a href="${fileUrl}" target="_blank" class="btn-liquid text-orange-800 dark:text-orange-300 bg-orange-50 dark:bg-neutral-800 px-4 py-2 rounded-lg text-xs font-extrabold border border-orange-200 dark:border-neutral-700 inline-flex items-center justify-center whitespace-nowrap hover:bg-orange-100 transition-colors"><i data-lucide="file-text" class="w-4 h-4 mr-1.5 opacity-80"></i> ไฟล์รูปเล่ม</a>`
+    : `<span class="text-neutral-300 text-xs">-</span>`;
+
+let reviewButton = `
+    <button onclick="openActionModal('${studentIdStr}', '${workType}', '${status}', '${reason}')" class="btn-liquid text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-neutral-800 px-4 py-2 rounded-lg text-xs font-extrabold border border-indigo-200 dark:border-neutral-700 inline-flex items-center justify-center whitespace-nowrap hover:bg-indigo-100 transition-colors">
+        <i data-lucide="clipboard-check" class="w-4 h-4 mr-1.5"></i> ตรวจงาน
+    </button>
+`;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -505,7 +598,8 @@
                     <td class="px-3 py-4 font-bold text-indigo-700 dark:text-indigo-400 text-[10px] sm:text-sm align-middle leading-tight">${workType}</td>
                     <td class="px-3 py-4 text-left align-middle">${reasonHtml}</td>
                     <td class="px-3 py-4 text-center align-middle">${badge}</td>
-                    <td class="px-3 py-4 text-center align-middle">${actionButtons}</td>
+                    <td class="px-3 py-4 text-center align-middle">${fileButton}</td>
+                    <td class="px-3 py-4 text-center align-middle">${reviewButton}</td>
                 `;
                 tbody.appendChild(tr);
             });
