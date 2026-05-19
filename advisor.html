@@ -597,13 +597,14 @@ async function loadDashboard() {
         });
 
         try {
-       const payload = {
+     const payload = {
   action: "updateStatus",
   studentId: studentId,
   workType: workType,
   status: result.value.status,
   reason: result.value.reason || "",
   reviewerEmail: localStorage.getItem("userEmail"),
+  reviewerName: localStorage.getItem("userName"),
   role: "advisor_main"
 };
 
