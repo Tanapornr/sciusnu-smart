@@ -194,7 +194,7 @@
         const currentUserRole = localStorage.getItem('userRole'); 
 
         // 🔥 แก้ไขบักจุดนี้: อนุญาตให้ advisor เข้าได้ 🔥
-      if (currentUserRole !== 'advisor_main' && currentUserRole !== 'admin') {
+if (currentUserRole !== 'advisor_main' && currentUserRole !== 'advisor' && currentUserRole !== 'admin') {
     window.location.href = 'index.html';
 }
         
@@ -311,9 +311,14 @@ function normalizeName(value) {
         .toLowerCase();
 }
 
+function getMainAdvisorNameFromColumnJ(projectRow) {
+    const keys = Object.keys(projectRow);
+    return keys.length > 9 ? String(projectRow[keys[9]] || '').trim() : '';
+}
+
 function isMainAdvisorProject(projectRow) {
     const loginName = normalizeName(localStorage.getItem('userName'));
-    const advisorNameColJ = normalizeName(getVal(projectRow, ['อ.ที่ปรึกษาหลัก', 'ที่ปรึกษาหลัก']));
+    const advisorNameColJ = normalizeName(getMainAdvisorNameFromColumnJ(projectRow));
 
     return loginName && advisorNameColJ && loginName === advisorNameColJ;
 }
@@ -345,13 +350,18 @@ async function loadDashboard() {
                     } else {
                         // 1. ค้นหารหัสโครงงานทั้งหมดที่อาจารย์คนนี้เป็น "ที่ปรึกษาหลัก"
                         let myProjectIds = [];
-                        window.allProjectsRaw.forEach(p => {
-                            let matchesEmail = Object.values(p).some(val => val && val.toString().toLowerCase().trim() === searchEmail);
-                            if (matchesEmail) {
-                                let pid = getVal(p, ['รหัสโครงงาน', 'projectid', 'รหัสโปรเจกต์']);
-                                if (pid) myProjectIds.push(pid);
-                            }
-                        });
+                       window.allProjectsRaw.forEach(p => {
+    const matchesEmail = Object.values(p).some(val =>
+        val && val.toString().toLowerCase().trim() === searchEmail
+    );
+
+    const matchesMainAdvisorName = isMainAdvisorProject(p);
+
+    if (matchesEmail || matchesMainAdvisorName) {
+        let pid = getVal(p, ['รหัสโครงงาน', 'projectid', 'รหัสโปรเจกต์']);
+        if (pid) myProjectIds.push(pid);
+    }
+});
                         myProjectIds = [...new Set(myProjectIds)];
 
                         // 2. ดึงเด็กทุกคนในรหัสโครงงานนั้นมาแสดง 
