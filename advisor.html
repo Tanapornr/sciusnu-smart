@@ -14,6 +14,63 @@
         if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
     </script>
     <style>
+/* ตารางประวัติให้พอดีกับหน้าจอ */
+#allWorksSection .table-fit-wrap {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+#allWorksSection .advisor-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+#allWorksSection .advisor-table th,
+#allWorksSection .advisor-table td {
+    min-width: 0 !important;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+#allWorksSection .advisor-table th:nth-child(1),
+#allWorksSection .advisor-table td:nth-child(1) { width: 11%; }
+
+#allWorksSection .advisor-table th:nth-child(2),
+#allWorksSection .advisor-table td:nth-child(2) { width: 28%; }
+
+#allWorksSection .advisor-table th:nth-child(3),
+#allWorksSection .advisor-table td:nth-child(3) { width: 14%; }
+
+#allWorksSection .advisor-table th:nth-child(4),
+#allWorksSection .advisor-table td:nth-child(4) { width: 17%; }
+
+#allWorksSection .advisor-table th:nth-child(5),
+#allWorksSection .advisor-table td:nth-child(5) { width: 10%; }
+
+#allWorksSection .advisor-table th:nth-child(6),
+#allWorksSection .advisor-table td:nth-child(6) { width: 10%; }
+
+#allWorksSection .advisor-table th:nth-child(7),
+#allWorksSection .advisor-table td:nth-child(7) { width: 10%; }
+
+#allWorksSection .advisor-table a,
+#allWorksSection .advisor-table button {
+    max-width: 100%;
+    min-width: 0;
+    padding: 0.45rem 0.55rem;
+    font-size: 0.62rem;
+    line-height: 1.1;
+}
+
+#allWorksSection .advisor-table a svg,
+#allWorksSection .advisor-table button svg {
+    width: 0.85rem;
+    height: 0.85rem;
+    margin-right: 0.25rem;
+    flex-shrink: 0;
+}
+
         html { font-size: 18px; }
         @media (max-width: 768px) { html { font-size: 14px; } }
 
@@ -116,8 +173,8 @@
 
         <div id="overviewSection" class="glass-panel rounded-[2rem] p-4 sm:p-7 hidden relative overflow-hidden">
             <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><i data-lucide="bar-chart-2" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-orange-500"></i> ภาพรวมสถานะโครงงานของกลุ่มที่คุณดูแล</h2>
-            <div class="overflow-x-auto w-full pb-2">
-                <table class="w-full text-left">
+         <div class="table-fit-wrap w-full pb-2">
+                <table class="advisor-table w-full text-left">
                     <thead class="text-[10px] sm:text-xs text-neutral-500">
                         <tr>
                             <th class="px-3 py-3 font-semibold uppercase tracking-wider min-w-[250px]">รหัสโครงงาน / ชื่อโครงงาน</th>
