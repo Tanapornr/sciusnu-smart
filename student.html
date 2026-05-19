@@ -24,7 +24,6 @@
             color: #1f2937; 
             overflow-x: hidden;
             line-height: 1.6;
-            letter-spacing: 0.01em;
         }
         .dark body { background-color: #0d0d0d; color: #f3f4f6; }
         
@@ -72,7 +71,7 @@
         .ios-card {
             background-color: #ffffff;
             border-radius: 20px;
-            padding: 1rem 1.2rem;
+            padding: 1.2rem;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01);
             position: relative;
             overflow: hidden;
@@ -147,7 +146,8 @@
                 <div class="ios-card text-left items-start p-3 sm:p-4">
                     <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-400"></div>
                     <p class="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 flex items-center uppercase tracking-widest font-bold mb-1.5 ml-2"><i data-lucide="users" class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 text-blue-500 opacity-90"></i> คู่โครงงาน</p>
-                    <div id="headerPartnerName" class="font-bold text-neutral-700 dark:text-neutral-200 text-[11px] sm:text-xs truncate w-full px-2">-</div>
+                    <div id="headerPartnerContainer" class="w-full">
+                        </div>
                 </div>
 
                 <div class="ios-card text-left items-start p-3 sm:p-4">
@@ -336,6 +336,7 @@
             return '<div class="font-medium text-neutral-800 dark:text-neutral-200">' + d.toLocaleDateString('th-TH') + '</div><div class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</div>';
         }
 
+        // 🔥 เปิด Popup ยืนยันการอัปโหลดไฟล์แก้ไข ตัดหน้าลายเซ็นออก 🔥
         window.prepareResubmitPopup = async function(type) {
             const { value: formValues } = await Swal.fire({
                 title: '<div class="flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg><span class="text-base sm:text-lg font-bold">ส่งไฟล์แก้ไขใหม่</span></div>',
@@ -397,7 +398,7 @@
             }
         };
 
-        // ฟังก์ชันค้นหาคำทั่วไปในอ็อบเจกต์
+        // ฟังก์ชันช่วยเหลือสำหรับหาข้อมูล (แก้บั๊กชื่อคอลัมน์)
         function getVal(obj, keywords) {
             for (let key in obj) {
                 let lowerKey = key.replace(/\s+/g, '').toLowerCase();
@@ -408,7 +409,7 @@
             return "";
         }
 
-        // 🔥 ฟังก์ชันพิเศษเพื่อแยกดึงเฉพาะ ชื่อ หรือ อีเมล แบบยืดหยุ่น 🔥
+        // 🔥 ฟังก์ชันพิเศษเพื่อแยกดึงเฉพาะ ชื่อ หรือ อีเมล 🔥
         function getValWithEmail(obj, keywords, getEmail = false) {
             let foundKey = null;
             for (let key in obj) {
@@ -438,18 +439,45 @@
             }
         }
 
+        // ดึงและแปลง URL ของรูปภาพ
+        function getProcessedImgUrl(url, studentName) {
+            if (!url || url === "-" || url === "") return `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=f0f0f0&color=1a1a1a`;
+            if (url.startsWith('data:image')) return url;
+            if (url.includes('drive.google.com')) { 
+                const match = url.match(/[-\w]{25,}/); 
+                if (match) return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`; 
+            }
+            return url;
+        }
+
+        // 📱 หน้าต่างคลิกดูข้อมูลนักเรียน แสดงรูปและเบอร์โทรคมชัด (ตามภาพที่ 2 ของอาจารย์) 📱
+        function viewStudentPopup(name, id, phone, picUrl) {
+            Swal.fire({
+                html: `<div class="text-center pt-2"><img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-cyan-100 dark:border-neutral-800 shadow-md bg-white" loading="lazy"><h3 class="text-lg sm:text-xl font-bold text-neutral-800 dark:text-white leading-tight">${name}</h3><p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mb-5 mt-1 font-medium">รหัสประจำตัว: ${id}</p><div class="bg-cyan-50 dark:bg-cyan-950/40 rounded-2xl p-3 sm:p-4 inline-block w-full border border-cyan-100 dark:border-cyan-900/50"><p class="text-[10px] sm:text-xs text-cyan-600 dark:text-cyan-400 mb-1.5 font-bold uppercase flex items-center justify-center"><i data-lucide="phone" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> เบอร์โทรติดต่อ</p><p class="text-base sm:text-lg font-bold text-cyan-800 dark:text-white tracking-wide">${phone || 'ไม่มีข้อมูลติดต่อ'}</p></div></div>`,
+                showConfirmButton: true, confirmButtonText: 'ปิดหน้าต่าง', buttonsStyling: false, 
+                customClass: { popup: 'rounded-[1.5rem] w-[90%] max-w-sm border border-neutral-100 dark:border-neutral-800 shadow-2xl', confirmButton: 'bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-3 px-8 rounded-full mt-4 hover:bg-neutral-900 transition-colors text-sm w-full btn-liquid' }, backdrop: `rgba(0, 0, 0, 0.4)`, didOpen: () => { lucide.createIcons(); }
+            });
+        }
+
+        window.allProjectsRaw = []; // เก็บตัวดิบทั้งหมด
+        window.myAssignedProjects = []; 
+        window.myAssignedSubmissions = [];
+
         async function loadData() {
             try {
                 const res = await fetch(API_URL); const data = await res.json();
                 if (data && data.status === 'success') {
-                    window.allProjects = data.projects || []; 
+                    window.allProjectsRaw = data.projects || []; 
                     
-                    const myProject = window.allProjects.find(p => p && getVal(p, ['รหัสนักเรียน', 'studentid']) === (studentId === "ไม่ระบุ" ? "" : studentId.trim()));
+                    const myProject = window.allProjectsRaw.find(p => p && getVal(p, ['รหัสนักเรียน', 'studentid']) === (studentId === "ไม่ระบุ" ? "" : studentId.trim()));
                     let pid = "";
                     
                     if (myProject && getVal(myProject, ['รหัสโครงงาน', 'projectid'])) {
                         pid = getVal(myProject, ['รหัสโครงงาน', 'projectid']);
                         
+                        // กรองหารายชื่อเพื่อนในกลุ่ม 
+                        window.myAssignedProjects = window.allProjectsRaw.filter(p => getVal(p, ['รหัสโครงงาน']) === pid);
+
                         let projectNameTH = getVal(myProject, ['ชื่อโครงงาน', 'projectname']);
                         if (!projectNameTH) {
                             let keys = Object.keys(myProject);
@@ -477,7 +505,6 @@
                         let coAdvisorName = "";
                         let coAdvisorEmail = "";
                         let keys = Object.keys(myProject);
-                        // เข้าถึงตามตำแหน่งดัชนีคอลัมน์ N (ดัชนีที่ 13) เป็นตัวเลือกแรก ถ้าไม่มีให้ใช้ค้นหาคำตามคีย์
                         if (keys.length > 13 && keys[13].replace(/\s+/g, '').toLowerCase().includes('ร่วม')) {
                             let rawCo = myProject[keys[13]].toString().trim();
                             let emailMatch = rawCo.match(/<([^>]+)>/) || rawCo.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
@@ -493,7 +520,6 @@
                         // 3. อ.ที่ปรึกษาโรงเรียน (ดึงคอลัมน์ Q หรือคีย์ที่มีคำว่า schooladvisor)
                         let schoolAdvisorName = "";
                         let schoolAdvisorEmail = "";
-                        // เข้าถึงตามตำแหน่งดัชนีคอลัมน์ Q (ดัชนีที่ 16) เป็นตัวเลือกแรก ถ้าไม่มีให้ใช้ค้นหาคำตามคีย์
                         if (keys.length > 16 && keys[16].replace(/\s+/g, '').toLowerCase().includes('โรงเรียน')) {
                             let rawSchool = myProject[keys[16]].toString().trim();
                             let emailMatch = rawSchool.match(/<([^>]+)>/) || rawSchool.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
@@ -509,28 +535,35 @@
 
                         document.getElementById('profilePhone').value = getVal(myProject, ['เบอร์โทร', 'phone']).replace(/'/g, ''); 
                         
-                        const partner = window.allProjects.find(p => p && getVal(p, ['รหัสโครงงาน', 'projectid']) === pid && getVal(p, ['รหัสนักเรียน', 'studentid']) !== studentId.trim());
-                        if (partner) { 
-                            document.getElementById('headerPartnerName').innerText = `${getVal(partner, ['ชื่อ', 'firstname'])} ${getVal(partner, ['นามสกุล', 'lastname'])}`; 
+                        // 🔥 ดึงรายชื่อเพื่อนร่วมกลุ่มแบบใหม่ สามารถกดได้ 🔥
+                        const partners = window.myAssignedProjects.filter(p => getVal(p, ['รหัสนักเรียน', 'studentid']) !== studentId.trim());
+                        
+                        let partnerContainer = document.getElementById('headerPartnerContainer');
+                        if (partners.length > 0) { 
+                            let html = "";
+                            partners.forEach(partner => {
+                                let fName = getVal(partner, ['ชื่อ', 'firstname']);
+                                let lName = getVal(partner, ['นามสกุล', 'lastname']);
+                                let pId = getVal(partner, ['รหัสนักเรียน', 'studentid']);
+                                let pPhone = getVal(partner, ['เบอร์โทร', 'phone']).replace(/'/g, '');
+                                let pPic = getProcessedImgUrl(getVal(partner, ['รูปโปรไฟล์', 'pic']), fName);
+                                
+                                html += `<button type="button" onclick="viewStudentPopup('${fName} ${lName}', '${pId}', '${pPhone}', '${pPic}')" class="w-full text-left flex items-center gap-2 mb-1.5 bg-neutral-50 dark:bg-neutral-800/60 p-2 rounded-xl border border-neutral-100 dark:border-neutral-700 btn-liquid transition-colors"><img src="${pPic}" class="w-7 h-7 rounded-full object-cover border-2 border-white dark:border-neutral-600 shadow-sm bg-white" loading="lazy"><div class="flex flex-col leading-tight overflow-hidden"><span class="text-[10px] text-neutral-700 dark:text-neutral-200 font-bold truncate">${pId}</span><span class="text-[9px] text-neutral-500 dark:text-neutral-400 font-medium truncate mt-0.5">${fName} ${lName}</span></div></button>`;
+                            });
+                            partnerContainer.innerHTML = html;
                         } else { 
-                            document.getElementById('headerPartnerName').innerText = "- (เดี่ยว)"; 
-                            document.getElementById('headerPartnerName').classList.add("opacity-60"); 
+                            partnerContainer.innerHTML = `<div class="font-bold text-neutral-500 dark:text-neutral-400 text-[11px] sm:text-xs px-2">- (เดี่ยว)</div>`; 
                         }
                         
                         document.getElementById('headerProjectInfo').classList.remove('hidden');
                         
                         let imgUrl = getVal(myProject, ['รูปโปรไฟล์', 'pic']);
                         if (imgUrl) {
-                            if (imgUrl.startsWith('data:image') || imgUrl.includes('drive.google.com')) {
-                                if (imgUrl.includes('drive.google.com')) {
-                                    const match = imgUrl.match(/[-\w]{25,}/);
-                                    if (match) imgUrl = `https://drive.google.com/thumbnail?id=${match[0]}&sz=w500`;
-                                }
-                                cachedPic = imgUrl;
-                                localStorage.setItem('profileUrl', cachedPic);
-                                document.getElementById('headerProfilePic').src = cachedPic;
-                                document.getElementById('profilePreview').src = cachedPic;
-                            }
+                            imgUrl = getProcessedImgUrl(imgUrl, getVal(myProject, ['ชื่อ']));
+                            cachedPic = imgUrl;
+                            localStorage.setItem('profileUrl', cachedPic);
+                            document.getElementById('headerProfilePic').src = cachedPic;
+                            document.getElementById('profilePreview').src = cachedPic;
                         }
                     }
                     
@@ -645,11 +678,11 @@
             }
             
             if (selectedType === 'แบบคำร้อง') {
-                labelFileReport.innerHTML = '<i data-lucide="file-up" class="w-4 h-4 mr-1.5 opacity-80"></i> ไฟล์แบบคำร้อง (PDF)';
-                submitBtn.innerHTML = '<i data-lucide="cloud-upload" class="w-4 h-4 mr-1.5"></i> อัปโหลดแบบคำร้อง';
+                labelFileReport.innerHTML = '<i data-lucide="file-up" class="w-4.5 h-4.5 mr-2.5 opacity-80"></i> ไฟล์แบบคำร้อง (PDF)';
+                submitBtn.innerHTML = '<i data-lucide="cloud-upload" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดแบบคำร้อง';
             } else {
-                labelFileReport.innerHTML = '<i data-lucide="file-up" class="w-4 h-4 mr-1.5 opacity-80"></i> ไฟล์รูปเล่ม (PDF)';
-                submitBtn.innerHTML = '<i data-lucide="upload-cloud" class="w-4 h-4 mr-1.5"></i> อัปโหลดส่งงาน';
+                labelFileReport.innerHTML = '<i data-lucide="file-up" class="w-4.5 h-4.5 mr-2.5 opacity-80"></i> ไฟล์รูปเล่ม (PDF)';
+                submitBtn.innerHTML = '<i data-lucide="upload-cloud" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดส่งงาน';
             }
             lucide.createIcons();
             
