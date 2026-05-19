@@ -71,7 +71,7 @@
         .ios-card {
             background-color: #ffffff;
             border-radius: 20px;
-            padding: 1.2rem;
+            padding: 1rem 1.2rem;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01);
             position: relative;
             overflow: hidden;
@@ -225,7 +225,7 @@
                     <span class="font-medium tracking-wide">กำลังซิงค์ข้อมูลล่าสุด...</span>
                 </div>
 
-                <div class="overflow-x-auto hidden w-full pb-4" id="tableContainer">
+                <div class="overflow-x-auto hidden w-full pb-2" id="tableContainer">
                     <table class="w-full text-left border-separate">
                         <thead class="bg-transparent text-[9px] sm:text-[10px] text-neutral-400">
                             <tr>
@@ -336,7 +336,6 @@
             return '<div class="font-medium text-neutral-800 dark:text-neutral-200">' + d.toLocaleDateString('th-TH') + '</div><div class="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">' + d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.</div>';
         }
 
-        // 🔥 เปิด Popup ยืนยันการอัปโหลดไฟล์แก้ไข ตัดหน้าลายเซ็นออก 🔥
         window.prepareResubmitPopup = async function(type) {
             const { value: formValues } = await Swal.fire({
                 title: '<div class="flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg><span class="text-base sm:text-lg font-bold">ส่งไฟล์แก้ไขใหม่</span></div>',
@@ -398,7 +397,7 @@
             }
         };
 
-        // ฟังก์ชันช่วยเหลือสำหรับหาข้อมูล (แก้บั๊กชื่อคอลัมน์)
+        // ฟังก์ชันช่วยเหลือสำหรับหาข้อมูล (แบบแม่นยำ)
         function getVal(obj, keywords) {
             for (let key in obj) {
                 let lowerKey = key.replace(/\s+/g, '').toLowerCase();
@@ -409,37 +408,7 @@
             return "";
         }
 
-        // 🔥 ฟังก์ชันพิเศษเพื่อแยกดึงเฉพาะ ชื่อ หรือ อีเมล 🔥
-        function getValWithEmail(obj, keywords, getEmail = false) {
-            let foundKey = null;
-            for (let key in obj) {
-                let lowerKey = key.replace(/\s+/g, '').toLowerCase();
-                for (let word of keywords) {
-                    if (lowerKey.includes(word)) {
-                        foundKey = key;
-                        break;
-                    }
-                }
-                if (foundKey) break;
-            }
-
-            if (!foundKey) return "";
-            let fullText = obj[foundKey].toString().trim();
-            if (!fullText) return "";
-
-            // ตรวจสอบว่ามีอีเมลในข้อความหรือไม่ (มองหาเครื่องหมาย < > หรือ รูปแบบ @)
-            let emailMatch = fullText.match(/<([^>]+)>/) || fullText.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
-            
-            if (getEmail) {
-                return emailMatch ? emailMatch[1].trim() : "";
-            } else {
-                // คืนค่าเฉพาะชื่อ โดยตัดส่วนที่เป็นอีเมลออกไป
-                let nameOnly = fullText.replace(/<[^>]+>/g, '').replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g, '').trim();
-                return nameOnly || fullText;
-            }
-        }
-
-        // ดึงและแปลง URL ของรูปภาพ
+        // ดึงข้อมูลและแปลง URL รูปภาพโปรไฟล์
         function getProcessedImgUrl(url, studentName) {
             if (!url || url === "-" || url === "") return `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=f0f0f0&color=1a1a1a`;
             if (url.startsWith('data:image')) return url;
@@ -450,10 +419,10 @@
             return url;
         }
 
-        // 📱 หน้าต่างคลิกดูข้อมูลนักเรียน แสดงรูปและเบอร์โทรคมชัด (ตามภาพที่ 2 ของอาจารย์) 📱
-        function viewStudentPopup(name, id, phone, picUrl) {
+        // 🔥 หน้าต่างคลิกดูข้อมูลนักเรียน แสดงรูปและเบอร์โทรคมชัด (มีให้กดดูแบบอาจารย์) 🔥
+        window.viewStudentPopup = function(name, id, phone, picUrl) {
             Swal.fire({
-                html: `<div class="text-center pt-2"><img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-cyan-100 dark:border-neutral-800 shadow-md bg-white" loading="lazy"><h3 class="text-lg sm:text-xl font-bold text-neutral-800 dark:text-white leading-tight">${name}</h3><p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mb-5 mt-1 font-medium">รหัสประจำตัว: ${id}</p><div class="bg-cyan-50 dark:bg-cyan-950/40 rounded-2xl p-3 sm:p-4 inline-block w-full border border-cyan-100 dark:border-cyan-900/50"><p class="text-[10px] sm:text-xs text-cyan-600 dark:text-cyan-400 mb-1.5 font-bold uppercase flex items-center justify-center"><i data-lucide="phone" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> เบอร์โทรติดต่อ</p><p class="text-base sm:text-lg font-bold text-cyan-800 dark:text-white tracking-wide">${phone || 'ไม่มีข้อมูลติดต่อ'}</p></div></div>`,
+                html: `<div class="text-center pt-2"><img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-cyan-100 dark:border-neutral-800 shadow-md bg-white" loading="lazy"><h3 class="text-lg sm:text-xl font-bold text-neutral-800 dark:text-white leading-tight">${name}</h3><p class="text-xs sm:text-sm text-neutral-400 dark:text-neutral-500 mb-5 mt-1 font-medium">รหัสประจำตัว: ${id}</p><div class="bg-cyan-50 dark:bg-cyan-950/40 rounded-2xl p-3 sm:p-4 inline-block w-full border border-cyan-100 dark:border-cyan-900/50"><p class="text-[10px] sm:text-xs text-cyan-600 dark:text-cyan-400 mb-1.5 font-bold uppercase flex items-center justify-center"><i data-lucide="phone" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> เบอร์โทรติดต่อ</p><p class="text-base sm:text-lg font-bold text-cyan-800 dark:text-white tracking-wide">${phone || 'ไม่มีข้อมูลติดต่อ'}</p></div></div>`,
                 showConfirmButton: true, confirmButtonText: 'ปิดหน้าต่าง', buttonsStyling: false, 
                 customClass: { popup: 'rounded-[1.5rem] w-[90%] max-w-sm border border-neutral-100 dark:border-neutral-800 shadow-2xl', confirmButton: 'bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-3 px-8 rounded-full mt-4 hover:bg-neutral-900 transition-colors text-sm w-full btn-liquid' }, backdrop: `rgba(0, 0, 0, 0.4)`, didOpen: () => { lucide.createIcons(); }
             });
@@ -493,49 +462,31 @@
                         
                         document.getElementById('projectId').value = pid;
                         
-                        // 🔥 ดึงชื่อและอีเมลอาจารย์มาแสดงตามรูปแบบที่ปรับปรุงใหม่ 🔥
-                        
-                        // 1. อ.ที่ปรึกษาหลัก
-                        let mainAdvisorName = getValWithEmail(myProject, ['อ.ที่ปรึกษาหลัก', 'อ.ที่ปรึกษาth', 'mainadvisor'], false);
-                        let mainAdvisorEmail = getValWithEmail(myProject, ['อ.ที่ปรึกษาหลัก', 'อ.ที่ปรึกษาth', 'mainadvisor'], true);
+                        // 🔥 ดึงชื่อและอีเมลอาจารย์มาแสดงตรงๆ ตามโครงสร้าง Sheet ของอาจารย์ 🔥
+                        let keys = Object.keys(myProject);
+
+                        // 1. อ.ที่ปรึกษาหลัก (สมมติว่าเป็นคอลัมน์ I หรือดัชนีที่ 8)
+                        let mainAdvisorEmail = keys.length > 8 ? myProject[keys[8]].toString().trim() : "-";
+                        let mainAdvisorName = keys.length > 9 ? myProject[keys[9]].toString().trim() : "-";
                         document.getElementById('advisorNameText').innerText = mainAdvisorName || "-";
                         document.getElementById('advisorEmailText').innerText = mainAdvisorEmail || "";
 
-                        // 2. อ.ที่ปรึกษาร่วม (ดึงคอลัมน์ N หรือคีย์ที่มีคำว่า coadvisor)
-                        let coAdvisorName = "";
-                        let coAdvisorEmail = "";
-                        let keys = Object.keys(myProject);
-                        if (keys.length > 13 && keys[13].replace(/\s+/g, '').toLowerCase().includes('ร่วม')) {
-                            let rawCo = myProject[keys[13]].toString().trim();
-                            let emailMatch = rawCo.match(/<([^>]+)>/) || rawCo.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
-                            coAdvisorEmail = emailMatch ? emailMatch[1].trim() : "";
-                            coAdvisorName = rawCo.replace(/<[^>]+>/g, '').replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g, '').trim() || rawCo;
-                        } else {
-                            coAdvisorName = getValWithEmail(myProject, ['อ.ที่ปรึกษาร่วม', 'coadvisor'], false);
-                            coAdvisorEmail = getValWithEmail(myProject, ['อ.ที่ปรึกษาร่วม', 'coadvisor'], true);
-                        }
+                        // 2. อ.ที่ปรึกษาร่วม (ดึงคอลัมน์ M ดัชนี 12, คอลัมน์ N ดัชนี 13)
+                        let coAdvisorEmail = keys.length > 12 ? myProject[keys[12]].toString().trim() : "-";
+                        let coAdvisorName = keys.length > 13 ? myProject[keys[13]].toString().trim() : "-";
                         document.getElementById('coAdvisorNameText').innerText = coAdvisorName || "-";
                         document.getElementById('coAdvisorEmailText').innerText = coAdvisorEmail || "";
 
-                        // 3. อ.ที่ปรึกษาโรงเรียน (ดึงคอลัมน์ Q หรือคีย์ที่มีคำว่า schooladvisor)
-                        let schoolAdvisorName = "";
-                        let schoolAdvisorEmail = "";
-                        if (keys.length > 16 && keys[16].replace(/\s+/g, '').toLowerCase().includes('โรงเรียน')) {
-                            let rawSchool = myProject[keys[16]].toString().trim();
-                            let emailMatch = rawSchool.match(/<([^>]+)>/) || rawSchool.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
-                            schoolAdvisorEmail = emailMatch ? emailMatch[1].trim() : "";
-                            schoolAdvisorName = rawSchool.replace(/<[^>]+>/g, '').replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g, '').trim() || rawSchool;
-                        } else {
-                            schoolAdvisorName = getValWithEmail(myProject, ['อ.ที่ปรึกษาโรงเรียน', 'อ.โรงเรียน', 'schooladvisor'], false);
-                            schoolAdvisorEmail = getValWithEmail(myProject, ['อ.ที่ปรึกษาโรงเรียน', 'อ.โรงเรียน', 'schooladvisor'], true);
-                        }
+                        // 3. อ.ที่ปรึกษาโรงเรียน (ดึงคอลัมน์ P ดัชนี 15, คอลัมน์ Q ดัชนี 16)
+                        let schoolAdvisorEmail = keys.length > 15 ? myProject[keys[15]].toString().trim() : "-";
+                        let schoolAdvisorName = keys.length > 16 ? myProject[keys[16]].toString().trim() : "-";
                         document.getElementById('schoolAdvisorNameText').innerText = schoolAdvisorName || "-";
                         document.getElementById('schoolAdvisorEmailText').innerText = schoolAdvisorEmail || "";
 
 
                         document.getElementById('profilePhone').value = getVal(myProject, ['เบอร์โทร', 'phone']).replace(/'/g, ''); 
                         
-                        // 🔥 ดึงรายชื่อเพื่อนร่วมกลุ่มแบบใหม่ สามารถกดได้ 🔥
+                        // 🔥 ดึงรายชื่อเพื่อนร่วมกลุ่มแบบใหม่ ให้กดดูโปรไฟล์และเบอร์โทรได้ 🔥
                         const partners = window.myAssignedProjects.filter(p => getVal(p, ['รหัสนักเรียน', 'studentid']) !== studentId.trim());
                         
                         let partnerContainer = document.getElementById('headerPartnerContainer');
@@ -678,11 +629,11 @@
             }
             
             if (selectedType === 'แบบคำร้อง') {
-                labelFileReport.innerHTML = '<i data-lucide="file-up" class="w-4.5 h-4.5 mr-2.5 opacity-80"></i> ไฟล์แบบคำร้อง (PDF)';
-                submitBtn.innerHTML = '<i data-lucide="cloud-upload" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดแบบคำร้อง';
+                labelFileReport.innerHTML = '<i data-lucide="file-up" class="w-4 h-4 mr-1.5 opacity-80"></i> ไฟล์แบบคำร้อง (PDF)';
+                submitBtn.innerHTML = '<i data-lucide="cloud-upload" class="w-4 h-4 mr-1.5"></i> อัปโหลดแบบคำร้อง';
             } else {
-                labelFileReport.innerHTML = '<i data-lucide="file-up" class="w-4.5 h-4.5 mr-2.5 opacity-80"></i> ไฟล์รูปเล่ม (PDF)';
-                submitBtn.innerHTML = '<i data-lucide="upload-cloud" class="w-4.5 h-4.5 mr-2"></i> อัปโหลดส่งงาน';
+                labelFileReport.innerHTML = '<i data-lucide="file-up" class="w-4 h-4 mr-1.5 opacity-80"></i> ไฟล์รูปเล่ม (PDF)';
+                submitBtn.innerHTML = '<i data-lucide="upload-cloud" class="w-4 h-4 mr-1.5"></i> อัปโหลดส่งงาน';
             }
             lucide.createIcons();
             
@@ -754,11 +705,11 @@
                         statusIcon = '<i data-lucide="check-check" class="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1 sm:mr-1.5 flex-shrink-0 opacity-80"></i>';
                         statusText = "แก้ไขแล้ว (รอตรวจ)";
                     } else if (s._displayStatus === 'อนุมัติ') {
-                        statusClass = "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900"; 
+                        statusClass = "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900"; 
                         statusIcon = '<i data-lucide="star" class="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1 sm:mr-1.5 flex-shrink-0 opacity-80"></i>';
                         statusText = "อนุมัติ";
                     } else if (s._displayStatus === 'ไม่อนุมัติ') {
-                        statusClass = "bg-rose-50 text-rose-800 dark:bg-rose-950/70 dark:text-rose-400 border border-rose-200 dark:border-rose-900"; 
+                        statusClass = "bg-rose-50 text-rose-800 dark:bg-rose-950/70 dark:text-rose-300 border border-rose-100 dark:border-rose-900"; 
                         statusIcon = '<i data-lucide="alert-circle" class="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1 sm:mr-1.5 flex-shrink-0 opacity-80"></i>';
                         statusText = "ต้องแก้ไข";
                         if (window.activeRejects[s._workType]) {
