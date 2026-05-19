@@ -526,9 +526,15 @@ async function loadDashboard() {
                 };
 
                 const tr = document.createElement('tr'); 
-                tr.innerHTML = `<td class="px-3 py-4 align-top">${projectTitleHtml}</td><td class="px-3 py-3 align-top">${memberHtml}</td><td class="px-2 py-4 align-top text-center">${getStatusBadge('โครงร่าง (Proposal)')}</td><td class="px-2 py-4 align-top text-center">${getStatusBadge('รายงานความก้าวหน้า')}</td><td class="px-2 py-4 align-top text-center">${getStatusBadge('รายงานฉบับสมบูรณ์')}</td>`;
-                tbody.appendChild(tr);
-            });
+             tr.innerHTML = `
+    <td data-label="วันที่ส่ง" class="px-3 py-4 align-middle opacity-80">${formatDateTime(getVal(item, ['timestamp', 'เวลา']))}</td>
+    <td data-label="ข้อมูลผู้ส่งและกลุ่ม" class="px-3 py-3 align-middle">${generateStudentInfoHtml(item)}</td>
+    <td data-label="ประเภทงาน" class="px-3 py-4 font-bold text-indigo-700 dark:text-indigo-400 text-[10px] sm:text-sm align-middle leading-tight">${workType}</td>
+    <td data-label="หมายเหตุ" class="px-3 py-4 text-left align-middle">${reasonHtml}</td>
+    <td data-label="สถานะ" class="px-3 py-4 text-center align-middle">${badge}</td>
+    <td data-label="ไฟล์แนบ" class="px-3 py-4 text-center align-middle">${fileButton}</td>
+    <td data-label="ตรวจงาน" class="px-3 py-4 text-center align-middle">${reviewButton}</td>
+`;
             lucide.createIcons();
         }
 
