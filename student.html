@@ -752,15 +752,17 @@
             lucide.createIcons();
         }
 
-        window.allProjectsRaw = []; 
-        window.myAssignedProjects = []; 
-        window.myAssignedSubmissions = [];
+  window.allProjectsRaw = []; 
+window.allProjects = [];
+window.myAssignedProjects = []; 
+window.myAssignedSubmissions = [];
 
         async function loadData() {
             try {
                 const res = await fetch(API_URL); const data = await res.json();
                 if (data && data.status === 'success') {
-                    window.allProjectsRaw = data.projects || []; 
+                    window.allProjectsRaw = data.projects || [];
+                    window.allProjects = window.allProjectsRaw;
                     
                     const myProject = window.allProjectsRaw.find(p => p && getVal(p, ['รหัสนักเรียน', 'studentid']) === (studentId === "ไม่ระบุ" ? "" : studentId.trim()));
                     let pid = "";
@@ -1188,8 +1190,21 @@ if (fileInput) {
                 if (!result.isConfirmed) return;
             }
 
-            const btn = document.getElementById('submitBtn'); const pid = document.getElementById('projectId').value.trim(); const projects = window.allProjects || [];
-            const members = projects.filter(x => getVal(x, ['รหัสโครงงาน']) == pid); if (members.length === 0 && pid !== "") return;
+            const btn = document.getElementById('submitBtn');
+const pid = document.getElementById('projectId').value.trim();
+const projects = window.myAssignedProjects && window.myAssignedProjects.length > 0 ? window.myAssignedProjects : window.allProjectsRaw;
+const members = projects.filter(x => getVal(x, ['รหัสโครงงาน', 'projectid']) == pid);
+
+if (!pid || members.length === 0) {
+    Swal.fire({
+        icon: 'warning',
+        title: '<div class="font-bold text-sm sm:text-base">ไม่พบข้อมูลโครงงาน</div>',
+        html: '<span class="text-xs sm:text-sm">กรุณารีเฟรชหน้าเว็บ หรือเข้าสู่ระบบใหม่อีกครั้ง</span>',
+        confirmButtonColor: '#f97316',
+        customClass: { popup: 'rounded-[1.5rem]' }
+    });
+    return;
+}
             btn.disabled = true; btn.innerHTML = `<svg class="animate-spin inline-block h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังอัปโหลด...`;
             try {
                 const f1 = await toBase64(document.getElementById('fileReport').files[0]); 
