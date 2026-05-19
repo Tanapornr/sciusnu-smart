@@ -723,15 +723,15 @@
             const elPropText = document.getElementById('text-proposal');
             if (propSub.length > 0) {
                 const stat = getVal(propSub[propSub.length-1], ['สถานะ']);
-                if(stat.includes('อนุมัติ') && !stat.includes('ไม่')) {
+               if(parseSubmissionStatus(stat) === 'อนุมัติ') {
                     elPropIcon.className = 'timeline-icon completed'; elPropIcon.innerHTML = '<i data-lucide="check" class="w-4 h-4 sm:w-5 sm:h-5"></i>';
                     elPropText.innerHTML = `<span class="text-emerald-500 font-bold text-xs sm:text-sm">อนุมัติแล้ว</span>`;
-                } else if(stat.includes('ไม่อนุมัติ')) {
+                } else if(parseSubmissionStatus(stat) === 'ไม่อนุมัติ') {
                     elPropIcon.className = 'timeline-icon rejected'; elPropIcon.innerHTML = '<i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i>';
                     elPropText.innerHTML = `<span class="text-rose-500 font-bold text-xs sm:text-sm">ต้องแก้ไข</span>`;
                 } else {
                     elPropIcon.className = 'timeline-icon current'; elPropIcon.innerHTML = '<i data-lucide="clock" class="w-4 h-4 sm:w-5 sm:h-5"></i>';
-                    elPropText.innerHTML = `<span class="text-orange-500 font-bold text-xs sm:text-sm">รอการตรวจ</span>`;
+                    elPropText.innerHTML = `<span class="text-orange-500 font-bold text-xs sm:text-sm">รออนุมัติ</span>`;
                 }
             } else {
                 elPropIcon.className = 'timeline-icon'; elPropIcon.innerHTML = '1';
@@ -744,15 +744,15 @@
             const elProgText = document.getElementById('text-progress');
             if (progSub.length > 0) {
                 const stat = getVal(progSub[progSub.length-1], ['สถานะ']);
-                if(stat.includes('อนุมัติ') && !stat.includes('ไม่')) {
+               if(parseSubmissionStatus(stat) === 'อนุมัติ') {
                     elProgIcon.className = 'timeline-icon completed'; elProgIcon.innerHTML = '<i data-lucide="check" class="w-4 h-4 sm:w-5 sm:h-5"></i>';
                     elProgText.innerHTML = `<span class="text-emerald-500 font-bold text-xs sm:text-sm">อนุมัติแล้ว</span>`;
-                } else if(stat.includes('ไม่อนุมัติ')) {
+               } else if(parseSubmissionStatus(stat) === 'ไม่อนุมัติ') {
                     elProgIcon.className = 'timeline-icon rejected'; elProgIcon.innerHTML = '<i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i>';
                     elProgText.innerHTML = `<span class="text-rose-500 font-bold text-xs sm:text-sm">ต้องแก้ไข</span>`;
                 } else {
                     elProgIcon.className = 'timeline-icon current'; elProgIcon.innerHTML = '<i data-lucide="clock" class="w-4 h-4 sm:w-5 sm:h-5"></i>';
-                    elProgText.innerHTML = `<span class="text-orange-500 font-bold text-xs sm:text-sm">รอการตรวจ</span>`;
+                    elProgText.innerHTML = `<span class="text-orange-500 font-bold text-xs sm:text-sm">รออนุมัติ</span>`;
                 }
             } else {
                 elProgIcon.className = 'timeline-icon'; elProgIcon.innerHTML = '2';
@@ -765,15 +765,15 @@
             const elFinText = document.getElementById('text-final');
             if (finSub.length > 0) {
                 const stat = getVal(finSub[finSub.length-1], ['สถานะ']);
-                if(stat.includes('อนุมัติ') && !stat.includes('ไม่')) {
+                if(parseSubmissionStatus(stat) === 'อนุมัติ') {
                     elFinIcon.className = 'timeline-icon completed'; elFinIcon.innerHTML = '<i data-lucide="check" class="w-4 h-4 sm:w-5 sm:h-5"></i>';
                     elFinText.innerHTML = `<span class="text-emerald-500 font-bold text-xs sm:text-sm">ผ่านเกณฑ์</span>`;
-                } else if(stat.includes('ไม่อนุมัติ')) {
+               } else if(parseSubmissionStatus(stat) === 'ไม่อนุมัติ') {
                     elFinIcon.className = 'timeline-icon rejected'; elFinIcon.innerHTML = '<i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i>';
                     elFinText.innerHTML = `<span class="text-rose-500 font-bold text-xs sm:text-sm">ต้องแก้ไข</span>`;
                 } else {
                     elFinIcon.className = 'timeline-icon current'; elFinIcon.innerHTML = '<i data-lucide="clock" class="w-4 h-4 sm:w-5 sm:h-5"></i>';
-                    elFinText.innerHTML = `<span class="text-orange-500 font-bold text-xs sm:text-sm">รอการตรวจ</span>`;
+                    elFinText.innerHTML = `<span class="text-orange-500 font-bold text-xs sm:text-sm">รออนุมัติ</span>`;
                 }
             } else {
                 elFinIcon.className = 'timeline-icon'; elFinIcon.innerHTML = '3';
