@@ -441,11 +441,13 @@
                     Swal.fire({ title: '<div class="font-bold text-base sm:text-lg">กำลังบันทึก...</div>', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }, customClass: { popup: 'rounded-[1.5rem]' }});
                     try {
                         const payload = {
-                            action: 'updateStatus',
-                            studentId: studentId,
-                            workType: workType,
-                            status: result.value.status,
-                            reason: result.value.reason
+                          action: "updateStatus",
+                          studentId: studentId,
+                          workType: workType,
+                          status: selectedStatus,
+                          reason: reason || "",
+                          reviewerEmail: localStorage.getItem("userEmail"),
+                          role: localStorage.getItem("userRole")
                         };
                         const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
                         const data = await res.json();
