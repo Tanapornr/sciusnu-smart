@@ -464,7 +464,7 @@
                                 <th class="px-2 sm:px-4 py-3 sm:py-4 font-bold uppercase tracking-wider">งาน / ผู้ส่ง</th>
                                 <th class="px-2 sm:px-4 py-3 sm:py-4 text-center font-bold uppercase tracking-wider">สถานะ</th>
                                 <th class="px-2 sm:px-4 py-3 sm:py-4 text-left font-bold uppercase tracking-wider min-w-[150px]">หมายเหตุ</th>
-                                <th class="px-2 sm:px-4 py-3 sm:py-4 text-center font-bold uppercase tracking-wider">ไฟล์แนบ</th>
+                                <th class="px-2 sm:px-4 py-3 sm:py-4 text-center font-bold uppercase tracking-wider min-w-[150px]">ไฟล์แนบ</th>
                             </tr>
                         </thead>
                         <tbody id="historyTableBody"></tbody>
@@ -1170,7 +1170,7 @@ if (fileInput) {
                     return `
                     <tr class="dark:text-neutral-300">
                         <td class="text-xs sm:text-sm align-middle opacity-80 font-normal py-4 sm:py-5 px-3 sm:px-4">${formatDateTime(s['Timestamp'])}</td>
-                        <td class="font-bold text-xs sm:text-sm align-middle leading-tight w-1/3 py-4 sm:py-5 px-3 sm:px-4">
+                        <td class="font-bold text-xs sm:text-sm align-middle leading-tight py-4 sm:py-5 px-3 sm:px-4 whitespace-nowrap w-[1%]">
                             <span class="text-neutral-800 dark:text-white">${s._workType}</span><div class="mt-1 text-[10px] sm:text-[11px] font-medium opacity-80">${submitterTag}</div>
                         </td>
                         <td class="text-center align-middle py-4 sm:py-5 px-2">
@@ -1182,7 +1182,7 @@ if (fileInput) {
                         <td class="text-left align-middle py-4 sm:py-5 px-3 sm:px-4">${reasonHtml}</td>
                         <td class="text-center align-middle py-4 sm:py-5 px-3 sm:px-4">
                             <div class="flex justify-center items-center">
-                                <a href="${getVal(s, ['urlไฟล์เล่ม', 'ไฟล์'])}" target="_blank" class="btn-liquid text-orange-800 dark:text-orange-400 bg-orange-50 dark:bg-neutral-800 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-bold border border-orange-200 dark:border-neutral-700 flex items-center justify-center hover:bg-orange-100 dark:hover:bg-neutral-700 transition-all shadow-sm"><i data-lucide="file-text" class="w-4 h-4 sm:w-4.5 sm:h-4.5 mr-1.5 opacity-80"></i> ${fileReportLabel}</a>
+                                <a href="${getVal(s, ['urlไฟล์เล่ม', 'ไฟล์'])}" target="_blank" class="btn-liquid text-orange-800 dark:text-orange-400 bg-orange-50 dark:bg-neutral-800 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-bold border border-orange-200 dark:border-neutral-700 inline-flex items-center justify-center whitespace-nowrap min-w-[120px] hover:bg-orange-100 dark:hover:bg-neutral-700 transition-all shadow-sm"><i data-lucide="file-text" class="w-4 h-4 sm:w-4.5 sm:h-4.5 mr-1.5 opacity-80 flex-shrink-0"></i><span>${fileReportLabel}</span></a>
                             </div>
                         </td>
                     </tr>`;
