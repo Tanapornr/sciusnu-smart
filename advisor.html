@@ -302,7 +302,33 @@ function parseSubmissionStatus(rawStatus) {
     return 'รอตรวจ';
 }
 
-        async function loadDashboard() {
+function normalizeName(value) {
+    return String(value || '')
+        .replace(/^อ\.\s*/, '')
+        .replace(/ดร\./g, '')
+        .replace(/\s+/g, '')
+        .replace(/,/g, '')
+        .toLowerCase();
+}
+
+function isMainAdvisorProject(projectRow) {
+    const loginName = normalizeName(localStorage.getItem('userName'));
+    const advisorNameColJ = normalizeName(getVal(projectRow, ['อ.ที่ปรึกษาหลัก', 'ที่ปรึกษาหลัก']));
+
+    return loginName && advisorNameColJ && loginName === advisorNameColJ;
+}
+
+function canCurrentUserReviewSubmission(submission) {
+    if (currentUserRole === 'admin' || currentUserRole === 'advisor_main') return true;
+
+    const projectId = getVal(submission, ['รหัสโครงงาน', 'projectid']);
+    const projectRows = window.myAssignedProjects.filter(p => getVal(p, ['รหัสโครงงาน', 'projectid']) === projectId);
+
+    return projectRows.some(p => isMainAdvisorProject(p));
+}
+
+async function loadDashboard() {
+    
             try {
                 const response = await fetch(API_URL); 
                 const data = await response.json();
@@ -575,11 +601,13 @@ let fileButton = fileUrl
     ? `<a href="${fileUrl}" target="_blank" class="btn-liquid text-orange-800 dark:text-orange-300 bg-orange-50 dark:bg-neutral-800 px-4 py-2 rounded-lg text-xs font-extrabold border border-orange-200 dark:border-neutral-700 inline-flex items-center justify-center whitespace-nowrap hover:bg-orange-100 transition-colors"><i data-lucide="file-text" class="w-4 h-4 mr-1.5 opacity-80"></i> ไฟล์รูปเล่ม</a>`
     : `<span class="text-neutral-300 text-xs">-</span>`;
 
-let reviewButton = `
-    <button onclick="openActionModal('${studentIdStr}', '${workType}', '${status}', '${reason}')" class="btn-liquid text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-neutral-800 px-4 py-2 rounded-lg text-xs font-extrabold border border-indigo-200 dark:border-neutral-700 inline-flex items-center justify-center whitespace-nowrap hover:bg-indigo-100 transition-colors">
+const canReviewWork = canCurrentUserReviewSubmission(item);
+
+let reviewButton = canReviewWork
+    ? `<button onclick="openActionModal('${studentIdStr}', '${workType}', '${status}', '${reason}')" class="btn-liquid text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-neutral-800 px-4 py-2 rounded-lg text-xs font-extrabold border border-indigo-200 dark:border-neutral-700 inline-flex items-center justify-center whitespace-nowrap hover:bg-indigo-100 transition-colors">
         <i data-lucide="clipboard-check" class="w-4 h-4 mr-1.5"></i> ตรวจงาน
-    </button>
-`;
+    </button>`
+    : `<span class="text-neutral-400 text-xs font-semibold">ดูอย่างเดียว</span>`;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
