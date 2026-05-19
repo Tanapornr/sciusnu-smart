@@ -170,7 +170,8 @@
 .compact-info-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: .65rem;
+    gap: .75rem;
+    height: 100%;
 }
 
 @media (min-width: 640px) {
@@ -180,11 +181,11 @@
 }
 
 .compact-info-item {
-    min-height: 72px;
+    min-height: 92px;
     background: rgba(248, 250, 252, 0.76);
     border: 1px solid rgba(15, 23, 42, 0.055);
     border-radius: 18px;
-    padding: .75rem .9rem;
+    padding: .8rem .95rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -247,9 +248,10 @@
     font-size: .9rem;
 }
 
-    .compact-status-card {
-    align-self: start;
-    height: fit-content;
+.compact-status-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .compact-info-grid {
@@ -300,102 +302,104 @@
         </div>
         
       <div id="headerProjectInfo" class="compact-project-shell mt-2 hidden pt-3 sm:pt-4 pb-3 max-w-7xl mx-auto px-4">
-   <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 items-start">
+    <div class="space-y-3 sm:space-y-4">
 
-        <div class="lg:col-span-8 space-y-3">
-            <div class="compact-card compact-status-card lg:col-span-4 p-4 sm:p-5 self-start h-fit">
-                <div class="compact-accent bg-gradient-to-b from-orange-400 to-pink-500"></div>
-                <p class="compact-label text-[11px] sm:text-xs flex items-center font-bold mb-1.5 ml-2">
-                    <span class="compact-icon mr-2 text-orange-500">
-                        <i data-lucide="book-open" class="w-4 h-4"></i>
-                    </span>
-                    ชื่อโครงงานวิจัย
-                </p>
-                <p id="headerProjectName" class="compact-title text-sm sm:text-lg w-full px-2 whitespace-normal break-words line-clamp-2" title="-">-</p>
-            </div>
-
-            <div class="compact-info-grid">
-                <div class="compact-info-item">
-                    <div class="flex items-center mb-2">
-                        <span class="compact-icon mr-2 text-blue-500">
-                            <i data-lucide="users" class="w-4 h-4"></i>
-                        </span>
-                        <p class="compact-label text-[11px] sm:text-xs font-bold">คู่โครงงาน</p>
-                    </div>
-                    <div id="headerPartnerContainer" class="w-full"></div>
-                </div>
-
-                <div class="compact-info-item">
-                    <div class="flex items-center mb-2">
-                        <span class="compact-icon mr-2 text-emerald-500">
-                            <i data-lucide="graduation-cap" class="w-4 h-4"></i>
-                        </span>
-                        <p class="compact-label text-[11px] sm:text-xs font-bold">อ.ที่ปรึกษาหลัก</p>
-                    </div>
-                    <div id="headerAdvisor" class="w-full">
-                        <div class="font-extrabold text-neutral-800 dark:text-neutral-100 text-xs sm:text-sm truncate" id="advisorNameText">-</div>
-                        <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5" id="advisorEmailText"></div>
-                    </div>
-                </div>
-
-                <div class="compact-info-item">
-                    <div class="flex items-center mb-2">
-                        <span class="compact-icon mr-2 text-purple-500">
-                            <i data-lucide="user-plus" class="w-4 h-4"></i>
-                        </span>
-                        <p class="compact-label text-[11px] sm:text-xs font-bold">อ.ที่ปรึกษาร่วม</p>
-                    </div>
-                    <div id="headerCoAdvisor" class="w-full">
-                        <div class="font-extrabold text-neutral-800 dark:text-neutral-100 text-xs sm:text-sm truncate" id="coAdvisorNameText">-</div>
-                        <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5" id="coAdvisorEmailText"></div>
-                    </div>
-                </div>
-
-                <div class="compact-info-item">
-                    <div class="flex items-center mb-2">
-                        <span class="compact-icon mr-2 text-teal-500">
-                            <i data-lucide="school" class="w-4 h-4"></i>
-                        </span>
-                        <p class="compact-label text-[11px] sm:text-xs font-bold">อ.ที่ปรึกษาโรงเรียน</p>
-                    </div>
-                    <div id="headerSchoolAdvisor" class="w-full">
-                        <div class="font-extrabold text-neutral-800 dark:text-neutral-100 text-xs sm:text-sm truncate" id="schoolAdvisorNameText">-</div>
-                        <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5" id="schoolAdvisorEmailText"></div>
-                    </div>
-                </div>
-            </div>
+        <div class="compact-card compact-title-card p-4 sm:p-5">
+            <div class="compact-accent bg-gradient-to-b from-orange-400 to-pink-500"></div>
+            <p class="compact-label text-[11px] sm:text-xs flex items-center font-bold mb-1.5 ml-2">
+                <span class="compact-icon mr-2 text-orange-500">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                </span>
+                ชื่อโครงงานวิจัย
+            </p>
+            <p id="headerProjectName" class="compact-title text-sm sm:text-lg w-full px-2 whitespace-normal break-words line-clamp-2" title="-">-</p>
         </div>
 
-        <div class="compact-card compact-status-card lg:col-span-4 p-4 sm:p-5">
-            <p class="text-sm sm:text-base text-neutral-800 dark:text-neutral-100 font-extrabold mb-3 w-full border-b border-neutral-100 dark:border-neutral-800 pb-2.5 flex items-center">
-                <span class="compact-icon mr-2 text-indigo-500">
-                    <i data-lucide="truck" class="w-4 h-4"></i>
-                </span>
-                สถานะการส่งงาน
-            </p>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 items-stretch">
+            <div class="lg:col-span-8">
+                <div class="compact-info-grid h-full">
+                    <div class="compact-info-item">
+                        <div class="flex items-center mb-2">
+                            <span class="compact-icon mr-2 text-blue-500">
+                                <i data-lucide="users" class="w-4 h-4"></i>
+                            </span>
+                            <p class="compact-label text-[11px] sm:text-xs font-bold">คู่โครงงาน</p>
+                        </div>
+                        <div id="headerPartnerContainer" class="w-full"></div>
+                    </div>
 
-            <div class="w-full pl-1">
-                <div class="timeline-step">
-                    <div class="timeline-icon" id="icon-proposal">1</div>
-                    <div class="ml-4">
-                        <p class="text-xs sm:text-sm font-extrabold text-neutral-800 dark:text-neutral-200">โครงร่าง (Proposal)</p>
-                        <p class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-500 mt-0.5" id="text-proposal">ยังไม่มีข้อมูล</p>
+                    <div class="compact-info-item">
+                        <div class="flex items-center mb-2">
+                            <span class="compact-icon mr-2 text-emerald-500">
+                                <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                            </span>
+                            <p class="compact-label text-[11px] sm:text-xs font-bold">อ.ที่ปรึกษาหลัก</p>
+                        </div>
+                        <div id="headerAdvisor" class="w-full">
+                            <div class="font-extrabold text-neutral-800 dark:text-neutral-100 text-xs sm:text-sm truncate" id="advisorNameText">-</div>
+                            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5" id="advisorEmailText"></div>
+                        </div>
+                    </div>
+
+                    <div class="compact-info-item">
+                        <div class="flex items-center mb-2">
+                            <span class="compact-icon mr-2 text-purple-500">
+                                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            </span>
+                            <p class="compact-label text-[11px] sm:text-xs font-bold">อ.ที่ปรึกษาร่วม</p>
+                        </div>
+                        <div id="headerCoAdvisor" class="w-full">
+                            <div class="font-extrabold text-neutral-800 dark:text-neutral-100 text-xs sm:text-sm truncate" id="coAdvisorNameText">-</div>
+                            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5" id="coAdvisorEmailText"></div>
+                        </div>
+                    </div>
+
+                    <div class="compact-info-item">
+                        <div class="flex items-center mb-2">
+                            <span class="compact-icon mr-2 text-teal-500">
+                                <i data-lucide="school" class="w-4 h-4"></i>
+                            </span>
+                            <p class="compact-label text-[11px] sm:text-xs font-bold">อ.ที่ปรึกษาโรงเรียน</p>
+                        </div>
+                        <div id="headerSchoolAdvisor" class="w-full">
+                            <div class="font-extrabold text-neutral-800 dark:text-neutral-100 text-xs sm:text-sm truncate" id="schoolAdvisorNameText">-</div>
+                            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5" id="schoolAdvisorEmailText"></div>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="timeline-step">
-                    <div class="timeline-icon" id="icon-progress">2</div>
-                    <div class="ml-4">
-                        <p class="text-xs sm:text-sm font-extrabold text-neutral-800 dark:text-neutral-200">รายงานความก้าวหน้า</p>
-                        <p class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-500 mt-0.5" id="text-progress">รอการส่งงาน</p>
+            <div class="compact-card compact-status-card lg:col-span-4 p-4 sm:p-5 h-full">
+                <p class="text-sm sm:text-base text-neutral-800 dark:text-neutral-100 font-extrabold mb-3 w-full border-b border-neutral-100 dark:border-neutral-800 pb-2.5 flex items-center">
+                    <span class="compact-icon mr-2 text-indigo-500">
+                        <i data-lucide="truck" class="w-4 h-4"></i>
+                    </span>
+                    สถานะการส่งงาน
+                </p>
+
+                <div class="w-full pl-1">
+                    <div class="timeline-step">
+                        <div class="timeline-icon" id="icon-proposal">1</div>
+                        <div class="ml-4">
+                            <p class="text-xs sm:text-sm font-extrabold text-neutral-800 dark:text-neutral-200">โครงร่าง (Proposal)</p>
+                            <p class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-500 mt-0.5" id="text-proposal">ยังไม่มีข้อมูล</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="timeline-step">
-                    <div class="timeline-icon" id="icon-final">3</div>
-                    <div class="ml-4">
-                        <p class="text-xs sm:text-sm font-extrabold text-neutral-800 dark:text-neutral-200">รายงานฉบับสมบูรณ์</p>
-                        <p class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-500 mt-0.5" id="text-final">รอการส่งงาน</p>
+                    <div class="timeline-step">
+                        <div class="timeline-icon" id="icon-progress">2</div>
+                        <div class="ml-4">
+                            <p class="text-xs sm:text-sm font-extrabold text-neutral-800 dark:text-neutral-200">รายงานความก้าวหน้า</p>
+                            <p class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-500 mt-0.5" id="text-progress">รอการส่งงาน</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-step">
+                        <div class="timeline-icon" id="icon-final">3</div>
+                        <div class="ml-4">
+                            <p class="text-xs sm:text-sm font-extrabold text-neutral-800 dark:text-neutral-200">รายงานฉบับสมบูรณ์</p>
+                            <p class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-500 mt-0.5" id="text-final">รอการส่งงาน</p>
+                        </div>
                     </div>
                 </div>
             </div>
