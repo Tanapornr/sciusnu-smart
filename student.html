@@ -180,11 +180,14 @@
 }
 
 .compact-info-item {
-    min-height: 74px;
+    min-height: 72px;
     background: rgba(248, 250, 252, 0.76);
     border: 1px solid rgba(15, 23, 42, 0.055);
     border-radius: 18px;
-    padding: .85rem .95rem;
+    padding: .75rem .9rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .dark .compact-info-item {
@@ -243,7 +246,15 @@
     height: 1.9rem;
     font-size: .9rem;
 }
-    
+
+    .compact-status-card {
+    align-self: start;
+    height: fit-content;
+}
+
+.compact-info-grid {
+    align-items: stretch;
+}
     </style>
 </head>
 <body class="pb-10 font-prompt">
@@ -289,10 +300,10 @@
         </div>
         
       <div id="headerProjectInfo" class="compact-project-shell mt-2 hidden pt-3 sm:pt-4 pb-3 max-w-7xl mx-auto px-4">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
+   <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 items-start">
 
         <div class="lg:col-span-8 space-y-3">
-            <div class="compact-card compact-title-card p-4 sm:p-5">
+            <div class="compact-card compact-status-card lg:col-span-4 p-4 sm:p-5 self-start h-fit">
                 <div class="compact-accent bg-gradient-to-b from-orange-400 to-pink-500"></div>
                 <p class="compact-label text-[11px] sm:text-xs flex items-center font-bold mb-1.5 ml-2">
                     <span class="compact-icon mr-2 text-orange-500">
