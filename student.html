@@ -1101,20 +1101,20 @@ if (fileInput) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center py-12 text-neutral-500 text-sm font-medium"><i data-lucide="smile" class="w-6 h-6 mr-2 inline-block opacity-70"></i> ยินดีต้อนรับ! เริ่มส่งงานแรกของกลุ่มกันเลยครับ</td></tr>'; 
             } else {
                 tbody.innerHTML = mySubs.map(s => {
-                    let statusClass = "bg-amber-100 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-200 dark:border-amber-900"; 
-                    let statusIcon = '<i data-lucide="clock-3" class="w-4 h-4 mr-1.5 flex-shrink-0 opacity-80"></i>';
-                    let statusText = "รอตรวจ";
+                   let statusClass = "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800";
+                    let statusIcon = '<i data-lucide="clock-3" class="w-4 h-4 mr-1.5 flex-shrink-0"></i>';
+                    let statusText = "รออนุมัติ";
                     let resubmitBtn = '';
 
                     if (s._displayStatus === 'ส่งแก้ไขแล้ว') {
                         statusClass = "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-900";
                         statusIcon = '<i data-lucide="check-check" class="w-4 h-4 mr-1.5 flex-shrink-0 opacity-80"></i>';
                         statusText = "แก้ไขแล้ว (รอตรวจ)";
-                    } else if (s._displayStatus === 'อนุมัติ') {
-                        statusClass = "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900"; 
-                        statusIcon = '<i data-lucide="star" class="w-4 h-4 mr-1.5 flex-shrink-0 opacity-80"></i>';
-                        statusText = "อนุมัติ";
-                    } else if (s._displayStatus === 'ไม่อนุมัติ') {
+                     } else if (s._displayStatus === 'อนุมัติ') {
+                    statusClass = "bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800";
+                    statusIcon = '<i data-lucide="check-circle-2" class="w-4 h-4 mr-1.5 flex-shrink-0"></i>';
+                    statusText = "อนุมัติ";
+                        } else if (s._displayStatus === 'ไม่อนุมัติ') {
                         statusClass = "bg-rose-50 text-rose-800 dark:bg-rose-950/70 dark:text-rose-400 border border-rose-200 dark:border-rose-900"; 
                         statusIcon = '<i data-lucide="alert-circle" class="w-4 h-4 mr-1.5 flex-shrink-0 opacity-80"></i>';
                         statusText = "ต้องแก้ไข";
@@ -1146,7 +1146,7 @@ if (fileInput) {
                         </td>
                         <td class="text-center align-middle py-4 sm:py-5 px-2">
                             <div class="flex flex-col items-center">
-                                <span class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold ${statusClass} inline-flex items-center whitespace-nowrap justify-center shadow-inner tracking-wide">${statusIcon} ${statusText}</span>
+                              <span class="px-3.5 py-2 rounded-lg text-xs font-extrabold ${statusClass} inline-flex items-center whitespace-nowrap justify-center">${statusIcon} ${statusText}</span>
                                 ${resubmitBtn}
                             </div>
                         </td>
