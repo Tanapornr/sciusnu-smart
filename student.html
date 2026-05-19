@@ -507,7 +507,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycby70k6_mZustdCSYJpkSzNuNTH1NyuR_JPcVTWGZtHxKD0YEJCEduF0jDh7OLTxY7LqIA/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwRP3Vn_ksMP0C7ENQ6xsRLA-kZAUrl4qYowfmktRhY14vlTi33c3FQ7iyQoTr9IC7mzg/exec';
         lucide.createIcons();
 
         function toggleTheme() {
@@ -613,8 +613,9 @@
                         projectId: pid, workType: type, advisorName: (window.allProjects[0] ? getVal(window.allProjects[0], ['อ.ที่ปรึกษาหลัก', 'อ.ที่ปรึกษาth']) : ""), 
                         file1Data: f1.data, file1Mime: f1.mime, file2Data: "", file2Mime: "" 
                     };
-                    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); 
-                    const result = await res.json();
+                  const apiUrl = API_URL + '?studentId=' + encodeURIComponent(studentId === "ไม่ระบุ" ? "" : studentId.trim());
+                    const res = await fetch(apiUrl);
+                    const data = await res.json();
                     
                     if (result.status === 'success') {
                         Swal.fire({ icon: 'success', title: '<div class="font-bold text-base sm:text-lg">ส่งงานแก้ไขสำเร็จ!</div>', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-[1.5rem]' } }).then(() => {
