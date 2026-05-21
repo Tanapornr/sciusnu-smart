@@ -670,10 +670,20 @@ window.openFileUrl = function(fileUrl) {
     const finalUrl = normalizeFileUrl(fileUrl);
     if (!finalUrl) return;
 
-    const opened = window.open(finalUrl, '_blank', 'noopener,noreferrer');
-    if (!opened) {
-        window.location.href = finalUrl;
+    const opened = window.open(finalUrl, '_blank');
+    if (opened) {
+        opened.opener = null;
+        opened.focus();
+        return;
     }
+
+    Swal.fire({
+        icon: 'info',
+        title: 'เปิดไฟล์ไม่ได้',
+        html: `<a href="${finalUrl}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 font-bold underline">กดที่นี่เพื่อเปิดไฟล์ในแท็บใหม่</a>`,
+        confirmButtonText: 'ปิด',
+        customClass: { popup: 'rounded-[1.5rem]' }
+    });
 };
 
 function renderAllWorksTable(works) {
