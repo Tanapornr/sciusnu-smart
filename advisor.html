@@ -252,9 +252,10 @@
         const userEmail = localStorage.getItem('userEmail') || "";
         const currentUserRole = localStorage.getItem('userRole'); 
 
-        // 🔥 แก้ไขบักจุดนี้: อนุญาตให้ advisor เข้าได้ 🔥
-if (currentUserRole !== 'advisor_main' && currentUserRole !== 'advisor' && currentUserRole !== 'admin') {
+if (!currentUserRole) {
     window.location.href = 'index.html';
+} else if (currentUserRole !== 'advisor_main' && currentUserRole !== 'admin') {
+    window.location.href = 'viewer.html';
 }
         
         document.getElementById('displayAdvisorName').innerText = advisorName;
@@ -375,6 +376,28 @@ function normalizeName(value) {
         .toLowerCase();
 }
 
+function normalizeSheetHeader(key) {
+    return String(key || '').replace(/\s+/g, '').replace(/-/g, '').toLowerCase();
+}
+
+function getMainAdvisorEmail(projectRow) {
+    for (let key in projectRow) {
+        const header = normalizeSheetHeader(key);
+        if (header === 'emailอ.ที่ปรึกษา' || header === 'emailอ.ที่ปรึกษาหลัก') {
+            return projectRow[key] == null ? "" : projectRow[key].toString().trim();
+        }
+    }
+
+    const keys = Object.keys(projectRow);
+    return keys.length > 8 && projectRow[keys[8]] != null ? projectRow[keys[8]].toString().trim() : "";
+}
+
+function isLoggedInMainAdvisor(projectRow) {
+    const loginEmail = String(userEmail || '').trim().toLowerCase();
+    const mainAdvisorEmail = getMainAdvisorEmail(projectRow).toLowerCase();
+    return loginEmail && mainAdvisorEmail && loginEmail === mainAdvisorEmail;
+}
+
 function getMainAdvisorNameFromColumnJ(projectRow) {
     const keys = Object.keys(projectRow);
     return keys.length > 9 ? String(projectRow[keys[9]] || '').trim() : '';
@@ -388,12 +411,13 @@ function isMainAdvisorProject(projectRow) {
 }
 
 function canCurrentUserReviewSubmission(submission) {
-    if (currentUserRole === 'admin' || currentUserRole === 'advisor_main') return true;
+    if (currentUserRole === 'admin') return true;
+    if (currentUserRole !== 'advisor_main') return false;
 
     const projectId = getVal(submission, ['รหัสโครงงาน', 'projectid']);
     const projectRows = window.myAssignedProjects.filter(p => getVal(p, ['รหัสโครงงาน', 'projectid']) === projectId);
 
-    return projectRows.some(p => isMainAdvisorProject(p));
+    return projectRows.some(p => isLoggedInMainAdvisor(p));
 }
 
 async function loadDashboard() {
@@ -407,6 +431,13 @@ async function loadDashboard() {
                     const allS = data.submissions || [];
 
                     const searchEmail = userEmail.toLowerCase().trim();
+                    const isVerifiedMainAdvisor = window.allProjectsRaw.some(p => isLoggedInMainAdvisor(p));
+
+                    if (currentUserRole !== 'admin' && !isVerifiedMainAdvisor) {
+                        localStorage.setItem('userRole', 'viewer');
+                        window.location.href = 'viewer.html';
+                        return;
+                    }
                     
                     if (currentUserRole === 'admin') {
                         window.myAssignedProjects = window.allProjectsRaw;
@@ -415,13 +446,9 @@ async function loadDashboard() {
                         // 1. ค้นหารหัสโครงงานทั้งหมดที่อาจารย์คนนี้เป็น "ที่ปรึกษาหลัก"
                         let myProjectIds = [];
                        window.allProjectsRaw.forEach(p => {
-    const matchesEmail = Object.values(p).some(val =>
-        val && val.toString().toLowerCase().trim() === searchEmail
-    );
+    const matchesMainAdvisorEmail = isLoggedInMainAdvisor(p);
 
-    const matchesMainAdvisorName = isMainAdvisorProject(p);
-
-    if (matchesEmail || matchesMainAdvisorName) {
+    if (matchesMainAdvisorEmail) {
         let pid = getVal(p, ['รหัสโครงงาน', 'projectid', 'รหัสโปรเจกต์']);
         if (pid) myProjectIds.push(pid);
     }

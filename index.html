@@ -125,6 +125,22 @@
             return "";
         }
 
+        function normalizeSheetHeader(key) {
+            return String(key || '').replace(/\s+/g, '').replace(/-/g, '').toLowerCase();
+        }
+
+        function getMainAdvisorEmail(project) {
+            for (let key in project) {
+                const header = normalizeSheetHeader(key);
+                if (header === 'emailอ.ที่ปรึกษา' || header === 'emailอ.ที่ปรึกษาหลัก') {
+                    return project[key] == null ? "" : project[key].toString().trim();
+                }
+            }
+
+            const keys = Object.keys(project);
+            return keys.length > 8 && project[keys[8]] != null ? project[keys[8]].toString().trim() : "";
+        }
+
         async function isMainAdvisorEmail(email) {
             const targetEmail = String(email || '').trim().toLowerCase();
             if (!targetEmail) return false;
@@ -135,7 +151,7 @@
                 const projects = data.projects || [];
 
                 return projects.some(project => {
-                    const advisorEmail = getSheetVal(project, ['emailอ.ที่ปรึกษา', 'e-mailอ.ที่ปรึกษา']);
+                    const advisorEmail = getMainAdvisorEmail(project);
                     return advisorEmail.toLowerCase() === targetEmail;
                 });
             } catch (error) {
@@ -171,8 +187,15 @@
                 if (result.status === 'success') {
                     localStorage.setItem('userEmail', result.email); 
                     const normalizedRole = normalizeRole(result.role);
-                    const isMainAdvisor = normalizedRole === 'advisor_main' || normalizedRole === 'main_advisor' || await isMainAdvisorEmail(result.email);
-                    const finalRole = isMainAdvisor ? 'advisor_main' : normalizedRole;
+                    const isMainAdvisor = await isMainAdvisorEmail(result.email);
+                    let finalRole = normalizedRole;
+                    if (normalizedRole === 'admin' || normalizedRole === 'student') {
+                        finalRole = normalizedRole;
+                    } else if (isMainAdvisor) {
+                        finalRole = 'advisor_main';
+                    } else {
+                        finalRole = 'viewer';
+                    }
 
                     localStorage.setItem('userRole', finalRole); 
                     localStorage.setItem('userName', result.name);
@@ -203,7 +226,7 @@
                     }).then(() => {
                         if (finalRole === 'student') window.location.href = 'student.html';
                         else if (finalRole === 'admin') window.location.href = 'admin.html';
-                        else if (finalRole === 'advisor' || finalRole === 'advisor_main') window.location.href = 'advisor.html';
+                        else if (finalRole === 'advisor_main') window.location.href = 'advisor.html';
                         else window.location.href = 'viewer.html';
                     });
                 } else {
