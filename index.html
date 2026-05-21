@@ -130,13 +130,8 @@
         }
 
         function getMainAdvisorEmail(project) {
-            for (let key in project) {
-                const header = normalizeSheetHeader(key);
-                if (header === 'emailอ.ที่ปรึกษา' || header === 'emailอ.ที่ปรึกษาหลัก') {
-                    return project[key] == null ? "" : project[key].toString().trim();
-                }
-            }
-
+            // Column I is "E-mail อ.ที่ปรึกษา" (main advisor) only.
+            // Columns M/P are co-advisor and school-advisor emails, which must stay read-only.
             const keys = Object.keys(project);
             return keys.length > 8 && project[keys[8]] != null ? project[keys[8]].toString().trim() : "";
         }

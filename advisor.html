@@ -381,13 +381,8 @@ function normalizeSheetHeader(key) {
 }
 
 function getMainAdvisorEmail(projectRow) {
-    for (let key in projectRow) {
-        const header = normalizeSheetHeader(key);
-        if (header === 'emailอ.ที่ปรึกษา' || header === 'emailอ.ที่ปรึกษาหลัก') {
-            return projectRow[key] == null ? "" : projectRow[key].toString().trim();
-        }
-    }
-
+    // Column I is "E-mail อ.ที่ปรึกษา" (main advisor) only.
+    // Columns M/P are co-advisor and school-advisor emails, which must stay read-only.
     const keys = Object.keys(projectRow);
     return keys.length > 8 && projectRow[keys[8]] != null ? projectRow[keys[8]].toString().trim() : "";
 }
@@ -415,7 +410,7 @@ function canCurrentUserReviewSubmission(submission) {
     if (currentUserRole !== 'advisor_main') return false;
 
     const projectId = getVal(submission, ['รหัสโครงงาน', 'projectid']);
-    const projectRows = window.myAssignedProjects.filter(p => getVal(p, ['รหัสโครงงาน', 'projectid']) === projectId);
+    const projectRows = (window.allProjectsRaw || []).filter(p => getVal(p, ['รหัสโครงงาน', 'projectid']) === projectId);
 
     return projectRows.some(p => isLoggedInMainAdvisor(p));
 }
@@ -574,6 +569,22 @@ async function loadDashboard() {
 
         // 🔥 เปิดหน้าต่างประเมิน อนุมัติ/ไม่อนุมัติ 🔥
     window.openActionModal = function(studentId, workType, currentStatus, currentReason) {
+    const targetSubmission = (window.myAssignedSubmissions || []).find(item =>
+        getVal(item, ['รหัสนักเรียน', 'studentid']) === String(studentId || '').trim() &&
+        getVal(item, ['ประเภทงาน']) === String(workType || '').trim()
+    );
+
+    if (!targetSubmission || !canCurrentUserReviewSubmission(targetSubmission)) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'ไม่มีสิทธิ์อนุมัติ',
+            text: 'บัญชีนี้สามารถดูสถานะและหมายเหตุได้เท่านั้น',
+            confirmButtonText: 'ตกลง',
+            customClass: { popup: 'rounded-[1.5rem]' }
+        });
+        return;
+    }
+
     const parsedStatus = parseSubmissionStatus(currentStatus);
 
     Swal.fire({
@@ -751,11 +762,13 @@ function renderAllWorksTable(works) {
             ? `<button type="button" onclick="openFileUrl('${safeJsText(fileUrl)}')" class="btn-liquid text-orange-800 bg-orange-50 px-2 py-2 rounded-lg text-[10px] font-extrabold border border-orange-200 inline-flex items-center justify-center whitespace-nowrap hover:bg-orange-100 transition-colors"><i data-lucide="external-link" class="w-3.5 h-3.5 mr-1"></i>เปิดไฟล์</button>`
             : `<span class="text-neutral-300 text-xs">-</span>`;
 
-        let reviewButton = `
+        let reviewButton = canCurrentUserReviewSubmission(item)
+            ? `
             <button onclick="openActionModal('${safeJsText(studentIdStr)}', '${safeJsText(workType)}', '${safeJsText(status)}', '${safeJsText(reason)}')" class="btn-liquid text-indigo-700 bg-indigo-50 px-2 py-2 rounded-lg text-[10px] font-extrabold border border-indigo-200 inline-flex items-center justify-center whitespace-nowrap hover:bg-indigo-100 transition-colors">
                 <i data-lucide="clipboard-check" class="w-3.5 h-3.5 mr-1"></i>ตรวจ/อนุมัติ
             </button>
-        `;
+        `
+            : `<span class="text-neutral-400 bg-neutral-50 px-2 py-2 rounded-lg text-[10px] font-bold border border-neutral-200 inline-flex items-center justify-center whitespace-nowrap"><i data-lucide="eye" class="w-3.5 h-3.5 mr-1"></i>ดูเท่านั้น</span>`;
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
