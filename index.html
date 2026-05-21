@@ -15,10 +15,18 @@
     </script>
     <style>
         /* 🔥 ปรับสเกลหน้าเว็บให้ใหญ่ขึ้นบน Desktop 🔥 */
-        html { font-size: 16px; }
+        html { font-size: 16px; overflow-y: scroll; scrollbar-gutter: stable; }
         @media (max-width: 768px) { html { font-size: 14px; } }
 
         body { font-family: 'Prompt', sans-serif; transition: background-color 0.4s, color 0.4s; }
+        * { scrollbar-width: thin; scrollbar-color: #9ca3af transparent; }
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; background-clip: content-box; }
+        .dark * { scrollbar-color: #64748b transparent; }
+        .dark ::-webkit-scrollbar-thumb { background: #64748b; background-clip: content-box; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #94a3b8; background-clip: content-box; }
         .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255,255,255,0.8); }
         .dark .glass-panel { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255,255,255,0.05); color: #f1f5f9; }
         .btn-liquid { position: relative; overflow: hidden; backdrop-filter: blur(10px); transition: all 0.3s ease; }
@@ -36,7 +44,7 @@
         .animate-blob { animation: blob 8s infinite alternate; } .animation-delay-2000 { animation-delay: 2s; } .animation-delay-4000 { animation-delay: 4s; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center relative overflow-hidden bg-orange-50/50 dark:bg-slate-900 p-4 transition-colors">
+<body class="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-orange-50/50 dark:bg-slate-900 p-4 transition-colors">
     <div class="absolute top-10 left-10 w-64 h-64 sm:w-96 sm:h-96 bg-orange-500/30 dark:bg-orange-600/30 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob"></div>
     <div class="absolute top-0 right-10 w-64 h-64 sm:w-96 sm:h-96 bg-amber-500/30 dark:bg-amber-600/30 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob animation-delay-2000"></div>
     <div class="absolute -bottom-10 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-yellow-500/30 dark:bg-yellow-600/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob animation-delay-4000"></div>

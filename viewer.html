@@ -14,7 +14,7 @@
         if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
     </script>
     <style>
-        html { font-size: 18px; }
+        html { font-size: 18px; overflow-y: scroll; scrollbar-gutter: stable; }
         @media (max-width: 768px) { html { font-size: 14px; } }
 
         body { 
@@ -28,9 +28,14 @@
         }
         .dark body { background-color: #0d0d0d; color: #f3f4f6; }
         
-        /* ❌ ตัด Scrollbar ทิ้งออกจากระบบถาวร ❌ */
-        ::-webkit-scrollbar { display: none !important; }
-        html, body { -ms-overflow-style: none; scrollbar-width: none; }
+        * { scrollbar-width: thin; scrollbar-color: #9ca3af transparent; }
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; background-clip: content-box; }
+        .dark * { scrollbar-color: #64748b transparent; }
+        .dark ::-webkit-scrollbar-thumb { background: #64748b; background-clip: content-box; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #94a3b8; background-clip: content-box; }
 
         .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
         .dark .glass-panel { background: rgba(24, 24, 27, 0.75); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); }
