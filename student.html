@@ -569,6 +569,9 @@
 
         // 🔥 เปิด Popup ยืนยันการอัปโหลดไฟล์แก้ไข ตัดหน้าลายเซ็นออก 🔥
         window.prepareResubmitPopup = async function(type) {
+            updateWorkTypeOptionsForRejects(type);
+            document.getElementById('workType').dispatchEvent(new Event('change'));
+
             const { value: formValues } = await Swal.fire({
                 title: '<div class="flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg><span class="text-lg sm:text-xl font-bold">ส่งไฟล์แก้ไขใหม่</span></div>',
                 html: `
@@ -613,17 +616,16 @@
                         projectId: pid, workType: type, advisorName: (window.allProjects[0] ? getVal(window.allProjects[0], ['อ.ที่ปรึกษาหลัก', 'อ.ที่ปรึกษาth']) : ""), 
                         file1Data: f1.data, file1Mime: f1.mime, file2Data: "", file2Mime: "" 
                     };
-                  const apiUrl = API_URL + '?studentId=' + encodeURIComponent(studentId === "ไม่ระบุ" ? "" : studentId.trim());
-                    const res = await fetch(apiUrl);
-                    const data = await res.json();
+                    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                    const result = await res.json();
                     
-                    if (result.status === 'success') {
+                    if (result && result.status === 'success') {
                         Swal.fire({ icon: 'success', title: '<div class="font-bold text-base sm:text-lg">ส่งงานแก้ไขสำเร็จ!</div>', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-[1.5rem]' } }).then(() => {
                             document.getElementById('tableContainer').classList.add('hidden');
                             document.getElementById('loadingData').style.display = 'flex';
                             loadData(); 
                         });
-                    } else throw new Error(result.message);
+                    } else throw new Error(result ? result.message : 'อัปโหลดไม่สำเร็จ');
                 } catch (err) {
                     Swal.fire({ icon: 'error', title: '<div class="font-bold text-rose-600 text-base sm:text-lg">ผิดพลาด</div>', text: err.message, customClass: { popup: 'rounded-[1.5rem]' } });
                 }
@@ -672,6 +674,43 @@
 
     return 'รออนุมัติ';
 }
+
+function getActiveRejectTypes() {
+    return Object.keys(window.activeRejects || {}).filter(type => window.activeRejects[type]);
+}
+
+function updateWorkTypeOptionsForRejects(preferredType = "") {
+    const select = document.getElementById('workType');
+    if (!select) return;
+
+    const activeTypes = getActiveRejectTypes();
+    const hasActiveReject = activeTypes.length > 0;
+
+    Array.from(select.options).forEach(option => {
+        if (!option.value) {
+            option.hidden = false;
+            option.disabled = false;
+            return;
+        }
+
+        const allowed = !hasActiveReject || activeTypes.includes(option.value);
+        option.hidden = !allowed;
+        option.disabled = !allowed;
+    });
+
+    if (preferredType && activeTypes.includes(preferredType)) {
+        select.value = preferredType;
+    } else if (activeTypes.length === 1) {
+        select.value = activeTypes[0];
+    } else if (hasActiveReject && !activeTypes.includes(select.value)) {
+        select.value = "";
+    }
+
+    select.disabled = activeTypes.length === 1;
+    select.classList.toggle('opacity-70', hasActiveReject);
+    select.title = hasActiveReject ? 'ระบบล็อกให้เลือกเฉพาะงานที่ต้องแก้ไข' : '';
+}
+
         // 🔥 ดึงอีเมลอาจารย์มาแสดงอย่างถูกต้อง 🔥
         // เปลี่ยนมาใช้การระบุคอลัมน์ตรงๆ ตามที่คุณครูขอ เพื่อความแม่นยำ 100%
         function getEmailFromIndex(obj, index) {
@@ -1051,14 +1090,21 @@ if (fileInput) {
 
         // 🔥 ตรวจสอบการล็อกฟอร์มเมื่อเลือกประเภทงาน 🔥
         document.getElementById('workType').addEventListener('change', (e) => {
-            const selectedType = e.target.value;
+            let selectedType = e.target.value;
             const labelFileReport = document.getElementById('labelFileReport');
             const submitBtn = document.getElementById('submitBtn');
             const formFieldsContainer = document.getElementById('formFieldsContainer');
             const lockWarning = document.getElementById('lockWarning');
+            const activeRejectTypes = getActiveRejectTypes();
+
+            if (activeRejectTypes.length > 0) {
+                updateWorkTypeOptionsForRejects(selectedType);
+                selectedType = document.getElementById('workType').value;
+            }
             
-            if (selectedType && window.activeRejects[selectedType]) {
-                formFieldsContainer.classList.add('form-locked');
+            if (activeRejectTypes.length > 0) {
+                formFieldsContainer.classList.remove('form-locked');
+                lockWarning.innerHTML = '<i data-lucide="alert-triangle" class="w-5 h-5 mr-2.5 flex-shrink-0 mt-0.5 text-rose-500"></i><span>ระบบล็อกประเภทงานให้ส่งแก้ไขเฉพาะรายการที่อาจารย์ไม่อนุมัติเท่านั้น</span>';
                 lockWarning.classList.remove('hidden');
                 lucide.createIcons();
             } else {
@@ -1188,7 +1234,7 @@ if (fileInput) {
                     </tr>`;
                 }).join('');
             }
-            document.getElementById('loadingData').style.display = 'none'; document.getElementById('tableContainer').classList.remove('hidden'); lucide.createIcons();
+            document.getElementById('loadingData').style.display = 'none'; document.getElementById('tableContainer').classList.remove('hidden'); updateWorkTypeOptionsForRejects(); lucide.createIcons();
         }
 
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
@@ -1209,6 +1255,18 @@ if (fileInput) {
             if (!userPhone) { Swal.fire({ icon: 'warning', title: '<div class="font-bold text-sm sm:text-base">โปรดระบุเบอร์โทรศัพท์</div>', confirmButtonText: 'ตกลง', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-[1.5rem]'} }).then(() => { openProfileModal(); document.getElementById('profilePhone').focus(); }); return; }
             
             const selectedWorkType = document.getElementById('workType').value;
+            const activeRejectTypes = getActiveRejectTypes();
+            if (activeRejectTypes.length > 0 && !activeRejectTypes.includes(selectedWorkType)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '<div class="font-bold text-sm sm:text-base">กรุณาส่งรายการที่ต้องแก้ไข</div>',
+                    html: `<span class="text-xs sm:text-sm">ตอนนี้ส่งได้เฉพาะ <b>${activeRejectTypes.join(', ')}</b> เท่านั้น</span>`,
+                    confirmButtonColor: '#f97316',
+                    customClass: { popup: 'rounded-[1.5rem]' }
+                });
+                return;
+            }
+
             const existingSub = window.mySubmissions.find(s => getVal(s, ['ประเภทงาน']) === selectedWorkType);
             
             if (existingSub && getVal(existingSub, ['รหัสนักเรียน']) !== (studentId === "ไม่ระบุ" ? "" : studentId.trim())) {
