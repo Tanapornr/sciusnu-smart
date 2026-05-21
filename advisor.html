@@ -320,13 +320,18 @@ if (currentUserRole !== 'advisor_main' && currentUserRole !== 'advisor' && curre
         window.myAssignedSubmissions = [];
 
         function getVal(obj, keywords) {
+            let emptyMatch = "";
             for (let key in obj) {
                 let lowerKey = key.replace(/\s+/g, '').toLowerCase();
                 for (let word of keywords) {
-                    if (lowerKey.includes(word)) return obj[key].toString().trim();
+                    if (lowerKey.includes(word)) {
+                        const value = obj[key] == null ? "" : obj[key].toString().trim();
+                        if (value) return value;
+                        emptyMatch = value;
+                    }
                 }
             }
-            return "";
+            return emptyMatch;
         }
 
 function parseSubmissionStatus(rawStatus) {
@@ -495,7 +500,7 @@ async function loadDashboard() {
                 const members = window.myAssignedProjects.filter(p => getVal(p, ['รหัสโครงงาน']) === pid);
                 let projectNameTH = members.length > 0 ? getVal(members[0], ['ชื่อโครงงาน', 'projectname']) : "-";
                 if (!projectNameTH || projectNameTH === "-") {
-                   let keys = Object.keys(members[0]);
+                   let keys = members.length > 0 ? Object.keys(members[0]) : [];
                    if (keys.length > 17) projectNameTH = members[0][keys[17]];
                 }
 
@@ -521,22 +526,22 @@ async function loadDashboard() {
                 const getStatusBadge = (workType) => {
                     const subs = projectSubs.filter(s => getVal(s, ['ประเภทงาน']) === workType);
                     if (subs.length === 0) return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-400 opacity-70 border border-neutral-200 dark:border-neutral-700">➖ ยังไม่ส่ง</span>`;
-                    const status = getVal(subs[subs.length - 1], ['สถานะ', 'status']);
-                    if (status.includes('อนุมัติแล้ว') || status === 'อนุมัติ') return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-900/60 shadow-sm"><i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> อนุมัติ</span>`;
-                    if (status.includes('ไม่อนุมัติ')) return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 flex items-center justify-center border border-rose-100 dark:border-rose-900/60 shadow-sm"><i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ต้องแก้ไข</span>`;
+                    const parsedStatus = parseSubmissionStatus(getVal(subs[subs.length - 1], ['สถานะ', 'status']));
+                    if (parsedStatus === 'อนุมัติ') return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-900/60 shadow-sm"><i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> อนุมัติ</span>`;
+                    if (parsedStatus === 'ไม่อนุมัติ') return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 flex items-center justify-center border border-rose-100 dark:border-rose-900/60 shadow-sm"><i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> ต้องแก้ไข</span>`;
                     return `<span class="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center border border-amber-100 dark:border-amber-900/60 shadow-sm"><i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5 opacity-80"></i> รอตรวจ</span>`;
                 };
 
-                const tr = document.createElement('tr'); 
-             tr.innerHTML = `
-    <td data-label="วันที่ส่ง" class="px-3 py-4 align-middle opacity-80">${formatDateTime(getVal(item, ['timestamp', 'เวลา']))}</td>
-    <td data-label="ข้อมูลผู้ส่งและกลุ่ม" class="px-3 py-3 align-middle">${generateStudentInfoHtml(item)}</td>
-    <td data-label="ประเภทงาน" class="px-3 py-4 font-bold text-indigo-700 dark:text-indigo-400 text-[10px] sm:text-sm align-middle leading-tight">${workType}</td>
-    <td data-label="หมายเหตุ" class="px-3 py-4 text-left align-middle">${reasonHtml}</td>
-    <td data-label="สถานะ" class="px-3 py-4 text-center align-middle">${badge}</td>
-    <td data-label="ไฟล์แนบ" class="px-3 py-4 text-center align-middle">${fileButton}</td>
-    <td data-label="ตรวจงาน" class="px-3 py-4 text-center align-middle">${reviewButton}</td>
-`;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td data-label="รหัสโครงงาน / ชื่อโครงงาน" class="px-3 py-4 align-top">${projectTitleHtml}</td>
+                    <td data-label="รายชื่อนักเรียนในกลุ่ม" class="px-3 py-3 align-top">${memberHtml || '<span class="text-neutral-300 text-xs">ไม่มีข้อมูลนักเรียน</span>'}</td>
+                    <td data-label="โครงร่าง" class="px-2 py-4 align-top text-center">${getStatusBadge('โครงร่าง (Proposal)')}</td>
+                    <td data-label="ความก้าวหน้า" class="px-2 py-4 align-top text-center">${getStatusBadge('รายงานความก้าวหน้า')}</td>
+                    <td data-label="ฉบับสมบูรณ์" class="px-2 py-4 align-top text-center">${getStatusBadge('รายงานฉบับสมบูรณ์')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
             lucide.createIcons();
         }
 
@@ -649,6 +654,28 @@ role: "advisor_main"
     return String(value || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, ' ');
 }
 
+function normalizeFileUrl(value) {
+    const rawUrl = String(value || '').trim();
+    if (!rawUrl) return "";
+
+    const driveMatch = rawUrl.match(/drive\.google\.com\/file\/d\/([^/]+)/) || rawUrl.match(/[?&]id=([^&]+)/);
+    if (driveMatch && driveMatch[1]) {
+        return `https://drive.google.com/file/d/${driveMatch[1]}/view`;
+    }
+
+    return rawUrl;
+}
+
+window.openFileUrl = function(fileUrl) {
+    const finalUrl = normalizeFileUrl(fileUrl);
+    if (!finalUrl) return;
+
+    const opened = window.open(finalUrl, '_blank', 'noopener,noreferrer');
+    if (!opened) {
+        window.location.href = finalUrl;
+    }
+};
+
 function renderAllWorksTable(works) {
     const tbody = document.getElementById('allWorksTableBody');
     tbody.innerHTML = '';
@@ -681,15 +708,15 @@ function renderAllWorksTable(works) {
             badge = `<span class="px-3 py-1.5 rounded-lg text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 inline-flex items-center justify-center whitespace-nowrap"><i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5"></i>รอการตรวจ</span>`;
         }
 
-        let fileUrl = item['URL ไฟล์เล่ม'] || getVal(item, ['urlไฟล์เล่ม', 'ไฟล์เล่ม', 'ไฟล์']);
+        let fileUrl = normalizeFileUrl(item['URL ไฟล์เล่ม'] || getVal(item, ['urlไฟล์เล่ม', 'ไฟล์เล่ม', 'ไฟล์']));
 
         let fileButton = fileUrl
-            ? `<a href="${fileUrl}" target="_blank" class="btn-liquid text-orange-800 bg-orange-50 px-2 py-2 rounded-lg text-[10px] font-extrabold border border-orange-200 inline-flex items-center justify-center whitespace-nowrap hover:bg-orange-100 transition-colors"><i data-lucide="file-text" class="w-3.5 h-3.5 mr-1"></i>ไฟล์รูปเล่ม</a>`
+            ? `<button type="button" onclick="openFileUrl('${safeJsText(fileUrl)}')" class="btn-liquid text-orange-800 bg-orange-50 px-2 py-2 rounded-lg text-[10px] font-extrabold border border-orange-200 inline-flex items-center justify-center whitespace-nowrap hover:bg-orange-100 transition-colors"><i data-lucide="external-link" class="w-3.5 h-3.5 mr-1"></i>เปิดไฟล์</button>`
             : `<span class="text-neutral-300 text-xs">-</span>`;
 
         let reviewButton = `
             <button onclick="openActionModal('${safeJsText(studentIdStr)}', '${safeJsText(workType)}', '${safeJsText(status)}', '${safeJsText(reason)}')" class="btn-liquid text-indigo-700 bg-indigo-50 px-2 py-2 rounded-lg text-[10px] font-extrabold border border-indigo-200 inline-flex items-center justify-center whitespace-nowrap hover:bg-indigo-100 transition-colors">
-                <i data-lucide="clipboard-check" class="w-3.5 h-3.5 mr-1"></i>ตรวจงาน
+                <i data-lucide="clipboard-check" class="w-3.5 h-3.5 mr-1"></i>ตรวจ/อนุมัติ
             </button>
         `;
 

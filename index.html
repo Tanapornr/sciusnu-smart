@@ -107,6 +107,43 @@
             return url;
         }
 
+        const ADVISOR_API_URL = 'https://script.google.com/macros/s/AKfycbzVUw07Kil1_v-A-ax71_yG6rJPnPlQ8LpY0oGxK27K6oDHxDhgzzQCSYPqVBrhhhTSag/exec';
+
+        function normalizeRole(role) {
+            return String(role || '').trim().toLowerCase();
+        }
+
+        function getSheetVal(obj, keywords) {
+            for (let key in obj) {
+                const lowerKey = key.replace(/\s+/g, '').toLowerCase();
+                for (let word of keywords) {
+                    if (lowerKey.includes(word)) {
+                        return obj[key] == null ? "" : obj[key].toString().trim();
+                    }
+                }
+            }
+            return "";
+        }
+
+        async function isMainAdvisorEmail(email) {
+            const targetEmail = String(email || '').trim().toLowerCase();
+            if (!targetEmail) return false;
+
+            try {
+                const response = await fetch(ADVISOR_API_URL);
+                const data = await response.json();
+                const projects = data.projects || [];
+
+                return projects.some(project => {
+                    const advisorEmail = getSheetVal(project, ['emailอ.ที่ปรึกษา', 'e-mailอ.ที่ปรึกษา']);
+                    return advisorEmail.toLowerCase() === targetEmail;
+                });
+            } catch (error) {
+                console.warn('Cannot verify main advisor email', error);
+                return false;
+            }
+        }
+
         async function handleLogin(e) {
             e.preventDefault();
             const username = document.getElementById('username').value.trim(); 
@@ -133,7 +170,11 @@
 
                 if (result.status === 'success') {
                     localStorage.setItem('userEmail', result.email); 
-                    localStorage.setItem('userRole', result.role); 
+                    const normalizedRole = normalizeRole(result.role);
+                    const isMainAdvisor = normalizedRole === 'advisor_main' || normalizedRole === 'main_advisor' || await isMainAdvisorEmail(result.email);
+                    const finalRole = isMainAdvisor ? 'advisor_main' : normalizedRole;
+
+                    localStorage.setItem('userRole', finalRole); 
                     localStorage.setItem('userName', result.name);
                     
                     const directPicUrl = getDirectImageUrl(result.profileUrl);
@@ -141,9 +182,9 @@
                     const finalPic = directPicUrl ? directPicUrl : fallbackPic;
                     localStorage.setItem('profileUrl', finalPic);
 
-                    if (result.role === 'student') localStorage.setItem('studentId', result.studentId);
+                    if (finalRole === 'student') localStorage.setItem('studentId', result.studentId);
                     
-                    let idDisplay = result.studentId || result.role;
+                    let idDisplay = result.studentId || finalRole;
                     sessionStorage.removeItem('welcomed');
 
                     // 🔥 2. Pop-up ยินดีต้อนรับ ไซส์ตัวหนังสือเล็กลง สบายตา 🔥
@@ -160,9 +201,9 @@
                         `,
                         showConfirmButton: false, timer: 2000, customClass: { popup: 'rounded-[2rem] p-6 w-[80%] max-w-sm' }
                     }).then(() => {
-                        if (result.role === 'student') window.location.href = 'student.html';
-                        else if (result.role === 'admin') window.location.href = 'admin.html';
-                        else if (result.role === 'advisor') window.location.href = 'advisor.html';
+                        if (finalRole === 'student') window.location.href = 'student.html';
+                        else if (finalRole === 'admin') window.location.href = 'admin.html';
+                        else if (finalRole === 'advisor' || finalRole === 'advisor_main') window.location.href = 'advisor.html';
                         else window.location.href = 'viewer.html';
                     });
                 } else {
