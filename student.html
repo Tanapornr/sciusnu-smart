@@ -1258,8 +1258,9 @@ if (fileInput) {
                     rememberRejectReason(projectIdForReason, workType, reason);
                     trackers[workType].lastRejectReason = reason; trackers[workType].lastRejectTime = s['Timestamp']; trackers[workType].isResubmit = true; window.activeRejects[workType] = true; window.rejectReasons[workType] = reason; newSub._displayStatus = 'ไม่อนุมัติ'; newSub._isResubmit = false;
                 } else if (parsedStatus === 'รออนุมัติ') {
-                    if (trackers[workType].isResubmit) {
-                        newSub._displayStatus = 'รอการตรวจอนุมัติ'; newSub._isResubmit = true; newSub._oldReason = reason || trackers[workType].lastRejectReason || getRememberedRejectReason(projectIdForReason, workType); newSub._oldRejectTime = trackers[workType].lastRejectTime; window.activeRejects[workType] = false;
+                    const pendingReason = reason || getRememberedRejectReason(projectIdForReason, workType);
+                    if (trackers[workType].isResubmit || pendingReason) {
+                        newSub._displayStatus = 'รอการตรวจอนุมัติ'; newSub._isResubmit = true; newSub._oldReason = pendingReason || trackers[workType].lastRejectReason; newSub._oldRejectTime = trackers[workType].lastRejectTime; window.activeRejects[workType] = false;
                     } else { newSub._displayStatus = 'รออนุมัติ'; newSub._isResubmit = false; window.activeRejects[workType] = false; }
                 } else if (parsedStatus === 'อนุมัติ') {
                     clearRememberedRejectReason(projectIdForReason, workType);
