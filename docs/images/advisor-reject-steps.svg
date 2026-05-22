@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="560" viewBox="0 0 1100 560" role="img" aria-labelledby="title desc">
+  <title id="title">ขั้นตอนอาจารย์ไม่อนุมัติงาน</title>
+  <desc id="desc">แสดงขั้นตอนเปิดไฟล์ กดไม่อนุมัติ ใส่หมายเหตุ และรอนักเรียนส่งแก้ไข</desc>
+  <defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#e11d48" stroke-width="2"/></marker>
+  <style>.bg{fill:#f8fafc}.panel{fill:#fff;stroke:#e5e7eb;stroke-width:1.4}.box{fill:#fff1f2;stroke:#fecdd3}.mail{fill:#eff6ff;stroke:#bfdbfe}.title{font-family:Arial,sans-serif;font-size:30px;font-weight:800;fill:#111827}.label{font-family:Arial,sans-serif;font-size:19px;font-weight:800;fill:#1f2937}.text{font-family:Arial,sans-serif;font-size:14px;font-weight:500;fill:#475569}.small{font-family:Arial,sans-serif;font-size:12px;font-weight:700;fill:#64748b}.n{font-family:Arial,sans-serif;font-size:15px;font-weight:800;fill:#fff}.dot{fill:#e11d48}.arr{stroke:#e11d48;stroke-width:2;fill:none;marker-end:url(#a)}</style></defs>
+  <rect class="bg" width="1100" height="560"/><rect class="panel" x="40" y="32" width="1020" height="496" rx="30"/><text class="title" x="76" y="82">ที่ปรึกษาหลัก: ไม่อนุมัติและส่งแก้ไข</text>
+  <rect class="box" x="82" y="145" width="190" height="118" rx="22"/><circle class="dot" cx="110" cy="179" r="16"/><text class="n" x="104" y="185">1</text><text class="label" x="134" y="183">ตรวจไฟล์</text><text class="text" x="106" y="220">พบจุดที่ต้องแก้</text>
+  <rect class="box" x="330" y="145" width="190" height="118" rx="22"/><circle class="dot" cx="358" cy="179" r="16"/><text class="n" x="352" y="185">2</text><text class="label" x="382" y="183">กดไม่อนุมัติ</text><text class="text" x="354" y="220">เปิดช่องหมายเหตุ</text>
+  <rect class="box" x="578" y="145" width="190" height="118" rx="22"/><circle class="dot" cx="606" cy="179" r="16"/><text class="n" x="600" y="185">3</text><text class="label" x="630" y="183">ใส่หมายเหตุ</text><text class="text" x="602" y="220">ระบุสิ่งที่ต้องแก้</text>
+  <rect class="box" x="826" y="145" width="190" height="118" rx="22"/><circle class="dot" cx="854" cy="179" r="16"/><text class="n" x="848" y="185">4</text><text class="label" x="878" y="183">รอนักเรียน</text><text class="text" x="850" y="220">ส่งไฟล์แก้ไขใหม่</text>
+  <path class="arr" d="M276 204 H324"/><path class="arr" d="M524 204 H572"/><path class="arr" d="M772 204 H820"/>
+  <rect class="mail" x="120" y="350" width="860" height="96" rx="20"/>
+  <text class="label" x="150" y="386">อีเมลแจ้งเตือนหลังไม่อนุมัติ</text>
+  <text class="text" x="150" y="416">นักเรียนทุกคนในกลุ่มได้รับอีเมลผลการพิจารณาพร้อมเหตุผลที่ต้องแก้ไข</text>
+  <text class="text" x="150" y="440">อาจารย์ที่ปรึกษาร่วมและที่ปรึกษาโรงเรียนได้รับอีเมลแจ้งผลเพื่อทราบสถานะล่าสุด</text>
+</svg>
