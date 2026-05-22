@@ -1306,10 +1306,10 @@ if (fileInput) {
                     
                     let reasonHtml = '';
                     if (s._displayStatus === 'ไม่อนุมัติ' && s._reason) {
-                        reasonHtml = `<div class="text-xs text-rose-800 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-950/30 p-3 sm:p-4 rounded-xl border border-rose-100 dark:border-rose-900/60 inline-block w-full max-w-[200px] whitespace-normal break-words shadow-inner text-left"><div class="font-bold flex items-center mb-1"><i data-lucide="alert-triangle" class="w-4 h-4 mr-1.5 text-rose-600"></i> เหตุผล:</div>${escapeHtml(s._reason)}</div>`;
+                        reasonHtml = `<div class="text-xs text-rose-800 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-950/30 p-3 sm:p-4 rounded-xl border border-rose-100 dark:border-rose-900/60 inline-block w-full max-w-[200px] whitespace-normal break-words shadow-inner text-left">${escapeHtml(s._reason)}</div>`;
                     } else if (s._isResubmit && (s._oldReason || s._reason)) {
                         const resubmitReason = s._oldReason || s._reason;
-                        reasonHtml = `<div class="text-xs text-blue-800 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-950/30 p-3 sm:p-4 rounded-xl border border-blue-100 dark:border-blue-900/60 inline-block w-full max-w-[220px] whitespace-normal break-words shadow-inner text-left"><div class="font-bold flex items-center mb-1"><i data-lucide="info" class="w-4 h-4 mr-1.5 text-blue-600"></i> หมายเหตุที่ต้องแก้ไข:</div>${escapeHtml(resubmitReason)}</div>`;
+                        reasonHtml = `<div class="text-xs text-blue-800 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-950/30 p-3 sm:p-4 rounded-xl border border-blue-100 dark:border-blue-900/60 inline-block w-full max-w-[220px] whitespace-normal break-words shadow-inner text-left">${escapeHtml(resubmitReason)}</div>`;
                     } else {
                         reasonHtml = `<span class="text-neutral-300 dark:text-neutral-700 font-light opacity-50">-</span>`;
                     }
