@@ -513,6 +513,7 @@
 
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbx8EK03qeYH64nMZZi2BrMrO1IzkQKB6gF9qRmkNMmvqEzG5JKJeg89Xt1BL98WgHhaBw/exec';
+        const STATUS_API_URL = 'https://script.google.com/macros/s/AKfycbxvlQjACPTdbvpF7TuK4ye2gmjrBu83a26_nAoHqkoIULD1RiuFt9J-RxmnkcCUBjySaw/exec';
         lucide.createIcons();
 
         function toggleTheme() {
@@ -634,7 +635,7 @@
                     if (result && result.status === 'success') {
                         rememberRejectReason(pid, type, previousRejectReason);
                         try {
-                            await syncResubmitReasonToSheet(studentId, type, previousRejectReason);
+                            await syncResubmitReasonToSheet(studentId, type, previousRejectReason, pid);
                         } catch (syncError) {
                             console.warn(syncError);
                         }
@@ -755,16 +756,17 @@ function clearRememberedRejectReason(projectId, workType) {
     localStorage.removeItem(getRejectReasonCacheKey(projectId, workType));
 }
 
-async function syncResubmitReasonToSheet(studentIdValue, workType, reason) {
+async function syncResubmitReasonToSheet(studentIdValue, workType, reason, projectIdValue = "") {
     if (!reason) return;
     const payload = {
         action: "updateStatus",
         studentId: studentIdValue === "ไม่ระบุ" ? "" : studentIdValue,
+        projectId: projectIdValue,
         workType,
         status: "รออนุมัติ",
         ...buildResubmitReasonPayload(reason)
     };
-    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const res = await fetch(STATUS_API_URL, { method: 'POST', body: JSON.stringify(payload) });
     const result = await res.json();
     if (!result || result.status !== 'success') {
         throw new Error(result && result.message ? result.message : 'บันทึกหมายเหตุเดิมไม่สำเร็จ');
@@ -1401,7 +1403,7 @@ if (!pid || members.length === 0) {
                 if (result && result.status === 'success') { 
                     rememberRejectReason(pid, selectedWorkType, previousRejectReason);
                     try {
-                        await syncResubmitReasonToSheet(studentId, selectedWorkType, previousRejectReason);
+                        await syncResubmitReasonToSheet(studentId, selectedWorkType, previousRejectReason, pid);
                     } catch (syncError) {
                         console.warn(syncError);
                     }
