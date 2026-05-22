@@ -576,7 +576,8 @@
         window.prepareResubmitPopup = async function(type) {
             updateWorkTypeOptionsForRejects(type);
             document.getElementById('workType').dispatchEvent(new Event('change'));
-            const previousRejectReason = getLatestRejectReason(type);
+            const popupProjectId = document.getElementById('projectId').value.trim();
+            const previousRejectReason = getLatestRejectReason(type) || getRememberedRejectReason(popupProjectId, type);
             const previousReasonHtml = previousRejectReason
                 ? `<div class="text-left bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/60 text-rose-800 dark:text-rose-300 p-3 rounded-xl mb-3 text-xs leading-relaxed"><div class="font-bold mb-1">หมายเหตุที่ต้องแก้ไข</div>${escapeHtml(previousRejectReason)}</div>`
                 : '';
@@ -617,7 +618,7 @@
                 });
 
                 try {
-                    const pid = document.getElementById('projectId').value.trim();
+                    const pid = popupProjectId || document.getElementById('projectId').value.trim();
                     const f1 = await toBase64(formValues.rFile);
 
                     const uploader = window.allProjects.find(x => getVal(x, ['รหัสนักเรียน', 'studentid']) == studentId);
@@ -631,6 +632,12 @@
                     const result = await res.json();
                     
                     if (result && result.status === 'success') {
+                        rememberRejectReason(pid, type, previousRejectReason);
+                        try {
+                            await syncResubmitReasonToSheet(studentId, type, previousRejectReason);
+                        } catch (syncError) {
+                            console.warn(syncError);
+                        }
                         Swal.fire({ icon: 'success', title: '<div class="font-bold text-base sm:text-lg">ส่งงานแก้ไขสำเร็จ!</div>', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-[1.5rem]' } }).then(() => {
                             document.getElementById('tableContainer').classList.add('hidden');
                             document.getElementById('loadingData').style.display = 'flex';
@@ -718,6 +725,50 @@ function buildResubmitReasonPayload(reason) {
         'หมายเหตุ': value,
         'เหตุผล': value
     };
+}
+
+function getRejectReasonCacheKey(projectId, workType) {
+    return `sciusnu_reject_reason_${projectId || 'unknown'}_${workType || 'unknown'}`;
+}
+
+function rememberRejectReason(projectId, workType, reason) {
+    if (!projectId || !workType || !reason) return;
+    localStorage.setItem(getRejectReasonCacheKey(projectId, workType), JSON.stringify({
+        reason,
+        savedAt: new Date().toISOString()
+    }));
+}
+
+function getRememberedRejectReason(projectId, workType) {
+    try {
+        const raw = localStorage.getItem(getRejectReasonCacheKey(projectId, workType));
+        if (!raw) return "";
+        const data = JSON.parse(raw);
+        return data && data.reason ? data.reason : "";
+    } catch (error) {
+        return "";
+    }
+}
+
+function clearRememberedRejectReason(projectId, workType) {
+    if (!projectId || !workType) return;
+    localStorage.removeItem(getRejectReasonCacheKey(projectId, workType));
+}
+
+async function syncResubmitReasonToSheet(studentIdValue, workType, reason) {
+    if (!reason) return;
+    const payload = {
+        action: "updateStatus",
+        studentId: studentIdValue === "ไม่ระบุ" ? "" : studentIdValue,
+        workType,
+        status: "รออนุมัติ",
+        ...buildResubmitReasonPayload(reason)
+    };
+    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const result = await res.json();
+    if (!result || result.status !== 'success') {
+        throw new Error(result && result.message ? result.message : 'บันทึกหมายเหตุเดิมไม่สำเร็จ');
+    }
 }
 
 function updateWorkTypeOptionsForRejects(preferredType = "") {
@@ -1191,6 +1242,7 @@ if (fileInput) {
             
             let processedSubs = sortedSubs.map(s => {
                 let workType = getVal(s, ['ประเภทงาน']) || 'ไม่ระบุ';
+                let projectIdForReason = getVal(s, ['รหัสโครงงาน', 'projectid']) || document.getElementById('projectId').value.trim();
                 let rawStatusText = getVal(s, ['สถานะ', 'status']) || '';
                 
                 let parsedStatus = parseSubmissionStatus(rawStatusText);
@@ -1201,12 +1253,14 @@ if (fileInput) {
                 if (!trackers[workType]) trackers[workType] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
                 
                 if (parsedStatus === 'ไม่อนุมัติ') {
+                    rememberRejectReason(projectIdForReason, workType, reason);
                     trackers[workType].lastRejectReason = reason; trackers[workType].lastRejectTime = s['Timestamp']; trackers[workType].isResubmit = true; window.activeRejects[workType] = true; window.rejectReasons[workType] = reason; newSub._displayStatus = 'ไม่อนุมัติ'; newSub._isResubmit = false;
                 } else if (parsedStatus === 'รออนุมัติ') {
                     if (trackers[workType].isResubmit) {
-                        newSub._displayStatus = 'รอการตรวจอนุมัติ'; newSub._isResubmit = true; newSub._oldReason = reason || trackers[workType].lastRejectReason; newSub._oldRejectTime = trackers[workType].lastRejectTime; window.activeRejects[workType] = false;
+                        newSub._displayStatus = 'รอการตรวจอนุมัติ'; newSub._isResubmit = true; newSub._oldReason = reason || trackers[workType].lastRejectReason || getRememberedRejectReason(projectIdForReason, workType); newSub._oldRejectTime = trackers[workType].lastRejectTime; window.activeRejects[workType] = false;
                     } else { newSub._displayStatus = 'รออนุมัติ'; newSub._isResubmit = false; window.activeRejects[workType] = false; }
                 } else if (parsedStatus === 'อนุมัติ') {
+                    clearRememberedRejectReason(projectIdForReason, workType);
                     newSub._displayStatus = 'อนุมัติ'; newSub._isResubmit = false; window.activeRejects[workType] = false; delete window.rejectReasons[workType]; trackers[workType] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
                 }
                 
@@ -1340,11 +1394,17 @@ if (!pid || members.length === 0) {
                 const f1 = await toBase64(document.getElementById('fileReport').files[0]); 
 
                 const uploader = members.find(x => getVal(x, ['รหัสนักเรียน']) == studentId); 
-                const previousRejectReason = activeRejectTypes.includes(selectedWorkType) ? getLatestRejectReason(selectedWorkType) : "";
+                const previousRejectReason = activeRejectTypes.includes(selectedWorkType) ? (getLatestRejectReason(selectedWorkType) || getRememberedRejectReason(pid, selectedWorkType)) : "";
                 const payload = { studentId: studentId === "ไม่ระบุ" ? "" : studentId, firstName: uploader ? getVal(uploader, ['ชื่อ']) : "", lastName: uploader ? getVal(uploader, ['นามสกุล']) : "", projectId: pid, workType: selectedWorkType, advisorName: (members[0] ? getVal(members[0], ['อ.ที่ปรึกษาหลัก']) : ""), file1Data: f1.data, file1Mime: f1.mime, file2Data: "", file2Mime: "", ...buildResubmitReasonPayload(previousRejectReason) };
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
                 
                 if (result && result.status === 'success') { 
+                    rememberRejectReason(pid, selectedWorkType, previousRejectReason);
+                    try {
+                        await syncResubmitReasonToSheet(studentId, selectedWorkType, previousRejectReason);
+                    } catch (syncError) {
+                        console.warn(syncError);
+                    }
                     Swal.fire({ icon: 'success', title: '<div class="font-bold text-sm sm:text-base">อัปโหลดสำเร็จ!</div>', showConfirmButton: false, timer: 2000, customClass: { popup: 'rounded-[1.5rem]'} }).then(() => { 
                         document.getElementById('workType').value = ""; 
                         document.getElementById('workType').dispatchEvent(new Event('change')); 
