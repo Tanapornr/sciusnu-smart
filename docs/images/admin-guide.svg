@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">ภาพประกอบคู่มือแอดมิน</title>
+  <desc id="desc">ภาพจำลองหน้าแอดมินสำหรับตรวจแบบคำร้องและดูประวัติการส่งงานทั้งหมด</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <style>
+      .bg { fill: #f8fafc; }
+      .screen { fill: #ffffff; stroke: #e5e7eb; stroke-width: 1.5; filter: url(#shadow); }
+      .bar { fill: #f1f5f9; }
+      .panel { fill: #ffffff; stroke: #e5e7eb; }
+      .warn { fill: #fff7ed; stroke: #fed7aa; }
+      .card { fill: #f8fafc; stroke: #e2e8f0; }
+      .approve { fill: #ecfdf5; stroke: #bbf7d0; }
+      .reject { fill: #fff1f2; stroke: #fecdd3; }
+      .file { fill: #fff7ed; stroke: #fed7aa; }
+      .title { font-family: Arial, sans-serif; font-size: 30px; font-weight: 800; fill: #111827; }
+      .label { font-family: Arial, sans-serif; font-size: 19px; font-weight: 800; fill: #1f2937; }
+      .text { font-family: Arial, sans-serif; font-size: 14px; font-weight: 500; fill: #475569; }
+      .small { font-family: Arial, sans-serif; font-size: 12.5px; font-weight: 700; fill: #64748b; }
+      .green { fill: #047857; }
+      .rose { fill: #be123c; }
+      .orange { fill: #c2410c; }
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="760"/>
+  <rect class="screen" x="48" y="40" width="1104" height="680" rx="34"/>
+  <rect class="bar" x="48" y="40" width="1104" height="72" rx="34"/>
+  <text class="title" x="88" y="88">คู่มือแอดมิน: ตรวจแบบคำร้องและดูภาพรวม</text>
+
+  <rect class="warn" x="88" y="148" width="1024" height="190" rx="24"/>
+  <text class="label" x="120" y="190">แบบคำร้อง รอการตรวจสอบจาก Admin</text>
+  <rect x="120" y="218" width="960" height="1" fill="#fed7aa"/>
+  <text class="small" x="120" y="256">ข้อมูลนักเรียน</text>
+  <text class="small" x="378" y="256">ประเภทงาน</text>
+  <text class="small" x="570" y="256">ไฟล์แนบ</text>
+  <text class="small" x="760" y="256">การพิจารณา</text>
+  <rect class="card" x="120" y="276" width="210" height="42" rx="16"/>
+  <text class="text" x="144" y="302">13-SC-PC-01</text>
+  <rect class="card" x="378" y="276" width="150" height="42" rx="16"/>
+  <text class="text" x="402" y="302">แบบคำร้อง</text>
+  <rect class="file" x="570" y="276" width="120" height="42" rx="21"/>
+  <text class="small orange" x="604" y="302">ไฟล์คำร้อง</text>
+  <rect class="approve" x="760" y="276" width="120" height="42" rx="21"/>
+  <text class="small green" x="794" y="302">อนุมัติ</text>
+  <rect class="reject" x="898" y="276" width="120" height="42" rx="21"/>
+  <text class="small rose" x="925" y="302">ไม่อนุมัติ</text>
+
+  <rect class="panel" x="88" y="386" width="1024" height="230" rx="24"/>
+  <text class="label" x="120" y="428">ประวัติการส่งงาน/คำร้องทั้งหมด</text>
+  <rect x="120" y="456" width="960" height="1" fill="#e5e7eb"/>
+  <text class="small" x="120" y="494">เวลา</text>
+  <text class="small" x="260" y="494">ข้อมูลนักเรียน</text>
+  <text class="small" x="490" y="494">ประเภทงาน</text>
+  <text class="small" x="660" y="494">หมายเหตุ</text>
+  <text class="small" x="810" y="494">ไฟล์แนบ</text>
+  <text class="small" x="960" y="494">สถานะ</text>
+  <text class="text" x="120" y="544">22/5/2569</text>
+  <text class="text" x="260" y="544">68983244</text>
+  <text class="text" x="490" y="544">โครงร่าง</text>
+  <text class="text" x="660" y="544">อัปโหลดไฟล์</text>
+  <rect class="file" x="810" y="522" width="102" height="36" rx="18"/>
+  <text class="small orange" x="840" y="545">รูปเล่ม</text>
+  <rect class="reject" x="960" y="522" width="104" height="36" rx="18"/>
+  <text class="small rose" x="984" y="545">ไม่อนุมัติ</text>
+
+  <text class="small" x="88" y="676">คำอธิบาย: แอดมินรับผิดชอบแบบคำร้องและภาพรวมระบบ งานโครงงานทั่วไปให้อาจารย์ที่ปรึกษาหลักเป็นผู้ตรวจ</text>
+</svg>
