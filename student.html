@@ -625,7 +625,7 @@
                         studentId: studentId, firstName: uploader ? getVal(uploader, ['ชื่อ']) : "", lastName: uploader ? getVal(uploader, ['นามสกุล']) : "", 
                         projectId: pid, workType: type, advisorName: (window.allProjects[0] ? getVal(window.allProjects[0], ['อ.ที่ปรึกษาหลัก', 'อ.ที่ปรึกษาth']) : ""), 
                         file1Data: f1.data, file1Mime: f1.mime, file2Data: "", file2Mime: "",
-                        reason: previousRejectReason, previousReason: previousRejectReason, resubmitReason: previousRejectReason
+                        ...buildResubmitReasonPayload(previousRejectReason)
                     };
                     const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
                     const result = await res.json();
@@ -704,6 +704,20 @@ function getActiveRejectTypes() {
 
 function getLatestRejectReason(type) {
     return (window.rejectReasons && window.rejectReasons[type]) ? window.rejectReasons[type] : "";
+}
+
+function buildResubmitReasonPayload(reason) {
+    const value = reason || "";
+    return {
+        reason: value,
+        note: value,
+        comment: value,
+        rejectReason: value,
+        previousReason: value,
+        resubmitReason: value,
+        'หมายเหตุ': value,
+        'เหตุผล': value
+    };
 }
 
 function updateWorkTypeOptionsForRejects(preferredType = "") {
@@ -1181,7 +1195,7 @@ if (fileInput) {
                 
                 let parsedStatus = parseSubmissionStatus(rawStatusText);
 
-                let reason = getVal(s, ['หมายเหตุ', 'เหตุผล']);
+                let reason = getVal(s, ['หมายเหตุ', 'เหตุผล', 'reason', 'note', 'comment', 'rejectreason', 'previousreason', 'resubmitreason']);
                 let newSub = { ...s, _rawStatus: parsedStatus, _workType: workType, _reason: reason };
                 
                 if (!trackers[workType]) trackers[workType] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
@@ -1327,7 +1341,7 @@ if (!pid || members.length === 0) {
 
                 const uploader = members.find(x => getVal(x, ['รหัสนักเรียน']) == studentId); 
                 const previousRejectReason = activeRejectTypes.includes(selectedWorkType) ? getLatestRejectReason(selectedWorkType) : "";
-                const payload = { studentId: studentId === "ไม่ระบุ" ? "" : studentId, firstName: uploader ? getVal(uploader, ['ชื่อ']) : "", lastName: uploader ? getVal(uploader, ['นามสกุล']) : "", projectId: pid, workType: selectedWorkType, advisorName: (members[0] ? getVal(members[0], ['อ.ที่ปรึกษาหลัก']) : ""), file1Data: f1.data, file1Mime: f1.mime, file2Data: "", file2Mime: "", reason: previousRejectReason, previousReason: previousRejectReason, resubmitReason: previousRejectReason };
+                const payload = { studentId: studentId === "ไม่ระบุ" ? "" : studentId, firstName: uploader ? getVal(uploader, ['ชื่อ']) : "", lastName: uploader ? getVal(uploader, ['นามสกุล']) : "", projectId: pid, workType: selectedWorkType, advisorName: (members[0] ? getVal(members[0], ['อ.ที่ปรึกษาหลัก']) : ""), file1Data: f1.data, file1Mime: f1.mime, file2Data: "", file2Mime: "", ...buildResubmitReasonPayload(previousRejectReason) };
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
                 
                 if (result && result.status === 'success') { 

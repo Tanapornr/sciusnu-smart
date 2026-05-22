@@ -386,7 +386,17 @@ function parseSubmissionStatus(rawStatus) {
 }
 
 function getSubmissionReason(item) {
-    let reasonKey = Object.keys(item || {}).find(k => String(k).includes('หมายเหตุ') || String(k).includes('เหตุผล'));
+    let reasonKey = Object.keys(item || {}).find(k => {
+        const key = String(k).replace(/\s+/g, '').toLowerCase();
+        return key.includes('หมายเหตุ') ||
+            key.includes('เหตุผล') ||
+            key.includes('reason') ||
+            key.includes('note') ||
+            key.includes('comment') ||
+            key.includes('rejectreason') ||
+            key.includes('previousreason') ||
+            key.includes('resubmitreason');
+    });
     return (reasonKey && item[reasonKey]) ? item[reasonKey].toString().trim() : '';
 }
 
