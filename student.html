@@ -576,11 +576,16 @@
         window.prepareResubmitPopup = async function(type) {
             updateWorkTypeOptionsForRejects(type);
             document.getElementById('workType').dispatchEvent(new Event('change'));
+            const previousRejectReason = getLatestRejectReason(type);
+            const previousReasonHtml = previousRejectReason
+                ? `<div class="text-left bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/60 text-rose-800 dark:text-rose-300 p-3 rounded-xl mb-3 text-xs leading-relaxed"><div class="font-bold mb-1">หมายเหตุที่ต้องแก้ไข</div>${escapeHtml(previousRejectReason)}</div>`
+                : '';
 
             const { value: formValues } = await Swal.fire({
                 title: '<div class="flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg><span class="text-lg sm:text-xl font-bold">ส่งไฟล์แก้ไขใหม่</span></div>',
                 html: `
                     <div class="text-xs sm:text-sm text-left font-medium mb-3 text-neutral-500 dark:text-neutral-400 border-b border-neutral-100 dark:border-neutral-800 pb-2">งานที่ต้องส่งแก้: <span class="text-orange-500 font-bold">${type}</span></div>
+                    ${previousReasonHtml}
                     <div class="text-left bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800 shadow-inner">
                         <label class="block text-[11px] sm:text-xs font-bold mb-2 text-orange-600 dark:text-orange-500 ml-0.5">ไฟล์แนบที่แก้ไข (PDF)</label>
                         <input type="file" id="popupFileReport" accept="application/pdf" class="w-full text-[10px] sm:text-xs text-neutral-500 cursor-pointer outline-none" required>
@@ -619,7 +624,8 @@
                     const payload = { 
                         studentId: studentId, firstName: uploader ? getVal(uploader, ['ชื่อ']) : "", lastName: uploader ? getVal(uploader, ['นามสกุล']) : "", 
                         projectId: pid, workType: type, advisorName: (window.allProjects[0] ? getVal(window.allProjects[0], ['อ.ที่ปรึกษาหลัก', 'อ.ที่ปรึกษาth']) : ""), 
-                        file1Data: f1.data, file1Mime: f1.mime, file2Data: "", file2Mime: "" 
+                        file1Data: f1.data, file1Mime: f1.mime, file2Data: "", file2Mime: "",
+                        reason: previousRejectReason, previousReason: previousRejectReason, resubmitReason: previousRejectReason
                     };
                     const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
                     const result = await res.json();
@@ -648,25 +654,37 @@
             return "";
         }
 
+        function escapeHtml(value) {
+            return String(value || '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
         function parseSubmissionStatus(rawStatus) {
     const status = String(rawStatus || '').replace(/\s+/g, '').toLowerCase();
 
     if (!status) return 'รออนุมัติ';
 
     if (
-        status.includes('ไม่อนุมัติ') ||
-        status.includes('แก้ไข') ||
-        status.includes('reject')
+        status.includes('รอ') ||
+        status.includes('pending') ||
+        status.includes('wait') ||
+        status.includes('ส่งแก้ไขแล้ว') ||
+        status.includes('แก้ไขแล้ว')
     ) {
-        return 'ไม่อนุมัติ';
+        return 'รออนุมัติ';
     }
 
     if (
-        status.includes('รอ') ||
-        status.includes('pending') ||
-        status.includes('wait')
+        status.includes('ไม่อนุมัติ') ||
+        status.includes('ต้องแก้ไข') ||
+        status.includes('reject')
     ) {
-        return 'รออนุมัติ';
+        return 'ไม่อนุมัติ';
     }
 
     if (
@@ -682,6 +700,10 @@
 
 function getActiveRejectTypes() {
     return Object.keys(window.activeRejects || {}).filter(type => window.activeRejects[type]);
+}
+
+function getLatestRejectReason(type) {
+    return (window.rejectReasons && window.rejectReasons[type]) ? window.rejectReasons[type] : "";
 }
 
 function updateWorkTypeOptionsForRejects(preferredType = "") {
@@ -1150,7 +1172,8 @@ if (fileInput) {
             });
             
             let trackers = {};
-            window.activeRejects = {}; 
+            window.activeRejects = {};
+            window.rejectReasons = {};
             
             let processedSubs = sortedSubs.map(s => {
                 let workType = getVal(s, ['ประเภทงาน']) || 'ไม่ระบุ';
@@ -1164,13 +1187,13 @@ if (fileInput) {
                 if (!trackers[workType]) trackers[workType] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
                 
                 if (parsedStatus === 'ไม่อนุมัติ') {
-                    trackers[workType].lastRejectReason = reason; trackers[workType].lastRejectTime = s['Timestamp']; trackers[workType].isResubmit = true; window.activeRejects[workType] = true; newSub._displayStatus = 'ไม่อนุมัติ'; newSub._isResubmit = false;
+                    trackers[workType].lastRejectReason = reason; trackers[workType].lastRejectTime = s['Timestamp']; trackers[workType].isResubmit = true; window.activeRejects[workType] = true; window.rejectReasons[workType] = reason; newSub._displayStatus = 'ไม่อนุมัติ'; newSub._isResubmit = false;
                 } else if (parsedStatus === 'รออนุมัติ') {
                     if (trackers[workType].isResubmit) {
-                        newSub._displayStatus = 'ส่งแก้ไขแล้ว'; newSub._isResubmit = true; newSub._oldReason = trackers[workType].lastRejectReason; newSub._oldRejectTime = trackers[workType].lastRejectTime; window.activeRejects[workType] = false; 
+                        newSub._displayStatus = 'รอการตรวจอนุมัติ'; newSub._isResubmit = true; newSub._oldReason = reason || trackers[workType].lastRejectReason; newSub._oldRejectTime = trackers[workType].lastRejectTime; window.activeRejects[workType] = false;
                     } else { newSub._displayStatus = 'รออนุมัติ'; newSub._isResubmit = false; window.activeRejects[workType] = false; }
                 } else if (parsedStatus === 'อนุมัติ') {
-                    newSub._displayStatus = 'อนุมัติ'; newSub._isResubmit = false; window.activeRejects[workType] = false; trackers[workType] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
+                    newSub._displayStatus = 'อนุมัติ'; newSub._isResubmit = false; window.activeRejects[workType] = false; delete window.rejectReasons[workType]; trackers[workType] = { lastRejectReason: '', lastRejectTime: null, isResubmit: false };
                 }
                 
                 return newSub;
@@ -1187,10 +1210,10 @@ if (fileInput) {
                     let statusText = "รออนุมัติ";
                     let resubmitBtn = '';
 
-                    if (s._displayStatus === 'ส่งแก้ไขแล้ว') {
-                        statusClass = "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-900";
-                        statusIcon = '<i data-lucide="check-check" class="w-4 h-4 mr-1.5 flex-shrink-0 opacity-80"></i>';
-                        statusText = "แก้ไขแล้ว (รอตรวจ)";
+                    if (s._isResubmit || s._displayStatus === 'ส่งแก้ไขแล้ว') {
+                        statusClass = "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-900";
+                        statusIcon = '<i data-lucide="clock-3" class="w-4 h-4 mr-1.5 flex-shrink-0 opacity-80"></i>';
+                        statusText = "รอการตรวจอนุมัติ";
                      } else if (s._displayStatus === 'อนุมัติ') {
                     statusClass = "bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800";
                     statusIcon = '<i data-lucide="check-circle-2" class="w-4 h-4 mr-1.5 flex-shrink-0"></i>';
@@ -1212,9 +1235,10 @@ if (fileInput) {
                     
                     let reasonHtml = '';
                     if (s._displayStatus === 'ไม่อนุมัติ' && s._reason) {
-                        reasonHtml = `<div class="text-xs text-rose-800 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-950/30 p-3 sm:p-4 rounded-xl border border-rose-100 dark:border-rose-900/60 inline-block w-full max-w-[200px] whitespace-normal break-words shadow-inner text-left"><div class="font-bold flex items-center mb-1"><i data-lucide="alert-triangle" class="w-4 h-4 mr-1.5 text-rose-600"></i> เหตุผล:</div>${s._reason}</div>`;
-                    } else if (s._isResubmit && s._oldReason) {
-                        reasonHtml = `<div class="text-xs text-blue-800 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-950/30 p-3 sm:p-4 rounded-xl border border-blue-100 dark:border-blue-900/60 inline-block w-full max-w-[200px] whitespace-normal break-words shadow-inner text-left opacity-80"><div class="font-bold flex items-center mb-1"><i data-lucide="info" class="w-4 h-4 mr-1.5 text-blue-600"></i> อ้างอิงเหตุผลเดิม:</div>${s._oldReason}</div>`;
+                        reasonHtml = `<div class="text-xs text-rose-800 dark:text-rose-300 font-medium bg-rose-50 dark:bg-rose-950/30 p-3 sm:p-4 rounded-xl border border-rose-100 dark:border-rose-900/60 inline-block w-full max-w-[200px] whitespace-normal break-words shadow-inner text-left"><div class="font-bold flex items-center mb-1"><i data-lucide="alert-triangle" class="w-4 h-4 mr-1.5 text-rose-600"></i> เหตุผล:</div>${escapeHtml(s._reason)}</div>`;
+                    } else if (s._isResubmit && (s._oldReason || s._reason)) {
+                        const resubmitReason = s._oldReason || s._reason;
+                        reasonHtml = `<div class="text-xs text-blue-800 dark:text-blue-300 font-medium bg-blue-50 dark:bg-blue-950/30 p-3 sm:p-4 rounded-xl border border-blue-100 dark:border-blue-900/60 inline-block w-full max-w-[220px] whitespace-normal break-words shadow-inner text-left"><div class="font-bold flex items-center mb-1"><i data-lucide="info" class="w-4 h-4 mr-1.5 text-blue-600"></i> หมายเหตุที่ต้องแก้ไข:</div>${escapeHtml(resubmitReason)}</div>`;
                     } else {
                         reasonHtml = `<span class="text-neutral-300 dark:text-neutral-700 font-light opacity-50">-</span>`;
                     }
@@ -1302,7 +1326,8 @@ if (!pid || members.length === 0) {
                 const f1 = await toBase64(document.getElementById('fileReport').files[0]); 
 
                 const uploader = members.find(x => getVal(x, ['รหัสนักเรียน']) == studentId); 
-                const payload = { studentId: studentId === "ไม่ระบุ" ? "" : studentId, firstName: uploader ? getVal(uploader, ['ชื่อ']) : "", lastName: uploader ? getVal(uploader, ['นามสกุล']) : "", projectId: pid, workType: selectedWorkType, advisorName: (members[0] ? getVal(members[0], ['อ.ที่ปรึกษาหลัก']) : ""), file1Data: f1.data, file1Mime: f1.mime, file2Data: "", file2Mime: "" };
+                const previousRejectReason = activeRejectTypes.includes(selectedWorkType) ? getLatestRejectReason(selectedWorkType) : "";
+                const payload = { studentId: studentId === "ไม่ระบุ" ? "" : studentId, firstName: uploader ? getVal(uploader, ['ชื่อ']) : "", lastName: uploader ? getVal(uploader, ['นามสกุล']) : "", projectId: pid, workType: selectedWorkType, advisorName: (members[0] ? getVal(members[0], ['อ.ที่ปรึกษาหลัก']) : ""), file1Data: f1.data, file1Mime: f1.mime, file2Data: "", file2Mime: "", reason: previousRejectReason, previousReason: previousRejectReason, resubmitReason: previousRejectReason };
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }); const result = await res.json();
                 
                 if (result && result.status === 'success') { 

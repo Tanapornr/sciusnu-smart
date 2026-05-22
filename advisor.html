@@ -341,25 +341,37 @@ if (!currentUserRole) {
             return emptyMatch;
         }
 
+function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[char]));
+}
+
 function parseSubmissionStatus(rawStatus) {
     const status = String(rawStatus || '').replace(/\s+/g, '').toLowerCase();
 
     if (!status) return 'รอการตรวจ';
 
     if (
-        status.includes('ไม่อนุมัติ') ||
-        status.includes('แก้ไข') ||
-        status.includes('reject')
+        status.includes('รอ') ||
+        status.includes('pending') ||
+        status.includes('wait') ||
+        status.includes('ส่งแก้ไขแล้ว') ||
+        status.includes('แก้ไขแล้ว')
     ) {
-        return 'ไม่อนุมัติ';
+        return 'รอการตรวจ';
     }
 
     if (
-        status.includes('รอ') ||
-        status.includes('pending') ||
-        status.includes('wait')
+        status.includes('ไม่อนุมัติ') ||
+        status.includes('ต้องแก้ไข') ||
+        status.includes('reject')
     ) {
-        return 'รอการตรวจ';
+        return 'ไม่อนุมัติ';
     }
 
     if (
@@ -371,6 +383,48 @@ function parseSubmissionStatus(rawStatus) {
     }
 
     return 'รอการตรวจ';
+}
+
+function getSubmissionReason(item) {
+    let reasonKey = Object.keys(item || {}).find(k => String(k).includes('หมายเหตุ') || String(k).includes('เหตุผล'));
+    return (reasonKey && item[reasonKey]) ? item[reasonKey].toString().trim() : '';
+}
+
+function getSubmissionTimeValue(item) {
+    const raw = getVal(item, ['timestamp', 'เวลา']);
+    const time = new Date(raw).getTime();
+    return Number.isFinite(time) ? time : 0;
+}
+
+function getSubmissionReviewKey(item) {
+    const projectId = getVal(item, ['รหัสโครงงาน', 'projectid']).toLowerCase();
+    const workType = getVal(item, ['ประเภทงาน']).toLowerCase();
+    return `${projectId}|${workType}`;
+}
+
+function getPreviousRejectInfo(target) {
+    const targetKey = getSubmissionReviewKey(target);
+    const rows = (window.myAssignedSubmissions || [])
+        .filter(item => getSubmissionReviewKey(item) === targetKey)
+        .sort((a, b) => getSubmissionTimeValue(a) - getSubmissionTimeValue(b));
+
+    let lastReject = null;
+    for (const item of rows) {
+        if (item === target) {
+            return lastReject || { reason: '', timestamp: '' };
+        }
+
+        const parsedStatus = parseSubmissionStatus(getVal(item, ['สถานะ', 'status']));
+        const reason = getSubmissionReason(item);
+
+        if (parsedStatus === 'ไม่อนุมัติ') {
+            lastReject = { reason, timestamp: getVal(item, ['timestamp', 'เวลา']) };
+        } else if (parsedStatus === 'อนุมัติ') {
+            lastReject = null;
+        }
+    }
+
+    return { reason: '', timestamp: '' };
 }
 
 function normalizeName(value) {
@@ -592,6 +646,7 @@ async function loadDashboard() {
     }
 
     const parsedStatus = parseSubmissionStatus(currentStatus);
+    const safeCurrentReason = escapeHtml(currentReason || '');
 
     Swal.fire({
         title: '<div class="flex items-center justify-center gap-2 text-indigo-600 dark:text-indigo-400"><i data-lucide="clipboard-check" class="w-6 h-6"></i> ตรวจงาน</div>',
@@ -605,7 +660,7 @@ async function loadDashboard() {
                 </select>
 
                 <label class="block text-xs font-bold mb-2 text-neutral-700 dark:text-neutral-300 ml-1">หมายเหตุถึงนักเรียน</label>
-                <textarea id="evalReason" class="w-full p-3 rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-sm outline-none focus:ring-2 focus:ring-indigo-400" rows="3" placeholder="ระบุเหตุผลเมื่อต้องการให้นักเรียนแก้ไข...">${currentReason || ''}</textarea>
+                <textarea id="evalReason" class="w-full p-3 rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-sm outline-none focus:ring-2 focus:ring-indigo-400" rows="3" placeholder="ระบุเหตุผลเมื่อต้องการให้นักเรียนแก้ไข...">${safeCurrentReason}</textarea>
             </div>
         `,
         showCancelButton: true,
@@ -743,21 +798,24 @@ function renderAllWorksTable(works) {
         const workType = getVal(item, ['ประเภทงาน']) || 'ไม่ระบุ';
         const status = getVal(item, ['สถานะ', 'status']) || 'รออนุมัติ';
         const studentIdStr = getVal(item, ['รหัสนักเรียน', 'studentid']);
-
-        let reasonKey = Object.keys(item).find(k => String(k).includes('หมายเหตุ') || String(k).includes('เหตุผล'));
-        let reason = (reasonKey && item[reasonKey]) ? item[reasonKey].toString().trim() : '';
-
-        let reasonHtml = reason
-            ? `<div class="text-[10px] sm:text-[11px] text-rose-700 font-medium bg-rose-50 p-2.5 rounded-xl inline-block w-full whitespace-normal break-words border border-rose-100 text-left"><div class="font-bold mb-1">หมายเหตุ:</div>${reason}</div>`
-            : `<span class="text-neutral-300">-</span>`;
-
         const parsedStatus = parseSubmissionStatus(status);
+        const previousReject = getPreviousRejectInfo(item);
+
+        let reason = getSubmissionReason(item);
+        const isPendingResubmit = parsedStatus === 'รอการตรวจ' && previousReject.reason;
+        const reviewReason = reason || (isPendingResubmit ? previousReject.reason : '');
+
+        let reasonHtml = reviewReason
+            ? `<div class="text-[10px] sm:text-[11px] ${isPendingResubmit ? 'text-blue-700 bg-blue-50 border-blue-100' : 'text-rose-700 bg-rose-50 border-rose-100'} font-medium p-2.5 rounded-xl inline-block w-full whitespace-normal break-words border text-left"><div class="font-bold mb-1">${isPendingResubmit ? 'หมายเหตุครั้งก่อนที่ให้นักเรียนแก้:' : 'หมายเหตุ:'}</div>${escapeHtml(reviewReason)}</div>`
+            : `<span class="text-neutral-300">-</span>`;
 
         let badge = '';
         if (parsedStatus === 'อนุมัติ') {
             badge = `<span class="px-3 py-1.5 rounded-lg text-[10px] font-extrabold bg-emerald-50 text-emerald-600 border border-emerald-200 inline-flex items-center justify-center whitespace-nowrap"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 mr-1.5"></i>อนุมัติ</span>`;
         } else if (parsedStatus === 'ไม่อนุมัติ') {
             badge = `<span class="px-3 py-1.5 rounded-lg text-[10px] font-extrabold bg-rose-50 text-rose-600 border border-rose-200 inline-flex items-center justify-center whitespace-nowrap"><i data-lucide="x-circle" class="w-3.5 h-3.5 mr-1.5"></i>ไม่อนุมัติ</span>`;
+        } else if (isPendingResubmit) {
+            badge = `<span class="px-3 py-1.5 rounded-lg text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200 inline-flex items-center justify-center whitespace-nowrap"><i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5"></i>รอตรวจไฟล์แก้ไข</span>`;
         } else {
             badge = `<span class="px-3 py-1.5 rounded-lg text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 inline-flex items-center justify-center whitespace-nowrap"><i data-lucide="clock-3" class="w-3.5 h-3.5 mr-1.5"></i>รอการตรวจ</span>`;
         }
@@ -770,7 +828,7 @@ function renderAllWorksTable(works) {
 
         let reviewButton = canCurrentUserReviewSubmission(item)
             ? `
-            <button onclick="openActionModal('${safeJsText(studentIdStr)}', '${safeJsText(workType)}', '${safeJsText(status)}', '${safeJsText(reason)}')" class="btn-liquid text-indigo-700 bg-indigo-50 px-2 py-2 rounded-lg text-[10px] font-extrabold border border-indigo-200 inline-flex items-center justify-center whitespace-nowrap hover:bg-indigo-100 transition-colors">
+            <button onclick="openActionModal('${safeJsText(studentIdStr)}', '${safeJsText(workType)}', '${safeJsText(status)}', '${safeJsText(reviewReason)}')" class="btn-liquid text-indigo-700 bg-indigo-50 px-2 py-2 rounded-lg text-[10px] font-extrabold border border-indigo-200 inline-flex items-center justify-center whitespace-nowrap hover:bg-indigo-100 transition-colors">
                 <i data-lucide="clipboard-check" class="w-3.5 h-3.5 mr-1"></i>ตรวจ/อนุมัติ
             </button>
         `
