@@ -71,6 +71,65 @@
     flex-shrink: 0;
 }
 
+.review-actions {
+    display: grid;
+    gap: 0.4rem;
+}
+
+.review-action-btn {
+    width: 100%;
+    min-height: 2.15rem;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    font-weight: 700;
+    font-size: 0.62rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.review-action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.review-action-btn:active {
+    transform: scale(0.97);
+}
+
+.review-action-btn.approve {
+    color: #047857;
+    background: linear-gradient(180deg, #ffffff 0%, #ecfdf5 100%);
+    border-color: #bbf7d0;
+}
+
+.review-action-btn.reject {
+    color: #be123c;
+    background: linear-gradient(180deg, #ffffff 0%, #fff1f2 100%);
+    border-color: #fecdd3;
+}
+
+.dark .review-action-btn {
+    background: rgba(39, 39, 42, 0.92);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark .review-action-btn.approve {
+    color: #86efac;
+    background: rgba(6, 78, 59, 0.32);
+    border-color: rgba(74, 222, 128, 0.26);
+}
+
+.dark .review-action-btn.reject {
+    color: #fda4af;
+    background: rgba(136, 19, 55, 0.32);
+    border-color: rgba(251, 113, 133, 0.28);
+}
+
         html { font-size: 18px; overflow-y: scroll; scrollbar-gutter: stable; }
         @media (max-width: 768px) { html { font-size: 14px; } }
 
@@ -197,8 +256,8 @@
 
         <div id="allWorksSection" class="glass-panel rounded-[2rem] p-4 sm:p-7 hidden relative overflow-hidden">
             <h2 class="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><i data-lucide="folder-open" class="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-indigo-500"></i> ประวัติการส่งงานทั้งหมด</h2>
-            <div class="overflow-x-auto w-full pb-2">
-                <table class="w-full text-left table-fixed">
+            <div class="table-fit-wrap w-full pb-2">
+                <table class="advisor-table w-full text-left">
                     <thead class="text-[10px] sm:text-xs text-neutral-500">
                         <tr>
                            <tr>
@@ -638,7 +697,7 @@ async function loadDashboard() {
         }
 
         // 🔥 เปิดหน้าต่างประเมิน อนุมัติ/ไม่อนุมัติ 🔥
-    window.openActionModal = function(studentId, workType, currentStatus, currentReason) {
+    window.openActionModal = function(studentId, workType, currentStatus, currentReason, nextStatus) {
     const targetSubmission = (window.myAssignedSubmissions || []).find(item =>
         getVal(item, ['รหัสนักเรียน', 'studentid']) === String(studentId || '').trim() &&
         getVal(item, ['ประเภทงาน']) === String(workType || '').trim()
@@ -655,54 +714,52 @@ async function loadDashboard() {
         return;
     }
 
-    const parsedStatus = parseSubmissionStatus(currentStatus);
-    const safeCurrentReason = escapeHtml(currentReason || '');
+    const statusToSave = nextStatus === 'ไม่อนุมัติ' ? 'ไม่อนุมัติ' : 'อนุมัติ';
+    const safeCurrentReason = escapeHtml(statusToSave === 'ไม่อนุมัติ' ? (currentReason || '') : '');
 
-    Swal.fire({
-        title: '<div class="flex items-center justify-center gap-2 text-indigo-600 dark:text-indigo-400"><i data-lucide="clipboard-check" class="w-6 h-6"></i> ตรวจงาน</div>',
-        html: `
-            <div class="text-left mt-2">
-                <label class="block text-xs font-bold mb-2 text-neutral-700 dark:text-neutral-300 ml-1">ผลการตรวจ</label>
-                <select id="evalStatus" class="w-full p-3 rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-sm mb-4 outline-none focus:ring-2 focus:ring-indigo-400">
-                    <option value="">-- เลือกผลการตรวจ --</option>
-                    <option value="อนุมัติ" ${parsedStatus === 'อนุมัติ' ? 'selected' : ''}>อนุมัติ</option>
-                    <option value="ไม่อนุมัติ" ${parsedStatus === 'ไม่อนุมัติ' ? 'selected' : ''}>ไม่อนุมัติ / ส่งแก้ไข</option>
-                </select>
-
-                <label class="block text-xs font-bold mb-2 text-neutral-700 dark:text-neutral-300 ml-1">หมายเหตุถึงนักเรียน</label>
-                <textarea id="evalReason" class="w-full p-3 rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-sm outline-none focus:ring-2 focus:ring-indigo-400" rows="3" placeholder="ระบุเหตุผลเมื่อต้องการให้นักเรียนแก้ไข...">${safeCurrentReason}</textarea>
-            </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'บันทึกผลตรวจ',
-        cancelButtonText: 'ยกเลิก',
-        buttonsStyling: false,
-        customClass: {
-            popup: 'rounded-[1.5rem] w-[90%] max-w-sm border border-neutral-100 dark:border-neutral-800',
-            confirmButton: 'bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-full text-sm mr-2 shadow-sm transition-colors',
-            cancelButton: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 font-bold py-3 px-6 rounded-full text-sm shadow-sm transition-colors'
-        },
-        didOpen: () => { lucide.createIcons(); },
-        preConfirm: () => {
-            const selectedStatus = document.getElementById('evalStatus').value;
-            const evalReason = document.getElementById('evalReason').value.trim();
-
-            if (!selectedStatus) {
-                Swal.showValidationMessage('กรุณาเลือกผลการตรวจ');
-                return false;
+    const reviewPrompt = statusToSave === 'อนุมัติ'
+        ? Swal.fire({
+            title: '<div class="text-xl font-bold text-neutral-900">ยืนยันอนุมัติ</div>',
+            html: `<div class="text-sm text-neutral-500 leading-relaxed">ต้องการอนุมัติงาน<br><b class="text-neutral-800">${escapeHtml(workType)}</b><br>ใช่หรือไม่</div>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยันอนุมัติ',
+            cancelButtonText: 'ยกเลิก',
+            buttonsStyling: false,
+            customClass: {
+                popup: 'rounded-[1.75rem] w-[90%] max-w-sm border border-neutral-100 shadow-2xl',
+                confirmButton: 'bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-full text-sm mr-2 shadow-sm transition-colors',
+                cancelButton: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-bold py-3 px-6 rounded-full text-sm transition-colors'
             }
-
-            if (selectedStatus === 'ไม่อนุมัติ' && !evalReason) {
-                Swal.showValidationMessage('กรุณาระบุเหตุผลที่ต้องแก้ไข');
-                return false;
+        }).then(result => result.isConfirmed ? { isConfirmed: true, value: { status: 'อนุมัติ', reason: '' } } : result)
+        : Swal.fire({
+            title: '<div class="text-xl font-bold text-neutral-900">ไม่อนุมัติ</div>',
+            html: `
+                <div class="text-left">
+                    <p class="text-sm text-neutral-500 mb-4 leading-relaxed">กรอกหมายเหตุให้นักเรียนทราบว่าต้องแก้ไขส่วนใด</p>
+                    <textarea id="evalReason" class="w-full p-4 rounded-[1.25rem] border border-neutral-200 bg-neutral-50 text-sm outline-none focus:ring-4 focus:ring-rose-100 focus:border-rose-300 resize-none" rows="4" placeholder="พิมพ์หมายเหตุ...">${safeCurrentReason}</textarea>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยันไม่อนุมัติ',
+            cancelButtonText: 'ยกเลิก',
+            buttonsStyling: false,
+            customClass: {
+                popup: 'rounded-[1.75rem] w-[90%] max-w-sm border border-neutral-100 shadow-2xl',
+                confirmButton: 'bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-6 rounded-full text-sm mr-2 shadow-sm transition-colors',
+                cancelButton: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-bold py-3 px-6 rounded-full text-sm transition-colors'
+            },
+            preConfirm: () => {
+                const evalReason = document.getElementById('evalReason').value.trim();
+                if (!evalReason) {
+                    Swal.showValidationMessage('กรุณาระบุหมายเหตุที่ต้องแก้ไข');
+                    return false;
+                }
+                return { status: 'ไม่อนุมัติ', reason: evalReason };
             }
+        });
 
-            return {
-                status: selectedStatus,
-                reason: evalReason
-            };
-        }
-    }).then(async (result) => {
+    reviewPrompt.then(async (result) => {
         if (!result.isConfirmed) return;
 
         Swal.fire({
@@ -838,9 +895,14 @@ function renderAllWorksTable(works) {
 
         let reviewButton = canCurrentUserReviewSubmission(item)
             ? `
-            <button onclick="openActionModal('${safeJsText(studentIdStr)}', '${safeJsText(workType)}', '${safeJsText(status)}', '${safeJsText(reviewReason)}')" class="btn-liquid text-indigo-700 bg-indigo-50 px-2 py-2 rounded-lg text-[10px] font-extrabold border border-indigo-200 inline-flex items-center justify-center whitespace-nowrap hover:bg-indigo-100 transition-colors">
-                <i data-lucide="clipboard-check" class="w-3.5 h-3.5 mr-1"></i>ตรวจ/อนุมัติ
-            </button>
+            <div class="review-actions">
+                <button type="button" onclick="openActionModal('${safeJsText(studentIdStr)}', '${safeJsText(workType)}', '${safeJsText(status)}', '${safeJsText(reviewReason)}', 'อนุมัติ')" class="review-action-btn approve">
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i><span>อนุมัติ</span>
+                </button>
+                <button type="button" onclick="openActionModal('${safeJsText(studentIdStr)}', '${safeJsText(workType)}', '${safeJsText(status)}', '${safeJsText(reviewReason)}', 'ไม่อนุมัติ')" class="review-action-btn reject">
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i><span>ไม่อนุมัติ</span>
+                </button>
+            </div>
         `
             : `<span class="text-neutral-400 bg-neutral-50 px-2 py-2 rounded-lg text-[10px] font-bold border border-neutral-200 inline-flex items-center justify-center whitespace-nowrap"><i data-lucide="eye" class="w-3.5 h-3.5 mr-1"></i>ดูเท่านั้น</span>`;
 
