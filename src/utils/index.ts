@@ -138,25 +138,25 @@ export function getColByIndex(obj: ProjectRow, index: number): string {
 // Parse a ProjectRow into structured ProjectInfo
 // Column indices match backend helpers.js getGroupInfo()
 // ---------------------------------------------------------------
-export function parseProjectRow(row: ProjectRow): ProjectInfo {
-  const keys = Object.keys(row);
-  const col = (i: number) => (keys.length > i ? String(row[keys[i]] ?? '').trim() : '');
+export function parseProjectRow(row: any): ProjectInfo {
+  // Helper to safely get and trim values
+  const get = (key: string) => String(row[key] ?? '').trim();
 
   return {
-    email: col(0),
-    studentId: col(1),
-    firstName: col(2),
-    lastName: col(3),
-    projectId: col(5),
-    advEmail: extractEmail(col(8)),
-    advName: extractName(col(9)),
-    coAdvEmail: extractEmail(col(12)),
-    coAdvName: extractName(col(13)),
-    schAdvEmail: extractEmail(col(15)),
-    schAdvName: extractName(col(16)),
-    projectNameTH: col(17),
-    phone: col(19).replace(/'/g, ''),
-    profileUrl: col(20),
+    email: get('E-mail นักเรียน'),
+    studentId: get('รหัสนักเรียน'),
+    firstName: get('ชื่อ'),
+    lastName: get('นามสกุล'),
+    projectId: get('รหัสโครงงาน'),
+    advEmail: extractEmail(get('E-mail อ.ที่ปรึกษา')),
+    advName: extractName(get('อ. ที่ปรึกษา TH')), // Match the key from your log
+    coAdvEmail: extractEmail(get('E-mail อ.ที่ปรึกษาร่วม')),
+    coAdvName: extractName(get('ที่ปรึกษาร่วม')),
+    schAdvEmail: extractEmail(get('E-mail อ.ที่ปรึกษาโรงเรียน')),
+    schAdvName: extractName(get('ที่ปรึกษา โรงเรียน')),
+    projectNameTH: get('ชื่อโครงงาน'),
+    phone: get('เบอร์โทรศัพท์').replace(/'/g, ''),
+    profileUrl: get('รูปโปรไฟล์'),
   };
 }
 
