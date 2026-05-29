@@ -405,7 +405,7 @@ export default function AdvisorDashboard() {
                                                 <td className="px-3 py-4 align-top">
                                                     <div className="flex flex-col items-start gap-1">
                                                         <div className="font-extrabold text-neutral-800 dark:text-white bg-neutral-100 dark:bg-neutral-800 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-xs sm:text-sm shadow-sm"><span className="text-cyan-600 dark:text-cyan-400">#</span> {pid}</div>
-                                                        <div className="text-xs sm:text-sm font-bold text-neutral-700 dark:text-neutral-200 mt-1 pl-1 whitespace-normal break-words w-full" style={{maxWidth: '350px', lineHeight: '1.6'}}>{projectNameTH}</div>
+                                                        <div className="text-xs sm:text-sm font-bold text-neutral-700 dark:text-neutral-200 mt-1 pl-1 whitespace-normal break-words w-full project-title-wrap">{projectNameTH}</div>
                                                     </div>
                                                 </td>
                                                 <td className="px-3 py-3 align-top">
@@ -483,7 +483,7 @@ export default function AdvisorDashboard() {
                                         const fileUrl = getSubmissionFileUrl(item);
 
                                         return (
-                                            <tr key={idx} className="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 bg-white dark:bg-neutral-800 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.2)] mb-2 block w-full table-row">
+                                            <tr key={idx}>
                                                 <td className="px-2 py-4 align-middle opacity-80 text-xs">
                                                     {(() => {
                                                         const { date, time } = formatDateTimeTH(item.Timestamp);
@@ -555,8 +555,8 @@ export default function AdvisorDashboard() {
       </div>
 
       {isPassModalOpen && (
-      <div className="fixed inset-0 z-50 bg-neutral-900/50 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity">
-        <div className="glass-panel bg-white/95 dark:bg-neutral-900/95 rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden relative flex flex-col border border-neutral-100 dark:border-neutral-800">
+      <div className="modal-backdrop transition-opacity">
+        <div className="modal-panel glass-panel">
             <button onClick={() => setIsPassModalOpen(false)} className="absolute top-5 right-5 text-neutral-400 hover:text-slate-700 dark:hover:text-white bg-slate-100/80 dark:bg-neutral-800/80 rounded-full p-2 transition-colors z-10 btn-liquid"><X className="w-4 h-4" /></button>
             <div className="p-6 sm:p-8 overflow-y-auto max-h-[85vh]">
                 <div className="text-center mb-6">

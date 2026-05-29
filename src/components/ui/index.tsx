@@ -156,7 +156,7 @@ export function Modal({ isOpen, onClose, children, maxWidth = 'max-w-sm' }: Moda
       role="dialog"
       aria-modal="true"
     >
-      <div className={clsx('glass-panel bg-white/95 dark:bg-neutral-900/95 rounded-[2rem] shadow-2xl w-full overflow-hidden relative flex flex-col border border-neutral-100 dark:border-neutral-800', maxWidth)}>
+      <div className={clsx('modal-panel glass-panel', maxWidth)}>
         {children}
       </div>
     </div>
@@ -170,7 +170,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   variant?: 'default' | 'login';
 }
 export function Input({ label, error, variant = 'default', className, id, ...rest }: InputProps) {
-  const inputClass = variant === 'login' ? 'glass-input-login' : 'glass-input';
+  const inputClass = 'glass-input';
   return (
     <div>
       {label && (

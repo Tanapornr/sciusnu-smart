@@ -136,13 +136,13 @@ export default function Login() {
         type="button"
         onClick={toggleTheme}
         aria-label="สลับธีมสว่าง/มืด"
-        className="!absolute top-6 right-6 btn-liquid bg-white/50 dark:bg-slate-800/50 p-3 rounded-full shadow-md text-slate-700 dark:text-slate-200 z-50 outline-none hover:text-orange-500 transition-colors border border-slate-200 dark:border-slate-700"
+        className="!absolute top-6 right-6 btn-liquid theme-toggle-btn p-3 rounded-full shadow-md z-50 outline-none"
       >
         <Moon className="w-5 h-5 dark:hidden" />
         <Sun className="w-5 h-5 hidden dark:block" />
       </button>
 
-      <div className="w-full max-w-md p-6 sm:p-8 rounded-[2rem] glass-panel-login relative z-10">
+      <div className="w-full max-w-md p-6 sm:p-8 rounded-[2rem] glass-panel relative z-10">
         
         <div className="text-center mb-8">
             <div className="w-20 h-20 bg-gradient-to-tr from-orange-500 to-amber-400 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-orange-500/30 mb-4 transform hover:scale-105 transition-transform duration-300">
@@ -165,7 +165,7 @@ export default function Login() {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       disabled={isLoading}
-                      className="w-full pl-11 pr-4 py-3.5 text-sm sm:text-base rounded-xl glass-input-login outline-none transition-all font-medium placeholder-slate-400" 
+                      className="w-full pl-11 pr-4 py-3.5 text-sm sm:text-base rounded-xl glass-input outline-none transition-all font-medium placeholder-slate-400" 
                     />
                 </div>
             </div>
@@ -182,7 +182,7 @@ export default function Login() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       disabled={isLoading}
-                      className="w-full pl-11 pr-12 py-3.5 text-sm sm:text-base rounded-xl glass-input-login outline-none transition-all font-medium placeholder-slate-400" 
+                      className="w-full pl-11 pr-12 py-3.5 text-sm sm:text-base rounded-xl glass-input outline-none transition-all font-medium placeholder-slate-400" 
                     />
                     <button type="button" onClick={togglePasswordVisibility} className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 outline-none transition-colors">
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}

@@ -1,80 +1,107 @@
-/* Document shell — no global * overrides */
+/* Document shell, scrollbars, page backgrounds */
+
 @layer base {
   html {
     font-size: var(--font-scale);
     font-family: var(--font-family);
     overflow-y: scroll;
     scrollbar-gutter: stable;
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    transition: background-color 0.4s, color 0.4s;
   }
 
-  body {
+  body,
+  #root {
     margin: 0;
+    min-height: 100%;
     font-family: var(--font-family);
     color: var(--color-fg);
     background-color: var(--color-bg);
     transition: background-color 0.4s, color 0.4s;
+  }
+
+  body {
     overflow-x: hidden;
     line-height: 1.6;
     letter-spacing: 0.01em;
   }
 
-  /* Login: paint html/body/#root like old index.html body (theme toggles whole page) */
-  html.page-login {
-    background-color: var(--login-page-bg);
-  }
-
-  html.page-login body,
-  html.page-login #root {
-    min-height: 100%;
-    background-color: var(--login-page-bg);
-    transition: background-color 0.4s, color 0.4s;
-  }
-
-  /* Scrollbars — match oldcode * selector (thumb on track, not white gutter) */
-  html.page-login,
-  html.page-login *,
-  html.page-dashboard,
-  html.page-dashboard * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb) transparent;
-  }
-
-  html.page-login::-webkit-scrollbar,
-  html.page-login *::-webkit-scrollbar,
-  html.page-dashboard::-webkit-scrollbar,
-  html.page-dashboard *::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  html.page-login::-webkit-scrollbar-track,
-  html.page-login *::-webkit-scrollbar-track,
-  html.page-dashboard::-webkit-scrollbar-track,
-  html.page-dashboard *::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  html.page-login::-webkit-scrollbar-thumb,
-  html.page-login *::-webkit-scrollbar-thumb,
-  html.page-dashboard::-webkit-scrollbar-thumb,
-  html.page-dashboard *::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-    border-radius: 999px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-  }
-
-  html.page-login::-webkit-scrollbar-thumb:hover,
-  html.page-login *::-webkit-scrollbar-thumb:hover,
-  html.page-dashboard::-webkit-scrollbar-thumb:hover,
-  html.page-dashboard *::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover);
-    background-clip: content-box;
-  }
-
+  /* Dashboard + admin app chrome */
   .app-shell {
     min-height: 100vh;
+    width: 100%;
     background-color: var(--color-bg);
     color: var(--color-fg);
   }
+
+  /* Login viewport — transparent inner wrapper; html/body carry --login-page-bg */
+  .login-page {
+    min-height: 100vh;
+    width: 100%;
+    background-color: transparent;
+  }
+}
+
+/* ── Scrollbars (legacy: * on login; html on dashboards) ─────── */
+html.page-login,
+html.page-login * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+html.page-login::-webkit-scrollbar,
+html.page-login *::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html.page-login::-webkit-scrollbar-track,
+html.page-login *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html.page-login::-webkit-scrollbar-thumb,
+html.page-login *::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+html.page-login::-webkit-scrollbar-thumb:hover,
+html.page-login *::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  background-clip: content-box;
+}
+
+html.page-dashboard,
+html.page-dashboard [data-scrollable] {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+html.page-dashboard::-webkit-scrollbar,
+html.page-dashboard [data-scrollable]::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html.page-dashboard::-webkit-scrollbar-track,
+html.page-dashboard [data-scrollable]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html.page-dashboard::-webkit-scrollbar-thumb,
+html.page-dashboard [data-scrollable]::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+html.page-dashboard::-webkit-scrollbar-thumb:hover,
+html.page-dashboard [data-scrollable]::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  background-clip: content-box;
 }

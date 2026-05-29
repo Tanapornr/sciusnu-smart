@@ -5,6 +5,7 @@
 import { create } from 'zustand';
 import type { User, UserRole } from '../types';
 import { storage, getDirectImageUrl, avatarFallback } from '../utils';
+import { syncThemeClass } from '../lib/theme';
 
 interface AuthState {
   user: User | null;
@@ -63,11 +64,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setTheme: (theme) => {
     storage.set('theme', theme);
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    syncThemeClass(theme);
     set({ theme });
   },
 
@@ -79,8 +76,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   hydrate: () => {
     // Restore theme
     const savedTheme = (storage.get('theme') as 'light' | 'dark') || 'light';
-    if (savedTheme === 'dark') document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
+    syncThemeClass(savedTheme);
 
     // Restore user session
     const role = storage.get('userRole') as UserRole | '';

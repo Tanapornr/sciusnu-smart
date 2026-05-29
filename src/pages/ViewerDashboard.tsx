@@ -273,7 +273,7 @@ export default function ViewerDashboard() {
                               <div className="font-extrabold text-neutral-800 dark:text-white bg-neutral-100 dark:bg-neutral-800 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-xs sm:text-sm shadow-sm">
                                 <span className="text-cyan-600 dark:text-cyan-400">#</span> {pid}
                               </div>
-                              <div className="text-xs sm:text-sm font-bold text-neutral-700 dark:text-neutral-200 mt-1 pl-1 whitespace-normal break-words w-full" style={{ maxWidth: 350, lineHeight: 1.6 }}>{projectNameTH}</div>
+                              <div className="text-xs sm:text-sm font-bold text-neutral-700 dark:text-neutral-200 mt-1 pl-1 whitespace-normal break-words w-full project-title-wrap">{projectNameTH}</div>
                             </div>
                           </td>
                           <td className="px-3 py-3 align-top">

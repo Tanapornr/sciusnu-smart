@@ -1,4 +1,4 @@
-/* SweetAlert2 — token-driven; !important only where the library injects inline styles */
+/* SweetAlert2 — token-driven; html.dark sets --swal-* in tokens.css */
 
 .swal2-shown {
   overflow: hidden;
@@ -11,20 +11,11 @@
   box-shadow: var(--swal-shadow);
   padding: var(--swal-padding);
   font-family: var(--font-family);
-  border: 1px solid transparent;
-}
-
-.dark .swal2-popup {
-  border-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--swal-border);
 }
 
 html.page-login .swal2-popup {
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-html.dark.page-login .swal2-popup {
-  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .swal2-title {
@@ -56,8 +47,8 @@ html.dark.page-login .swal2-popup {
 }
 
 .swal2-cancel {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--swal-cancel-bg);
+  color: var(--swal-cancel-fg);
   border-radius: 9999px;
   padding: 10px 24px;
   font-weight: bold;
@@ -65,45 +56,26 @@ html.dark.page-login .swal2-popup {
   font-family: var(--font-family);
 }
 
-.dark .swal2-cancel {
-  background: #374151;
-  color: #f9fafb;
-}
-
 .swal2-close {
-  color: #a3a3a3;
+  color: var(--swal-close-fg);
   border-radius: 50%;
-  background: #f5f5f5;
+  background: var(--swal-close-bg);
   width: 34px;
   height: 34px;
   margin: 10px 10px 0 0;
 }
 
 .swal2-close:hover {
-  background: #e5e5e5;
-  color: #171717;
+  background: var(--swal-close-hover-bg);
+  color: var(--swal-close-hover-fg);
 }
 
-.dark .swal2-close {
-  background: #262626;
-  color: #a3a3a3;
-}
-
-/* Admin modal variant (class on popup via customClass.popup) */
 .swal-admin.swal2-popup .swal2-title {
-  color: #0f172a;
-}
-
-.dark .swal-admin.swal2-popup .swal2-title {
-  color: #f8fafc;
+  color: var(--swal-admin-title);
 }
 
 .swal-admin.swal2-popup .swal2-html-container {
-  color: #475569;
-}
-
-.dark .swal-admin.swal2-popup .swal2-html-container {
-  color: #cbd5e1;
+  color: var(--swal-admin-muted);
 }
 
 .swal-admin.swal2-popup .swal2-actions {
@@ -121,23 +93,13 @@ html.dark.page-login .swal2-popup {
 }
 
 .swal-admin.swal2-popup .swal2-cancel {
-  background: #ffffff;
-  color: #0f172a;
-  border: 1px solid #cbd5e1;
+  background: var(--swal-admin-cancel-bg);
+  color: var(--swal-admin-cancel-fg);
+  border: 1px solid var(--swal-admin-cancel-border);
 }
 
 .swal-admin.swal2-popup .swal2-cancel:hover {
-  background: #f8fafc;
-}
-
-.dark .swal-admin.swal2-popup .swal2-cancel {
-  background: transparent;
-  color: #f8fafc;
-  border-color: #475569;
-}
-
-.dark .swal-admin.swal2-popup .swal2-cancel:hover {
-  background: #334155;
+  background: var(--swal-admin-cancel-hover);
 }
 
 .swal-admin.swal2-popup .swal2-icon {
@@ -193,24 +155,14 @@ html.dark.page-login .swal2-popup {
 }
 
 html.page-admin .swal2-close {
-  color: #94a3b8;
-  background: #f1f5f9;
+  color: var(--swal-close-fg);
+  background: var(--swal-close-bg);
   width: 32px;
   height: 32px;
   margin: 8px 8px 0 0;
 }
 
 html.page-admin .swal2-close:hover {
-  background: #e2e8f0;
-  color: #0f172a;
-}
-
-html.dark.page-admin .swal2-close {
-  background: #334155;
-  color: #94a3b8;
-}
-
-html.dark.page-admin .swal2-close:hover {
-  background: #475569;
-  color: #f8fafc;
+  background: var(--swal-close-hover-bg);
+  color: var(--swal-close-hover-fg);
 }

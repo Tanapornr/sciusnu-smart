@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+/* Tailwind dark:* only when <html class="dark"> */
+@custom-variant dark (&:where(html.dark, html.dark *));
+
 @import "./styles/tokens.css";
 @import "./styles/base.css";
 @import "./styles/components.css";

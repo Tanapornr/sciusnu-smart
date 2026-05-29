@@ -755,8 +755,8 @@ export default function StudentDashboard() {
 
       {/* ── Profile Modal ──────────────────────────────────────────────────────── */}
       {isProfileOpen && (
-      <div className="fixed inset-0 z-50 bg-neutral-900/50 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity" onClick={(e) => { if (e.target === e.currentTarget) setIsProfileOpen(false); }}>
-        <div className="glass-panel bg-white/95 dark:bg-neutral-900/95 rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden relative flex flex-col border border-neutral-100 dark:border-neutral-800">
+      <div className="modal-backdrop transition-opacity" onClick={(e) => { if (e.target === e.currentTarget) setIsProfileOpen(false); }}>
+        <div className="modal-panel glass-panel">
             <button onClick={() => setIsProfileOpen(false)} className="absolute top-4 sm:top-5 right-4 sm:right-5 text-neutral-400 hover:text-slate-700 dark:hover:text-white bg-slate-100/80 dark:bg-neutral-800/80 rounded-full p-2 transition-colors z-10 btn-liquid"><X className="w-4 h-4" /></button>
             <div className="p-5 sm:p-8 overflow-y-auto max-h-[85vh]">
                 <div className="text-center mb-5 sm:mb-6">
