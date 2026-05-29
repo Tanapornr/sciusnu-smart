@@ -182,7 +182,7 @@ export default function ViewerDashboard() {
   };
 
   return (
-    <div className="pb-10 min-h-screen transition-colors duration-300" style={{ backgroundColor: theme === 'dark' ? '#0d0d0d' : '#f7f9fc' }}>
+    <div className="pb-10 app-shell transition-colors duration-300">
 
       {/* NAV — exact match to viewer.html */}
       <nav className="glass-panel border-b-0 shadow-sm sticky top-0 z-40 relative">
@@ -241,7 +241,7 @@ export default function ViewerDashboard() {
               <BarChart2 className="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-cyan-500" /> ภาพรวมสถานะโครงงาน
             </h2>
             <div className="overflow-x-auto w-full pb-2">
-              <table className="w-full text-left">
+              <table className="data-table w-full text-left">
                 <thead className="text-[10px] sm:text-xs text-neutral-500">
                   <tr>
                     <th className="px-3 py-3 font-semibold uppercase tracking-wider min-w-[250px]">รหัสโครงงาน / ชื่อโครงงาน</th>
@@ -267,7 +267,7 @@ export default function ViewerDashboard() {
                       const projectSubs = myAssignedSubmissions.filter(s => s && (getVal(s, ['รหัสโครงงาน']) == pid || memberIds.includes(getVal(s, ['รหัสนักเรียน']))));
 
                       return (
-                        <tr key={pid} style={{ backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff', borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.02)', transition: 'transform 0.2s' }}>
+                        <tr key={pid}>
                           <td className="px-3 py-4 align-top">
                             <div className="flex flex-col items-start gap-1">
                               <div className="font-extrabold text-neutral-800 dark:text-white bg-neutral-100 dark:bg-neutral-800 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-xs sm:text-sm shadow-sm">
@@ -314,7 +314,7 @@ export default function ViewerDashboard() {
               <FolderOpen className="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-indigo-500" /> ประวัติการส่งงานทั้งหมด
             </h2>
             <div className="overflow-x-auto w-full pb-2">
-              <table className="w-full text-left">
+              <table className="data-table w-full text-left">
                 <thead className="text-[10px] sm:text-xs text-neutral-500">
                   <tr>
                     <th className="px-3 py-3 font-semibold uppercase tracking-wider">วันที่ส่ง</th>
@@ -336,7 +336,7 @@ export default function ViewerDashboard() {
                       const { date, time } = formatDateTimeTH(item.Timestamp);
 
                       return (
-                        <tr key={idx} style={{ backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff', borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                        <tr key={idx}>
                           <td className="px-3 py-4 align-middle opacity-80">
                             <div className="font-bold text-neutral-800 dark:text-neutral-200">{date}</div>
                             <div className="text-[9px] text-neutral-400 mt-0.5">{time} น.</div>

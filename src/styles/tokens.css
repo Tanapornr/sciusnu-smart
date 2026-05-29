@@ -1,0 +1,135 @@
+/* Design tokens — single source for theme, surfaces, and vendor widgets */
+:root {
+  --font-family: 'Prompt', sans-serif;
+  --font-scale: 16px;
+
+  --color-bg: #f7f9fc;
+  --color-fg: #1f2937;
+  --color-bg-admin: #fff7ed;
+
+  --scrollbar-thumb: #9ca3af;
+  --scrollbar-thumb-hover: #6b7280;
+
+  --glass-panel-bg: rgba(255, 255, 255, 0.95);
+  --glass-panel-border: rgba(255, 255, 255, 0.6);
+  --glass-panel-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  --glass-panel-blur: 24px;
+
+  --glass-input-bg: rgba(255, 255, 255, 0.9);
+  --glass-input-border: rgba(0, 0, 0, 0.06);
+  --glass-input-fg: #1f2937;
+  --focus-ring: rgba(249, 115, 22, 0.1);
+  --focus-border: #f97316;
+
+  --table-row-bg: #ffffff;
+  --table-row-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  --table-head-fg: inherit;
+  --table-cell-fg: inherit;
+
+  --swal-bg: #ffffff;
+  --swal-fg: #111827;
+  --swal-muted: #4b5563;
+  --swal-radius: 1.5rem;
+  --swal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  --swal-padding: 1.5rem;
+  --swal-confirm: #f97316;
+  --swal-confirm-hover: #ea580c;
+}
+
+html.page-dashboard {
+  --font-scale: 18px;
+}
+
+html.page-login {
+  --font-scale: 16px;
+  /* Full-page login shell (old body bg-orange-50/50) */
+  --login-page-bg: rgb(255 247 237 / 0.5);
+  --color-bg: var(--login-page-bg);
+  --glass-panel-bg: rgba(255, 255, 255, 0.7);
+  --glass-panel-border: rgba(255, 255, 255, 0.8);
+  --glass-panel-shadow: 0 10px 40px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  --glass-input-bg: rgba(255, 255, 255, 0.6);
+  --glass-input-border: rgba(255, 255, 255, 0.8);
+  --glass-input-fg: #334155;
+  --swal-radius: 2rem;
+  --swal-padding: 2rem 1.5rem;
+  --swal-bg: rgba(255, 255, 255, 0.95);
+  color-scheme: light;
+}
+
+html.page-admin {
+  --color-bg: var(--color-bg-admin);
+  --glass-panel-bg: rgba(255, 255, 255, 0.8);
+  --glass-panel-blur: 20px;
+  --glass-panel-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  --glass-input-bg: rgba(255, 255, 255, 0.5);
+  --glass-input-border: rgba(255, 255, 255, 0.6);
+  --glass-input-fg: #334155;
+  --swal-radius: 20px;
+  --swal-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  --swal-padding: 2rem 1.5rem;
+}
+
+/* Dashboard / default dark — login page overrides via html.dark.page-login */
+html.dark:not(.page-login) {
+  --color-bg: #0d0d0d;
+  --color-fg: #f3f4f6;
+}
+
+.dark {
+  --color-bg-admin: #0f172a;
+
+  --scrollbar-thumb: #64748b;
+  --scrollbar-thumb-hover: #94a3b8;
+
+  --glass-panel-bg: rgba(24, 24, 27, 0.75);
+  --glass-panel-border: rgba(255, 255, 255, 0.05);
+  --glass-panel-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+
+  --glass-input-bg: rgba(31, 41, 55, 0.6);
+  --glass-input-border: rgba(255, 255, 255, 0.08);
+  --glass-input-fg: #f9fafb;
+  --focus-ring: rgba(234, 88, 12, 0.15);
+  --focus-border: #ea580c;
+
+  --table-row-bg: #1f2937;
+  --table-row-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --table-head-fg: #d4d4d4;
+  --table-cell-fg: #f5f5f5;
+
+  --swal-bg: #1f2937;
+  --swal-fg: #f9fafb;
+  --swal-muted: #9ca3af;
+  --swal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+html.dark.page-login {
+  /* Full-page login shell (old body dark:bg-slate-900) */
+  --login-page-bg: #0f172a;
+  --color-bg: var(--login-page-bg);
+  --color-fg: #f1f5f9;
+  --glass-panel-bg: rgba(30, 41, 59, 0.6);
+  --glass-panel-border: rgba(255, 255, 255, 0.1);
+  --glass-panel-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  --glass-input-bg: rgba(15, 23, 42, 0.5);
+  --glass-input-border: rgba(255, 255, 255, 0.1);
+  --glass-input-fg: #f1f5f9;
+  --swal-bg: rgba(30, 41, 59, 0.95);
+  color-scheme: dark;
+}
+
+html.dark.page-admin {
+  --glass-panel-bg: rgba(30, 41, 59, 0.6);
+  --glass-panel-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --glass-input-bg: rgba(15, 23, 42, 0.5);
+  --swal-bg: #1e293b;
+  --swal-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 768px) {
+  :root,
+  html.page-login,
+  html.page-dashboard {
+    --font-scale: 14px;
+  }
+}

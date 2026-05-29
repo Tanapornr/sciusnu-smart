@@ -14,18 +14,22 @@ function App() {
     hydrate();
   }, [hydrate]);
 
-  // Match legacy per-page root font scale (login 16px, dashboards 18px)
+  // Page-level tokens (font scale, surfaces, Swal) via html classes only
   useEffect(() => {
     const root = document.documentElement;
+    root.classList.remove('page-login', 'page-dashboard', 'page-admin');
+
     if (!isAuthenticated || !user) {
       root.classList.add('page-login');
-      root.classList.remove('page-dashboard');
     } else {
-      root.classList.remove('page-login');
       root.classList.add('page-dashboard');
+      if (user.role === 'admin') {
+        root.classList.add('page-admin');
+      }
     }
+
     return () => {
-      root.classList.remove('page-login', 'page-dashboard');
+      root.classList.remove('page-login', 'page-dashboard', 'page-admin');
     };
   }, [isAuthenticated, user]);
 

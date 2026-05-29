@@ -7,7 +7,7 @@ import { User, Lock, Eye, EyeOff, BookOpen, LogIn, Moon, Sun } from 'lucide-reac
 import Swal from 'sweetalert2';
 
 export default function Login() {
-  const { login, isAuthenticated, theme, toggleTheme } = useAuthStore();
+  const { login, isAuthenticated, toggleTheme } = useAuthStore();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -127,13 +127,19 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-orange-50/50 dark:bg-slate-900 p-4 transition-colors">
+    <div className="login-page flex min-h-screen items-center justify-center relative overflow-x-hidden p-4 transition-colors">
       <div className="absolute top-10 left-10 w-64 h-64 sm:w-96 sm:h-96 bg-orange-500/30 dark:bg-orange-600/30 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob"></div>
       <div className="absolute top-0 right-10 w-64 h-64 sm:w-96 sm:h-96 bg-amber-500/30 dark:bg-amber-600/30 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob animation-delay-2000"></div>
       <div className="absolute -bottom-10 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-yellow-500/30 dark:bg-yellow-600/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-blob animation-delay-4000"></div>
 
-      <button onClick={toggleTheme} className="!absolute top-6 right-6 btn-liquid bg-white/50 dark:bg-slate-800/50 p-3 rounded-full shadow-md text-slate-700 dark:text-slate-200 z-50 outline-none hover:text-orange-500 transition-colors border border-slate-200 dark:border-slate-700">
-        {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      <button
+        type="button"
+        onClick={toggleTheme}
+        aria-label="สลับธีมสว่าง/มืด"
+        className="!absolute top-6 right-6 btn-liquid bg-white/50 dark:bg-slate-800/50 p-3 rounded-full shadow-md text-slate-700 dark:text-slate-200 z-50 outline-none hover:text-orange-500 transition-colors border border-slate-200 dark:border-slate-700"
+      >
+        <Moon className="w-5 h-5 dark:hidden" />
+        <Sun className="w-5 h-5 hidden dark:block" />
       </button>
 
       <div className="w-full max-w-md p-6 sm:p-8 rounded-[2rem] glass-panel-login relative z-10">

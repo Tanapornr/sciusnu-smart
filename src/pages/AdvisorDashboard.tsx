@@ -321,7 +321,7 @@ export default function AdvisorDashboard() {
   }).filter(id => id !== ""))];
 
   return (
-    <div className="pb-10 font-prompt min-h-screen bg-[#f7f9fc] dark:bg-[#0d0d0d] transition-colors">
+    <div className="pb-10 app-shell transition-colors">
       <nav className="glass-panel border-b-0 shadow-sm sticky top-0 z-40 relative">
           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-500 to-pink-500"></div>
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-4 mt-1">
@@ -359,14 +359,14 @@ export default function AdvisorDashboard() {
                 <div className="glass-panel rounded-[2rem] p-4 sm:p-7 relative overflow-hidden">
                     <h2 className="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><BarChart2 className="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-orange-500" /> ภาพรวมสถานะโครงงานของกลุ่มที่คุณดูแล</h2>
                     <div className="table-fit-wrap w-full pb-2 overflow-x-hidden">
-                        <table className="advisor-table w-full text-left" style={{ tableLayout: 'fixed' }}>
+                        <table className="data-table advisor-table w-full text-left">
                             <thead className="text-[10px] sm:text-xs text-neutral-500">
                                 <tr>
-                                    <th className="px-3 py-3 font-semibold uppercase tracking-wider" style={{width: '25%'}}>รหัสโครงงาน / ชื่อโครงงาน</th>
-                                    <th className="px-3 py-3 font-semibold uppercase tracking-wider" style={{width: '35%'}}>รายชื่อนักเรียนในกลุ่ม</th>
-                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider" style={{width: '13%'}}>โครงร่าง</th>
-                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider" style={{width: '14%'}}>ความก้าวหน้า</th>
-                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider" style={{width: '13%'}}>ฉบับสมบูรณ์</th>
+                                    <th className="px-3 py-3 font-semibold uppercase tracking-wider">รหัสโครงงาน / ชื่อโครงงาน</th>
+                                    <th className="px-3 py-3 font-semibold uppercase tracking-wider">รายชื่อนักเรียนในกลุ่ม</th>
+                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider">โครงร่าง</th>
+                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider">ความก้าวหน้า</th>
+                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider">ฉบับสมบูรณ์</th>
                                 </tr>
                             </thead>
                             <tbody id="overviewTableBody" className="text-neutral-700 dark:text-neutral-200 text-xs sm:text-sm">
@@ -401,7 +401,7 @@ export default function AdvisorDashboard() {
                                         };
 
                                         return (
-                                            <tr key={pid} className="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 bg-white dark:bg-neutral-800 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.2)] mb-2 block w-full table-row">
+                                            <tr key={pid}>
                                                 <td className="px-3 py-4 align-top">
                                                     <div className="flex flex-col items-start gap-1">
                                                         <div className="font-extrabold text-neutral-800 dark:text-white bg-neutral-100 dark:bg-neutral-800 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-xs sm:text-sm shadow-sm"><span className="text-cyan-600 dark:text-cyan-400">#</span> {pid}</div>
@@ -443,16 +443,16 @@ export default function AdvisorDashboard() {
                 <div id="allWorksSection" className="glass-panel rounded-[2rem] p-4 sm:p-7 relative overflow-hidden">
                     <h2 className="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><FolderOpen className="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-indigo-500" /> ประวัติการส่งงานทั้งหมด</h2>
                     <div className="table-fit-wrap w-full pb-2 overflow-x-hidden">
-                        <table className="advisor-table w-full text-left" style={{ tableLayout: 'fixed' }}>
+                        <table className="data-table advisor-table w-full text-left">
                             <thead className="text-[10px] sm:text-xs text-neutral-500">
                                 <tr>
-                                    <th className="px-2 py-3 font-semibold uppercase tracking-wider" style={{width:'11%'}}>วันที่ส่ง</th>
-                                    <th className="px-2 py-3 font-semibold uppercase tracking-wider" style={{width:'27%'}}>ข้อมูลผู้ส่งและกลุ่ม</th>
-                                    <th className="px-2 py-3 font-semibold uppercase tracking-wider" style={{width:'15%'}}>ประเภทงาน</th>
-                                    <th className="px-2 py-3 text-left font-semibold uppercase tracking-wider" style={{width:'16%'}}>หมายเหตุ</th>
-                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider" style={{width:'11%'}}>สถานะ</th>
-                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider" style={{width:'10%'}}>ไฟล์แนบ</th>
-                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider" style={{width:'10%'}}>ตรวจงาน</th>
+                                    <th className="px-2 py-3 font-semibold uppercase tracking-wider">วันที่ส่ง</th>
+                                    <th className="px-2 py-3 font-semibold uppercase tracking-wider">ข้อมูลผู้ส่งและกลุ่ม</th>
+                                    <th className="px-2 py-3 font-semibold uppercase tracking-wider">ประเภทงาน</th>
+                                    <th className="px-2 py-3 text-left font-semibold uppercase tracking-wider">หมายเหตุ</th>
+                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider">สถานะ</th>
+                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider">ไฟล์แนบ</th>
+                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider">ตรวจงาน</th>
                                 </tr>
                             </thead>
                             <tbody id="allWorksTableBody" className="text-neutral-700 dark:text-neutral-200 text-xs sm:text-sm">

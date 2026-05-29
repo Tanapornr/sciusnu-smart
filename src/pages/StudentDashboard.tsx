@@ -411,7 +411,7 @@ export default function StudentDashboard() {
   };
 
   return (
-    <div className="pb-10 font-prompt min-h-screen bg-[#f7f9fc] dark:bg-[#0d0d0d] transition-colors">
+    <div className="pb-10 app-shell transition-colors">
       {/* ── Navbar ──────────────────────────────────────────────────────── */}
       <nav className="glass-panel border-b-0 shadow-sm relative z-40">
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500"></div>
@@ -673,7 +673,7 @@ export default function StudentDashboard() {
                     </div>
                 ) : (
                     <div className="overflow-x-auto w-full pb-4">
-                        <table className="w-full text-left border-separate student-history-table">
+                        <table className="data-table data-table--history w-full text-left border-separate">
                             <thead className="bg-transparent text-xs sm:text-sm text-neutral-400 border-b border-neutral-200 dark:border-neutral-800">
                                 <tr>
                                     <th className="px-2 sm:px-4 py-3 sm:py-4 font-bold uppercase tracking-wider">วันที่ส่ง</th>

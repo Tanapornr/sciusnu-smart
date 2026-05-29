@@ -64,7 +64,7 @@ export default function AdminDashboard() {
         title: '<div class="font-bold text-rose-600">โหลดข้อมูลล้มเหลว</div>',
         text: err.message,
         icon: 'error',
-        customClass: { popup: 'admin-swal-popup' },
+        customClass: { popup: 'swal-admin' },
       });
     } finally {
       setLoading(false);
@@ -78,7 +78,7 @@ export default function AdminDashboard() {
   const viewStudentPopup = (name: string, id: string, phoneStr: string, picUrl: string) => {
     Swal.fire({
         html: `<div class="text-center pt-2"><img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-orange-50 dark:border-orange-900/50 shadow-md bg-white" loading="lazy"><h3 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white leading-tight">${name}</h3><p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-5 mt-1">รหัสประจำตัว: ${id}</p><div class="bg-orange-50 dark:bg-orange-900/30 rounded-2xl p-3 sm:p-4 inline-block w-full max-w-[200px] border border-orange-100 dark:border-orange-800"><p class="text-[10px] sm:text-xs text-orange-600 dark:text-orange-400 mb-1 font-semibold uppercase flex items-center justify-center"><i data-lucide="phone" class="w-3 h-3 mr-1"></i> เบอร์โทรติดต่อ</p><p class="text-base sm:text-lg font-bold text-orange-800 dark:text-orange-300">${phoneStr || 'ไม่มีข้อมูล'}</p></div></div>`,
-        showConfirmButton: true, confirmButtonText: 'ปิดหน้าต่าง', confirmButtonColor: '#334155', customClass: { popup: 'admin-swal-popup rounded-[2rem] p-4 sm:p-6' }, backdrop: `rgba(15, 23, 42, 0.7)`
+        showConfirmButton: true, confirmButtonText: 'ปิดหน้าต่าง', confirmButtonColor: '#334155', customClass: { popup: 'swal-admin rounded-[2rem] p-4 sm:p-6' }, backdrop: `rgba(15, 23, 42, 0.7)`
     });
   };
 
@@ -192,7 +192,7 @@ export default function AdminDashboard() {
             cancelButtonText: 'ยกเลิก',
             customClass: {
                 input: 'rounded-xl border-slate-300 focus:ring-rose-500 focus:border-rose-500 text-sm p-3 shadow-sm',
-                popup: 'admin-swal-popup'
+                popup: 'swal-admin'
             }
         });
         if (!result.isConfirmed) return;
@@ -207,12 +207,12 @@ export default function AdminDashboard() {
             cancelButtonColor: '#64748b',
             confirmButtonText: 'ยืนยัน',
             cancelButtonText: 'ยกเลิก',
-            customClass: { popup: 'admin-swal-popup' }
+            customClass: { popup: 'swal-admin' }
         });
         if (!result.isConfirmed) return;
     }
 
-    Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }, customClass: { popup: 'admin-swal-popup' } });
+    Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }, customClass: { popup: 'swal-admin' } });
     try {
         const res = await apiUpdateStatus({
             studentId,
@@ -225,18 +225,18 @@ export default function AdminDashboard() {
             role: user?.role || 'admin'
         });
         if (res.status === 'success') { 
-            await Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500, customClass: { popup: 'admin-swal-popup' } }); 
+            await Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500, customClass: { popup: 'swal-admin' } }); 
             fetchData(); 
         } else {
             throw new Error(res.message);
         }
     } catch (error: any) { 
-        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message, confirmButtonColor: '#f97316', customClass: { popup: 'admin-swal-popup' } }); 
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message, confirmButtonColor: '#f97316', customClass: { popup: 'swal-admin' } }); 
     }
   };
 
   return (
-    <div className="pb-10 admin-page min-h-screen transition-colors">
+    <div className="pb-10 app-shell transition-colors">
       <nav className="glass-panel border-b-0 shadow-sm sticky top-0 z-40">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-4">
               <div className="flex items-center gap-4">
@@ -274,7 +274,7 @@ export default function AdminDashboard() {
                       <div className="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-rose-500"></div>
                       <h2 className="text-base sm:text-lg font-bold text-rose-600 dark:text-rose-400 mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><span className="bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-xs sm:text-sm mr-2 shadow-sm font-black">{pendingPetitions.length}</span> แบบคำร้อง รอการตรวจสอบจาก Admin</h2>
                       <div className="overflow-x-auto w-full pb-2">
-                          <table className="w-full text-left">
+                          <table className="data-table w-full text-left">
                               <thead className="bg-slate-50 uppercase border-b text-[10px] sm:text-sm"><tr><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold">เวลา</th><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold min-w-[150px]">ข้อมูลนักเรียน</th><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold">ประเภทงาน</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ไฟล์แนบ</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ดำเนินการ</th></tr></thead>
                               <tbody>
                                   {pendingPetitions.length === 0 ? (
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
                       <div className="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-orange-500"></div>
                       <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-3 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><BarChart2 className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-orange-600 dark:text-orange-400" /> ภาพรวมสถานะโครงงานทั้งหมดในระบบ</h2>
                       <div className="overflow-x-auto w-full pb-2">
-                          <table className="w-full text-left">
+                          <table className="data-table w-full text-left">
                               <thead className="bg-slate-50 uppercase border-b text-[10px] sm:text-sm"><tr><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold whitespace-nowrap">รหัสโครงงาน</th><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold min-w-[150px]">นักเรียนในกลุ่ม</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">โครงร่าง</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ความก้าวหน้า</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ฉบับสมบูรณ์</th></tr></thead>
                               <tbody>
                                   {filteredProjectIds.length === 0 ? (
@@ -383,7 +383,7 @@ export default function AdminDashboard() {
                       <div className="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-amber-400"></div>
                       <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-3 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><Folder className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300" /> ประวัติการส่งงาน/คำร้องทั้งหมด</h2>
                       <div className="overflow-x-auto w-full pb-2">
-                          <table className="w-full text-left">
+                          <table className="data-table w-full text-left">
                               <thead className="bg-slate-50 uppercase border-b text-[10px] sm:text-sm"><tr><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold">เวลา</th><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold min-w-[150px]">ข้อมูลนักเรียน</th><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold">ประเภทงาน</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">หมายเหตุ</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ไฟล์แนบ</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">สถานะปัจจุบัน</th></tr></thead>
                               <tbody>
                                   {filteredSubmissions.length === 0 ? (
