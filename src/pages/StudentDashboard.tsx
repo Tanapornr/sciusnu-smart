@@ -763,7 +763,7 @@ export default function StudentDashboard() {
       {isProfileOpen && (
       <div className="modal-backdrop transition-opacity" onClick={(e) => { if (e.target === e.currentTarget) setIsProfileOpen(false); }}>
         <div className="modal-panel glass-panel">
-            <button onClick={() => setIsProfileOpen(false)} className="absolute top-4 sm:top-5 right-4 sm:right-5 text-neutral-400 hover:text-slate-700 dark:hover:text-white bg-slate-100/80 dark:bg-neutral-800/80 rounded-full p-2 transition-colors z-10 btn-liquid"><X className="w-4 h-4" /></button>
+            <button onClick={() => setIsProfileOpen(false)} className="!absolute top-4 sm:top-5 right-4 sm:right-5 text-neutral-400 hover:text-slate-700 dark:hover:text-white bg-slate-100/80 dark:bg-neutral-800/80 rounded-full p-2 transition-colors z-10 btn-liquid"><X className="w-4 h-4" /></button>
             <div className="p-5 sm:p-8 overflow-y-auto max-h-[85vh]">
                 <div className="text-center mb-5 sm:mb-6">
                     <h2 className="text-lg sm:text-xl font-bold text-neutral-800 dark:text-white tracking-wide">ตั้งค่าโปรไฟล์</h2>
