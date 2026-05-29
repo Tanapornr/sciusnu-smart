@@ -38,7 +38,7 @@ export interface ProjectInfo {
   studentId: string;      // col 1
   firstName: string;      // col 2
   lastName: string;       // col 3
-  projectId: string;      // col 4
+  projectId: string;      // col 5
   phone: string;          // col 19
   profileUrl: string;     // col 20
   advEmail: string;       // col 8

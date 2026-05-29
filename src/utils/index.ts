@@ -147,7 +147,7 @@ export function parseProjectRow(row: ProjectRow): ProjectInfo {
     studentId: col(1),
     firstName: col(2),
     lastName: col(3),
-    projectId: col(4),
+    projectId: col(5),
     advEmail: extractEmail(col(8)),
     advName: extractName(col(9)),
     coAdvEmail: extractEmail(col(12)),
