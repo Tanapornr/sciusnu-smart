@@ -417,12 +417,18 @@ export default function StudentDashboard() {
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500"></div>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-3 sm:py-4 mt-1">
             <div className="flex items-center gap-3 sm:gap-4 w-full">
-                <button onClick={() => setIsProfileOpen(true)} className="relative group outline-none rounded-full flex-shrink-0 transition-transform hover:scale-105">
-                   <img src={user?.profileUrl} className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-[3px] border-white dark:border-neutral-800 shadow-lg bg-white" />
-                    <div className="absolute bottom-0 right-0 bg-neutral-800 dark:bg-orange-600 rounded-full p-1 shadow-md border-2 border-white dark:border-slate-800">
-                        <Settings className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
-                    </div>
-                </button>
+                <button 
+                    onClick={() => setIsProfileOpen(true)} 
+                    className="relative group outline-none rounded-full flex-shrink-0 transition-transform hover:scale-105 cursor-pointer"
+                    >
+                        <img 
+                        src={user?.profileUrl} 
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-[3px] border-white dark:border-neutral-800 shadow-lg bg-white" 
+                        />
+                        <div className="absolute bottom-0 right-0 bg-neutral-800 dark:bg-orange-600 rounded-full p-1 shadow-md border-2 border-white dark:border-slate-800">
+                            <Settings className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
+                        </div>
+                    </button>
                 <div className="flex-grow min-w-0 flex flex-col justify-center">
                     <div className="flex items-center gap-2 flex-wrap mb-0.5">
                         <h1 className="text-base sm:text-xl font-extrabold text-neutral-800 dark:text-white leading-tight truncate">
