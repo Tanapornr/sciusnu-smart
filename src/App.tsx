@@ -8,11 +8,7 @@ import ViewerDashboard from './pages/ViewerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
-  const { isAuthenticated, user, hydrate } = useAuthStore();
-
-  useEffect(() => {
-    hydrate();
-  }, [hydrate]);
+  const { isAuthenticated, user } = useAuthStore();
 
   useEffect(() => {
     if (!isAuthenticated || !user) {

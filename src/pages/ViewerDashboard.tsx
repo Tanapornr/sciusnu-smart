@@ -22,7 +22,6 @@ import Swal from 'sweetalert2';
 export default function ViewerDashboard() {
   const { user, theme, toggleTheme, logout } = useAuthStore();
 
-  const [allProjectsRaw, setAllProjectsRaw] = useState<ProjectRow[]>([]);
   const [myAssignedProjects, setMyAssignedProjects] = useState<ProjectRow[]>([]);
   const [myAssignedSubmissions, setMyAssignedSubmissions] = useState<SubmissionRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +51,6 @@ export default function ViewerDashboard() {
       if (res.status === 'success') {
         const allProjects: ProjectRow[] = res.projects || [];
         const allSubs: SubmissionRow[] = res.submissions || [];
-        setAllProjectsRaw(allProjects);
 
         const userEmail = (user?.email || '').toLowerCase().trim();
         const userRole = user?.role || '';
