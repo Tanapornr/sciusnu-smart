@@ -1,122 +1,58 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useEffect } from 'react';
+import { useAuthStore } from './store/authStore';
+import Login from './pages/Login';
+import StudentDashboard from './pages/StudentDashboard';
+import AdvisorDashboard from './pages/AdvisorDashboard';
+import ViewerDashboard from './pages/ViewerDashboard';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { isAuthenticated, user, hydrate } = useAuthStore();
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+  // Restore session from localStorage on application start
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
 
-      <div className="ticks"></div>
+  // Match legacy per-page root font scale (login 16px, dashboards 18px)
+  useEffect(() => {
+    const root = document.documentElement;
+    if (!isAuthenticated || !user) {
+      root.classList.add('page-login');
+      root.classList.remove('page-dashboard');
+    } else {
+      root.classList.remove('page-login');
+      root.classList.add('page-dashboard');
+    }
+    return () => {
+      root.classList.remove('page-login', 'page-dashboard');
+    };
+  }, [isAuthenticated, user]);
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+  // If not authenticated, force them to the login screen
+  if (!isAuthenticated || !user) {
+    return <Login />;
+  }
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+  // Role-based routing system (Unified legacy flow)
+  switch (user.role) {
+    case 'student':
+      return <StudentDashboard />;
+
+    case 'advisor':
+    case 'advisor_main':
+      return <AdvisorDashboard />;
+
+    case 'viewer':
+      return <ViewerDashboard />;
+
+    case 'admin':
+      return <AdminDashboard />;
+
+    default:
+      // Fallback in case of weird role values
+      return <Login />;
+  }
 }
 
-export default App
+export default App;
