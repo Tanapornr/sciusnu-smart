@@ -85,15 +85,14 @@ export default function AdminDashboard() {
   const getFilteredData = () => {
     const query = searchQuery.toLowerCase().trim();
     const filteredProjects = projectRows.filter(p => {
-        const keys = Object.keys(p);
-        const pid = (keys.length > 4 ? p[keys[4]] : "").toString().toLowerCase();
-        const sid = (keys.length > 1 ? p[keys[1]] : "").toString().toLowerCase();
-        const name = `${keys.length > 2 ? p[keys[2]] : ""} ${keys.length > 3 ? p[keys[3]] : ""}`.toLowerCase();
+        // Use named keys instead of positional index (col 4 = สาขา, col 5 = รหัสโครงงาน)
+        const pid = (p['รหัสโครงงาน'] || "").toString().toLowerCase();
+        const sid = (p['รหัสนักเรียน'] || "").toString().toLowerCase();
+        const name = `${p['ชื่อ'] || ""} ${p['นามสกุล'] || ""}`.toLowerCase();
         return pid.includes(query) || sid.includes(query) || name.includes(query);
     });
     const filteredProjectIds = [...new Set(filteredProjects.map(p => {
-        const keys = Object.keys(p);
-        return keys.length > 4 ? p[keys[4]] : '';
+        return (p['รหัสโครงงาน'] || '').toString();
     }).filter(id => id))];
     
     const filteredSubmissions = submissions.filter(s => {
@@ -120,10 +119,9 @@ export default function AdminDashboard() {
     
     if (targetProjId === "") {
         for (let i = 0; i < projectRows.length; i++) {
-            const keys = Object.keys(projectRows[i]);
-            const sid = (keys.length > 1 ? projectRows[i][keys[1]] : "").toString().replace(/\s/g, '').toLowerCase();
+            const sid = (projectRows[i]['รหัสนักเรียน'] || "").toString().replace(/\s/g, '').toLowerCase();
             if (sid === targetStuId) {
-                targetProjId = (keys.length > 4 ? projectRows[i][keys[4]] : "").toString().replace(/\s/g, '').toLowerCase(); break;
+                targetProjId = (projectRows[i]['รหัสโครงงาน'] || "").toString().replace(/\s/g, '').toLowerCase(); break;
             }
         }
     }
@@ -131,22 +129,25 @@ export default function AdminDashboard() {
     let groupMembers: any[] = [];
     for (let i = 0; i < projectRows.length; i++) {
         const p = projectRows[i];
-        const keys = Object.keys(p);
-        let rowProjId = (keys.length > 4 ? p[keys[4]] : "").toString().replace(/\s/g, '').toLowerCase();
-        let rowStuId = (keys.length > 1 ? p[keys[1]] : "").toString().replace(/\s/g, '').toLowerCase();
+        let rowProjId = (p['รหัสโครงงาน'] || "").toString().replace(/\s/g, '').toLowerCase();
+        let rowStuId = (p['รหัสนักเรียน'] || "").toString().replace(/\s/g, '').toLowerCase();
         let isMatch = false;
         if (targetProjId !== "" && rowProjId === targetProjId) isMatch = true; 
         else if (targetStuId !== "" && rowStuId === targetStuId) isMatch = true;
         
         if (isMatch && rowStuId !== "") {
-            let originalStuId = (keys.length > 1 ? p[keys[1]] : "").toString().trim();
+            let originalStuId = (p['รหัสนักเรียน'] || "").toString().trim();
             if (!groupMembers.find(m => m.id === originalStuId)) {
+                // Find phone: key is "เบอร์โทรศัพท์" (may have trailing space)
+                const phoneVal = Object.entries(p).find(([k]) => k.trim() === 'เบอร์โทรศัพท์')?.[1] || '';
+                // Find profile pic: key is "รูปโปรไฟล์ " (trailing space)
+                const picVal = Object.entries(p).find(([k]) => k.trim() === 'รูปโปรไฟล์')?.[1] || '';
                 groupMembers.push({
                     id: originalStuId, 
-                    firstName: (keys.length > 2 ? p[keys[2]] : "").toString().trim(), 
-                    lastName: (keys.length > 3 ? p[keys[3]] : "").toString().trim(),
-                    phone: (keys.length > 7 ? p[keys[7]] : "").toString().replace(/'/g, ''),
-                    picUrl: getProcessedImgUrl((p['รูปโปรไฟล์'] || p['pic'] || "").toString().trim(), (keys.length > 2 ? p[keys[2]] : "").toString().trim())
+                    firstName: (p['ชื่อ'] || "").toString().trim(), 
+                    lastName: (p['นามสกุล'] || "").toString().trim(),
+                    phone: phoneVal.toString().replace(/'/g, ''),
+                    picUrl: getProcessedImgUrl(picVal.toString().trim(), (p['ชื่อ'] || "").toString().trim())
                 });
             }
         }
@@ -327,12 +328,10 @@ export default function AdminDashboard() {
                                   ) : (
                                       filteredProjectIds.map((pid: any) => {
                                           const members = projectRows.filter(p => {
-                                              const keys = Object.keys(p);
-                                              return (keys.length > 4 ? p[keys[4]] : '') === pid;
+                                              return (p['รหัสโครงงาน'] || '') === pid;
                                           });
                                           const memberIds = members.map(m => {
-                                              const keys = Object.keys(m);
-                                              return keys.length > 1 ? m[keys[1]] : '';
+                                              return m['รหัสนักเรียน'] || '';
                                           });
                                           const projectSubs = submissions.filter(s => s && ((s['รหัสโครงงาน'] || s['projectid']) == pid || memberIds.includes(s['รหัสนักเรียน'] || s['studentid'])));
                                           
@@ -350,12 +349,14 @@ export default function AdminDashboard() {
                                                   <td className="px-2 py-4 sm:px-4 sm:py-5 align-top font-bold text-slate-800 dark:text-slate-200 text-xs sm:text-sm border-r border-slate-50 dark:border-slate-700/50">{pid}</td>
                                                   <td className="px-2 py-2 sm:px-4 sm:py-3 align-top border-r border-slate-50 dark:border-slate-700/50">
                                                       {members.map((m: any) => {
-                                                          const keys = Object.keys(m);
-                                                          const id = keys.length > 1 ? m[keys[1]] : '';
-                                                          const fname = keys.length > 2 ? m[keys[2]] : '';
-                                                          const lname = keys.length > 3 ? m[keys[3]] : '';
-                                                          const phone = (keys.length > 7 ? m[keys[7]] : '').replace(/'/g, '');
-                                                          const pic = getProcessedImgUrl((m['รูปโปรไฟล์'] || m['pic'] || "").toString().trim(), fname);
+                                                          const id = m['รหัสนักเรียน'] || '';
+                                                          const fname = m['ชื่อ'] || '';
+                                                          const lname = m['นามสกุล'] || '';
+                                                          // Phone: key "เบอร์โทรศัพท์" may have trailing space
+                                                          const phone = (Object.entries(m).find(([k]) => k.trim() === 'เบอร์โทรศัพท์')?.[1] || '').toString().replace(/'/g, '');
+                                                          // Profile pic: key "รูปโปรไฟล์ " has trailing space
+                                                          const picRaw = (Object.entries(m).find(([k]) => k.trim() === 'รูปโปรไฟล์')?.[1] || '').toString().trim();
+                                                          const pic = getProcessedImgUrl(picRaw, fname);
                                                           return (
                                                               <button key={id} type="button" onClick={() => viewStudentPopup(`${fname} ${lname}`, id, phone, pic)} className="w-full text-left flex items-center gap-2 sm:gap-3 mb-2 bg-slate-50 dark:bg-slate-800/50 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 btn-liquid transition-colors">
                                                                   <img src={pic} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm" loading="lazy" />

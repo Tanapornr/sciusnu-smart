@@ -83,16 +83,35 @@ function getGroupInfo(displayData, actingStudentId) {
   };
   if (!displayData?.length || !actingStudentId) return empty;
 
-  // Default column indices (adjust if your sheet columns change)
-  let colEmail = 0, colStuId = 1, colFName = 2, colLName = 3, colProj = 4;
+  // Default column indices matching actual Google Sheet structure:
+  // col 0=E-mail นักเรียน, 1=รหัสนักเรียน, 2=ชื่อ, 3=นามสกุล, 4=สาขา,
+  // 5=รหัสโครงงาน, 8=E-mail อ.ที่ปรึกษา, 9=อ.ที่ปรึกษา TH,
+  // 12=E-mail อ.ที่ปรึกษาร่วม, 13=ที่ปรึกษาร่วม,
+  // 15=E-mail อ.ที่ปรึกษาโรงเรียน, 16=ที่ปรึกษา โรงเรียน, 17=ชื่อโครงงาน
+  let colEmail = 0, colStuId = 1, colFName = 2, colLName = 3, colProj = 5;
   let colAdvEmail = 8, colAdvName = 9, colCoAdvEmail = 12, colCoAdvName = 13;
   let colSchAdvEmail = 15, colSchAdvName = 16, colProjNameTH = 17;
 
   const headers = displayData[0];
+  // Dynamic lookup overrides defaults (handles renamed/reordered columns)
   const hProj = headers.findIndex((h) => String(h).includes("รหัสโครงงาน"));
   const hStu  = headers.findIndex((h) => String(h).includes("รหัสนักเรียน") || String(h).includes("รหัสประจำตัว"));
+  const hAdvEmail   = headers.findIndex((h) => String(h).trim() === "E-mail อ.ที่ปรึกษา");
+  const hAdvName    = headers.findIndex((h) => String(h).trim() === "อ. ที่ปรึกษา TH");
+  const hCoAdvEmail = headers.findIndex((h) => String(h).trim() === "E-mail อ.ที่ปรึกษาร่วม");
+  const hCoAdvName  = headers.findIndex((h) => String(h).trim() === "ที่ปรึกษาร่วม");
+  const hSchAdvEmail= headers.findIndex((h) => String(h).trim() === "E-mail อ.ที่ปรึกษาโรงเรียน");
+  const hSchAdvName = headers.findIndex((h) => String(h).trim().startsWith("ที่ปรึกษา") && String(h).includes("โรงเรียน"));
+  const hProjName   = headers.findIndex((h) => String(h).trim().startsWith("ชื่อโครงงาน"));
   if (hProj !== -1) colProj = hProj;
   if (hStu  !== -1) colStuId = hStu;
+  if (hAdvEmail   !== -1) colAdvEmail   = hAdvEmail;
+  if (hAdvName    !== -1) colAdvName    = hAdvName;
+  if (hCoAdvEmail !== -1) colCoAdvEmail = hCoAdvEmail;
+  if (hCoAdvName  !== -1) colCoAdvName  = hCoAdvName;
+  if (hSchAdvEmail!== -1) colSchAdvEmail= hSchAdvEmail;
+  if (hSchAdvName !== -1) colSchAdvName = hSchAdvName;
+  if (hProjName   !== -1) colProjNameTH = hProjName;
 
   const normActingId = String(actingStudentId).replace(/\s+/g, "").toUpperCase();
   let targetProjId = "", projectNameTH = "";

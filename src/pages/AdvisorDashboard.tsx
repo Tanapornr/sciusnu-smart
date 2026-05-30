@@ -47,8 +47,8 @@ export default function AdvisorDashboard() {
 
 
   const getMainAdvisorEmail = (projectRow: any) => {
-    const keys = Object.keys(projectRow);
-    return keys.length > 8 && projectRow[keys[8]] != null ? projectRow[keys[8]].toString().trim() : "";
+    // Use named key "E-mail อ.ที่ปรึกษา" (col 8) instead of positional index
+    return (projectRow['E-mail อ.ที่ปรึกษา'] || '').toString().trim();
   };
 
   const isLoggedInMainAdvisor = (projectRow: any) => {
@@ -86,16 +86,15 @@ export default function AdvisorDashboard() {
             let myProjectIds: string[] = [];
             allProjs.forEach(p => {
                 if (isLoggedInMainAdvisor(p)) {
-                    const keys = Object.keys(p);
-                    const pid = keys.length > 4 ? p[keys[4]] : '';
+                    // Use named key "รหัสโครงงาน" (col 5) not positional keys[4]
+                    const pid = (p['รหัสโครงงาน'] || '').toString();
                     if (pid) myProjectIds.push(pid);
                 }
             });
             myProjectIds = [...new Set(myProjectIds)];
 
             const filteredProjs = allProjs.filter(p => {
-                const keys = Object.keys(p);
-                const pid = keys.length > 4 ? p[keys[4]] : '';
+                const pid = (p['รหัสโครงงาน'] || '').toString();
                 return myProjectIds.includes(pid);
             });
             
@@ -316,8 +315,8 @@ export default function AdvisorDashboard() {
   };
 
   const projectIds = [...new Set(projectRows.map(p => {
-      const keys = Object.keys(p);
-      return keys.length > 4 ? p[keys[4]] : '';
+      // Use named key "รหัสโครงงาน" (col 5) not positional keys[4]
+      return (p['รหัสโครงงาน'] || '').toString();
   }).filter(id => id !== ""))];
 
   return (
@@ -375,18 +374,16 @@ export default function AdvisorDashboard() {
                                 ) : (
                                     projectIds.map((pid: any) => {
                                         const members = projectRows.filter(p => {
-                                            const keys = Object.keys(p);
-                                            return (keys.length > 4 ? p[keys[4]] : '') === pid;
+                                            return (p['รหัสโครงงาน'] || '') === pid;
                                         });
-                                        let projectNameTH = members.length > 0 ? (members[0] as any)['ชื่อโครงงาน'] || (members[0] as any)['projectname'] : "-";
-                                        if (!projectNameTH || projectNameTH === "-") {
-                                           let keys = members.length > 0 ? Object.keys(members[0]) : [];
-                                           if (keys.length > 17) projectNameTH = (members[0] as any)[keys[17]];
-                                        }
+                                        // "ชื่อโครงงาน " has a trailing space in the sheet
+                                        let projectNameTH = members.length > 0
+                                            ? (Object.entries(members[0]).find(([k]) => k.trim() === 'ชื่อโครงงาน')?.[1] || '') as string
+                                            : '-';
+                                        if (!projectNameTH) projectNameTH = '-';
 
                                         const memberIds = members.map(m => {
-                                            const keys = Object.keys(m);
-                                            return keys.length > 1 ? m[keys[1]] : '';
+                                            return (m['รหัสนักเรียน'] || '').toString();
                                         });
 
                                         const projectSubs = submissions.filter(s => (s['รหัสโครงงาน'] || '') === pid || memberIds.includes(s['รหัสนักเรียน'] || ''));
@@ -410,12 +407,14 @@ export default function AdvisorDashboard() {
                                                 </td>
                                                 <td className="px-3 py-3 align-top">
                                                     {members.length > 0 ? members.map((m: any) => {
-                                                        const keys = Object.keys(m);
-                                                        const mId = keys.length > 1 ? m[keys[1]] : '';
-                                                        const mFName = keys.length > 2 ? m[keys[2]] : '';
-                                                        const mLName = keys.length > 3 ? m[keys[3]] : '';
-                                                        const mPhone = (keys.length > 7 ? m[keys[7]] : '').replace(/'/g, '');
-                                                        const pic = (m['รูปโปรไฟล์'] || m['pic'] || `https://ui-avatars.com/api/?name=${encodeURIComponent(mFName)}&background=f0f0f0&color=1a1a1a`);
+                                                        const mId = (m['รหัสนักเรียน'] || '').toString();
+                                                        const mFName = (m['ชื่อ'] || '').toString();
+                                                        const mLName = (m['นามสกุล'] || '').toString();
+                                                        // Phone: key "เบอร์โทรศัพท์" may have trailing space
+                                                        const mPhone = (Object.entries(m).find(([k]) => k.trim() === 'เบอร์โทรศัพท์')?.[1] || '').toString().replace(/'/g, '');
+                                                        // Profile pic: key "รูปโปรไฟล์ " has trailing space
+                                                        const picRaw = (Object.entries(m).find(([k]) => k.trim() === 'รูปโปรไฟล์')?.[1] || '').toString();
+                                                        const pic = picRaw || `https://ui-avatars.com/api/?name=${encodeURIComponent(mFName)}&background=f0f0f0&color=1a1a1a`;
                                                         return (
                                                             <button key={mId} type="button" onClick={() => viewStudentPopup(`${mFName} ${mLName}`, mId, mPhone, pic)} className="w-full text-left flex items-center gap-2.5 mb-2.5 bg-neutral-50 dark:bg-neutral-800/60 p-2 sm:p-2.5 rounded-2xl border border-neutral-100 dark:border-neutral-700 btn-liquid transition-colors">
                                                                 <img src={pic} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-neutral-600 shadow-sm bg-white" loading="lazy" />
@@ -498,16 +497,18 @@ export default function AdvisorDashboard() {
                                                             const mTargetStuId = (item['รหัสนักเรียน'] || '').toLowerCase();
                                                             let groupMembers: any[] = [];
                                                             projectRows.forEach(p => {
-                                                                const keys = Object.keys(p);
-                                                                if ((keys.length > 4 ? p[keys[4]] : '').toLowerCase() === mProjId) {
-                                                                    const stuId = keys.length > 1 ? p[keys[1]] : '';
+                                                                if ((p['รหัสโครงงาน'] || '').toLowerCase() === mProjId) {
+                                                                    const stuId = (p['รหัสนักเรียน'] || '').toString();
                                                                     if (!groupMembers.find(m => m.id === stuId)) {
+                                                                        const firstName = (p['ชื่อ'] || '').toString();
+                                                                        const phoneVal = (Object.entries(p).find(([k]) => k.trim() === 'เบอร์โทรศัพท์')?.[1] || '').toString().replace(/'/g, '');
+                                                                        const picRaw = (Object.entries(p).find(([k]) => k.trim() === 'รูปโปรไฟล์')?.[1] || '').toString();
                                                                         groupMembers.push({
                                                                             id: stuId,
-                                                                            firstName: keys.length > 2 ? p[keys[2]] : '',
-                                                                            lastName: keys.length > 3 ? p[keys[3]] : '',
-                                                                            phone: (keys.length > 7 ? p[keys[7]] : '').replace(/'/g, ''),
-                                                                            picUrl: (p['รูปโปรไฟล์'] || p['pic'] || `https://ui-avatars.com/api/?name=${encodeURIComponent(keys.length > 2 ? p[keys[2]] : '')}&background=f0f0f0&color=1a1a1a`)
+                                                                            firstName,
+                                                                            lastName: (p['นามสกุล'] || '').toString(),
+                                                                            phone: phoneVal,
+                                                                            picUrl: picRaw || `https://ui-avatars.com/api/?name=${encodeURIComponent(firstName)}&background=f0f0f0&color=1a1a1a`
                                                                         });
                                                                     }
                                                                 }

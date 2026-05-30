@@ -7,11 +7,14 @@ import type { ProjectRow, SubmissionRow, SubmissionStatus, WorkType, ProjectInfo
 // ---------------------------------------------------------------
 // Object key lookup — fuzzy match by keyword list
 // Used extensively in old code as getVal(obj, ['keyword1', 'keyword2'])
+// NOTE: Keys are trimmed before comparison to handle trailing spaces
+// (e.g. "ชื่อโครงงาน " and "รูปโปรไฟล์ " from Google Sheets)
 // ---------------------------------------------------------------
 export function getVal(obj: Record<string, string | undefined | null>, keywords: string[]): string {
   let emptyMatch = '';
   for (const key in obj) {
-    const lowerKey = key.replace(/\s+/g, '').toLowerCase();
+    // Trim the key to handle trailing spaces from Google Sheets
+    const lowerKey = key.trim().replace(/\s+/g, '').toLowerCase();
     for (const word of keywords) {
       if (lowerKey.includes(word.toLowerCase())) {
         const value = obj[key] == null ? '' : String(obj[key]).trim();
@@ -137,10 +140,23 @@ export function getColByIndex(obj: ProjectRow, index: number): string {
 // ---------------------------------------------------------------
 // Parse a ProjectRow into structured ProjectInfo
 // Column indices match backend helpers.js getGroupInfo()
+// NOTE: Some Google Sheets column headers have trailing spaces
+// (e.g. "ชื่อโครงงาน " and "รูปโปรไฟล์ ") — we use fuzzy key lookup
+// to handle this gracefully alongside exact matches.
 // ---------------------------------------------------------------
 export function parseProjectRow(row: any): ProjectInfo {
-  // Helper to safely get and trim values
+  // Helper: get by exact key, trim value
   const get = (key: string) => String(row[key] ?? '').trim();
+
+  // Helper: fuzzy get — tries exact key first, then searches for key containing the string
+  const fuzzyGet = (exactKey: string): string => {
+    if (row[exactKey] != null && String(row[exactKey]).trim() !== '') return String(row[exactKey]).trim();
+    // Search keys for one that starts with or contains the exact key (handles trailing spaces)
+    for (const k of Object.keys(row)) {
+      if (k.trim() === exactKey.trim() && row[k] != null) return String(row[k]).trim();
+    }
+    return '';
+  };
 
   return {
     email: get('E-mail นักเรียน'),
@@ -149,14 +165,16 @@ export function parseProjectRow(row: any): ProjectInfo {
     lastName: get('นามสกุล'),
     projectId: get('รหัสโครงงาน'),
     advEmail: extractEmail(get('E-mail อ.ที่ปรึกษา')),
-    advName: extractName(get('อ. ที่ปรึกษา TH')), // Match the key from your log
+    advName: extractName(get('อ. ที่ปรึกษา TH')),
     coAdvEmail: extractEmail(get('E-mail อ.ที่ปรึกษาร่วม')),
     coAdvName: extractName(get('ที่ปรึกษาร่วม')),
     schAdvEmail: extractEmail(get('E-mail อ.ที่ปรึกษาโรงเรียน')),
     schAdvName: extractName(get('ที่ปรึกษา โรงเรียน')),
-    projectNameTH: get('ชื่อโครงงาน'),
+    // "ชื่อโครงงาน " has a trailing space in the Google Sheet header
+    projectNameTH: fuzzyGet('ชื่อโครงงาน'),
     phone: get('เบอร์โทรศัพท์').replace(/'/g, ''),
-    profileUrl: get('รูปโปรไฟล์'),
+    // "รูปโปรไฟล์ " has a trailing space in the Google Sheet header
+    profileUrl: fuzzyGet('รูปโปรไฟล์'),
   };
 }
 

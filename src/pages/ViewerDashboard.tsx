@@ -134,7 +134,8 @@ export default function ViewerDashboard() {
             id: stuId,
             firstName,
             lastName: getVal(p, ['นามสกุล', 'lastname']),
-            phone: getVal(p, ['เบอร์โทร', 'phone']).replace(/'/g, ''),
+            // Use "เบอร์โทรศัพท์" (full name) not "เบอร์โทร" (partial)
+            phone: getVal(p, ['เบอร์โทรศัพท์', 'เบอร์โทร', 'phone']).replace(/'/g, ''),
             picUrl,
           });
         }
@@ -257,8 +258,11 @@ export default function ViewerDashboard() {
                       const members = myAssignedProjects.filter(p => getVal(p, ['รหัสโครงงาน']) === pid);
                       let projectNameTH = members.length > 0 ? getVal(members[0], ['ชื่อโครงงาน', 'projectname']) : '-';
                       if (!projectNameTH || projectNameTH === '-') {
-                        const keys = Object.keys(members[0] || {});
-                        if (keys.length > 17) projectNameTH = (members[0] as any)[keys[17]];
+                        // Fallback: search for key that trims to "ชื่อโครงงาน" (handles trailing spaces)
+                        if (members.length > 0) {
+                          const entry = Object.entries(members[0]).find(([k]) => k.trim() === 'ชื่อโครงงาน');
+                          if (entry) projectNameTH = String(entry[1] || '').trim();
+                        }
                       }
 
                       const memberIds = members.map(m => getVal(m, ['รหัสนักเรียน', 'studentid']));
@@ -279,7 +283,7 @@ export default function ViewerDashboard() {
                               const mId = getVal(m, ['รหัสนักเรียน', 'studentid']);
                               const mFName = getVal(m, ['ชื่อ', 'firstname']);
                               const mLName = getVal(m, ['นามสกุล', 'lastname']);
-                              const mPhone = getVal(m, ['เบอร์โทร', 'phone']).replace(/'/g, '');
+                              const mPhone = getVal(m, ['เบอร์โทรศัพท์', 'เบอร์โทร', 'phone']).replace(/'/g, '');
                               const pic = getProcessedImgUrl(getVal(m, ['รูปโปรไฟล์']), mFName);
                               return (
                                 <button key={mId} type="button" onClick={() => viewStudentPopup(`${mFName} ${mLName}`, mId, mPhone, pic)} className="w-full text-left flex items-center gap-2.5 mb-2.5 bg-neutral-50 dark:bg-neutral-800/60 p-2 sm:p-2.5 rounded-2xl border border-neutral-100 dark:border-neutral-700 btn-liquid transition-colors">

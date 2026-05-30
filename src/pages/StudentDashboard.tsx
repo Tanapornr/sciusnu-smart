@@ -118,9 +118,8 @@ export default function StudentDashboard() {
       const res = await apiGetData(user.studentId);
       if (res.status === 'success') {
         const myRow = res.projects.find((p) => {
-          const keys = Object.keys(p);
-          const sId = keys.length > 1 ? p[keys[1]] : '';
-          return sId === user.studentId;
+          // Use named key "รหัสนักเรียน" instead of positional index
+          return (p['รหัสนักเรียน'] || '') === user.studentId;
         });
 
         if (!myRow) {
