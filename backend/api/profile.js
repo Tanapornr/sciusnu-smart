@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
             return res.status(400).json({ status: "error",
               message: "รหัสผ่านเดิมไม่ถูกต้อง กรุณาลองใหม่" });
           }
-          await updateCell("Sheet1", i + 1, passIdx + 1, "'" + data.newPassword);
+          await updateCell("Sheet1", i + 1, passIdx + 1, + data.newPassword);
         }
         if (data.phone)      await updateCell("Sheet1", i + 1, phoneIdx + 1, "'" + data.phone);
         if (data.profileUrl) await updateCell("Sheet1", i + 1, picIdx   + 1, data.profileUrl);

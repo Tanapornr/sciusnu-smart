@@ -203,9 +203,21 @@ export default function StudentDashboard() {
 
   const viewStudentPopup = (name: string, id: string, phoneStr: string, picUrl: string) => {
     Swal.fire({
-      html: `<div class="text-center pt-2"><img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-cyan-100 dark:border-neutral-800 shadow-md bg-white" loading="lazy"><h3 class="text-lg sm:text-xl font-bold text-neutral-800 dark:text-white leading-tight">${name}</h3><p class="text-sm text-neutral-400 dark:text-neutral-500 mb-5 mt-1 font-medium">รหัสประจำตัว: ${id}</p><div class="bg-cyan-50 dark:bg-cyan-950/40 rounded-2xl p-4 inline-block w-full border border-cyan-100 dark:border-cyan-900/50"><p class="text-[11px] sm:text-xs text-cyan-600 dark:text-cyan-400 mb-1.5 font-bold uppercase flex items-center justify-center"><i data-lucide="phone" class="w-4 h-4 mr-1.5 opacity-80"></i> เบอร์โทรติดต่อ</p><p class="text-lg font-bold text-cyan-800 dark:text-white tracking-wide">${phoneStr || 'ไม่มีข้อมูลติดต่อ'}</p></div></div>`,
+      width: 'min(90vw, 22rem)',
+      html: `<div class="text-center pt-2">
+                <img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-cyan-100 dark:border-neutral-800 shadow-md bg-white" loading="lazy">
+                    <h3 class="text-lg sm:text-xl font-bold text-neutral-800 dark:text-white leading-tight">${name}</h3>
+                    <p class="text-sm text-neutral-400 dark:text-neutral-500 mb-5 mt-1 font-medium">รหัสประจำตัว: ${id}</p>
+                    <div class="bg-cyan-50 dark:bg-cyan-950/40 rounded-2xl p-4 inline-block w-full border border-cyan-100 dark:border-cyan-900/50">
+                        <p class="text-[11px] sm:text-xs text-cyan-600 dark:text-cyan-400 mb-1.5 font-bold uppercase flex items-center justify-center">
+                            <svg class="w-4 h-4 mr-1.5 opacity-80" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                             เบอร์โทรติดต่อ
+                        </p>
+                        <p class="text-lg font-bold text-cyan-800 dark:text-white tracking-wide">${phoneStr || 'ไม่มีข้อมูลติดต่อ'}</p>
+                    </div>
+                </div>`,
       showConfirmButton: true, confirmButtonText: 'ปิดหน้าต่าง', buttonsStyling: false, 
-      customClass: { popup: 'rounded-[1.5rem] w-[90%] max-w-sm border border-neutral-100 dark:border-neutral-800 shadow-2xl', confirmButton: 'bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-3.5 px-8 rounded-full mt-4 hover:bg-neutral-900 transition-colors text-sm w-full btn-liquid' }, backdrop: `rgba(0, 0, 0, 0.4)`
+      customClass: { popup: 'rounded-[1.5rem] border border-neutral-100 dark:border-neutral-800 shadow-2xl', confirmButton: 'bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-3.5 px-8 rounded-full mt-4 hover:bg-neutral-900 transition-colors text-sm w-full btn-liquid' }, backdrop: `rgba(0, 0, 0, 0.4)`
     });
   };
 
@@ -380,7 +392,7 @@ export default function StudentDashboard() {
           payload.newPicData = picData;
           payload.newPicMime = picMime;
       }
-
+      console.log('Updating profile with payload:', payload);
       const res = await apiUpdateProfile(payload);
       if (res.status === 'success') {
           Swal.fire({ icon: 'success', title: '<div class="font-bold text-lg">บันทึกข้อมูลเรียบร้อย!</div>', showConfirmButton: false, timer: 1500, customClass: {popup: 'rounded-2xl'} }); 
