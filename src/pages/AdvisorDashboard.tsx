@@ -390,11 +390,34 @@ export default function AdvisorDashboard() {
 
                                         const getStatusBadge = (workType: string) => {
                                             const subs = projectSubs.filter(s => s['ประเภทงาน'] === workType);
-                                            if (subs.length === 0) return <span className="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-400 opacity-70 border border-neutral-200 dark:border-neutral-700">➖ ยังไม่ส่ง</span>;
+                                            const baseClasses = "inline-flex items-center justify-center px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold shadow-sm border w-[110px]";
+                                            if (subs.length === 0) {
+                                                return (
+                                                    <span className={`${baseClasses} bg-neutral-100 dark:bg-neutral-800 text-neutral-400 border-neutral-200 dark:border-neutral-700 opacity-70`}>
+                                                        ➖ ยังไม่ส่ง
+                                                    </span>
+                                                );
+                                            }
                                             const parsedStatus = parseSubmissionStatus(subs[subs.length - 1]['สถานะ']);
-                                            if (parsedStatus === 'อนุมัติ') return <span className="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-900/60 shadow-sm"><CheckCircle className="w-3.5 h-3.5 mr-1.5 opacity-80" /> อนุมัติ</span>;
-                                            if (parsedStatus === 'ไม่อนุมัติ') return <span className="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 flex items-center justify-center border border-rose-100 dark:border-rose-900/60 shadow-sm"><XCircle className="w-3.5 h-3.5 mr-1.5 opacity-80" /> ต้องแก้ไข</span>;
-                                            return <span className="px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center border border-amber-100 dark:border-amber-900/60 shadow-sm"><Clock3 className="w-3.5 h-3.5 mr-1.5 opacity-80" /> รอตรวจ</span>;
+                                            if (parsedStatus === 'อนุมัติ') {
+                                                return (
+                                                    <span className={`${baseClasses} bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/60`}>
+                                                        <CheckCircle className="w-3.5 h-3.5 mr-1.5 opacity-80" /> อนุมัติ
+                                                    </span>
+                                                );
+                                            }
+                                            if (parsedStatus === 'ไม่อนุมัติ') {
+                                                return (
+                                                    <span className={`${baseClasses} bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-100 dark:border-rose-900/60`}>
+                                                        <XCircle className="w-3.5 h-3.5 mr-1.5 opacity-80" /> ต้องแก้ไข
+                                                    </span>
+                                                );
+                                            }
+                                            return (
+                                                <span className={`${baseClasses} bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-900/60`}>
+                                                    <Clock3 className="w-3.5 h-3.5 mr-1.5 opacity-80" /> รอตรวจ
+                                                </span>
+                                            );
                                         };
 
                                         return (
