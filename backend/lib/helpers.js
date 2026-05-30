@@ -140,10 +140,18 @@ function getGroupInfo(displayData, actingStudentId) {
 /** Convert 2D Sheets array to array-of-objects (first row = header keys). */
 function rowsToObjects(rows) {
   if (!rows || rows.length <= 1) return [];
-  const headers = rows[0];
+  
+  // Clean headers: take only the part before the first parenthesis
+  const headers = rows[0].map(h => {
+    const str = String(h || "").trim();
+    return str.split('(')[0].trim(); // Splits "สถานะ (รออนุมัติ...)" into "สถานะ"
+  });
+
   return rows.slice(1).map((row) => {
     const obj = {};
-    headers.forEach((h, i) => { if (h) obj[String(h).trim()] = row[i] ?? ""; });
+    headers.forEach((h, i) => { 
+      if (h) obj[h] = row[i] ?? ""; 
+    });
     return obj;
   });
 }
