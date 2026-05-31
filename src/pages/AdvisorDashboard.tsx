@@ -48,7 +48,16 @@ export default function AdvisorDashboard() {
 
   const getMainAdvisorEmail = (projectRow: any) => {
     // Use named key "E-mail อ.ที่ปรึกษา" (col 8) instead of positional index
-    return (projectRow['E-mail อ.ที่ปรึกษา'] || '').toString().trim();
+    const namedEmail = Object.entries(projectRow).find(([key]) => key.trim() === 'E-mail อ.ที่ปรึกษา')?.[1];
+    if (namedEmail != null) return namedEmail.toString().trim();
+
+    const keys = Object.keys(projectRow);
+    return keys.length > 8 && projectRow[keys[8]] != null ? projectRow[keys[8]].toString().trim() : '';
+  };
+
+  const getProjectId = (row: any) => {
+    const namedProjectId = Object.entries(row).find(([key]) => key.trim() === 'รหัสโครงงาน')?.[1];
+    return (namedProjectId ?? row['projectid'] ?? '').toString().trim();
   };
 
   const isLoggedInMainAdvisor = (projectRow: any) => {
@@ -61,10 +70,9 @@ export default function AdvisorDashboard() {
     if (user?.role === 'admin') return true;
     if (user?.role !== 'advisor_main') return false;
 
-    const projectId = submission['รหัสโครงงาน'] || submission['projectid'] || '';
+    const projectId = getProjectId(submission).toLowerCase();
     const rows = projectRows.filter(p => {
-        const keys = Object.keys(p);
-        const pId = keys.length > 4 ? p[keys[4]] : '';
+        const pId = getProjectId(p).toLowerCase();
         return pId === projectId;
     });
 
@@ -503,6 +511,7 @@ export default function AdvisorDashboard() {
                                         else badge = <span className="px-3 py-1.5 rounded-lg text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 inline-flex items-center justify-center whitespace-nowrap"><Clock3 className="w-3.5 h-3.5 mr-1.5" />รอการตรวจ</span>;
 
                                         const fileUrl = getSubmissionFileUrl(item);
+                                        const canReview = canCurrentUserReviewSubmission(item);
 
                                         return (
                                             <tr key={idx}>
@@ -557,10 +566,10 @@ export default function AdvisorDashboard() {
                                                     {fileUrl ? <a href={fileUrl} target="_blank" className="btn-liquid text-orange-800 bg-orange-50 px-2 py-2 rounded-lg text-[10px] font-extrabold border border-orange-200 inline-flex items-center justify-center whitespace-nowrap hover:bg-orange-100 transition-colors"><ExternalLink className="w-3.5 h-3.5 mr-1" />เปิดไฟล์</a> : <span className="text-neutral-300 text-xs">-</span>}
                                                 </td>
                                                 <td className="px-2 py-4 text-center align-middle">
-                                                    {canCurrentUserReviewSubmission(item) ? (
-                                                        <div className="grid gap-[0.4rem]">
-                                                            <button type="button" onClick={() => openActionModal(studentIdStr, workType, status, reviewReason, 'อนุมัติ')} className="w-full min-h-[2.15rem] rounded-full border border-emerald-200 bg-gradient-to-b from-white to-emerald-50 text-emerald-700 shadow-sm font-bold text-[0.62rem] inline-flex items-center justify-center gap-1 transition-transform hover:-translate-y-[1px] active:scale-95"><Check className="w-3.5 h-3.5" /><span>อนุมัติ</span></button>
-                                                            <button type="button" onClick={() => openActionModal(studentIdStr, workType, status, reviewReason, 'ไม่อนุมัติ')} className="w-full min-h-[2.15rem] rounded-full border border-rose-200 bg-gradient-to-b from-white to-rose-50 text-rose-700 shadow-sm font-bold text-[0.62rem] inline-flex items-center justify-center gap-1 transition-transform hover:-translate-y-[1px] active:scale-95"><X className="w-3.5 h-3.5" /><span>ไม่อนุมัติ</span></button>
+                                                    {canReview ? (
+                                                        <div className="review-actions">
+                                                            <button type="button" onClick={() => openActionModal(studentIdStr, workType, status, reviewReason, 'อนุมัติ')} className="review-action-btn approve"><Check className="w-3.5 h-3.5" /><span>อนุมัติ</span></button>
+                                                            <button type="button" onClick={() => openActionModal(studentIdStr, workType, status, reviewReason, 'ไม่อนุมัติ')} className="review-action-btn reject"><X className="w-3.5 h-3.5" /><span>ไม่อนุมัติ</span></button>
                                                         </div>
                                                     ) : (
                                                         <span className="text-neutral-400 bg-neutral-50 px-2 py-2 rounded-lg text-[10px] font-bold border border-neutral-200 inline-flex items-center justify-center whitespace-nowrap"><Eye className="w-3.5 h-3.5 mr-1" />ดูเท่านั้น</span>
