@@ -355,7 +355,7 @@ export default function AdvisorDashboard() {
         {!loading && (
             <>
                 {/* ── Overview Section ── */}
-                <div className="glass-panel rounded-[2rem] p-4 sm:p-7 relative overflow-hidden">
+                <div id="overviewSection" className="glass-panel rounded-[2rem] p-4 sm:p-7 relative overflow-hidden">
                     <h2 className="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><BarChart2 className="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-orange-500" /> ภาพรวมสถานะโครงงานของกลุ่มที่คุณดูแล</h2>
                     <div className="table-fit-wrap w-full pb-2 overflow-x-hidden">
                         <table className="data-table advisor-table w-full text-left">

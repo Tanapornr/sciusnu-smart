@@ -459,6 +459,21 @@ input[type='file']::file-selector-button:hover {
   border-color: var(--review-btn-reject-border);
 }
 
+#overviewSection .advisor-table {
+  table-layout: auto;
+}
+
+#overviewSection .advisor-table th:nth-child(n+3),
+#overviewSection .advisor-table td:nth-child(n+3) {
+  width: 1%;
+  white-space: nowrap;
+}
+
+#overviewSection .advisor-table th:nth-child(-n+2),
+#overviewSection .advisor-table td:nth-child(-n+2) {
+  width: auto;
+}
+
 #allWorksSection .table-fit-wrap {
   overflow-x: hidden;
   width: 100%;
