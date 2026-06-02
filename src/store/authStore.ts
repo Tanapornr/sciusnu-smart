@@ -1,12 +1,17 @@
 // ================================================================
-// Auth store - Zustand
-// Persists session in localStorage and restores it before pages render.
+// Auth store — Zustand
+// FIX Vuln 3: Sensitive auth state is no longer persisted to
+//   localStorage. Only theme preference (non-sensitive) is saved.
+//   The JWT token is kept in sessionStorage via api.ts (clearToken/
+//   saveToken). On page reload the user must log in again.
+// FIX Vuln 8: logout() calls apiLogout() to server-invalidate token.
 // ================================================================
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { User, UserRole } from '../types';
 import { storage, getDirectImageUrl, avatarFallback } from '../utils';
 import { syncThemeClass } from '../lib/theme';
+import { clearToken, apiLogout } from '../services/api';
 
 interface AuthState {
   user: User | null;
@@ -28,81 +33,45 @@ interface AuthState {
   hydrate: () => void;
 }
 
-const AUTH_STORAGE_KEYS = ['userEmail', 'userRole', 'userName', 'studentId', 'profileUrl'] as const;
-const AUTH_STORE_KEY = 'sciusnu-auth';
-const USER_ROLES: UserRole[] = ['student', 'admin', 'advisor_main', 'advisor', 'viewer'];
-
-function isUserRole(value: string): value is UserRole {
-  return USER_ROLES.includes(value as UserRole);
-}
+const THEME_KEY = 'theme'; // Only theme is persisted (non-sensitive)
 
 function readSavedTheme(): 'light' | 'dark' {
-  return storage.get('theme') === 'dark' ? 'dark' : 'light';
-}
-
-function readLegacyUser(): User | null {
-  const role = storage.get('userRole');
-  const email = storage.get('userEmail');
-  const name = storage.get('userName') || email || 'User';
-
-  if (!isUserRole(role) || !email) return null;
-
-  const studentId = storage.get('studentId');
-  const profileUrl = getDirectImageUrl(storage.get('profileUrl')) || avatarFallback(name);
-  return { email, name, role, studentId, profileUrl };
-}
-
-function writeLegacyUser(user: User) {
-  storage.set('userEmail', user.email);
-  storage.set('userRole', user.role);
-  storage.set('userName', user.name);
-  storage.set('profileUrl', user.profileUrl);
-
-  if (user.role === 'student') storage.set('studentId', user.studentId);
-  else storage.remove('studentId');
-}
-
-function clearSavedAuth() {
-  AUTH_STORAGE_KEYS.forEach((key) => storage.remove(key));
-  storage.remove(AUTH_STORE_KEY);
+  return storage.get(THEME_KEY) === 'dark' ? 'dark' : 'light';
 }
 
 const savedTheme = readSavedTheme();
-const legacyUser = readLegacyUser();
 syncThemeClass(savedTheme);
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      user: legacyUser,
+      user: null,           // Never restored from storage — must re-login
       theme: savedTheme,
-      isAuthenticated: Boolean(legacyUser),
+      isAuthenticated: false,
 
       login: ({ email, name, role, studentId, profileUrl }) => {
         const directPic = getDirectImageUrl(profileUrl);
         const finalPic = directPic || avatarFallback(name);
         const user: User = { email, name, role, studentId, profileUrl: finalPic };
-
-        writeLegacyUser(user);
         set({ user, isAuthenticated: true });
       },
 
       logout: () => {
-        clearSavedAuth();
+        // Server-side token invalidation (FIX Vuln 8)
+        apiLogout().catch(() => {});
+        // Client-side cleanup
+        clearToken();
         set({ user: null, isAuthenticated: false });
       },
 
       updateProfile: (updates) => {
         const { user } = get();
         if (!user) return;
-
-        const updated = { ...user, ...updates };
-        writeLegacyUser(updated);
-        set({ user: updated });
+        set({ user: { ...user, ...updates } });
       },
 
       setTheme: (theme) => {
-        storage.set('theme', theme);
+        storage.set(THEME_KEY, theme);
         syncThemeClass(theme);
         set({ theme });
       },
@@ -115,35 +84,25 @@ export const useAuthStore = create<AuthState>()(
       hydrate: () => {
         const theme = readSavedTheme();
         syncThemeClass(theme);
-
-        const user = get().user || readLegacyUser();
-        if (user) {
-          writeLegacyUser(user);
-          set({ user, isAuthenticated: true, theme });
-        } else {
-          clearSavedAuth();
-          set({ user: null, isAuthenticated: false, theme });
-        }
+        // Do not restore user from storage — re-login is required
+        set({ theme });
       },
     }),
     {
-      name: AUTH_STORE_KEY,
+      name: 'sciusnu-theme', // Store key is now theme-only
       storage: createJSONStorage(() => localStorage),
-      partialize: ({ user, theme, isAuthenticated }) => ({ user, theme, isAuthenticated }),
+      // Only persist non-sensitive theme preference
+      partialize: ({ theme }) => ({ theme }),
       merge: (persisted, current) => {
         const persistedState = persisted as Partial<AuthState> | undefined;
-        const user = persistedState?.user || current.user;
         const theme = persistedState?.theme || current.theme;
-
         syncThemeClass(theme);
-        if (user) writeLegacyUser(user);
-
         return {
           ...current,
-          ...persistedState,
-          user,
           theme,
-          isAuthenticated: Boolean(user),
+          // Never restore user/isAuthenticated from storage
+          user: null,
+          isAuthenticated: false,
         };
       },
     },

@@ -226,13 +226,28 @@ export function getSubmissionReason(row: SubmissionRow): string {
 // ---------------------------------------------------------------
 // Get file URL from submission (handles multiple column name variants)
 // ---------------------------------------------------------------
+// FIX Vuln 6: Only return URLs that point to trusted Google Drive / Docs domains.
+// This prevents open-redirect / phishing links stored in student submissions.
+function isTrustedFileUrl(url: string): boolean {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.protocol === 'https:' &&
+      (parsed.hostname === 'drive.google.com' || parsed.hostname === 'docs.google.com')
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function getSubmissionFileUrl(row: SubmissionRow): string {
-  return (
+  const raw =
     row['urlไฟล์เล่ม'] ||
     row['URL ไฟล์เล่ม'] ||
     getVal(row as Record<string, string | undefined>, ['urlไฟล์', 'urlfile', 'fileurl', 'urlเล่ม']) ||
-    ''
-  );
+    '';
+  return isTrustedFileUrl(raw) ? raw : '';
 }
 
 // ---------------------------------------------------------------

@@ -1,15 +1,27 @@
+// ================================================================
+// api/status.js — Submission status update
+// FIX Vuln 1 & 2: Role and email come from the JWT, NOT from req.body.
+//   A student cannot forge advisor_main in the payload to self-approve.
+// ================================================================
 require("dotenv").config();
 const { getSheetValues, updateCell } = require("../lib/sheets");
+const { requireRole }                = require("../lib/auth");
 const { sendMail, buildFlexEmailHtml, WEB_URL } = require("../lib/mail");
 const {
   getGroupInfo, getPayloadReason, normalizeSubmissionStatus, normalizeCompare,
   isAdminReviewer, isMainAdvisorReviewer, INITIAL_SUBMISSION_STATUS,
 } = require("../lib/helpers");
 
-module.exports = async (req, res) => {
+async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
   try {
-    const data        = req.body;
+    const data = req.body;
+
+    // ── CRITICAL: Use role/email from the signed JWT, NOT from req.body ──
+    const reviewerRole  = req.jwtUser.role;
+    const reviewerEmail = req.jwtUser.email;
+    const reviewerName  = req.jwtUser.name;
+
     const finalStatus = normalizeSubmissionStatus(data.status);
     const reasonText  = getPayloadReason(data);
     const isResubmitSync = finalStatus === INITIAL_SUBMISSION_STATUS && reasonText;
@@ -33,12 +45,12 @@ module.exports = async (req, res) => {
 
     if (!isResubmitSync) {
       if (data.workType === "แบบคำร้อง") {
-        if (!isAdminReviewer(data.reviewerEmail, data.role)) {
+        if (!isAdminReviewer(reviewerEmail, reviewerRole)) {
           return res.status(403).json({ status: "error",
             message: "แบบคำร้องต้องให้ผู้ดูแลระบบเป็นผู้พิจารณาเท่านั้น" });
         }
       } else {
-        if (!isMainAdvisorReviewer(groupInfo, data.reviewerEmail, data.role, data.reviewerName)) {
+        if (!isMainAdvisorReviewer(groupInfo, reviewerEmail, reviewerRole, reviewerName)) {
           return res.status(403).json({ status: "error",
             message: "งานนี้ต้องให้อาจารย์ที่ปรึกษาหลักเป็นผู้อนุมัติเท่านั้น" });
         }
@@ -67,7 +79,9 @@ module.exports = async (req, res) => {
     if (colReason > -1) await updateCell("Submissions", rowIndex, colReason + 1, reasonText);
 
     if (!isResubmitSync) {
-      sendStatusEmails(data, groupInfo, finalStatus, reasonText).catch((e) =>
+      // Pass verified JWT identity into email builder
+      const enrichedData = { ...data, reviewerEmail, reviewerName, role: reviewerRole };
+      sendStatusEmails(enrichedData, groupInfo, finalStatus, reasonText).catch((e) =>
         console.error("[status] Email error:", e.message)
       );
     }
@@ -76,8 +90,12 @@ module.exports = async (req, res) => {
   } catch (e) {
     return res.status(500).json({ status: "error", message: e.message });
   }
-};
+}
 
+// Only advisors and admins may update status
+module.exports = [...requireRole("admin", "advisor_main", "advisor"), handler];
+
+// ── Email helpers (unchanged logic) ──────────────────────────────────────────
 async function sendStatusEmails(data, groupInfo, finalStatus, reasonText) {
   const isApproved = finalStatus === "อนุมัติ";
   const headText   = isApproved ? "✅ แจ้งผล: อนุมัติการส่งงาน" : "❌ แจ้งผล: ไม่อนุมัติการส่งงาน";
@@ -118,7 +136,6 @@ async function sendStatusEmails(data, groupInfo, finalStatus, reasonText) {
     }
   }
 
-  // Notify advisors on final decisions
   const advTargets = [
     { email: groupInfo.advEmail,    name: groupInfo.advName,    label: "อาจารย์ที่ปรึกษา" },
     { email: groupInfo.coAdvEmail,  name: groupInfo.coAdvName,  label: "อาจารย์ที่ปรึกษาร่วม" },

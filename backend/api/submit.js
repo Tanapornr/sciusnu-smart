@@ -1,10 +1,12 @@
+// FIX Vuln 1: Only authenticated students may submit work.
 require("dotenv").config();
 const { getSheetValues, appendRow, updateRowCells, ensureSubmissionsSheet } = require("../lib/sheets");
 const { trashFile, extractFileId } = require("../lib/drive");
 const { sendMail, buildFlexEmailHtml, WEB_URL } = require("../lib/mail");
 const { getGroupInfo, getPayloadReason, INITIAL_SUBMISSION_STATUS, ADMIN_EMAILS } = require("../lib/helpers");
+const { requireRole } = require("../lib/auth");
 
-module.exports = async (req, res) => {
+async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
   try {
     await ensureSubmissionsSheet();
@@ -88,7 +90,10 @@ module.exports = async (req, res) => {
   } catch (e) {
     return res.status(500).json({ status: "error", message: e.message });
   }
-};
+}
+
+// Only authenticated students may submit
+module.exports = [...requireRole("student"), handler];
 
 async function sendSubmitEmails(data, projectRows) {
   const groupInfo    = getGroupInfo(projectRows, data.studentId);

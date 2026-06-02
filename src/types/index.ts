@@ -13,6 +13,7 @@ export interface AuthResult {
   studentId: string;
   profileUrl: string;
   message?: string;
+  token?: string; // JWT issued on successful login
 }
 
 export interface User {
@@ -127,6 +128,8 @@ export interface SubmitPayload {
 
 // ---------------------------------------------------------------
 // Status update payload sent to /api/status
+// FIX Vuln 2: reviewer identity (role/email/name) is derived by the
+// server from the JWT — never sent by the client.
 // ---------------------------------------------------------------
 export interface StatusPayload {
   studentId: string;
@@ -134,9 +137,6 @@ export interface StatusPayload {
   workType: WorkType;
   status: 'อนุมัติ' | 'ไม่อนุมัติ';
   reason?: string;
-  reviewerEmail: string;
-  reviewerName: string;
-  role: UserRole;
 }
 
 // ---------------------------------------------------------------

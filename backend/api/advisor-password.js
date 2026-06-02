@@ -1,15 +1,29 @@
+// ================================================================
+// api/advisor-password.js — Advisor password change
+// FIX Vuln 5: Backend verifies oldPassword; role from JWT only.
+// FIX Vuln 1: requireRole ensures only advisors can call this.
+// ================================================================
 require("dotenv").config();
 const { getSheetValues, updateCell } = require("../lib/sheets");
+const { requireRole }                = require("../lib/auth");
 
-module.exports = async (req, res) => {
+async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
   try {
-    const { role, email, oldPassword, newPassword } = req.body;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ status: "error", message: "กรุณากรอกรหัสผ่านให้ครบถ้วน" });
+    }
+
+    // Role and email come from the verified JWT — never from req.body
+    const role  = req.jwtUser.role;
+    const email = req.jwtUser.email;
 
     let emailCol, passCol;
     if (role === "advisor_main") { emailCol = 8;  passCol = 21; }
     else if (role === "advisor") { emailCol = 12; passCol = 22; }
-    else return res.status(400).json({ status: "error", message: "สถานะอาจารย์ไม่ถูกต้อง" });
+    else return res.status(403).json({ status: "error", message: "สถานะอาจารย์ไม่ถูกต้อง" });
 
     const rows = await getSheetValues("Sheet1");
     let found = false;
@@ -29,4 +43,6 @@ module.exports = async (req, res) => {
   } catch (e) {
     return res.status(500).json({ status: "error", message: e.message });
   }
-};
+}
+
+module.exports = [...requireRole("advisor_main", "advisor"), handler];

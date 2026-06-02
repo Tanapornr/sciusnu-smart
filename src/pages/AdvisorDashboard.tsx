@@ -154,8 +154,6 @@ export default function AdvisorDashboard() {
 
     try {
       const res = await apiUpdateAdvisorPassword({
-        email: user.email,
-        role: user?.role || 'advisor',
         oldPassword,
         newPassword,
       });
@@ -232,9 +230,6 @@ export default function AdvisorDashboard() {
                         projectId: targetSubmission['รหัสโครงงาน'] || targetSubmission['รหัสกลุ่ม'] || '',
                         workType: workType as WorkType,
                         status: 'อนุมัติ',
-                        reviewerEmail: user?.email || '',
-                        reviewerName: user?.name || '',
-                        role: user?.role || 'advisor'
                     });
                     if (res.status === 'success') {
                         Swal.fire({ icon: 'success', title: 'อนุมัติสำเร็จ!', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-[1.5rem]' } });
@@ -281,9 +276,6 @@ export default function AdvisorDashboard() {
                         workType: workType as WorkType,
                         status: 'ไม่อนุมัติ',
                         reason: result.value,
-                        reviewerEmail: user?.email || '',
-                        reviewerName: user?.name || '',
-                        role: user?.role || 'advisor'
                     });
                     if (res.status === 'success') {
                         Swal.fire({ icon: 'success', title: 'ส่งคำขอแก้ไขเรียบร้อย', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-[1.5rem]' } });

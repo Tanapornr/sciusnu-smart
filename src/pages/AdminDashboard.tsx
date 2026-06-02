@@ -33,11 +33,19 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const isValidFileUrl = (url: any) => {
+  // FIX Vuln 6: Only allow Google Drive file URLs to prevent open redirect / phishing.
+  const isValidFileUrl = (url: any): boolean => {
     const value = (url || '').toString().trim();
-    if (!value || value === '-') return false;
-    const lower = value.toLowerCase();
-    return lower !== 'undefined' && lower !== 'null';
+    if (!value || value === '-' || value === 'undefined' || value === 'null') return false;
+    try {
+      const parsed = new URL(value);
+      return (
+        parsed.protocol === 'https:' &&
+        (parsed.hostname === 'drive.google.com' || parsed.hostname === 'docs.google.com')
+      );
+    } catch {
+      return false;
+    }
   };
 
   const getProcessedImgUrl = (url: any, studentName: string) => {
@@ -221,9 +229,6 @@ export default function AdminDashboard() {
             workType: workType as WorkType,
             status: newStatus as any,
             reason: reasonText,
-            reviewerEmail: user?.email || '',
-            reviewerName: user?.name || '',
-            role: user?.role || 'admin'
         });
         if (res.status === 'success') { 
             await Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500, customClass: { popup: 'swal-admin' } }); 

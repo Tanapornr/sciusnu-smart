@@ -1,7 +1,15 @@
+// ================================================================
+// Login.tsx
+// FIX Vuln 1: Role comes exclusively from the server-signed JWT.
+//   The client-side "isMainAdvisorEmail" re-check that could
+//   downgrade/upgrade a role is removed — the backend decides.
+// FIX Vuln 7: Rate limiting is now enforced server-side; the UI
+//   just disables the button during the in-flight request.
+// ================================================================
 import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { apiLogin, apiGetData } from '../services/api';
+import { apiLogin } from '../services/api';
 import { getDirectImageUrl } from '../utils';
 import { User, Lock, Eye, EyeOff, BookOpen, LogIn, Moon, Sun } from 'lucide-react';
 import Swal from 'sweetalert2';
@@ -21,32 +29,6 @@ export default function Login() {
     setShowPassword(!showPassword);
   };
 
-  const getMainAdvisorEmail = (project: any) => {
-    const keys = Object.keys(project);
-    return keys.length > 8 && project[keys[8]] != null ? project[keys[8]].toString().trim() : "";
-  };
-
-  const isMainAdvisorEmail = async (email: string) => {
-    const targetEmail = String(email || '').trim().toLowerCase();
-    if (!targetEmail) return false;
-
-    try {
-      const data = await apiGetData();
-      const projects = data.projects || [];
-      return projects.some((project: any) => {
-        const advisorEmail = getMainAdvisorEmail(project);
-        return advisorEmail.toLowerCase() === targetEmail;
-      });
-    } catch (error) {
-      console.warn('Cannot verify main advisor email', error);
-      return false;
-    }
-  };
-
-  const normalizeRole = (role: string) => {
-    return String(role || '').trim().toLowerCase();
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!username.trim() || !password.trim()) {
@@ -59,28 +41,19 @@ export default function Login() {
       title: 'กำลังตรวจสอบข้อมูล...',
       allowOutsideClick: false,
       didOpen: () => { Swal.showLoading(); },
-      customClass: { 
+      customClass: {
         popup: 'rounded-[2rem] p-6 w-[80%] max-w-sm',
-        title: 'text-lg font-bold text-slate-700 dark:text-slate-200 mt-2' 
+        title: 'text-lg font-bold text-slate-700 dark:text-slate-200 mt-2'
       }
     });
 
     try {
       const result = await apiLogin(username.trim(), password.trim());
-      
+
       if (result.status === 'success') {
-        const normalizedRole = normalizeRole(result.role);
-        let finalRole = normalizedRole;
-        if (normalizedRole === 'admin' || normalizedRole === 'student') {
-          finalRole = normalizedRole;
-        } else {
-          const isMainAdvisor = await isMainAdvisorEmail(result.email);
-          if (isMainAdvisor) {
-            finalRole = 'advisor_main';
-          } else {
-            finalRole = 'viewer';
-          }
-        }
+        // FIX Vuln 1: Use the role the server returned (embedded in JWT).
+        // Do NOT re-derive or override it on the client.
+        const finalRole = String(result.role || '').trim().toLowerCase();
 
         const directPicUrl = getDirectImageUrl(result.profileUrl);
         const fallbackPic = `https://ui-avatars.com/api/?name=${encodeURIComponent(result.name)}&background=random`;
@@ -113,12 +86,12 @@ export default function Login() {
       } else {
         throw new Error(result.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
       }
-    } catch (error: any) { 
-      Swal.fire({ 
-        icon: 'error', 
-        title: 'เข้าสู่ระบบล้มเหลว', 
-        text: error.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 
-        confirmButtonColor: '#f97316', 
+    } catch (error: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'เข้าสู่ระบบล้มเหลว',
+        text: error.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
+        confirmButtonColor: '#f97316',
         customClass: { popup: 'rounded-[2rem] p-5 w-[90%] max-w-sm' }
       });
     } finally {
@@ -143,7 +116,7 @@ export default function Login() {
       </button>
 
       <div className="w-full max-w-md p-6 sm:p-8 rounded-[2rem] glass-panel relative z-10">
-        
+
         <div className="text-center mb-8">
             <div className="w-20 h-20 bg-gradient-to-tr from-orange-500 to-amber-400 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-orange-500/30 mb-4 transform hover:scale-105 transition-transform duration-300">
                 <BookOpen className="w-10 h-10 text-white" />
@@ -157,28 +130,28 @@ export default function Login() {
                 <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 ml-1">ชื่อผู้ใช้ / รหัสนักเรียน</label>
                 <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><User className="w-5 h-5 opacity-80" /></div>
-                    <input 
-                      type="text" 
-                      id="username" 
-                      placeholder="กรอกข้อมูลที่นี่..." 
-                      required 
+                    <input
+                      type="text"
+                      id="username"
+                      placeholder="กรอกข้อมูลที่นี่..."
+                      required
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       disabled={isLoading}
-                      className="w-full pl-11 pr-4 py-3.5 text-sm sm:text-base rounded-xl glass-input outline-none transition-all font-medium placeholder-slate-400" 
+                      className="w-full pl-11 pr-4 py-3.5 text-sm sm:text-base rounded-xl glass-input outline-none transition-all font-medium placeholder-slate-400"
                     />
                 </div>
             </div>
-            
+
             <div className="mb-8">
                 <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 ml-1">รหัสผ่าน</label>
                 <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><Lock className="w-5 h-5 opacity-80" /></div>
-                    <input 
-                      type={showPassword ? 'text' : 'password'} 
-                      id="password" 
-                      placeholder="••••••••" 
-                      required 
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      id="password"
+                      placeholder="••••••••"
+                      required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       disabled={isLoading}

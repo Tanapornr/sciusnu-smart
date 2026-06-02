@@ -1,7 +1,9 @@
+// FIX Vuln 1: Only authenticated users may get a Drive upload URL.
 require("dotenv").config();
 const { getResumableUploadUrl } = require("../lib/drive");
+const { requireAuth }           = require("../lib/auth");
 
-module.exports = async (req, res) => {
+async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
   try {
     const { fileName, mimeType } = req.body;
@@ -17,4 +19,6 @@ module.exports = async (req, res) => {
   } catch (e) {
     return res.status(500).json({ status: "error", message: e.message });
   }
-};
+}
+
+module.exports = [requireAuth, handler];
