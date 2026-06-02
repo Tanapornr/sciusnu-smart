@@ -1,11 +1,8 @@
 const INITIAL_SUBMISSION_STATUS = "รออนุมัติ";
 
-const ADMIN_EMAILS = [
-  "suparinthona@nu.ac.th",
-  "sujittrap@nu.ac.th",
-  "phanupongc@nu.ac.th",
-  "arunothaik@nu.ac.th",
-];
+const ADMIN_EMAILS = process.env.ADMIN_EMAILS 
+  ? process.env.ADMIN_EMAILS.split(',') 
+  : [];
 
 function normalizeSubmissionStatus(status) {
   const s = String(status || "").trim().toLowerCase();
