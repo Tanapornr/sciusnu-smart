@@ -123,6 +123,30 @@ html.page-login .swal2-popup {
   color: #ef4444;
 }
 
+.swal-admin.swal2-popup .swal2-icon.swal2-error .swal2-x-mark {
+  position: absolute;
+  inset: 0;
+  flex-grow: 0;
+}
+
+.swal-admin.swal2-popup .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  width: 34px;
+  height: 4px;
+  margin: 0;
+  transform-origin: center;
+}
+
+.swal-admin.swal2-popup .swal2-icon.swal2-error .swal2-x-mark-line-left {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.swal-admin.swal2-popup .swal2-icon.swal2-error .swal2-x-mark-line-right {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
 .swal-admin.swal2-popup .swal2-icon.swal2-warning {
   background-color: #fef08a;
   color: #eab308;
