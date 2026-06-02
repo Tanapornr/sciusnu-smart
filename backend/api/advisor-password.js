@@ -25,7 +25,7 @@ async function handler(req, res) {
     else if (role === "advisor") { emailCol = 12; passCol = 22; }
     else return res.status(403).json({ status: "error", message: "สถานะอาจารย์ไม่ถูกต้อง" });
 
-    const rows = await getSheetValues("Sheet1");
+    const rows = await getSheetValues("TEST_DEV");
     let found = false;
 
     for (let i = 1; i < rows.length; i++) {
@@ -33,7 +33,7 @@ async function handler(req, res) {
         if ((rows[i][passCol] || "").trim() !== String(oldPassword).trim()) {
           return res.status(400).json({ status: "error", message: "รหัสผ่านเดิมไม่ถูกต้อง" });
         }
-        await updateCell("Sheet1", i + 1, passCol + 1, "'" + newPassword);
+        await updateCell("TEST_DEV", i + 1, passCol + 1, "'" + newPassword);
         found = true;
       }
     }

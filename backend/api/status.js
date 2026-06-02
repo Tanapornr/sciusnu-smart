@@ -31,7 +31,7 @@ async function handler(req, res) {
         message: "กรุณาเลือกผลการพิจารณา อนุมัติ หรือ ไม่อนุมัติ" });
     }
 
-    const projectRows = await getSheetValues("Sheet1");
+    const projectRows = await getSheetValues("TEST_DEV");
     const subRows     = await getSheetValues("Submissions");
     const headers     = subRows[0] || [];
 

@@ -14,7 +14,7 @@ async function handler(req, res) {
     // Email always comes from the JWT — never trust client-supplied email
     const email = req.jwtUser.email;
 
-    const rows     = await getSheetValues("Sheet1");
+    const rows     = await getSheetValues("TEST_DEV");
     const emailIdx = 0, passIdx = 18, phoneIdx = 19, picIdx = 20;
 
     let found = false;
@@ -25,10 +25,10 @@ async function handler(req, res) {
             return res.status(400).json({ status: "error",
               message: "รหัสผ่านเดิมไม่ถูกต้อง กรุณาลองใหม่" });
           }
-          await updateCell("Sheet1", i + 1, passIdx + 1, + newPassword);
+          await updateCell("TEST_DEV", i + 1, passIdx + 1, + newPassword);
         }
-        if (phone)      await updateCell("Sheet1", i + 1, phoneIdx + 1, "'" + phone);
-        if (profileUrl) await updateCell("Sheet1", i + 1, picIdx   + 1, profileUrl);
+        if (phone)      await updateCell("TEST_DEV", i + 1, phoneIdx + 1, "'" + phone);
+        if (profileUrl) await updateCell("TEST_DEV", i + 1, picIdx   + 1, profileUrl);
         found = true;
         break;
       }

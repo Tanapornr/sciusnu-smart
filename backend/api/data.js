@@ -16,7 +16,7 @@ async function handler(req, res) {
   try {
     await ensureSubmissionsSheet();
 
-    const projectRows = await getSheetValues("Sheet1");
+    const projectRows = await getSheetValues("TEST_DEV");
     const subRows     = await getSheetValues("Submissions");
 
     // Strip all password columns before any further processing

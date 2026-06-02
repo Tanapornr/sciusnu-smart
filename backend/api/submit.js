@@ -15,7 +15,7 @@ async function handler(req, res) {
     // { studentId, firstName, lastName, projectId, workType,
     //   advisorName, file1Url, file2Url?, reason? }
 
-    const projectRows = await getSheetValues("Sheet1");
+    const projectRows = await getSheetValues("TEST_DEV");
     const subRows     = await getSheetValues("Submissions");
     const headers     = subRows[0] || [];
 

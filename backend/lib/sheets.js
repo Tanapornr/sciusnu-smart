@@ -17,7 +17,7 @@ async function getSheetsClient() {
 }
 
 /** Returns 2D array (first row = headers). Empty sheet → []. */
-async function getSheetValues(sheetName = "Sheet1") {
+async function getSheetValues(sheetName = "TEST_DEV") {
   const sheets = await getSheetsClient();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: process.env.SPREADSHEET_ID,

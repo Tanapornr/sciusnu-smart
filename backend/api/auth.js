@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    const data = await getSheetValues("Sheet1");
+    const data = await getSheetValues("TEST_DEV");
 
     for (let i = 1; i < data.length; i++) {
       const r = data[i];
