@@ -26,6 +26,13 @@ interface AuthState {
     studentId: string;
     profileUrl: string;
   }) => void;
+  restoreSession: (data: {
+    email: string;
+    name: string;
+    role: UserRole;
+    studentId: string;
+    profileUrl?: string;
+  }) => void;
   logout: () => void;
   updateProfile: (updates: Partial<Pick<User, 'profileUrl'>>) => void;
   setTheme: (theme: 'light' | 'dark') => void;
@@ -50,6 +57,13 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       login: ({ email, name, role, studentId, profileUrl }) => {
+        const directPic = getDirectImageUrl(profileUrl);
+        const finalPic = directPic || avatarFallback(name);
+        const user: User = { email, name, role, studentId, profileUrl: finalPic };
+        set({ user, isAuthenticated: true });
+      },
+
+      restoreSession: ({ email, name, role, studentId, profileUrl = '' }) => {
         const directPic = getDirectImageUrl(profileUrl);
         const finalPic = directPic || avatarFallback(name);
         const user: User = { email, name, role, studentId, profileUrl: finalPic };

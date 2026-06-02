@@ -11,6 +11,7 @@ const rateLimit   = require("express-rate-limit");
 const { verifyToken } = require("./lib/auth");
 
 const auth            = require("./api/auth");
+const session         = require("./api/session");
 const data            = require("./api/data");
 const driveUploadUrl  = require("./api/drive-upload-url");
 const submit          = require("./api/submit");
@@ -71,6 +72,7 @@ const loginLimiter = rateLimit({
 
 // ── Routes ───────────────────────────────────────────────────────
 app.post("/api/auth",             loginLimiter, auth);
+app.get( "/api/session",          ...(Array.isArray(session) ? session : [session]));
 app.get( "/api/data",             ...(Array.isArray(data) ? data : [data]));
 app.post("/api/drive-upload-url", ...(Array.isArray(driveUploadUrl) ? driveUploadUrl : [driveUploadUrl]));
 app.post("/api/submit",           ...(Array.isArray(submit) ? submit : [submit]));

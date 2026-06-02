@@ -1,13 +1,12 @@
 // ================================================================
 // App.tsx
 // FIX Vuln 1: On mount, verify the session token with the backend.
-//   If the server rejects it, the user is logged out immediately —
-//   a tampered localStorage role cannot grant dashboard access.
+// If the server rejects it, clear the session immediately.
 // ================================================================
 import { useEffect, useState } from 'react';
 import { useAuthStore } from './store/authStore';
 import { applyAuthenticatedPage, applyPageScope } from './lib/theme';
-import { getToken, apiGetData, clearToken } from './services/api';
+import { getToken, apiGetSession, clearToken } from './services/api';
 import Login from './pages/Login';
 import StudentDashboard from './pages/StudentDashboard';
 import AdvisorDashboard from './pages/AdvisorDashboard';
@@ -15,24 +14,34 @@ import ViewerDashboard from './pages/ViewerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
-  const { isAuthenticated, user, logout } = useAuthStore();
-  const [verifying, setVerifying] = useState(false);
+  const { isAuthenticated, user, restoreSession } = useAuthStore();
+  const [verifying, setVerifying] = useState(() => Boolean(getToken()));
 
-  // On mount: if there's a token in sessionStorage, verify it with the
-  // server by calling a protected endpoint. If it fails, clear the session.
+  // Restore in-memory auth only after the backend verifies the token.
   useEffect(() => {
     const token = getToken();
-    if (token && isAuthenticated && user) {
-      setVerifying(true);
-      apiGetData()
-        .catch(() => {
-          // Server rejected the token — force logout
-          clearToken();
-          logout();
-        })
-        .finally(() => setVerifying(false));
+    if (!token) {
+      setVerifying(false);
+      return;
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    let cancelled = false;
+    setVerifying(true);
+    apiGetSession()
+      .then((session) => {
+        if (!cancelled) restoreSession(session);
+      })
+      .catch(() => {
+        if (!cancelled) clearToken();
+      })
+      .finally(() => {
+        if (!cancelled) setVerifying(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [restoreSession]);
 
   useEffect(() => {
     if (!isAuthenticated || !user) {
@@ -42,7 +51,7 @@ function App() {
     }
   }, [isAuthenticated, user]);
 
-  if (verifying) return null; // brief flash while verifying
+  if (verifying) return null;
 
   if (!isAuthenticated || !user) {
     return <Login />;

@@ -26,7 +26,7 @@ import {
 import Swal from 'sweetalert2';
 
 export default function AdminDashboard() {
-  const { user, theme, toggleTheme, logout } = useAuthStore();
+  const { theme, toggleTheme, logout } = useAuthStore();
 
   const [submissions, setSubmissions] = useState<SubmissionRow[]>([]);
   const [projectRows, setProjectRows] = useState<ProjectRow[]>([]);

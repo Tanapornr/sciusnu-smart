@@ -9,6 +9,7 @@
 // ================================================================
 import type {
   AuthResult,
+  SessionResult,
   DataApiResponse,
   SubmitPayload,
   StatusPayload,
@@ -74,6 +75,10 @@ export async function apiLogin(username: string, password: string): Promise<Auth
 }
 
 // ── Logout — POST /api/logout (FIX Vuln 8) ──────────────────────
+export async function apiGetSession(): Promise<SessionResult> {
+  return apiFetch<SessionResult>('/api/session');
+}
+
 export async function apiLogout(): Promise<void> {
   try {
     await apiFetch('/api/logout', { method: 'POST' });

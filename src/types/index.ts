@@ -24,6 +24,11 @@ export interface User {
   profileUrl: string;
 }
 
+export interface SessionResult extends User {
+  status: 'success' | 'error';
+  message?: string;
+}
+
 // ---------------------------------------------------------------
 // Sheet1 row — project/student row from backend /api/data
 // Key names match what backend returns after rowsToObjects()

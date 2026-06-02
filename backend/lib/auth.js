@@ -48,6 +48,9 @@ function requireAuth(req, res, next) {
   if (!decoded) {
     return res.status(401).json({ status: "error", message: "Token ไม่ถูกต้องหรือหมดอายุ" });
   }
+  if (req.app?.revokedTokens?.has(token)) {
+    return res.status(401).json({ status: "error", message: "Session ได้ออกจากระบบแล้ว" });
+  }
   req.jwtUser = decoded;
   next();
 }
