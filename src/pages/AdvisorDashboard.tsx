@@ -55,6 +55,22 @@ export default function AdvisorDashboard() {
     return keys.length > 8 && projectRow[keys[8]] != null ? projectRow[keys[8]].toString().trim() : '';
   };
 
+  const getCoAdvisorEmail = (projectRow: any) => {
+    const namedEmail = Object.entries(projectRow).find(([key]) => key.trim() === 'E-mail อ.ที่ปรึกษาร่วม')?.[1];
+    if (namedEmail != null) return namedEmail.toString().trim();
+
+    const keys = Object.keys(projectRow);
+    return keys.length > 12 && projectRow[keys[12]] != null ? projectRow[keys[12]].toString().trim() : '';
+  };
+
+  const getSchAdvisorEmail = (projectRow: any) => {
+    const namedEmail = Object.entries(projectRow).find(([key]) => key.trim() === 'E-mail อ.ที่ปรึกษาโรงเรียน')?.[1];
+    if (namedEmail != null) return namedEmail.toString().trim();
+
+    const keys = Object.keys(projectRow);
+    return keys.length > 15 && projectRow[keys[15]] != null ? projectRow[keys[15]].toString().trim() : '';
+  };
+
   const getProjectId = (row: any) => {
     const namedProjectId = Object.entries(row).find(([key]) => key.trim() === 'รหัสโครงงาน')?.[1];
     return (namedProjectId ?? row['projectid'] ?? '').toString().trim();
@@ -66,17 +82,33 @@ export default function AdvisorDashboard() {
     return loginEmail && mainAdvisorEmail && loginEmail === mainAdvisorEmail;
   };
 
+  const isLoggedInCoAdvisor = (projectRow: any) => {
+    const loginEmail = String(user?.email || '').trim().toLowerCase();
+    const coAdvEmail = getCoAdvisorEmail(projectRow).toLowerCase();
+    const schAdvEmail = getSchAdvisorEmail(projectRow).toLowerCase();
+    return loginEmail && (
+      (coAdvEmail && loginEmail === coAdvEmail) ||
+      (schAdvEmail && loginEmail === schAdvEmail)
+    );
+  };
+
   const canCurrentUserReviewSubmission = (submission: any) => {
-    if (user?.role === 'admin') return true;
-    if (user?.role !== 'advisor_main') return false;
+    const workType = submission['ประเภทงาน'] || '';
+    if (workType === 'แบบคำร้อง') {
+      // Only admin can approve the petition
+      return user?.role === 'admin';
+    } else {
+      // Only the main advisor of the project can approve the project
+      if (user?.role !== 'advisor_main') return false;
 
-    const projectId = getProjectId(submission).toLowerCase();
-    const rows = projectRows.filter(p => {
-        const pId = getProjectId(p).toLowerCase();
-        return pId === projectId;
-    });
+      const projectId = getProjectId(submission).toLowerCase();
+      const rows = projectRows.filter(p => {
+          const pId = getProjectId(p).toLowerCase();
+          return pId === projectId;
+      });
 
-    return rows.some(p => isLoggedInMainAdvisor(p));
+      return rows.some(p => isLoggedInMainAdvisor(p));
+    }
   };
 
   const fetchData = async () => {
@@ -93,7 +125,7 @@ export default function AdvisorDashboard() {
         } else {
             let myProjectIds: string[] = [];
             allProjs.forEach(p => {
-                if (isLoggedInMainAdvisor(p)) {
+                if (isLoggedInMainAdvisor(p) || isLoggedInCoAdvisor(p)) {
                     // Use named key "รหัสโครงงาน" (col 5) not positional keys[4]
                     const pid = (p['รหัสโครงงาน'] || '').toString();
                     if (pid) myProjectIds.push(pid);
@@ -314,8 +346,11 @@ export default function AdvisorDashboard() {
     return { reason: '', timestamp: '' };
   };
 
-  const projectIds = [...new Set(projectRows.map(p => {
-      // Use named key "รหัสโครงงาน" (col 5) not positional keys[4]
+  const mainProjectIds = [...new Set(projectRows.filter(p => isLoggedInMainAdvisor(p)).map(p => {
+      return (p['รหัสโครงงาน'] || '').toString();
+  }).filter(id => id !== ""))];
+
+  const coProjectIds = [...new Set(projectRows.filter(p => isLoggedInCoAdvisor(p)).map(p => {
       return (p['รหัสโครงงาน'] || '').toString();
   }).filter(id => id !== ""))];
 
@@ -356,7 +391,7 @@ export default function AdvisorDashboard() {
             <>
                 {/* ── Overview Section ── */}
                 <div id="overviewSection" className="glass-panel rounded-[2rem] p-4 sm:p-7 relative overflow-hidden">
-                    <h2 className="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><BarChart2 className="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-orange-500" /> ภาพรวมสถานะโครงงานของกลุ่มที่คุณดูแล</h2>
+                    <h2 className="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><BarChart2 className="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-orange-500" /> ภาพรวมสถานะโครงงานของกลุ่มที่คุณดูแล (อาจารย์ที่ปรึกษาหลัก)</h2>
                     <div className="table-fit-wrap w-full pb-2 overflow-x-hidden">
                         <table className="data-table advisor-table w-full text-left">
                             <thead className="text-[10px] sm:text-xs text-neutral-500">
@@ -369,10 +404,117 @@ export default function AdvisorDashboard() {
                                 </tr>
                             </thead>
                             <tbody id="overviewTableBody" className="text-neutral-700 dark:text-neutral-200 text-xs sm:text-sm">
-                                {projectIds.length === 0 ? (
-                                    <tr><td colSpan={5} className="px-4 py-10 text-center text-neutral-500 font-medium">ไม่มีข้อมูลโครงงานที่ท่านดูแล</td></tr>
+                                {mainProjectIds.length === 0 ? (
+                                    <tr><td colSpan={5} className="px-4 py-10 text-center text-neutral-500 font-medium">ไม่มีข้อมูลโครงงานที่คุณเป็นที่ปรึกษาหลัก</td></tr>
                                 ) : (
-                                    projectIds.map((pid: any) => {
+                                    mainProjectIds.map((pid: any) => {
+                                        const members = projectRows.filter(p => {
+                                            return (p['รหัสโครงงาน'] || '') === pid;
+                                        });
+                                        // "ชื่อโครงงาน " has a trailing space in the sheet
+                                        let projectNameTH = members.length > 0
+                                            ? (Object.entries(members[0]).find(([k]) => k.trim() === 'ชื่อโครงงาน')?.[1] || '') as string
+                                            : '-';
+                                        if (!projectNameTH) projectNameTH = '-';
+
+                                        const memberIds = members.map(m => {
+                                            return (m['รหัสนักเรียน'] || '').toString();
+                                        });
+
+                                        const projectSubs = submissions.filter(s => (s['รหัสโครงงาน'] || '') === pid || memberIds.includes(s['รหัสนักเรียน'] || ''));
+
+                                        const getStatusBadge = (workType: string) => {
+                                            const subs = projectSubs.filter(s => s['ประเภทงาน'] === workType);
+                                            const baseClasses = "inline-flex items-center justify-center px-3 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold shadow-sm border w-[110px]";
+                                            if (subs.length === 0) {
+                                                return (
+                                                    <span className={`${baseClasses} bg-neutral-100 dark:bg-neutral-800 text-neutral-400 border-neutral-200 dark:border-neutral-700 opacity-70`}>
+                                                        ➖ ยังไม่ส่ง
+                                                    </span>
+                                                );
+                                            }
+                                            const parsedStatus = parseSubmissionStatus(subs[subs.length - 1]['สถานะ']);
+                                            if (parsedStatus === 'อนุมัติ') {
+                                                return (
+                                                    <span className={`${baseClasses} bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/60`}>
+                                                        <CheckCircle className="w-3.5 h-3.5 mr-1.5 opacity-80" /> อนุมัติ
+                                                    </span>
+                                                );
+                                            }
+                                            if (parsedStatus === 'ไม่อนุมัติ') {
+                                                return (
+                                                    <span className={`${baseClasses} bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-100 dark:border-rose-900/60`}>
+                                                        <XCircle className="w-3.5 h-3.5 mr-1.5 opacity-80" /> ต้องแก้ไข
+                                                    </span>
+                                                );
+                                            }
+                                            return (
+                                                <span className={`${baseClasses} bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-900/60`}>
+                                                    <Clock3 className="w-3.5 h-3.5 mr-1.5 opacity-80" /> รอตรวจ
+                                                </span>
+                                            );
+                                        };
+
+                                        return (
+                                            <tr key={pid}>
+                                                <td className="px-3 py-4 align-top">
+                                                    <div className="flex flex-col items-start gap-1">
+                                                        <div className="font-extrabold text-neutral-800 dark:text-white bg-neutral-100 dark:bg-neutral-800 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-xs sm:text-sm shadow-sm"><span className="text-cyan-600 dark:text-cyan-400">#</span> {pid}</div>
+                                                        <div className="text-xs sm:text-sm font-bold text-neutral-700 dark:text-neutral-200 mt-1 pl-1 whitespace-normal break-words w-full project-title-wrap">{projectNameTH}</div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-3 py-3 align-top">
+                                                    {members.length > 0 ? members.map((m: any) => {
+                                                        const mId = (m['รหัสนักเรียน'] || '').toString();
+                                                        const mFName = (m['ชื่อ'] || '').toString();
+                                                        const mLName = (m['นามสกุล'] || '').toString();
+                                                        // Phone: key "เบอร์โทรศัพท์" may have trailing space
+                                                        const mPhone = (Object.entries(m).find(([k]) => k.trim() === 'เบอร์โทรศัพท์')?.[1] || '').toString().replace(/'/g, '');
+                                                        // Profile pic: key "รูปโปรไฟล์ " has trailing space
+                                                        const picRaw = (Object.entries(m).find(([k]) => k.trim() === 'รูปโปรไฟล์')?.[1] || '').toString();
+                                                        const pic = picRaw || `https://ui-avatars.com/api/?name=${encodeURIComponent(mFName)}&background=f0f0f0&color=1a1a1a`;
+                                                        return (
+                                                            <button key={mId} type="button" onClick={() => viewStudentPopup(`${mFName} ${mLName}`, mId, mPhone, pic)} className="w-full text-left flex items-center gap-2.5 mb-2.5 bg-neutral-50 dark:bg-neutral-800/60 p-2 sm:p-2.5 rounded-2xl border border-neutral-100 dark:border-neutral-700 btn-liquid transition-colors">
+                                                                <img src={pic} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-neutral-600 shadow-sm bg-white" loading="lazy" />
+                                                                <div className="flex flex-col leading-tight overflow-hidden">
+                                                                    <span className="text-[10px] sm:text-[11px] text-neutral-700 dark:text-neutral-200 font-bold truncate">{mId}</span>
+                                                                    <span className="text-[9px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 font-medium truncate mt-0.5">{mFName} {mLName}</span>
+                                                                </div>
+                                                            </button>
+                                                        );
+                                                    }) : <span className="text-neutral-300 text-xs">ไม่มีข้อมูลนักเรียน</span>}
+                                                </td>
+                                                <td className="px-2 py-4 align-top text-center">{getStatusBadge('โครงร่าง (Proposal)')}</td>
+                                                <td className="px-2 py-4 align-top text-center">{getStatusBadge('รายงานความก้าวหน้า')}</td>
+                                                <td className="px-2 py-4 align-top text-center">{getStatusBadge('รายงานฉบับสมบูรณ์')}</td>
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* ── Co-Advisor Overview Section ── */}
+                <div id="coAdvisorSection" className="glass-panel rounded-[2rem] p-4 sm:p-7 relative overflow-hidden">
+                    <h2 className="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><BarChart2 className="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-pink-500" /> ภาพรวมสถานะโครงงานที่คุณเป็นที่ปรึกษาร่วม / ที่ปรึกษาโรงเรียน</h2>
+                    <div className="table-fit-wrap w-full pb-2 overflow-x-hidden">
+                        <table className="data-table advisor-table w-full text-left">
+                            <thead className="text-[10px] sm:text-xs text-neutral-500">
+                                <tr>
+                                    <th className="px-3 py-3 font-semibold uppercase tracking-wider">รหัสโครงงาน / ชื่อโครงงาน</th>
+                                    <th className="px-3 py-3 font-semibold uppercase tracking-wider">รายชื่อนักเรียนในกลุ่ม</th>
+                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider">โครงร่าง</th>
+                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider">ความก้าวหน้า</th>
+                                    <th className="px-2 py-3 text-center font-semibold uppercase tracking-wider">ฉบับสมบูรณ์</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coAdvisorTableBody" className="text-neutral-700 dark:text-neutral-200 text-xs sm:text-sm">
+                                {coProjectIds.length === 0 ? (
+                                    <tr><td colSpan={5} className="px-4 py-10 text-center text-neutral-500 font-medium">ไม่มีข้อมูลโครงงานที่คุณเป็นที่ปรึกษาร่วม / ที่ปรึกษาโรงเรียน</td></tr>
+                                ) : (
+                                    coProjectIds.map((pid: any) => {
                                         const members = projectRows.filter(p => {
                                             return (p['รหัสโครงงาน'] || '') === pid;
                                         });
@@ -488,15 +630,15 @@ export default function AdvisorDashboard() {
                                         const parsedStatus = parseSubmissionStatus(status);
                                         const previousReject = getPreviousRejectInfo(item);
 
-                                        let reason = getSubmissionReason(item);
+                                        const reason = getSubmissionReason(item);
                                         const isPendingResubmit = parsedStatus === 'รอตรวจ' && previousReject.reason;
                                         const reviewReason = reason || (isPendingResubmit ? previousReject.reason : '');
 
-                                        let reasonHtml = reviewReason
+                                        const reasonHtml = reviewReason
                                             ? <div className={`text-[10px] sm:text-[11px] ${isPendingResubmit ? 'text-blue-700 bg-blue-50 border-blue-100' : 'text-rose-700 bg-rose-50 border-rose-100'} font-medium p-2.5 rounded-xl inline-block w-full whitespace-normal break-words border text-left`}>{escapeHtml(reviewReason)}</div>
                                             : <span className="text-neutral-300">-</span>;
 
-                                        let badge = <></>;
+                                        let badge: React.ReactNode;
                                         if (parsedStatus === 'อนุมัติ') badge = <span className="px-3 py-1.5 rounded-lg text-[10px] font-extrabold bg-emerald-50 text-emerald-600 border border-emerald-200 inline-flex items-center justify-center whitespace-nowrap"><CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />อนุมัติ</span>;
                                         else if (parsedStatus === 'ไม่อนุมัติ') badge = <span className="px-3 py-1.5 rounded-lg text-[10px] font-extrabold bg-rose-50 text-rose-600 border border-rose-200 inline-flex items-center justify-center whitespace-nowrap"><XCircle className="w-3.5 h-3.5 mr-1.5" />ไม่อนุมัติ</span>;
                                         else if (isPendingResubmit) badge = <span className="px-3 py-1.5 rounded-lg text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200 inline-flex items-center justify-center whitespace-nowrap"><Clock3 className="w-3.5 h-3.5 mr-1.5" />รอตรวจไฟล์แก้ไข</span>;
@@ -519,7 +661,7 @@ export default function AdvisorDashboard() {
                                                         {(() => {
                                                             const mProjId = (item['รหัสโครงงาน'] || '').toLowerCase();
                                                             const mTargetStuId = (item['รหัสนักเรียน'] || '').toLowerCase();
-                                                            let groupMembers: any[] = [];
+                                                            const groupMembers: any[] = [];
                                                             projectRows.forEach(p => {
                                                                 if ((p['รหัสโครงงาน'] || '').toLowerCase() === mProjId) {
                                                                     const stuId = (p['รหัสนักเรียน'] || '').toString();

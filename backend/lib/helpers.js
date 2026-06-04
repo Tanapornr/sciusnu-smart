@@ -43,7 +43,6 @@ function isAdminReviewer(email, role) {
 }
 
 function isMainAdvisorReviewer(groupInfo, email, role, reviewerName) {
-  if (String(role || "").trim() === "admin") return true;
   const reviewerEmail = normalizeEmail(email);
   const mainAdvEmail  = normalizeEmail(groupInfo.advEmail);
   const loginName     = normalizeName(reviewerName);

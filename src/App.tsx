@@ -60,9 +60,9 @@ function App() {
   switch (user.role) {
     case 'student':
       return <StudentDashboard />;
-    case 'advisor':
     case 'advisor_main':
       return <AdvisorDashboard />;
+    case 'advisor':
     case 'viewer':
       return <ViewerDashboard />;
     case 'admin':
