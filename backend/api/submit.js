@@ -1,7 +1,7 @@
 // FIX Vuln 1: Only authenticated students may submit work.
 require("dotenv").config();
 const { getSheetValues, appendRow, updateRowCells, ensureSubmissionsSheet } = require("../lib/sheets");
-const { trashFile, extractFileId } = require("../lib/drive");
+const { trashFile, extractFileId } = require("../lib/appsScript");
 const { sendMail, buildFlexEmailHtml, WEB_URL } = require("../lib/mail");
 const { getGroupInfo, getPayloadReason, INITIAL_SUBMISSION_STATUS, ADMIN_EMAILS } = require("../lib/helpers");
 const { requireRole } = require("../lib/auth");

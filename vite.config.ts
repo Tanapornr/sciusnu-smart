@@ -12,5 +12,12 @@ export default defineConfig({
       'X-Frame-Options': 'DENY',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
     },
+    proxy: {
+      '/google-api': {
+        target: 'https://www.googleapis.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/google-api/, ''),
+      }
+    }
   },
 })

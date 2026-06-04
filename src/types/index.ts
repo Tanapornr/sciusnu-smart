@@ -167,3 +167,10 @@ export interface DriveUploadUrlResponse {
   status: 'success' | 'error';
   uploadUrl: string;
 }
+
+export interface DriveUploadResponse {
+  status: 'success' | 'error';
+  id: string;
+  webViewLink?: string;
+  message?: string;
+}

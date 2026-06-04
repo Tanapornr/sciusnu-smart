@@ -44,7 +44,7 @@ module.exports = async (req, res) => {
       const schAdvPass  = (r[23] || "").trim();
 
       if ((stuId === user || stuEmail === user) && stuPass === pass && stuId) {
-        const token = signToken({ email: r[0], role: "student", name: `${r[2]} ${r[3]}`, studentId: r[1], profileUrl: r[20] || "" });
+        const token = signToken({ email: r[0], role: "student", name: `${r[2]} ${r[3]}`, studentId: r[1] });
         return res.json({
           status: "success", role: "student",
           email: r[0], name: `${r[2]} ${r[3]}`, studentId: r[1], profileUrl: r[20] || "",

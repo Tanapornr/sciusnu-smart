@@ -1,92 +1,130 @@
+// ================================================================
+// lib/sheets.js  (refactored — Apps Script relay)
+// Replaces googleapis Sheets API calls with relay POST requests.
+// The Apps Script Web App runs as the @nu.ac.th account that owns
+// the Sheet, so no Service Account permission issues.
+//
+// Public API is identical to the old lib/sheets.js so all callers
+// (api/submit.js, api/status.js, api/data.js, etc.) work unchanged.
+//
+// Env vars required:
+//   APPS_SCRIPT_URL    — Web App URL
+//   APPS_SCRIPT_SECRET — DRIVE_RELAY_SECRET value
+//   SPREADSHEET_ID     — Google Sheet ID (still needed for direct reads)
+// ================================================================
+
 const { google } = require("googleapis");
 
-function getAuthClient() {
+// ── Apps Script relay helper ─────────────────────────────────────
+const RELAY_URL    = process.env.APPS_SCRIPT_URL;
+const RELAY_SECRET = process.env.APPS_SCRIPT_SECRET;
+
+async function callRelay(payload) {
+  if (!RELAY_URL) throw new Error("APPS_SCRIPT_URL is not configured");
+
+  const res = await fetch(RELAY_URL, {
+    method:   "POST",
+    headers:  { "Content-Type": "application/json" },
+    body:     JSON.stringify({ ...payload, secret: RELAY_SECRET }),
+    redirect: "follow",
+  });
+
+  const text = await res.text();
+  let json;
+  try { json = JSON.parse(text); } catch (_) {
+    throw new Error(`Apps Script non-JSON: ${text.slice(0, 200)}`);
+  }
+
+  if (json.status !== "success") {
+    throw new Error(`Apps Script error: ${json.message || JSON.stringify(json)}`);
+  }
+
+  return json;
+}
+
+// ── Read operations — still use Sheets API directly ─────────────
+// Reading does NOT need the owner account; a service account with
+// Viewer access (or the sheet shared "Anyone with the link can view")
+// is fine.  We keep SA for reads to avoid latency of a relay round-trip.
+// If you also remove SA entirely, replace getSheetsClient() with an
+// Apps Script "getSheetValues" relay action.
+
+function getReadAuthClient() {
   const creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
   return new google.auth.GoogleAuth({
     credentials: creds,
-    scopes: [
-      "https://www.googleapis.com/auth/spreadsheets",
-      "https://www.googleapis.com/auth/drive",
-    ],
+    scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
   });
 }
 
 async function getSheetsClient() {
-  const auth = await getAuthClient().getClient();
+  const auth = await getReadAuthClient().getClient();
   return google.sheets({ version: "v4", auth });
 }
 
-/** Returns 2D array (first row = headers). Empty sheet → []. */
+/**
+ * Returns 2D array (first row = headers). Empty sheet → [].
+ * Uses Sheets API directly (read-only SA scope is sufficient).
+ */
 async function getSheetValues(sheetName = "TEST_DEV") {
   const sheets = await getSheetsClient();
   const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: process.env.SPREADSHEET_ID,
-    range: sheetName,
+    spreadsheetId:    process.env.SPREADSHEET_ID,
+    range:            sheetName,
     valueRenderOption: "FORMATTED_VALUE",
   });
   return res.data.values || [];
 }
 
-/** Append one row to a sheet. */
+// ── Write operations — routed through Apps Script relay ──────────
+
+/** Append one row to a sheet via the relay. */
 async function appendRow(sheetName, values) {
-  const sheets = await getSheetsClient();
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: process.env.SPREADSHEET_ID,
-    range: sheetName,
-    valueInputOption: "USER_ENTERED",
-    requestBody: { values: [values] },
-  });
+  await callRelay({ action: "appendRow", sheetName, values });
 }
 
-/** Update a single cell (row and col are 1-based). */
+/** Update a single cell (row and col are 1-based) via the relay. */
 async function updateCell(sheetName, row, col, value) {
-  const sheets = await getSheetsClient();
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: process.env.SPREADSHEET_ID,
-    range: `${sheetName}!${colLetter(col)}${row}`,
-    valueInputOption: "USER_ENTERED",
-    requestBody: { values: [[value]] },
+  await callRelay({
+    action:    "updateRow",
+    sheetName,
+    row,
+    updates:   [{ col, value }],
   });
 }
 
-/** Update multiple cells in one batch. updates = [{ col, value }] (col is 1-based). */
+/** Update multiple cells in one batch via the relay. */
 async function updateRowCells(sheetName, row, updates) {
-  const sheets = await getSheetsClient();
-  await sheets.spreadsheets.values.batchUpdate({
-    spreadsheetId: process.env.SPREADSHEET_ID,
-    requestBody: {
-      valueInputOption: "USER_ENTERED",
-      data: updates.map(({ col, value }) => ({
-        range: `${sheetName}!${colLetter(col)}${row}`,
-        values: [[value]],
-      })),
-    },
-  });
+  await callRelay({ action: "updateRow", sheetName, row, updates });
 }
 
-/** Ensure the Submissions sheet exists; create with headers if not. */
+/**
+ * Ensure the Submissions sheet exists with correct headers.
+ * Uses the relay (write op).
+ *
+ * Note: Sheet creation is not directly exposed in the relay.
+ * We do a best-effort read and append headers if the sheet is empty.
+ * If the sheet doesn't exist at all, the relay's appendRow will return
+ * a "Sheet not found" error — in that case the script owner should
+ * create the sheet manually once, or you can add a "createSheet" action
+ * to the relay.
+ */
 async function ensureSubmissionsSheet() {
-  const sheets = await getSheetsClient();
-  const meta = await sheets.spreadsheets.get({
-    spreadsheetId: process.env.SPREADSHEET_ID,
-  });
-  const exists = meta.data.sheets.some(
-    (s) => s.properties.title === "Submissions"
-  );
-  if (!exists) {
-    await sheets.spreadsheets.batchUpdate({
-      spreadsheetId: process.env.SPREADSHEET_ID,
-      requestBody: {
-        requests: [{ addSheet: { properties: { title: "Submissions" } } }],
-      },
-    });
-    await appendRow("Submissions", [
-      "Timestamp", "รหัสนักเรียน", "ชื่อ", "นามสกุล", "รหัสโครงงาน",
-      "ประเภทงาน", "URL ไฟล์เล่ม", "URL ลายเซ็น", "สถานะ", "อ.ที่ปรึกษา", "หมายเหตุ",
-    ]);
+  try {
+    const rows = await getSheetValues("Submissions");
+    if (rows.length === 0) {
+      await appendRow("Submissions", [
+        "Timestamp", "รหัสนักเรียน", "ชื่อ", "นามสกุล", "รหัสโครงงาน",
+        "ประเภทงาน", "URL ไฟล์เล่ม", "URL ลายเซ็น", "สถานะ", "อ.ที่ปรึกษา", "หมายเหตุ",
+      ]);
+    }
+  } catch (err) {
+    // Non-fatal — log and let submit proceed; sheet likely already exists
+    console.warn("[sheets] ensureSubmissionsSheet:", err.message);
   }
 }
 
+// ── colLetter helper (unchanged) ─────────────────────────────────
 function colLetter(n) {
   let letter = "";
   while (n > 0) {
