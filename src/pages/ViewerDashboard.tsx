@@ -36,7 +36,7 @@ export default function ViewerDashboard({ pageView, setPageView }: Props) {
   const [showPermWarning, setShowPermWarning] = useState(false);
 
   if (pageView === 'petitions') {
-    return <PetitionDashboard />;
+    return <PetitionDashboard setPageView={setPageView} />;
   }
 
   const getProcessedImgUrl = (url: any, studentName: string) => {

@@ -3,6 +3,7 @@
 // Handles: create, list, detail, approve, reject, signature
 // ================================================================
 require("dotenv").config();
+const crypto = require("crypto");
 const { getSheetValues, appendRow, updateRowCells } = require("../lib/sheets");
 const { sendMail, buildFlexEmailHtml, WEB_URL } = require("../lib/mail");
 const { getGroupInfo, normalizeEmail, ADMIN_EMAILS } = require("../lib/helpers");
@@ -16,7 +17,8 @@ const { requireAuth, requireRole } = require("../lib/auth");
 // student2_status | student2_note | student2_signature | student2_time |
 // advisor_status | advisor_note | advisor_signature | advisor_time |
 // coadvisor1_status | coadvisor1_note | coadvisor1_signature | coadvisor1_time |
-// coadvisor2_status | coadvisor2_note | coadvisor2_signature | coadvisor2_time
+// coadvisor2_status | coadvisor2_note | coadvisor2_signature | coadvisor2_time |
+// admin_status | admin_note | admin_signature | admin_time | admin_name
 
 const COL = {
   petition_id:        1,
@@ -53,6 +55,11 @@ const COL = {
   coadvisor2_note:    31,
   coadvisor2_signature:32,
   coadvisor2_time:    33,
+  admin_status:       34,
+  admin_note:         35,
+  admin_signature:    36,
+  admin_time:         37,
+  admin_name:         38,
 };
 
 const SHEET = "PETITIONS";
@@ -65,7 +72,47 @@ const HEADERS = [
   "advisor_status","advisor_note","advisor_signature","advisor_time",
   "coadvisor1_status","coadvisor1_note","coadvisor1_signature","coadvisor1_time",
   "coadvisor2_status","coadvisor2_note","coadvisor2_signature","coadvisor2_time",
+  "admin_status","admin_note","admin_signature","admin_time","admin_name",
 ];
+
+// ── Signature Encryption / Decryption Helpers ────────────────────
+const ENCRYPTION_KEY = crypto.createHash("sha256").update(process.env.SIGNATURE_KEY || "lhgfCX80k6jP5lImfhtt2T9C6DFivUXAvAJ2K").digest(); // 32 bytes
+const IV_LENGTH = 16;
+
+function encryptSignature(text) {
+  if (!text) return "";
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv("aes-256-cbc", ENCRYPTION_KEY, iv);
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return iv.toString("hex") + ":" + encrypted;
+}
+
+function decryptSignature(text) {
+  if (!text) return "";
+  const parts = text.split(":");
+  if (parts.length !== 2) {
+    // Legacy fallback
+    try {
+      const decoded = Buffer.from(text, "base64").toString("utf8");
+      if (decoded.includes("<svg") || decoded.includes("data:image")) {
+        return decoded;
+      }
+    } catch (e) {}
+    return text;
+  }
+  try {
+    const iv = Buffer.from(parts[0], "hex");
+    const encryptedText = Buffer.from(parts[1], "hex");
+    const decipher = crypto.createDecipheriv("aes-256-cbc", ENCRYPTION_KEY, iv);
+    let decrypted = decipher.update(encryptedText, "hex", "utf8");
+    decrypted += decipher.final("utf8");
+    return decrypted;
+  } catch (e) {
+    console.error("Signature decryption failed:", e.message);
+    return text;
+  }
+}
 
 // ── Petition types ────────────────────────────────────────────────
 const PETITION_TYPES = {
@@ -104,15 +151,16 @@ function rowToPetition(row, rowIndex) {
     current_step:       row[COL.current_step - 1]       || "",
     final_result:       row[COL.final_result - 1]       || "",
     updated_at:         row[COL.updated_at - 1]         || "",
-    student1:  { status: row[COL.student1_status-1]||"", note: row[COL.student1_note-1]||"", signature: row[COL.student1_signature-1]||"", time: row[COL.student1_time-1]||"" },
-    student2:  { status: row[COL.student2_status-1]||"", note: row[COL.student2_note-1]||"", signature: row[COL.student2_signature-1]||"", time: row[COL.student2_time-1]||"" },
-    advisor:   { status: row[COL.advisor_status-1]||"",  note: row[COL.advisor_note-1]||"",  signature: row[COL.advisor_signature-1]||"",  time: row[COL.advisor_time-1]||"" },
-    coadvisor1:{ status: row[COL.coadvisor1_status-1]||"", note: row[COL.coadvisor1_note-1]||"", signature: row[COL.coadvisor1_signature-1]||"", time: row[COL.coadvisor1_time-1]||"" },
-    coadvisor2:{ status: row[COL.coadvisor2_status-1]||"", note: row[COL.coadvisor2_note-1]||"", signature: row[COL.coadvisor2_signature-1]||"", time: row[COL.coadvisor2_time-1]||"" },
+    student1:  { status: row[COL.student1_status-1]||"", note: row[COL.student1_note-1]||"", signature: decryptSignature(row[COL.student1_signature-1]), time: row[COL.student1_time-1]||"" },
+    student2:  { status: row[COL.student2_status-1]||"", note: row[COL.student2_note-1]||"", signature: decryptSignature(row[COL.student2_signature-1]), time: row[COL.student2_time-1]||"" },
+    advisor:   { status: row[COL.advisor_status-1]||"",  note: row[COL.advisor_note-1]||"",  signature: decryptSignature(row[COL.advisor_signature-1]),  time: row[COL.advisor_time-1]||"" },
+    coadvisor1:{ status: row[COL.coadvisor1_status-1]||"", note: row[COL.coadvisor1_note-1]||"", signature: decryptSignature(row[COL.coadvisor1_signature-1]), time: row[COL.coadvisor1_time-1]||"" },
+    coadvisor2:{ status: row[COL.coadvisor2_status-1]||"", note: row[COL.coadvisor2_note-1]||"", signature: decryptSignature(row[COL.coadvisor2_signature-1]), time: row[COL.coadvisor2_time-1]||"" },
+    admin:     { status: row[COL.admin_status-1]||"",  note: row[COL.admin_note-1]||"",  signature: decryptSignature(row[COL.admin_signature-1]),  time: row[COL.admin_time-1]||"", name: row[COL.admin_name-1]||"" },
   };
 }
 
-/** Build the approval chain from project data */
+/** Build the approval chain from project data (students → advisors; admin is handled separately) */
 function buildApprovalChain(groupInfo) {
   const chain = [];
   if (groupInfo.members.length > 0) chain.push({ role: "student1", email: groupInfo.members[0]?.email || "", name: groupInfo.members[0]?.firstName + " " + groupInfo.members[0]?.lastName });
@@ -120,6 +168,8 @@ function buildApprovalChain(groupInfo) {
   if (groupInfo.advEmail) chain.push({ role: "advisor", email: groupInfo.advEmail, name: groupInfo.advName });
   if (groupInfo.coAdvEmail) chain.push({ role: "coadvisor1", email: groupInfo.coAdvEmail, name: groupInfo.coAdvName });
   if (groupInfo.schAdvEmail) chain.push({ role: "coadvisor2", email: groupInfo.schAdvEmail, name: groupInfo.schAdvName });
+  // Admin is always the final stage (not a named user in chain, handled by role)
+  chain.push({ role: "admin", email: "admin", name: "ผู้ดูแลระบบ" });
   return chain;
 }
 
@@ -127,6 +177,7 @@ function buildApprovalChain(groupInfo) {
 function getUserRoleInChain(petition, userEmail, userRole, chain) {
   const email = normalizeEmail(userEmail);
   for (const step of chain) {
+    if (step.role === "admin") continue; // admin matched by role below
     const stepEmail = normalizeEmail(step.email);
     if (stepEmail && stepEmail === email) return step.role;
   }
@@ -134,13 +185,25 @@ function getUserRoleInChain(petition, userEmail, userRole, chain) {
   return null;
 }
 
-/** Get the next approver step that hasn't acted yet */
-function getCurrentPendingStep(petition, chain) {
-  for (const step of chain) {
-    const approver = petition[step.role];
-    if (!approver || !approver.status) return step;
-  }
-  return null; // all steps done
+/**
+ * Determine the current active approval stage:
+ *   "students"  — any student step not yet approved
+ *   "advisors"  — all student steps done, any advisor step not yet done
+ *   "admin"     — all student+advisor steps done, admin not yet done
+ *   "done"      — all steps done
+ */
+function getPendingStage(petition, chain) {
+  const studentRoles  = chain.filter(s => s.role.startsWith("student")).map(s => s.role);
+  const advisorRoles  = chain.filter(s => ["advisor","coadvisor1","coadvisor2"].includes(s.role)).map(s => s.role);
+
+  const allStudentsDone  = studentRoles.every(r => petition[r]?.status);
+  const allAdvisorsDone  = advisorRoles.every(r => petition[r]?.status);
+  const adminDone        = !!petition.admin?.status;
+
+  if (!allStudentsDone) return "students";
+  if (!allAdvisorsDone) return "advisors";
+  if (!adminDone)       return "admin";
+  return "done";
 }
 
 async function ensurePetitionsSheet() {
@@ -148,6 +211,12 @@ async function ensurePetitionsSheet() {
     const rows = await getSheetValues(SHEET);
     if (!rows.length) {
       await appendRow(SHEET, HEADERS);
+    } else {
+      const currentHeaders = rows[0] || [];
+      if (currentHeaders.length < HEADERS.length) {
+        const updates = HEADERS.map((h, index) => ({ col: index + 1, value: h }));
+        await updateRowCells(SHEET, 1, updates);
+      }
     }
   } catch (err) {
     console.warn("[petitions] ensurePetitionsSheet:", err.message);
@@ -197,9 +266,8 @@ async function createPetition(req, res) {
     const petitionId = generatePetitionId();
     const now = new Date().toISOString();
     const chainJson = JSON.stringify({ chain, payload: payload || {} });
-    const firstStep = chain[0];
 
-    const row = new Array(33).fill("");
+    const row = new Array(38).fill("");
     row[COL.petition_id - 1]     = petitionId;
     row[COL.project_code - 1]    = groupInfo.targetProjId || project_code || "";
     row[COL.project_name - 1]    = groupInfo.projectNameTH || project_name || "";
@@ -210,16 +278,20 @@ async function createPetition(req, res) {
     row[COL.created_at - 1]      = now;
     row[COL.status - 1]          = "รอดำเนินการ";
     row[COL.payload_json - 1]    = chainJson;
-    row[COL.current_step - 1]    = firstStep.role;
+    row[COL.current_step - 1]    = "students";
     row[COL.final_result - 1]    = "";
     row[COL.updated_at - 1]      = now;
 
     await appendRow(SHEET, row);
 
-    // Notify first approver
-    sendPetitionNotification(petitionId, firstStep.email, firstStep.name,
-      petition_type, groupInfo.targetProjId || project_code,
-      groupInfo.projectNameTH || project_name, user.name).catch(console.error);
+    // Notify ALL students in the chain simultaneously
+    const projCode = groupInfo.targetProjId || project_code;
+    const projName = groupInfo.projectNameTH || project_name;
+    const studentSteps = chain.filter(s => s.role.startsWith("student"));
+    for (const step of studentSteps) {
+      sendPetitionNotification(petitionId, step.email, step.name,
+        petition_type, projCode, projName, user.name).catch(console.error);
+    }
 
     return res.json({ status: "success", petition_id: petitionId });
   } catch (e) {
@@ -320,7 +392,7 @@ async function handleApproval(req, res, action) {
   if (req.method !== "POST") return res.status(405).end();
   const user = req.jwtUser;
   const petitionId = req.params?.id || req.query?.id;
-  const { note, signature } = req.body;
+  const { note, signature, adminName } = req.body;
 
   if (!signature) {
     return res.status(400).json({ status: "error", message: "กรุณาลงนามก่อนดำเนินการ" });
@@ -341,15 +413,25 @@ async function handleApproval(req, res, action) {
       const chainData = safeParseChain(p.payload_json);
       const chain = chainData.chain || [];
 
-      // Find user's role in chain
+      // Determine active stage
+      const activeStage = getPendingStage(p, chain);
+      if (activeStage === "done") {
+        return res.status(400).json({ status: "error", message: "คำร้องได้รับการอนุมัติครบถ้วนแล้ว" });
+      }
+
+      // Determine this user's role
       const userChainRole = getUserRoleInChain(p, user.email, user.role, chain);
       if (!userChainRole) {
         return res.status(403).json({ status: "error", message: "คุณไม่มีสิทธิ์อนุมัติคำร้องนี้" });
       }
 
-      // Check if it's their turn
-      const pendingStep = getCurrentPendingStep(p, chain);
-      if (!pendingStep || pendingStep.role !== userChainRole) {
+      // Validate user belongs to the active stage
+      const stageRoles = {
+        students: chain.filter(s => s.role.startsWith("student")).map(s => s.role),
+        advisors: chain.filter(s => ["advisor","coadvisor1","coadvisor2"].includes(s.role)).map(s => s.role),
+        admin:    ["admin"],
+      };
+      if (!stageRoles[activeStage]?.includes(userChainRole)) {
         return res.status(400).json({ status: "error", message: "ยังไม่ถึงขั้นตอนของคุณ" });
       }
 
@@ -361,66 +443,85 @@ async function handleApproval(req, res, action) {
       const now = new Date().toISOString();
       const statusVal = action === "approve" ? "อนุมัติ" : "ปฏิเสธ";
 
-      // Map role to column offsets
+      // Encrypt signature with AES-256-CBC
+      const encryptedSig = encryptSignature(signature);
+
+      // Build column updates for this user's role
       const roleColMap = {
         student1:   { status: COL.student1_status,   note: COL.student1_note,   sig: COL.student1_signature,   time: COL.student1_time },
         student2:   { status: COL.student2_status,   note: COL.student2_note,   sig: COL.student2_signature,   time: COL.student2_time },
         advisor:    { status: COL.advisor_status,    note: COL.advisor_note,    sig: COL.advisor_signature,    time: COL.advisor_time },
         coadvisor1: { status: COL.coadvisor1_status, note: COL.coadvisor1_note, sig: COL.coadvisor1_signature, time: COL.coadvisor1_time },
         coadvisor2: { status: COL.coadvisor2_status, note: COL.coadvisor2_note, sig: COL.coadvisor2_signature, time: COL.coadvisor2_time },
+        admin:      { status: COL.admin_status,      note: COL.admin_note,      sig: COL.admin_signature,      time: COL.admin_time },
       };
 
       const cols = roleColMap[userChainRole];
-      if (!cols) return res.status(400).json({ status: "error", message: "บทบาทไม่ถูกต้อง" });
-
-      // Encode signature (base64-like text representation)
-      const encodedSig = Buffer.from(signature).toString("base64");
+      if (!cols) return res.status(400).json({ status: "error", message: "ประเภทผู้ใช้งานไม่ถูกต้อง" });
 
       const updates = [
         { col: cols.status, value: statusVal },
         { col: cols.note,   value: note || "" },
-        { col: cols.sig,    value: encodedSig },
+        { col: cols.sig,    value: encryptedSig },
         { col: cols.time,   value: now },
         { col: COL.updated_at, value: now },
       ];
 
+      // Save admin name if this is the admin step
+      if (userChainRole === "admin" && adminName) {
+        updates.push({ col: COL.admin_name, value: adminName });
+      }
+
+      // ── Handle REJECT ──────────────────────────────────────────
       if (action === "reject") {
-        // Petition rejected — final
         updates.push({ col: COL.status,       value: "ปฏิเสธ" });
         updates.push({ col: COL.final_result, value: "ปฏิเสธ" });
         updates.push({ col: COL.current_step, value: "สิ้นสุด" });
         await updateRowCells(SHEET, p._row, updates);
-
-        // Notify requester
-        notifyRejected(p, user.name, note).catch(console.error);
+        notifyRejected(p, userChainRole === "admin" ? (adminName || "ผู้ดูแลระบบ") : user.name, note).catch(console.error);
         return res.json({ status: "success", message: "ปฏิเสธคำร้องแล้ว" });
       }
 
-      // Approved — find next step
-      const currentIndex = chain.findIndex(s => s.role === userChainRole);
-      const nextStep = chain[currentIndex + 1];
+      // ── Handle APPROVE ─────────────────────────────────────────
+      // Compute stage state AFTER this approval
+      // Build a temporary in-memory snapshot of petition with this approval applied
+      const updatedP = Object.assign({}, p, {
+        [userChainRole]: { status: statusVal, note: note || "", signature: encryptedSig, time: now }
+      });
+      const nextStage = getPendingStage(updatedP, chain);
 
-      if (nextStep) {
-        updates.push({ col: COL.current_step, value: nextStep.role });
-        await updateRowCells(SHEET, p._row, updates);
-        // Notify next approver
-        sendPetitionNotification(
-          p.petition_id, nextStep.email, nextStep.name,
-          p.petition_type, p.project_code, p.project_name, p.requester_name
-        ).catch(console.error);
-      } else {
-        // All approved
+      if (nextStage === "done") {
+        // All stages complete — finalise
         updates.push({ col: COL.status,       value: "เสร็จสิ้น" });
         updates.push({ col: COL.final_result, value: "อนุมัติ" });
         updates.push({ col: COL.current_step, value: "สิ้นสุด" });
         await updateRowCells(SHEET, p._row, updates);
-
-        // Post-approval actions
         await handlePostApproval(p, chainData.payload).catch(console.error);
         notifyCompleted(p).catch(console.error);
+      } else if (nextStage !== activeStage) {
+        // Stage transition — notify the next group
+        updates.push({ col: COL.current_step, value: nextStage });
+        await updateRowCells(SHEET, p._row, updates);
+
+        if (nextStage === "advisors") {
+          const advisorSteps = chain.filter(s => ["advisor","coadvisor1","coadvisor2"].includes(s.role));
+          for (const step of advisorSteps) {
+            sendPetitionNotification(p.petition_id, step.email, step.name,
+              p.petition_type, p.project_code, p.project_name, p.requester_name).catch(console.error);
+          }
+        } else if (nextStage === "admin") {
+          // Notify all admins
+          for (const adminEmail of ADMIN_EMAILS) {
+            sendPetitionAdminNotification(p.petition_id, adminEmail,
+              p.petition_type, p.project_code, p.project_name, p.requester_name).catch(console.error);
+          }
+        }
+      } else {
+        // Same stage, just save this user's approval (others in stage still pending)
+        await updateRowCells(SHEET, p._row, updates);
       }
 
-      return res.json({ status: "success", message: action === "approve" ? "อนุมัติแล้ว" : "บันทึกแล้ว" });
+      return res.json({ status: "success", message: "อนุมัติแล้ว" });
     }
 
     return res.status(404).json({ status: "error", message: "ไม่พบคำร้อง" });
@@ -443,35 +544,17 @@ async function handleSignature(req, res) {
 
 // ================================================================
 // Post-approval automation (Type 4: rename, Type 5: change field)
+// Called only after admin has approved and petition is fully done
 // ================================================================
 async function handlePostApproval(petition, payload) {
   const type = Number(petition.petition_type);
 
   if (type === 4 && (payload.newNameTH || payload.newNameEN)) {
-    // Update project name in TEST_DEV sheet
     await updateProjectName(petition.project_code, payload.newNameTH, payload.newNameEN);
   }
 
   if (type === 5 && payload.newField) {
     await updateProjectField(petition.project_code, payload.newField);
-  }
-
-  if ([1, 2, 3, 6].includes(type)) {
-    // Notify admin
-    for (const adminEmail of ADMIN_EMAILS) {
-      await sendMail({
-        to: adminEmail,
-        subject: `[SCiUS-Admin] คำร้อง ${petition.petition_id} ได้รับการอนุมัติครบถ้วน`,
-        htmlBody: buildFlexEmailHtml(
-          "✅ คำร้องได้รับการอนุมัติ", "#10b981",
-          `<p>คำร้อง <strong>${petition.petition_id}</strong> ได้รับการอนุมัติจากทุกฝ่ายแล้ว</p>
-           <p>ประเภท: <strong>${PETITION_TYPES[type] || type}</strong></p>
-           <p>โครงงาน: <strong>${petition.project_code} — ${petition.project_name}</strong></p>
-           <p>ผู้ยื่น: <strong>${petition.requester_name}</strong></p>`,
-          "ดูรายละเอียด", `${WEB_URL}petition/${petition.petition_id}`
-        ),
-      });
-    }
   }
 }
 
@@ -526,6 +609,25 @@ async function sendPetitionNotification(petitionId, toEmail, toName, type, projC
          <p style="margin:0;font-size:14px;">👤 ผู้ยื่น: <strong>${requesterName}</strong></p>
        </div>`,
       "🔍 ตรวจสอบและอนุมัติ", `${WEB_URL}petition/${petitionId}`
+    ),
+  });
+}
+
+async function sendPetitionAdminNotification(petitionId, toEmail, type, projCode, projName, requesterName) {
+  if (!toEmail?.includes("@")) return;
+  await sendMail({
+    to: toEmail,
+    subject: `[SCiUS-Admin] คำร้อง ${petitionId} รออนุมัติจากผู้ดูแลระบบ`,
+    htmlBody: buildFlexEmailHtml(
+      "🛡️ คำร้องรอการอนุมัติจาก Admin", "#7c3aed",
+      `<p>คำร้องได้รับการอนุมัติจากนักเรียนและอาจารย์ครบถ้วนแล้ว รอการอนุมัติขั้นสุดท้ายจากผู้ดูแลระบบ</p>
+       <div style="background:#f8fafc;padding:12px;border-radius:8px;margin:12px 0;border-left:4px solid #7c3aed;">
+         <p style="margin:0 0 4px;font-size:14px;">📌 รหัสคำร้อง: <strong>${petitionId}</strong></p>
+         <p style="margin:0 0 4px;font-size:14px;">📋 ประเภท: <strong>${PETITION_TYPES[type] || type}</strong></p>
+         <p style="margin:0 0 4px;font-size:14px;">📁 โครงงาน: <strong>${projCode} — ${projName}</strong></p>
+         <p style="margin:0;font-size:14px;">👤 ผู้ยื่น: <strong>${requesterName}</strong></p>
+       </div>`,
+      "✅ เข้าสู่ระบบเพื่ออนุมัติ", `${WEB_URL}petition/${petitionId}`
     ),
   });
 }

@@ -165,7 +165,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
   }, [user?.studentId]);
 
   if (pageView === 'petitions') {
-        return <PetitionDashboard />;
+        return <PetitionDashboard setPageView={setPageView} />;
     }
 
   const steps: { name: WorkType; label: string; iconId: string; textId: string }[] = [

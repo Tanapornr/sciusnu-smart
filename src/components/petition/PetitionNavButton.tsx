@@ -35,7 +35,7 @@ export default function PetitionNavButton({ pageView, setPageView }: Props) {
             // Find the first step with no status
             const pendingStep = chain.find(
               (s: { role: string; email: string }) =>
-                !p[s.role as keyof typeof p]?.status
+                !(p as any)[s.role]?.status
             );
             if (pendingStep && pendingStep.email.trim().toLowerCase() === email) {
               count++;

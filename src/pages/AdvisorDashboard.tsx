@@ -49,7 +49,7 @@ export default function AdvisorDashboard({ pageView, setPageView }: Props) {
   const [passSaving, setPassSaving] = useState(false);
 
     if (pageView === 'petitions') {
-        return <PetitionDashboard />;
+        return <PetitionDashboard setPageView={setPageView} />;
     }
 
   const getMainAdvisorEmail = (projectRow: any) => {

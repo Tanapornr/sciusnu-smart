@@ -8,9 +8,8 @@ import { formatDateTimeTH } from '../utils';
 import type { Petition } from '../types/petition';
 import { PETITION_TYPE_LABELS } from '../types/petition';
 import {
-  FileText, Plus, Clock, CheckCircle2, XCircle,
-  ChevronRight, RefreshCw, LogOut, Moon, Sun,
-  ClipboardList, ListFilter, Inbox
+  Plus, ChevronRight, RefreshCw, LogOut, Moon, Sun,
+  ClipboardList, Inbox
 } from 'lucide-react';
 import { Spinner } from '../components/ui';
 import CreatePetitionModal from '../components/petition/CreatePetitionModal';
@@ -40,7 +39,13 @@ function typeIcon(type: string) {
   return icons[type] || '📋';
 }
 
-export default function PetitionDashboard() {
+import type { PageView } from '../App';
+
+interface Props {
+  setPageView?: (v: PageView) => void;
+}
+
+export default function PetitionDashboard({ setPageView }: Props = {}) {
   const { user, theme, toggleTheme, logout } = useAuthStore();
   const [petitions, setPetitions] = useState<Petition[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,6 +96,14 @@ export default function PetitionDashboard() {
       <header className="sticky top-0 z-40 border-b" style={{ background: 'var(--glass-panel-bg)', borderColor: 'var(--glass-panel-border)', backdropFilter: 'blur(20px)' }}>
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
+            {setPageView && (
+              <button
+                onClick={() => setPageView('main')}
+                className="btn-liquid flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 transition-all border border-neutral-200/50 dark:border-neutral-700/50 mr-2"
+              >
+                ← หน้าหลัก
+              </button>
+            )}
             <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center">
               <ClipboardList className="w-4 h-4 text-white" />
             </div>

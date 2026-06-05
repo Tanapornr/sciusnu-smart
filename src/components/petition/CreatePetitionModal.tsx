@@ -270,7 +270,7 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
                 <h3 className="font-semibold text-sm text-orange-600">📋 ตรวจสอบรายละเอียดคำร้อง</h3>
 
                 <ReviewRow label="ผู้ยื่นคำร้อง" value={user?.name || ''} />
-                <ReviewRow label="บทบาท" value={user?.role === 'student' ? 'นักเรียน' : 'อาจารย์ที่ปรึกษา'} />
+                <ReviewRow label="ประเภทผู้ใช้งาน" value={user?.role === 'student' ? 'นักเรียน' : 'อาจารย์ที่ปรึกษา'} />
                 <ReviewRow label="ประเภทคำร้อง" value={PETITION_TYPE_LABELS[petitionType]} />
 
                 {petitionType === 1 && <>

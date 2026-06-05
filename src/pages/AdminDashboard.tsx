@@ -37,9 +37,7 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-    if (pageView === 'petitions') {
-        return <PetitionDashboard />;
-    }
+    
 
   // FIX Vuln 6: Only allow Google Drive file URLs to prevent open redirect / phishing.
   const isValidFileUrl = (url: any): boolean => {
@@ -90,6 +88,10 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
   useEffect(() => {
     fetchData();
   }, []);
+
+  if (pageView === 'petitions') {
+        return <PetitionDashboard setPageView={setPageView} />;
+    }
 
   const viewStudentPopup = (name: string, id: string, phoneStr: string, picUrl: string) => {
     Swal.fire({

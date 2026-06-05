@@ -24,7 +24,7 @@ export interface ApproverRecord {
 }
 
 export interface ChainStep {
-  role: string; // student1, student2, advisor, coadvisor1, coadvisor2
+  role: string; // student1, student2, advisor, coadvisor1, coadvisor2, admin
   email: string;
   name: string;
 }
@@ -79,6 +79,7 @@ export interface Petition {
   advisor: ApproverRecord;
   coadvisor1: ApproverRecord;
   coadvisor2: ApproverRecord;
+  admin: ApproverRecord & { name?: string };
   // Enriched on detail call
   chain?: ChainStep[];
   payload?: PetitionPayload;
@@ -106,4 +107,5 @@ export interface PetitionDetailResponse {
 export interface PetitionApprovePayload {
   note?: string;
   signature: string; // base64 SVG data URI from canvas
+  adminName?: string; // only sent when role === admin
 }

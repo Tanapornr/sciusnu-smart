@@ -1,6 +1,10 @@
 // ================================================================
 // components/petition/PetitionDetailModal.tsx
 // Shows petition details, timeline, approval chain, and action UI
+// Concurrent stage-based approval:
+//   Stage 1 — students approve simultaneously
+//   Stage 2 — advisors approve simultaneously
+//   Stage 3 — any admin approves (with dropdown name + confirm popup)
 // ================================================================
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
@@ -9,13 +13,20 @@ import { formatDateTimeTH } from '../../utils';
 import type { Petition, ChainStep } from '../../types/petition';
 import { PETITION_TYPE_LABELS } from '../../types/petition';
 import {
-  X, CheckCircle2, XCircle, Clock, ChevronRight,
-  User as UserIcon, Calendar, FileText, AlertTriangle
+  X, CheckCircle2, XCircle, Clock, ChevronDown,
+  AlertTriangle, Users, Shield
 } from 'lucide-react';
 import { Spinner } from '../ui';
 import SignaturePad from './SignaturePad';
 import Swal from 'sweetalert2';
 
+// ── Admin names dropdown ──────────────────────────────────────────
+const ADMIN_NAMES = [
+  'อ.อรุโณทัย กัลยา',
+  'อ.สุจิตรา แป้นแก้ว',
+  'อ.ศุภรินทร อนุพงศ์',
+  'อ.ภาณุพงศ์ ช้างต่อ'
+];
 interface Props {
   petitionId: string;
   onClose: () => void;
@@ -28,10 +39,24 @@ const ROLE_LABELS: Record<string, string> = {
   advisor:    'อาจารย์ที่ปรึกษา',
   coadvisor1: 'อาจารย์ที่ปรึกษาร่วม 1',
   coadvisor2: 'อาจารย์ที่ปรึกษาร่วม 2',
+  admin:      'ผู้ดูแลระบบ',
 };
 
-function normalizeEmailUtil(email: string) {
+function normalizeEmail(email: string) {
   return String(email || '').trim().toLowerCase();
+}
+
+/** Determine which stage the petition is currently in */
+function getPendingStage(petition: Petition, chain: ChainStep[]): 'students' | 'advisors' | 'admin' | 'done' {
+  const studentRoles  = chain.filter(s => s.role.startsWith('student')).map(s => s.role);
+  const advisorRoles  = chain.filter(s => ['advisor','coadvisor1','coadvisor2'].includes(s.role)).map(s => s.role);
+  const allStudentsDone = studentRoles.every(r => !!(petition[r as keyof Petition] as any)?.status);
+  const allAdvisorsDone = advisorRoles.every(r => !!(petition[r as keyof Petition] as any)?.status);
+  const adminDone       = !!(petition.admin as any)?.status;
+  if (!allStudentsDone) return 'students';
+  if (!allAdvisorsDone) return 'advisors';
+  if (!adminDone)       return 'admin';
+  return 'done';
 }
 
 export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: Props) {
@@ -42,8 +67,9 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
 
   // Approval state
   const [showApproveUI, setShowApproveUI] = useState(false);
-  const [note, setNote] = useState('');
+  const [note, setNote]           = useState('');
   const [signature, setSignature] = useState('');
+  const [adminName, setAdminName] = useState('');
   const [approving, setApproving] = useState(false);
   const [rejecting, setRejecting] = useState(false);
 
@@ -58,24 +84,83 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
       .finally(() => setLoading(false));
   }, [petitionId]);
 
-  // Determine if current user can approve
-  const canApprove = (() => {
-    if (!petition || !user) return false;
-    if (petition.status !== 'รอดำเนินการ') return false;
+  // ── Determine if current user can act in this stage ───────────
+  const { canApprove, isAdminStage } = (() => {
+    if (!petition || !user) return { canApprove: false, isAdminStage: false };
+    if (petition.status !== 'รอดำเนินการ') return { canApprove: false, isAdminStage: false };
+
     const chain = petition.chain || [];
-    const pendingStep = chain.find(s => !petition[s.role as keyof Petition]?.status);
-    if (!pendingStep) return false;
-    return normalizeEmailUtil(pendingStep.email) === normalizeEmailUtil(user.email);
+    const stage = getPendingStage(petition, chain);
+
+    if (stage === 'done') return { canApprove: false, isAdminStage: false };
+
+    // Admin stage — any admin user can approve, and they have not yet approved
+    if (stage === 'admin') {
+      const alreadyDone = !!(petition.admin as any)?.status;
+      const isAdmin = user.role === 'admin';
+      return {
+        canApprove: isAdmin && !alreadyDone,
+        isAdminStage: true,
+      };
+    }
+
+    // Student / advisor stage — check if user's email matches a step in this stage
+    const stageRoles = stage === 'students'
+      ? chain.filter(s => s.role.startsWith('student')).map(s => s.role)
+      : chain.filter(s => ['advisor','coadvisor1','coadvisor2'].includes(s.role)).map(s => s.role);
+
+    const myStep = chain.find(s =>
+      stageRoles.includes(s.role) &&
+      normalizeEmail(s.email) === normalizeEmail(user.email)
+    );
+
+    if (!myStep) return { canApprove: false, isAdminStage: false };
+
+    // Already acted?
+    const alreadyDone = !!(petition[myStep.role as keyof Petition] as any)?.status;
+    return {
+      canApprove: !alreadyDone,
+      isAdminStage: false,
+    };
   })();
 
+  // ── Approve handler ───────────────────────────────────────────
   async function doApprove() {
     if (!signature) {
       Swal.fire({ icon: 'warning', title: 'กรุณาลงนาม', text: 'ต้องลงลายเซ็นก่อนอนุมัติ', confirmButtonColor: '#f97316' });
       return;
     }
+    if (isAdminStage && !adminName) {
+      Swal.fire({ icon: 'warning', title: 'กรุณาเลือกชื่อ', text: 'โปรดเลือกชื่อผู้อนุมัติก่อน', confirmButtonColor: '#f97316' });
+      return;
+    }
+
+    // Admin confirmation popup
+    if (isAdminStage) {
+      const confirmed = await Swal.fire({
+        icon: 'warning',
+        iconColor: '#f97316',
+        title: 'ยืนยันการอนุมัติ',
+        html: `<div class="text-center">
+          <p class="text-sm text-slate-600 dark:text-slate-300 mb-2">คุณกำลังจะ<strong>อนุมัติ</strong>คำร้องนี้</p>
+          <div class="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-xl p-3 text-left text-sm">
+            <p class="font-bold text-amber-700 dark:text-amber-400">📋 รหัสคำร้อง: ${petition?.petition_id}</p>
+            <p class="text-amber-600 dark:text-amber-500 mt-1">ผู้อนุมัติ: <strong>${adminName}</strong></p>
+          </div>
+          <p class="mt-3 text-sm font-semibold text-orange-600">คุณแน่ใจหรือไม่?</p>
+        </div>`,
+        showCancelButton: true,
+        confirmButtonText: '✅ ยืนยันอนุมัติ',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#64748b',
+      });
+      if (!confirmed.isConfirmed) return;
+    }
+
     setApproving(true);
     try {
-      const res = await apiApprovePetition(petitionId, { note, signature });
+      const res = await apiApprovePetition(petitionId, { note, signature, adminName: isAdminStage ? adminName : undefined });
       if (res.status === 'success') {
         await Swal.fire({ icon: 'success', title: 'อนุมัติสำเร็จ', confirmButtonColor: '#f97316' });
         onUpdate();
@@ -86,9 +171,14 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
     } finally { setApproving(false); }
   }
 
+  // ── Reject handler ────────────────────────────────────────────
   async function doReject() {
     if (!signature) {
       Swal.fire({ icon: 'warning', title: 'กรุณาลงนาม', text: 'ต้องลงลายเซ็นก่อนปฏิเสธ', confirmButtonColor: '#f97316' });
+      return;
+    }
+    if (isAdminStage && !adminName) {
+      Swal.fire({ icon: 'warning', title: 'กรุณาเลือกชื่อ', text: 'โปรดเลือกชื่อผู้ดำเนินการก่อน', confirmButtonColor: '#f97316' });
       return;
     }
     const result = await Swal.fire({
@@ -105,7 +195,7 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
 
     setRejecting(true);
     try {
-      const res = await apiRejectPetition(petitionId, { note, signature });
+      const res = await apiRejectPetition(petitionId, { note, signature, adminName: isAdminStage ? adminName : undefined });
       if (res.status === 'success') {
         await Swal.fire({ icon: 'success', title: 'ปฏิเสธแล้ว', confirmButtonColor: '#f97316' });
         onUpdate();
@@ -159,13 +249,39 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
                 onClick={() => setShowApproveUI(true)}
                 className="btn-liquid w-full py-3 rounded-xl font-semibold text-sm text-white bg-orange-500 hover:bg-orange-600 shadow-md shadow-orange-200/50 transition-colors flex items-center justify-center gap-2"
               >
-                ✍️ ดำเนินการอนุมัติ / ปฏิเสธ
+                {isAdminStage ? <><Shield className="w-4 h-4" /> อนุมัติขั้นสุดท้าย (Admin)</> : <>✍️ ดำเนินการอนุมัติ / ปฏิเสธ</>}
               </button>
             )}
 
             {canApprove && showApproveUI && (
               <div className="rounded-xl border p-4 space-y-4" style={{ borderColor: 'var(--focus-border)', background: 'var(--focus-ring)' }}>
-                <h3 className="font-bold text-sm text-orange-600">✍️ ดำเนินการคำร้อง</h3>
+                <h3 className="font-bold text-sm text-orange-600 flex items-center gap-2">
+                  {isAdminStage ? <><Shield className="w-4 h-4" /> อนุมัติขั้นสุดท้าย — ผู้ดูแลระบบ</> : <>✍️ ดำเนินการคำร้อง</>}
+                </h3>
+
+                {/* Admin name dropdown — shown only for admin stage */}
+                {isAdminStage && (
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5 flex items-center gap-1.5">
+                      <ChevronDown className="w-4 h-4 text-orange-500" />
+                      เลือกชื่อผู้อนุมัติ <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={adminName}
+                        onChange={e => setAdminName(e.target.value)}
+                        className="glass-input w-full rounded-xl px-3 py-2.5 text-sm focus:outline-none appearance-none pr-10"
+                        id="admin-name-select"
+                      >
+                        <option value="">— กรุณาเลือกชื่อ —</option>
+                        {ADMIN_NAMES.map(n => (
+                          <option key={n} value={n}>{n}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+                    </div>
+                  </div>
+                )}
 
                 {/* Note */}
                 <div>
@@ -182,6 +298,14 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
                   label="ลายเซ็นดิจิทัล (จำเป็น)"
                 />
 
+                {/* Admin caution notice */}
+                {isAdminStage && (
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-xs text-amber-700 dark:text-amber-400">
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>เมื่ออนุมัติ คำร้องนี้จะถือว่า<strong>สมบูรณ์</strong>และไม่สามารถแก้ไขได้อีก</span>
+                  </div>
+                )}
+
                 {/* Action buttons */}
                 <div className="grid grid-cols-2 gap-3 pt-1">
                   <button
@@ -194,7 +318,7 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
                   </button>
                   <button
                     onClick={doApprove}
-                    disabled={approving || rejecting || !signature}
+                    disabled={approving || rejecting || !signature || (isAdminStage && !adminName)}
                     className="btn-liquid py-2.5 rounded-xl font-semibold text-sm text-white bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 transition-colors flex items-center justify-center gap-2 shadow-md shadow-emerald-200/50"
                   >
                     {approving ? <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : <CheckCircle2 className="w-4 h-4" />}
@@ -297,77 +421,138 @@ function PayloadSection({ petition }: { petition: Petition }) {
   );
 }
 
+// ── Stage group header ────────────────────────────────────────────
+function StageGroupHeader({ label, icon, done }: { label: string; icon: React.ReactNode; done: boolean }) {
+  return (
+    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold mb-3 ${done ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'}`}>
+      {icon}
+      {label}
+      {done && <span className="ml-auto">✓ ผ่านแล้ว</span>}
+    </div>
+  );
+}
+
 function ApprovalTimeline({ petition }: { petition: Petition }) {
   const chain = petition.chain || [];
   if (chain.length === 0) return null;
+
+  // Group into stages
+  const studentSteps  = chain.filter(s => s.role.startsWith('student'));
+  const advisorSteps  = chain.filter(s => ['advisor','coadvisor1','coadvisor2'].includes(s.role));
+  const adminStep     = chain.find(s => s.role === 'admin');
+
+  const allStudentsDone = studentSteps.every(s => !!(petition[s.role as keyof Petition] as any)?.status);
+  const allAdvisorsDone = advisorSteps.every(s => !!(petition[s.role as keyof Petition] as any)?.status);
+  const adminDone       = !!(petition.admin as any)?.status;
+
+  const renderStep = (step: ChainStep, idx: number, stageActive: boolean) => {
+    const approver = petition[step.role as keyof Petition] as any;
+    const status  = approver?.status || '';
+    const isDone  = !!status;
+    const isPending = !isDone && stageActive;
+
+    return (
+      <div key={step.role} className="flex items-start gap-3 relative pl-2">
+        {/* Step icon */}
+        <div className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border-2 ${
+          status === 'อนุมัติ'  ? 'bg-emerald-100 border-emerald-400 dark:bg-emerald-900/30 dark:border-emerald-600' :
+          status === 'ปฏิเสธ'  ? 'bg-rose-100 border-rose-400 dark:bg-rose-900/30 dark:border-rose-600' :
+          isPending             ? 'bg-amber-100 border-amber-400 dark:bg-amber-900/30 dark:border-amber-600' :
+                                  'bg-neutral-100 border-neutral-300 dark:bg-neutral-800 dark:border-neutral-600'
+        }`}>
+          {status === 'อนุมัติ' ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> :
+           status === 'ปฏิเสธ' ? <XCircle className="w-3.5 h-3.5 text-rose-500" /> :
+           isPending            ? <Clock className="w-3.5 h-3.5 text-amber-500" /> :
+                                  <span className="text-[10px] text-neutral-400 font-bold">{idx + 1}</span>}
+        </div>
+
+        {/* Step content */}
+        <div className="flex-1 pb-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-semibold">{ROLE_LABELS[step.role] || step.role}</span>
+            {isDone && (
+              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                status === 'อนุมัติ' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                                       'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
+              }`}>{status}</span>
+            )}
+            {isPending && <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">รออนุมัติ</span>}
+          </div>
+          {/* Show name for admin (selected at approval time), email for others */}
+          {step.role === 'admin' ? (
+            isDone && approver?.name
+              ? <p className="text-xs text-neutral-400 mt-0.5">อนุมัติโดย: {approver.name}</p>
+              : <p className="text-xs text-neutral-400 mt-0.5">ผู้ดูแลระบบ</p>
+          ) : (
+            <p className="text-xs text-neutral-400 mt-0.5">{step.name} · {step.email}</p>
+          )}
+          {isDone && approver?.time && (
+            <p className="text-xs text-neutral-400 mt-0.5">
+              {formatDateTimeTH(approver.time).date} {formatDateTimeTH(approver.time).time}
+            </p>
+          )}
+          {isDone && approver?.note && (
+            <div className="mt-1.5 p-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-600 dark:text-neutral-300">
+              💬 {approver.note}
+            </div>
+          )}
+          {isDone && approver?.signature && (
+            <div className="mt-1.5 flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+              ✍️ ลงนามแล้ว
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--ios-card-border)' }}>
       <div className="px-4 py-2.5 text-xs font-bold text-neutral-500 uppercase tracking-wider border-b" style={{ background: 'var(--compact-info-bg)', borderColor: 'var(--ios-card-border)' }}>
         ขั้นตอนการอนุมัติ
       </div>
-      <div className="p-4">
-        <div className="relative">
-          {/* Vertical line */}
-          <div className="absolute left-4 top-5 bottom-5 w-0.5 bg-neutral-200 dark:bg-neutral-700" />
+      <div className="p-4 space-y-2">
 
-          <div className="space-y-4">
-            {chain.map((step, i) => {
-              const approver = petition[step.role as keyof Petition] as any;
-              const status = approver?.status || '';
-              const isDone = !!status;
-              const isNext = !isDone && !chain.slice(0, i).some(s => !petition[s.role as keyof Petition]?.status);
-              const isPending = !isDone && !isNext;
-
-              return (
-                <div key={step.role} className="flex items-start gap-4 relative">
-                  {/* Step icon */}
-                  <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border-2 ${
-                    status === 'อนุมัติ'  ? 'bg-emerald-100 border-emerald-400 dark:bg-emerald-900/30 dark:border-emerald-600' :
-                    status === 'ปฏิเสธ'  ? 'bg-rose-100 border-rose-400 dark:bg-rose-900/30 dark:border-rose-600' :
-                    isNext               ? 'bg-amber-100 border-amber-400 dark:bg-amber-900/30 dark:border-amber-600' :
-                                          'bg-neutral-100 border-neutral-300 dark:bg-neutral-800 dark:border-neutral-600'
-                  }`}>
-                    {status === 'อนุมัติ' ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> :
-                     status === 'ปฏิเสธ' ? <XCircle className="w-4 h-4 text-rose-500" /> :
-                     isNext              ? <Clock className="w-4 h-4 text-amber-500" /> :
-                                          <span className="text-xs text-neutral-400 font-bold">{i + 1}</span>}
-                  </div>
-
-                  {/* Step content */}
-                  <div className="flex-1 pb-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold">{ROLE_LABELS[step.role] || step.role}</span>
-                      {isDone && (
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                          status === 'อนุมัติ' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                                               'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
-                        }`}>{status}</span>
-                      )}
-                      {isNext && <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">รออนุมัติ</span>}
-                    </div>
-                    <p className="text-xs text-neutral-400 mt-0.5">{step.name} · {step.email}</p>
-                    {isDone && approver.time && (
-                      <p className="text-xs text-neutral-400 mt-0.5">
-                        {formatDateTimeTH(approver.time).date} {formatDateTimeTH(approver.time).time}
-                      </p>
-                    )}
-                    {isDone && approver.note && (
-                      <div className="mt-1.5 p-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-xs text-neutral-600 dark:text-neutral-300">
-                        💬 {approver.note}
-                      </div>
-                    )}
-                    {isDone && approver.signature && (
-                      <div className="mt-1.5 flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
-                        ✍️ ลงนามแล้ว
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+        {/* Stage 1: Students */}
+        {studentSteps.length > 0 && (
+          <div>
+            <StageGroupHeader
+              label="ขั้นที่ 1 — นักเรียน"
+              icon={<Users className="w-3.5 h-3.5" />}
+              done={allStudentsDone}
+            />
+            <div className="space-y-1">
+              {studentSteps.map((s, i) => renderStep(s, i, !allStudentsDone))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Stage 2: Advisors */}
+        {advisorSteps.length > 0 && (
+          <div className="mt-3">
+            <StageGroupHeader
+              label="ขั้นที่ 2 — อาจารย์ที่ปรึกษา"
+              icon={<Users className="w-3.5 h-3.5" />}
+              done={allAdvisorsDone}
+            />
+            <div className="space-y-1">
+              {advisorSteps.map((s, i) => renderStep(s, i, allStudentsDone && !allAdvisorsDone))}
+            </div>
+          </div>
+        )}
+
+        {/* Stage 3: Admin */}
+        {adminStep && (
+          <div className="mt-3">
+            <StageGroupHeader
+              label="ขั้นที่ 3 — ผู้ดูแลระบบ"
+              icon={<Shield className="w-3.5 h-3.5" />}
+              done={adminDone}
+            />
+            {renderStep(adminStep, 0, allStudentsDone && allAdvisorsDone && !adminDone)}
+          </div>
+        )}
+
       </div>
     </div>
   );
