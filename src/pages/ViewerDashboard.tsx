@@ -35,10 +35,6 @@ export default function ViewerDashboard({ pageView, setPageView }: Props) {
   const [loading, setLoading] = useState(true);
   const [showPermWarning, setShowPermWarning] = useState(false);
 
-  if (pageView === 'petitions') {
-    return <PetitionDashboard setPageView={setPageView} />;
-  }
-
   const getProcessedImgUrl = (url: any, studentName: string) => {
     if (!url || url === '-' || url === '') return `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=f0f0f0&color=1a1a1a`;
     if (url.includes('drive.google.com')) {
@@ -113,6 +109,10 @@ export default function ViewerDashboard({ pageView, setPageView }: Props) {
   useEffect(() => {
     fetchData();
   }, []);
+
+  if (pageView === 'petitions') {
+    return <PetitionDashboard setPageView={setPageView} />;
+  }
 
   const viewStudentPopup = (name: string, id: string, phoneStr: string, picUrl: string) => {
     Swal.fire({

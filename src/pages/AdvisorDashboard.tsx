@@ -48,10 +48,6 @@ export default function AdvisorDashboard({ pageView, setPageView }: Props) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passSaving, setPassSaving] = useState(false);
 
-    if (pageView === 'petitions') {
-        return <PetitionDashboard setPageView={setPageView} />;
-    }
-
   const getMainAdvisorEmail = (projectRow: any) => {
     // Use named key "E-mail อ.ที่ปรึกษา" (col 8) instead of positional index
     const namedEmail = Object.entries(projectRow).find(([key]) => key.trim() === 'E-mail อ.ที่ปรึกษา')?.[1];
@@ -170,6 +166,11 @@ export default function AdvisorDashboard({ pageView, setPageView }: Props) {
   useEffect(() => {
     fetchData();
   }, [user]);
+
+  
+    if (pageView === 'petitions') {
+        return <PetitionDashboard setPageView={setPageView} />;
+    }
 
   const viewStudentPopup = (name: string, id: string, phoneStr: string, picUrl: string) => {
     Swal.fire({
