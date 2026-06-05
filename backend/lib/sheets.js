@@ -19,6 +19,44 @@ const { google } = require("googleapis");
 const RELAY_URL    = process.env.APPS_SCRIPT_URL;
 const RELAY_SECRET = process.env.APPS_SCRIPT_SECRET;
 
+function getAuth() {
+  return new google.auth.GoogleAuth({
+    credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON),
+    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+  });
+}
+
+const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
+
+/**
+ * Update specific cells in a row.
+ * @param {string} sheetName - Sheet tab name
+ * @param {number} rowIndex  - 1-based row number
+ * @param {Array}  updates   - [{col: N, value: "..."}] (col is 1-based)
+ */
+async function updateRowCells(sheetName, rowIndex, updates) {
+  const auth = await getAuth().getClient();
+  const sheets = google.sheets({ version: 'v4', auth });
+
+  // Build batchUpdate data
+  const data = updates.map(({ col, value }) => {
+    // Convert column number to A1 notation
+    const colLetter = columnToLetter(col);
+    return {
+      range: `${sheetName}!${colLetter}${rowIndex}`,
+      values: [[value ?? '']],
+    };
+  });
+
+  await sheets.spreadsheets.values.batchUpdate({
+    spreadsheetId: SPREADSHEET_ID,
+    requestBody: {
+      valueInputOption: 'USER_ENTERED',
+      data,
+    },
+  });
+}
+
 async function callRelay(payload) {
   if (!RELAY_URL) throw new Error("APPS_SCRIPT_URL is not configured");
 
@@ -135,10 +173,44 @@ function colLetter(n) {
   return letter;
 }
 
+async function updateRowCells(sheetName, rowIndex, updates) {
+  const auth = await getAuth().getClient();
+  const sheets = google.sheets({ version: 'v4', auth });
+
+  // Build batchUpdate data
+  const data = updates.map(({ col, value }) => {
+    // Convert column number to A1 notation
+    const colLetter = columnToLetter(col);
+    return {
+      range: `${sheetName}!${colLetter}${rowIndex}`,
+      values: [[value ?? '']],
+    };
+  });
+
+  await sheets.spreadsheets.values.batchUpdate({
+    spreadsheetId: SPREADSHEET_ID,
+    requestBody: {
+      valueInputOption: 'USER_ENTERED',
+      data,
+    },
+  });
+}
+
+function columnToLetter(col) {
+  let letter = '';
+  while (col > 0) {
+    const remainder = (col - 1) % 26;
+    letter = String.fromCharCode(65 + remainder) + letter;
+    col = Math.floor((col - 1) / 26);
+  }
+  return letter;
+}
+
 module.exports = {
   getSheetValues,
   appendRow,
   updateCell,
   updateRowCells,
   ensureSubmissionsSheet,
+  columnToLetter,
 };

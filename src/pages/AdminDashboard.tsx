@@ -24,14 +24,22 @@ import {
   Clock,
   } from 'lucide-react';
 import Swal from 'sweetalert2';
+import PetitionDashboard from './PetitionDashboard';
+import PetitionNavButton from '../components/petition/PetitionNavButton';
+import type { PageView } from '../App';
 
-export default function AdminDashboard() {
+interface Props { pageView: PageView; setPageView: (v: PageView) => void; }
+export default function AdminDashboard({ pageView, setPageView }: Props) {
   const { theme, toggleTheme, logout } = useAuthStore();
 
   const [submissions, setSubmissions] = useState<SubmissionRow[]>([]);
   const [projectRows, setProjectRows] = useState<ProjectRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+
+    if (pageView === 'petitions') {
+        return <PetitionDashboard />;
+    }
 
   // FIX Vuln 6: Only allow Google Drive file URLs to prevent open redirect / phishing.
   const isValidFileUrl = (url: any): boolean => {
@@ -252,6 +260,7 @@ export default function AdminDashboard() {
                   </div>
               </div>
               <div className="flex items-center gap-2">
+                <PetitionNavButton pageView={pageView} setPageView={setPageView} />
                   <button onClick={toggleTheme} className="btn-liquid bg-slate-200/50 dark:bg-slate-700/50 p-2.5 rounded-full text-slate-700 dark:text-slate-200 outline-none hover:text-orange-500">
                       {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                   </button>

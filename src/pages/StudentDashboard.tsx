@@ -61,41 +61,45 @@ import {
   Clock
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import PetitionDashboard from './PetitionDashboard';
+import PetitionNavButton from '../components/petition/PetitionNavButton';
+import type { PageView } from '../App';
 
-export default function StudentDashboard() {
-  const { user, updateProfile, theme, toggleTheme, logout } = useAuthStore();
+interface Props { pageView: PageView; setPageView: (v: PageView) => void; }
+export default function StudentDashboard({ pageView, setPageView }: Props) {
+    const { user, updateProfile, theme, toggleTheme, logout } = useAuthStore();
 
-  const [projectInfo, setProjectInfo] = useState<ProjectInfo | null>(null);
-  const [members, setMembers] = useState<GroupMember[]>([]);
-  const [submissions, setSubmissions] = useState<SubmissionRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [_error, setError] = useState<string | null>(null);
+    const [projectInfo, setProjectInfo] = useState<ProjectInfo | null>(null);
+    const [members, setMembers] = useState<GroupMember[]>([]);
+    const [submissions, setSubmissions] = useState<SubmissionRow[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [_error, setError] = useState<string | null>(null);
 
-  const [submitting, setSubmitting] = useState(false);
-  const [selectedWorkType, setSelectedWorkType] = useState<WorkType | ''>('');
-  const [file1, setFile1] = useState<File | null>(null);
-  const [_file2, _setFile2] = useState<File | null>(null);
-  const [_resubmitReason, _setResubmitReason] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+    const [selectedWorkType, setSelectedWorkType] = useState<WorkType | ''>('');
+    const [file1, setFile1] = useState<File | null>(null);
+    const [_file2, _setFile2] = useState<File | null>(null);
+    const [_resubmitReason, _setResubmitReason] = useState('');
 
-  const [rejectTypes, setRejectTypes] = useState<WorkType[]>([]);
+    const [rejectTypes, setRejectTypes] = useState<WorkType[]>([]);
 
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [phone, setPhone] = useState('');
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState('');
-  
-  const [showPasswordSection, setShowPasswordSection] = useState(false);
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [profileSaving, setProfileSaving] = useState(false);
-  
-  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [phone, setPhone] = useState('');
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState('');
+    
+    const [showPasswordSection, setShowPasswordSection] = useState(false);
+    const [oldPassword, setOldPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [profileSaving, setProfileSaving] = useState(false);
+    
+    const [isDownloadOpen, setIsDownloadOpen] = useState(false);
 
-  const fileInputRef1 = useRef<HTMLInputElement>(null);
-  // const _fileInputRef2 = useRef<HTMLInputElement>(null);
-  
-  const dropdownRef = useRef<HTMLDivElement>(null);
+    const fileInputRef1 = useRef<HTMLInputElement>(null);
+    // const _fileInputRef2 = useRef<HTMLInputElement>(null);
+    
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -159,6 +163,10 @@ export default function StudentDashboard() {
   useEffect(() => {
     fetchData();
   }, [user?.studentId]);
+
+  if (pageView === 'petitions') {
+        return <PetitionDashboard />;
+    }
 
   const steps: { name: WorkType; label: string; iconId: string; textId: string }[] = [
     { name: 'โครงร่าง (Proposal)', label: 'โครงร่าง (Proposal)', iconId: 'icon-proposal', textId: 'text-proposal' },
@@ -474,6 +482,7 @@ export default function StudentDashboard() {
                         </div>
                     </div>
                 </div>
+                <PetitionNavButton pageView={pageView} setPageView={setPageView} />
                 <button onClick={toggleTheme} className="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2 sm:p-2.5 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-transparent dark:border-neutral-700">
                     {theme === 'dark' ? <Sun className="w-4.5 h-4.5 text-orange-400" /> : <Moon className="w-4.5 h-4.5" />}
                 </button>

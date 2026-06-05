@@ -30,8 +30,12 @@ import {
   ExternalLink
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import PetitionDashboard from './PetitionDashboard';
+import PetitionNavButton from '../components/petition/PetitionNavButton';
+import type { PageView } from '../App';
 
-export default function AdvisorDashboard() {
+interface Props { pageView: PageView; setPageView: (v: PageView) => void; }
+export default function AdvisorDashboard({ pageView, setPageView }: Props) {
   const { user, theme, toggleTheme, logout } = useAuthStore();
 
   const [submissions, setSubmissions] = useState<SubmissionRow[]>([]);
@@ -44,7 +48,9 @@ export default function AdvisorDashboard() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passSaving, setPassSaving] = useState(false);
 
-
+    if (pageView === 'petitions') {
+        return <PetitionDashboard />;
+    }
 
   const getMainAdvisorEmail = (projectRow: any) => {
     // Use named key "E-mail อ.ที่ปรึกษา" (col 8) instead of positional index
@@ -370,6 +376,7 @@ export default function AdvisorDashboard() {
                   </div>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
+                <PetitionNavButton pageView={pageView} setPageView={setPageView} />
                   <button onClick={toggleTheme} className="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2.5 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-transparent dark:border-neutral-700">
                       {theme === 'dark' ? <Sun className="w-4.5 h-4.5 text-orange-400" /> : <Moon className="w-4.5 h-4.5" />}
                   </button>

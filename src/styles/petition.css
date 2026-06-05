@@ -1,0 +1,230 @@
+/* ================================================================
+   Petition System — CSS additions
+   Append to your existing src/styles/components.css
+   ================================================================ */
+
+/* ── Modal Backdrop ──────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: modalBackdropIn 0.15s ease-out;
+}
+
+@keyframes modalBackdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Modal Panel ─────────────────────────────────────────────────── */
+.modal-panel {
+  width: 100%;
+  border-radius: 20px;
+  border: 1px solid var(--ios-card-border);
+  background: var(--glass-panel-bg);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  animation: modalPanelIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+@keyframes modalPanelIn {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Petition status badge colors ────────────────────────────────── */
+.badge-pending {
+  background: var(--color-warning-bg, #fef3c7);
+  color: var(--color-warning-text, #b45309);
+  border: 1px solid var(--color-warning-border, #fde68a);
+}
+
+.badge-approved {
+  background: var(--color-success-bg, #d1fae5);
+  color: var(--color-success-text, #065f46);
+  border: 1px solid var(--color-success-border, #6ee7b7);
+}
+
+.badge-rejected {
+  background: var(--color-error-bg, #fee2e2);
+  color: var(--color-error-text, #9b1c1c);
+  border: 1px solid var(--color-error-border, #fca5a5);
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  .badge-pending  { background: rgba(251,191,36,0.15); color: #fbbf24; border-color: rgba(251,191,36,0.3); }
+  .badge-approved { background: rgba(52,211,153,0.15); color: #34d399; border-color: rgba(52,211,153,0.3); }
+  .badge-rejected { background: rgba(248,113,113,0.15); color: #f87171; border-color: rgba(248,113,113,0.3); }
+}
+[data-theme="dark"] .badge-pending  { background: rgba(251,191,36,0.15); color: #fbbf24; border-color: rgba(251,191,36,0.3); }
+[data-theme="dark"] .badge-approved { background: rgba(52,211,153,0.15); color: #34d399; border-color: rgba(52,211,153,0.3); }
+[data-theme="dark"] .badge-rejected { background: rgba(248,113,113,0.15); color: #f87171; border-color: rgba(248,113,113,0.3); }
+
+/* ── Approval timeline connector ─────────────────────────────────── */
+.timeline-connector {
+  position: absolute;
+  left: 15px;
+  top: 32px;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    var(--ios-card-border),
+    transparent
+  );
+}
+
+/* ── Signature pad wrapper ───────────────────────────────────────── */
+.sig-pad-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px dashed var(--ios-card-border);
+  background: #ffffff;
+  transition: border-color 0.2s;
+  touch-action: none;
+}
+
+.sig-pad-wrapper:hover {
+  border-color: #f97316;
+}
+
+.sig-pad-wrapper.has-signature {
+  border-style: solid;
+  border-color: #10b981;
+}
+
+/* ── Petition card hover ─────────────────────────────────────────── */
+.petition-card {
+  transition: background 0.12s, transform 0.12s;
+}
+
+.petition-card:hover {
+  background: rgba(249, 115, 22, 0.04);
+}
+
+.petition-card:active {
+  transform: scale(0.995);
+}
+
+/* ── Step wizard dots ────────────────────────────────────────────── */
+.step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.step-dot.active   { background: #f97316; color: #ffffff; }
+.step-dot.done     { background: #f97316; color: #ffffff; }
+.step-dot.inactive { background: var(--ios-card-border); color: var(--neutral-400, #9ca3af); }
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  max-width: 48px;
+  transition: background 0.2s;
+}
+
+.step-line.done   { background: #f97316; }
+.step-line.inactive { background: var(--ios-card-border); }
+
+/* ── Petition type selector card ─────────────────────────────────── */
+.petition-type-card {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1.5px solid transparent;
+  transition: all 0.15s;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  background: var(--ios-card-bg);
+  border-color: var(--ios-card-border);
+}
+
+.petition-type-card:hover {
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249,115,22,0.08);
+}
+
+.petition-type-card.selected {
+  border-color: #f97316;
+  background: rgba(249,115,22,0.06);
+  box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
+}
+
+/* ── Info section block ─────────────────────────────────────────── */
+.info-section {
+  border-radius: 14px;
+  border: 1px solid var(--ios-card-border);
+  overflow: hidden;
+}
+
+.info-section-header {
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--neutral-400, #9ca3af);
+  background: var(--compact-info-bg, rgba(0,0,0,0.02));
+  border-bottom: 1px solid var(--ios-card-border);
+}
+
+.info-section-body {
+  padding: 14px 16px;
+}
+
+/* ── Review row ─────────────────────────────────────────────────── */
+.review-row {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.review-row-label {
+  color: var(--neutral-400, #9ca3af);
+  min-width: 110px;
+  flex-shrink: 0;
+}
+
+.review-row-value {
+  font-weight: 500;
+  word-break: break-all;
+}
+
+/* ── Mobile responsive adjustments ──────────────────────────────── */
+@media (max-width: 640px) {
+  .modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-panel {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: none;
+    max-height: 92vh;
+  }
+
+  @keyframes modalPanelIn {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}

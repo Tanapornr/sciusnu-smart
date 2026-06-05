@@ -1,8 +1,5 @@
 // ================================================================
-// server.js — Express entry point
-// FIX Vuln 7:  Rate limiting on /api/auth (brute-force protection)
-// FIX Vuln 8:  /api/logout endpoint (server-side token blocklist)
-// FIX Vuln 11: Security headers via manual middleware (no extra dep)
+// server.js — Express entry point (updated with petition routes)
 // ================================================================
 require("dotenv").config();
 const express     = require("express");
@@ -13,33 +10,31 @@ const { verifyToken } = require("./lib/auth");
 const auth             = require("./api/auth");
 const session          = require("./api/session");
 const data             = require("./api/data");
-const driveUploadToken = require("./api/drive-upload-token"); // NEW: issues single-use upload tokens
+const driveUploadToken = require("./api/drive-upload-token");
 const submit           = require("./api/submit");
 const status           = require("./api/status");
 const profile          = require("./api/profile");
 const advisorPassword  = require("./api/advisor-password");
+const petitionsRouter  = require("./api/petitions"); // NEW
 
 const app = express();
 
-// ── CORS ────────────────────────────────────────────────────────
+// ── CORS ──────────────────────────────────────────────────────────
 const ALLOWED_ORIGIN = process.env.WEB_URL ? process.env.WEB_URL.replace(/\/$/, "") : "*";
 app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }));
 
-// ── Security headers (FIX Vuln 11) ─────────────────────────────
+// ── Security headers ──────────────────────────────────────────────
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-  res.setHeader(
-    "Content-Security-Policy",
-    "default-src 'none'; frame-ancestors 'none'"
-  );
+  res.setHeader("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'");
   next();
 });
 
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "2mb" })); // increased for signature payloads
 
-// ── Token blocklist for logout (FIX Vuln 8) ─────────────────────
+// ── Token blocklist for logout ────────────────────────────────────
 const revokedTokens = new Set();
 app.revokedTokens = revokedTokens;
 
@@ -57,7 +52,7 @@ app.post("/api/logout", (req, res) => {
   return res.json({ status: "success" });
 });
 
-// ── Rate limiting on login (FIX Vuln 7) ─────────────────────────
+// ── Rate limiting ─────────────────────────────────────────────────
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
@@ -66,7 +61,7 @@ const loginLimiter = rateLimit({
   message: { status: "error", message: "คำขอเข้าสู่ระบบมากเกินไป กรุณารอสักครู่แล้วลองใหม่" },
 });
 
-// ── Routes ───────────────────────────────────────────────────────
+// ── Routes ────────────────────────────────────────────────────────
 app.post("/api/auth",               loginLimiter, auth);
 app.get( "/api/session",            ...(Array.isArray(session) ? session : [session]));
 app.get( "/api/data",               ...(Array.isArray(data) ? data : [data]));
@@ -76,10 +71,9 @@ app.post("/api/status",             ...(Array.isArray(status) ? status : [status
 app.post("/api/profile",            ...(Array.isArray(profile) ? profile : [profile]));
 app.post("/api/advisor-password",   ...(Array.isArray(advisorPassword) ? advisorPassword : [advisorPassword]));
 
-// NOTE: /api/drive-upload and /api/drive-upload-url have been removed.
-// Files now go: Frontend → /api/drive-upload-token (token only) → GAS directly.
+// ── Petition routes (NEW) ─────────────────────────────────────────
+app.use("/api/petitions", petitionsRouter);
 
-// Dual-mode: Express server locally, Vercel serverless in prod
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () =>

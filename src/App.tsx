@@ -1,7 +1,5 @@
 // ================================================================
-// App.tsx
-// FIX Vuln 1: On mount, verify the session token with the backend.
-// If the server rejects it, clear the session immediately.
+// App.tsx — Updated with petition tab support
 // ================================================================
 import { useEffect, useState } from 'react';
 import { useAuthStore } from './store/authStore';
@@ -13,34 +11,26 @@ import AdvisorDashboard from './pages/AdvisorDashboard';
 import ViewerDashboard from './pages/ViewerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 
+// Global page context: 'main' | 'petitions'
+export type PageView = 'main' | 'petitions';
+
 function App() {
   const { isAuthenticated, user, restoreSession } = useAuthStore();
   const [verifying, setVerifying] = useState(() => Boolean(getToken()));
+  const [pageView, setPageView] = useState<PageView>('main');
 
-  // Restore in-memory auth only after the backend verifies the token.
   useEffect(() => {
     const token = getToken();
-    if (!token) {
-      setVerifying(false);
-      return;
-    }
+    if (!token) { setVerifying(false); return; }
 
     let cancelled = false;
     setVerifying(true);
     apiGetSession()
-      .then((session) => {
-        if (!cancelled) restoreSession(session);
-      })
-      .catch(() => {
-        if (!cancelled) clearToken();
-      })
-      .finally(() => {
-        if (!cancelled) setVerifying(false);
-      });
+      .then((session) => { if (!cancelled) restoreSession(session); })
+      .catch(() => { if (!cancelled) clearToken(); })
+      .finally(() => { if (!cancelled) setVerifying(false); });
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [restoreSession]);
 
   useEffect(() => {
@@ -57,16 +47,18 @@ function App() {
     return <Login />;
   }
 
+  const props = { pageView, setPageView };
+
   switch (user.role) {
     case 'student':
-      return <StudentDashboard />;
+      return <StudentDashboard {...props} />;
     case 'advisor_main':
-      return <AdvisorDashboard />;
+      return <AdvisorDashboard {...props} />;
     case 'advisor':
     case 'viewer':
-      return <ViewerDashboard />;
+      return <ViewerDashboard {...props} />;
     case 'admin':
-      return <AdminDashboard />;
+      return <AdminDashboard {...props} />;
     default:
       return <Login />;
   }

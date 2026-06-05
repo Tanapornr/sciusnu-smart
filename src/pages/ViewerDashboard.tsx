@@ -18,14 +18,26 @@ import {
   User,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import PetitionDashboard from './PetitionDashboard';
+import PetitionNavButton from '../components/petition/PetitionNavButton';
+import type { PageView } from '../App';
 
-export default function ViewerDashboard() {
+interface Props {
+  pageView: PageView;
+  setPageView: (v: PageView) => void;
+}
+
+export default function ViewerDashboard({ pageView, setPageView }: Props) {
   const { user, theme, toggleTheme, logout } = useAuthStore();
 
   const [myAssignedProjects, setMyAssignedProjects] = useState<ProjectRow[]>([]);
   const [myAssignedSubmissions, setMyAssignedSubmissions] = useState<SubmissionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPermWarning, setShowPermWarning] = useState(false);
+
+  if (pageView === 'petitions') {
+    return <PetitionDashboard />;
+  }
 
   const getProcessedImgUrl = (url: any, studentName: string) => {
     if (!url || url === '-' || url === '') return `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=f0f0f0&color=1a1a1a`;
@@ -199,6 +211,7 @@ export default function ViewerDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <PetitionNavButton pageView={pageView} setPageView={setPageView} />
             <button onClick={toggleTheme} className="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2.5 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-transparent dark:border-neutral-700">
               {theme === 'dark' ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4" />}
             </button>
