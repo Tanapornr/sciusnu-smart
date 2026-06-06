@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { apiGetData, apiUpdateStatus } from '../services/api';
+import { apiUpdateStatus } from '../services/api';
+import { useProjectData } from '../hooks/useProjectData';
 import {
   formatDateTimeTH,
   escapeHtml
@@ -37,6 +38,16 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // ── useProjectData: shared L3 cache ───────────────────────────
+  const { data: rawData, loading: dataLoading, refetch } = useProjectData();
+
+  useEffect(() => {
+    setLoading(dataLoading);
+    if (!rawData) return;
+    setProjectRows(rawData.projects || []);
+    setSubmissions(rawData.submissions || []);
+  }, [rawData, dataLoading]);
+
     
 
   // FIX Vuln 6: Only allow Google Drive file URLs to prevent open redirect / phishing.
@@ -63,31 +74,7 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
     return url;
   };
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const res = await apiGetData();
-      if (res.status === 'success') {
-        setProjectRows(res.projects || []);
-        setSubmissions(res.submissions || []);
-      } else {
-        throw new Error(res.message || 'ดึงข้อมูลไม่สำเร็จ');
-      }
-    } catch (err: any) {
-      Swal.fire({
-        title: '<div class="font-bold text-rose-600">โหลดข้อมูลล้มเหลว</div>',
-        text: err.message,
-        icon: 'error',
-        customClass: { popup: 'swal-admin' },
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  // (data fetching moved to useProjectData hook above)
 
   if (pageView === 'petitions') {
         return <PetitionDashboard setPageView={setPageView} />;
@@ -242,7 +229,7 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
         });
         if (res.status === 'success') { 
             await Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500, customClass: { popup: 'swal-admin' } }); 
-            fetchData(); 
+            refetch(); 
         } else {
             throw new Error(res.message);
         }

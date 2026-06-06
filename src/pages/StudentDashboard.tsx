@@ -2,11 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import type { FormEvent } from 'react';
 import { useAuthStore } from '../store/authStore';
 import {
-  apiGetData,
   apiSubmit,
   apiUpdateProfile,
   uploadFileToDrive,
 } from '../services/api';
+import { useProjectData } from '../hooks/useProjectData';
 import {
   parseProjectRow,
   extractGroupMembers,
@@ -75,6 +75,41 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
     const [loading, setLoading] = useState(true);
     const [_error, setError] = useState<string | null>(null);
 
+    // ── useProjectData: shared L3 cache — no redundant API calls ──
+    const { data: rawData, loading: dataLoading, error: dataError, refetch } = useProjectData();
+
+    // Transform raw API data into local state whenever it changes
+    useEffect(() => {
+      if (!rawData || !user?.studentId) return;
+      setLoading(false);
+      if (dataError) { setError(dataError); return; }
+
+      const myRow = rawData.projects.find(
+        (p) => (p['รหัสนักเรียน'] || '') === user.studentId,
+      );
+      if (!myRow) { setError('ไม่พบข้อมูลโครงงานของคุณในระบบ'); return; }
+
+      const info = parseProjectRow(myRow);
+      setProjectInfo(info);
+      setPhone(info.phone || '');
+
+      const groupMembers = extractGroupMembers(rawData.projects, info.projectId);
+      setMembers(groupMembers);
+
+      const mySubmissions = rawData.submissions.filter((s) => {
+        const sPid = s['รหัสโครงงาน'] || s['รหัสกลุ่ม'] || '';
+        return sPid.replace(/\s+/g, '').toLowerCase() === info.projectId.replace(/\s+/g, '').toLowerCase();
+      });
+      setSubmissions(mySubmissions);
+
+      const rejects = getActiveRejectTypes(mySubmissions);
+      setRejectTypes(rejects);
+      if (rejects.length > 0) setSelectedWorkType(rejects[0]);
+    }, [rawData, user?.studentId, dataError]);
+
+    // Keep loading state in sync with hook
+    useEffect(() => { setLoading(dataLoading); }, [dataLoading]);
+
     const [submitting, setSubmitting] = useState(false);
     const [selectedWorkType, setSelectedWorkType] = useState<WorkType | ''>('');
     const [file1, setFile1] = useState<File | null>(null);
@@ -113,56 +148,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
     };
   }, []);
 
-  const fetchData = async () => {
-    if (!user?.studentId) return;
-    try {
-      setLoading(true);
-      setError(null);
-
-      const res = await apiGetData(user.studentId);
-      if (res.status === 'success') {
-        const myRow = res.projects.find((p) => {
-          // Use named key "รหัสนักเรียน" instead of positional index
-          return (p['รหัสนักเรียน'] || '') === user.studentId;
-        });
-
-        if (!myRow) {
-          throw new Error('ไม่พบข้อมูลโครงงานของคุณในระบบ');
-        }
-
-        const info = parseProjectRow(myRow);
-        setProjectInfo(info);
-        setPhone(info.phone || '');
-
-        const groupMembers = extractGroupMembers(res.projects, info.projectId);
-        setMembers(groupMembers);
-
-        const mySubmissions = res.submissions.filter((s) => {
-          const sPid = s['รหัสโครงงาน'] || s['รหัสกลุ่ม'] || '';
-          return sPid.replace(/\s+/g, '').toLowerCase() === info.projectId.replace(/\s+/g, '').toLowerCase();
-        });
-
-        setSubmissions(mySubmissions);
-
-        const rejects = getActiveRejectTypes(mySubmissions);
-        setRejectTypes(rejects);
-
-        if (rejects.length > 0) {
-            setSelectedWorkType(rejects[0]);
-        }
-      } else {
-        throw new Error(res.message || 'โหลดข้อมูลโครงงานไม่สำเร็จ');
-      }
-    } catch (err: any) {
-      setError(err.message || 'เกิดข้อผิดพลาดในการดึงข้อมูล');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [user?.studentId]);
+  // (data fetching moved to useProjectData hook above)
 
   if (pageView === 'petitions') {
         return <PetitionDashboard setPageView={setPageView} />;
@@ -287,7 +273,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
             
             if (res.status === 'success') {
                 Swal.fire({ icon: 'success', title: '<div class="font-bold text-lg">ส่งไฟล์สำเร็จ!</div>', showConfirmButton: false, timer: 1500, customClass: {popup: 'rounded-2xl'} });
-                fetchData();
+                refetch();
             } else {
                 throw new Error(res.message);
             }
@@ -347,7 +333,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
         setSelectedWorkType('');
         if (fileInputRef1.current) fileInputRef1.current.value = '';
 
-        fetchData();
+        refetch();
       } else {
         throw new Error(res.message || 'บันทึกข้อมูลไม่สำเร็จ');
       }

@@ -12,6 +12,7 @@ import type { User, UserRole } from '../types';
 import { storage, getDirectImageUrl, avatarFallback } from '../utils';
 import { syncThemeClass } from '../lib/theme';
 import { clearToken, apiLogout } from '../services/api';
+import { clearDataCache } from '../hooks/useProjectData';
 
 interface AuthState {
   user: User | null;
@@ -75,6 +76,7 @@ export const useAuthStore = create<AuthState>()(
         apiLogout().catch(() => {});
         // Client-side cleanup
         clearToken();
+        clearDataCache(); // ← bust the L3 data cache so next login fetches fresh
         set({ user: null, isAuthenticated: false });
       },
 

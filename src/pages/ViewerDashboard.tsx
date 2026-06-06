@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { apiGetData } from '../services/api';
+import { useProjectData } from '../hooks/useProjectData';
 import { formatDateTimeTH, getVal, escapeHtml } from '../utils';
 import type { SubmissionRow, ProjectRow } from '../types';
 import {
@@ -35,6 +35,38 @@ export default function ViewerDashboard({ pageView, setPageView }: Props) {
   const [loading, setLoading] = useState(true);
   const [showPermWarning, setShowPermWarning] = useState(false);
 
+  // ── useProjectData: shared L3 cache ───────────────────────────
+  const { data: rawData, loading: dataLoading } = useProjectData();
+
+  useEffect(() => {
+    setLoading(dataLoading);
+    if (!rawData) return;
+
+    const allProjects = rawData.projects || [];
+    const allSubs     = rawData.submissions || [];
+    const userEmail   = (user?.email || '').toLowerCase().trim();
+    const userRole    = user?.role || '';
+
+    if (userRole !== 'admin') setShowPermWarning(true);
+
+    if (userRole === 'admin') {
+      setMyAssignedProjects(allProjects);
+      setMyAssignedSubmissions(allSubs);
+    } else {
+      let myProjectIds: string[] = [];
+      allProjects.forEach(p => {
+        const matchEmail = Object.values(p).some(val => val && val.toString().toLowerCase().trim() === userEmail);
+        if (matchEmail) {
+          const pid = getVal(p, ['รหัสโครงงาน', 'projectid', 'รหัสโปรเจกต์']);
+          if (pid) myProjectIds.push(pid);
+        }
+      });
+      myProjectIds = [...new Set(myProjectIds)];
+      setMyAssignedProjects(allProjects.filter(p => myProjectIds.includes(getVal(p, ['รหัสโครงงาน', 'projectid']))));
+      setMyAssignedSubmissions(allSubs.filter(s => myProjectIds.includes(getVal(s, ['รหัสโครงงาน', 'projectid']))));
+    }
+  }, [rawData, dataLoading, user]);
+
   const getProcessedImgUrl = (url: any, studentName: string) => {
     if (!url || url === '-' || url === '') return `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=f0f0f0&color=1a1a1a`;
     if (url.includes('drive.google.com')) {
@@ -52,63 +84,7 @@ export default function ViewerDashboard({ pageView, setPageView }: Props) {
     return 'รอตรวจ';
   };
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const res = await apiGetData();
-      if (res.status === 'success') {
-        const allProjects: ProjectRow[] = res.projects || [];
-        const allSubs: SubmissionRow[] = res.submissions || [];
-
-        const userEmail = (user?.email || '').toLowerCase().trim();
-        const userRole = user?.role || '';
-
-        if (userRole !== 'admin') {
-          setShowPermWarning(true);
-        }
-
-        let assignedProjects: ProjectRow[];
-        let assignedSubs: SubmissionRow[];
-
-        if (userRole === 'admin') {
-          assignedProjects = allProjects;
-          assignedSubs = allSubs;
-        } else {
-          // Find all project IDs where this user's email appears in any column
-          let myProjectIds: string[] = [];
-          allProjects.forEach(p => {
-            const matchEmail = Object.values(p).some(val => val && val.toString().toLowerCase().trim() === userEmail);
-            if (matchEmail) {
-              const pid = getVal(p, ['รหัสโครงงาน', 'projectid', 'รหัสโปรเจกต์']);
-              if (pid) myProjectIds.push(pid);
-            }
-          });
-          myProjectIds = [...new Set(myProjectIds)];
-
-          assignedProjects = allProjects.filter(p => {
-            const pid = getVal(p, ['รหัสโครงงาน', 'projectid']);
-            return myProjectIds.includes(pid);
-          });
-
-          assignedSubs = allSubs.filter(s => {
-            const pid = getVal(s, ['รหัสโครงงาน', 'projectid']);
-            return myProjectIds.includes(pid);
-          });
-        }
-
-        setMyAssignedProjects(assignedProjects);
-        setMyAssignedSubmissions(assignedSubs);
-      }
-    } catch (err: any) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  // (data fetching moved to useProjectData hook above)
 
   if (pageView === 'petitions') {
     return <PetitionDashboard setPageView={setPageView} />;

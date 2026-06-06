@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { apiGetData, apiUpdateStatus, apiUpdateAdvisorPassword } from '../services/api';
+import { apiUpdateStatus, apiUpdateAdvisorPassword } from '../services/api';
+import { useProjectData } from '../hooks/useProjectData';
 import {
   parseSubmissionStatus,
   formatDateTimeTH,
@@ -41,6 +42,32 @@ export default function AdvisorDashboard({ pageView, setPageView }: Props) {
   const [submissions, setSubmissions] = useState<SubmissionRow[]>([]);
   const [projectRows, setProjectRows] = useState<ProjectRow[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // ── useProjectData: shared L3 cache ───────────────────────────
+  const { data: rawData, loading: dataLoading, refetch } = useProjectData();
+
+  useEffect(() => {
+    setLoading(dataLoading);
+    if (!rawData) return;
+    let allProjs = rawData.projects || [];
+    let allSubs  = rawData.submissions || [];
+
+    if (user?.role === 'admin') {
+      setProjectRows(allProjs);
+      setSubmissions(allSubs);
+    } else {
+      let myProjectIds: string[] = [];
+      allProjs.forEach(p => {
+        if (isLoggedInMainAdvisor(p) || isLoggedInCoAdvisor(p)) {
+          const pid = (p['รหัสโครงงาน'] || '').toString();
+          if (pid) myProjectIds.push(pid);
+        }
+      });
+      myProjectIds = [...new Set(myProjectIds)];
+      setProjectRows(allProjs.filter(p => myProjectIds.includes((p['รหัสโครงงาน'] || '').toString())));
+      setSubmissions(allSubs.filter(s => myProjectIds.includes((s['รหัสโครงงาน'] || s['projectid'] || '').toString())));
+    }
+  }, [rawData, dataLoading, user]);
 
   const [isPassModalOpen, setIsPassModalOpen] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
@@ -113,59 +140,7 @@ export default function AdvisorDashboard({ pageView, setPageView }: Props) {
     }
   };
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const res = await apiGetData();
-      if (res.status === 'success') {
-        let allProjs = res.projects || [];
-        let allSubs = res.submissions || [];
-        
-        if (user?.role === 'admin') {
-            setProjectRows(allProjs);
-            setSubmissions(allSubs);
-        } else {
-            let myProjectIds: string[] = [];
-            allProjs.forEach(p => {
-                if (isLoggedInMainAdvisor(p) || isLoggedInCoAdvisor(p)) {
-                    // Use named key "รหัสโครงงาน" (col 5) not positional keys[4]
-                    const pid = (p['รหัสโครงงาน'] || '').toString();
-                    if (pid) myProjectIds.push(pid);
-                }
-            });
-            myProjectIds = [...new Set(myProjectIds)];
-
-            const filteredProjs = allProjs.filter(p => {
-                const pid = (p['รหัสโครงงาน'] || '').toString();
-                return myProjectIds.includes(pid);
-            });
-            
-            const filteredSubs = allSubs.filter(s => {
-                const pid = s['รหัสโครงงาน'] || s['projectid'] || '';
-                return myProjectIds.includes(pid);
-            });
-
-            setProjectRows(filteredProjs);
-            setSubmissions(filteredSubs);
-        }
-      } else {
-        throw new Error(res.message || 'ดึงข้อมูลล้มเหลว');
-      }
-    } catch (err: any) {
-        Swal.fire({
-            title: '<div class="font-bold text-rose-600">ผิดพลาด</div>',
-            text: err.message,
-            icon: 'error',
-            customClass: { popup: 'rounded-[1.5rem]' }
-        });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [user]);
+  // (data fetching moved to useProjectData hook above)
 
   
     if (pageView === 'petitions') {
@@ -272,7 +247,7 @@ export default function AdvisorDashboard({ pageView, setPageView }: Props) {
                     });
                     if (res.status === 'success') {
                         Swal.fire({ icon: 'success', title: 'อนุมัติสำเร็จ!', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-[1.5rem]' } });
-                        fetchData();
+                        refetch();
                     } else {
                         throw new Error(res.message);
                     }
@@ -318,7 +293,7 @@ export default function AdvisorDashboard({ pageView, setPageView }: Props) {
                     });
                     if (res.status === 'success') {
                         Swal.fire({ icon: 'success', title: 'ส่งคำขอแก้ไขเรียบร้อย', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-[1.5rem]' } });
-                        fetchData();
+                        refetch();
                     } else {
                         throw new Error(res.message);
                     }
