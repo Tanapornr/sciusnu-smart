@@ -1,15 +1,17 @@
 // ================================================================
 // components/petition/CreatePetitionModal.tsx
-// Wizard: Step 1 (type) → Step 2 (fields) → Step 3 (review) → Submit
+// Wizard: Step 1 (type) → Step 2 (fields) → Step 3 (sign) → Step 4 (review) → Submit
+// On submit: create petition then auto-sign so user doesn't need to open it again
 // ================================================================
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useProjectData } from '../../hooks/useProjectData';
 import { parseProjectRow } from '../../utils';
-import { apiCreatePetition } from '../../services/petitionApi';
+import { apiCreatePetition, apiApprovePetition } from '../../services/petitionApi';
 import type { PetitionType, PetitionPayload } from '../../types/petition';
 import { PETITION_TYPE_LABELS } from '../../types/petition';
 import { X, ChevronRight, ChevronLeft, Send, CheckCircle2 } from 'lucide-react';
+import SignaturePad from './SignaturePad';
 import Swal from 'sweetalert2';
 
 interface Props {
@@ -30,11 +32,15 @@ const PETITION_DESCRIPTIONS: Record<number, string> = {
   6: 'คำร้องอื่นๆ ที่ไม่อยู่ในประเภทข้างต้น',
 };
 
+// Total steps is now 4
+type Step = 1 | 2 | 3 | 4;
+
 export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
   const { user } = useAuthStore();
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<Step>(1);
   const [petitionType, setPetitionType] = useState<PetitionType | null>(null);
   const [payload, setPayload] = useState<PetitionPayload>({});
+  const [signature, setSignature] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const { data: rawData } = useProjectData();
@@ -73,20 +79,41 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
 
   async function handleSubmit() {
     if (!petitionType) return;
+    if (!signature) {
+      Swal.fire({ icon: 'warning', title: 'กรุณาลงนาม', text: 'ต้องลงลายเซ็นก่อนส่งคำร้อง', confirmButtonColor: '#f97316' });
+      return;
+    }
+
     setSubmitting(true);
     try {
+      // Step A: Create petition
       const res = await apiCreatePetition({ petition_type: petitionType, payload });
-      if (res.status === 'success') {
+      if (res.status !== 'success') throw new Error(res.message || 'เกิดข้อผิดพลาด');
+
+      const petitionId = res.petition_id;
+
+      // Step B: Auto-sign (approve) as the requester so they don't have to open it again
+      try {
+        await apiApprovePetition(petitionId, { signature });
+      } catch (_signErr) {
+        // Auto-sign failed but petition was created — continue, user can sign manually
         await Swal.fire({
           icon: 'success',
           title: 'ยื่นคำร้องสำเร็จ',
-          html: `รหัสคำร้อง: <strong>${res.petition_id}</strong><br>ระบบจะส่งแจ้งเตือนถึงผู้อนุมัติทันที`,
+          html: `รหัสคำร้อง: <strong>${petitionId}</strong><br><span class="text-sm text-amber-600">⚠️ ลงนามอัตโนมัติไม่สำเร็จ กรุณาเปิดคำร้องเพื่อลงนาม</span>`,
           confirmButtonColor: '#f97316',
         });
         onSuccess();
-      } else {
-        throw new Error(res.message || 'เกิดข้อผิดพลาด');
+        return;
       }
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'ยื่นและลงนามคำร้องสำเร็จ',
+        html: `รหัสคำร้อง: <strong>${petitionId}</strong><br><span class="text-sm text-emerald-600">✅ ลงนามเรียบร้อยแล้ว ระบบจะส่งแจ้งเตือนผู้อนุมัติลำดับถัดไปทันที</span>`,
+        confirmButtonColor: '#f97316',
+      });
+      onSuccess();
     } catch (e: any) {
       Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: e.message, confirmButtonColor: '#f97316' });
     } finally {
@@ -112,6 +139,15 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
     }
   }
 
+  const stepLabels = ['เลือกประเภท', 'กรอกข้อมูล', 'ลงนาม', 'ตรวจสอบ'];
+
+  function canGoNext() {
+    if (step === 1) return !!petitionType;
+    if (step === 2) return validateStep2();
+    if (step === 3) return !!signature;
+    return true;
+  }
+
   return (
     <div className="modal-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal-panel" style={{ maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto' }}>
@@ -119,7 +155,7 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
         <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'var(--ios-card-border)' }}>
           <div>
             <h2 className="font-bold text-base">ยื่นคำร้องออนไลน์</h2>
-            <p className="text-xs text-neutral-400 mt-0.5">ขั้นตอนที่ {step}/3</p>
+            <p className="text-xs text-neutral-400 mt-0.5">ขั้นตอนที่ {step}/4</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-500 transition-colors">
             <X className="w-4 h-4" />
@@ -128,18 +164,18 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
 
         {/* Step indicators */}
         <div className="flex items-center gap-1 px-5 pt-4">
-          {[1, 2, 3].map(s => (
+          {[1, 2, 3, 4].map(s => (
             <div key={s} className="flex items-center gap-1">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
                 step > s ? 'bg-orange-500 text-white' : step === s ? 'bg-orange-500 text-white' : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-400'
               }`}>
                 {step > s ? '✓' : s}
               </div>
-              {s < 3 && <div className={`flex-1 h-0.5 w-12 transition-colors ${step > s ? 'bg-orange-500' : 'bg-neutral-200 dark:bg-neutral-700'}`} />}
+              {s < 4 && <div className={`flex-1 h-0.5 w-8 transition-colors ${step > s ? 'bg-orange-500' : 'bg-neutral-200 dark:bg-neutral-700'}`} />}
             </div>
           ))}
           <div className="ml-2 text-xs text-neutral-400">
-            {step === 1 ? 'เลือกประเภท' : step === 2 ? 'กรอกข้อมูล' : 'ตรวจสอบ'}
+            {stepLabels[step - 1]}
           </div>
         </div>
 
@@ -332,8 +368,30 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
             </div>
           )}
 
-          {/* ── Step 3: Review ─────────────────────────────────── */}
-          {step === 3 && petitionType && (
+          {/* ── Step 3: Signature ───────────────────────────────── */}
+          {step === 3 && (
+            <div className="space-y-4">
+              <div className="p-3 rounded-xl bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 text-sm text-orange-700 dark:text-orange-300">
+                ✍️ ลงนามเพื่อยืนยันการยื่นคำร้อง — ลายเซ็นนี้จะถูกบันทึกเป็นลายเซ็นของผู้ยื่นทันที
+              </div>
+
+              <SignaturePad
+                onSign={setSignature}
+                onClear={() => setSignature('')}
+                label="ลายเซ็นผู้ยื่นคำร้อง"
+              />
+
+              {signature && (
+                <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                  <CheckCircle2 className="w-4 h-4" />
+                  ลงนามเรียบร้อยแล้ว — กดถัดไปเพื่อตรวจสอบก่อนส่ง
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Step 4: Review ──────────────────────────────────── */}
+          {step === 4 && petitionType && (
             <div className="space-y-4">
               <div className="rounded-xl border p-4 space-y-3" style={{ background: 'var(--compact-info-bg)', borderColor: 'var(--compact-info-border)' }}>
                 <h3 className="font-semibold text-sm text-orange-600">📋 ตรวจสอบรายละเอียดคำร้อง</h3>
@@ -375,8 +433,19 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
                 {petitionType === 6 && <ReviewRow label="รายละเอียด" value={payload.description || '-'} />}
               </div>
 
+              {/* Signature preview */}
+              {signature && (
+                <div className="rounded-xl border p-3 space-y-2" style={{ borderColor: 'var(--ios-card-border)' }}>
+                  <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">ลายเซ็นผู้ยื่นคำร้อง</p>
+                  <img src={signature} alt="signature preview" className="h-16 w-auto rounded-lg border border-neutral-200 bg-white" />
+                  <p className="text-xs text-emerald-600 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> ลงนามแล้ว
+                  </p>
+                </div>
+              )}
+
               <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-xs text-amber-700 dark:text-amber-300">
-                ⚠️ เมื่อยืนยันส่งคำร้อง ระบบจะส่งแจ้งเตือนผ่านอีเมลไปยังผู้ที่เกี่ยวข้องทันที และจะไม่สามารถแก้ไขได้
+                ⚠️ เมื่อยืนยันส่งคำร้อง ระบบจะยื่นและลงนามพร้อมกันทันที และส่งแจ้งเตือนผู้อนุมัติลำดับถัดไปโดยอัตโนมัติ
               </div>
             </div>
           )}
@@ -385,7 +454,7 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
         {/* Footer buttons */}
         <div className="flex items-center justify-between gap-3 p-5 border-t" style={{ borderColor: 'var(--ios-card-border)' }}>
           <button
-            onClick={() => step === 1 ? onClose() : setStep(s => (s - 1) as any)}
+            onClick={() => step === 1 ? onClose() : setStep(s => (s - 1) as Step)}
             className="btn-liquid flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
             style={{ borderColor: 'var(--ios-card-border)' }}
           >
@@ -393,10 +462,10 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
             {step === 1 ? 'ยกเลิก' : 'ย้อนกลับ'}
           </button>
 
-          {step < 3 ? (
+          {step < 4 ? (
             <button
-              onClick={() => setStep(s => (s + 1) as any)}
-              disabled={step === 1 ? !petitionType : !validateStep2()}
+              onClick={() => setStep(s => (s + 1) as Step)}
+              disabled={!canGoNext()}
               className="btn-liquid flex items-center gap-2 px-5 py-2 rounded-xl font-semibold text-sm text-white bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-md shadow-orange-200/50"
             >
               ถัดไป <ChevronRight className="w-4 h-4" />
@@ -408,7 +477,7 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
               className="btn-liquid flex items-center gap-2 px-5 py-2 rounded-xl font-semibold text-sm text-white bg-orange-500 hover:bg-orange-600 disabled:opacity-60 transition-colors shadow-md shadow-orange-200/50"
             >
               {submitting ? <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : <Send className="w-4 h-4" />}
-              {submitting ? 'กำลังส่ง...' : 'ยืนยันส่งคำร้อง'}
+              {submitting ? 'กำลังส่งและลงนาม...' : 'ยืนยันส่งคำร้อง'}
             </button>
           )}
         </div>
