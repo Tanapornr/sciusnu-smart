@@ -463,8 +463,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                             <a href="#" className="flex items-center px-3.5 py-3 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-xl transition-colors font-medium"><div className="bg-blue-50 dark:bg-blue-900/30 text-blue-500 p-2 rounded-lg mr-3"><FileText className="w-4 h-4" /></div> โครงร่าง (Proposal)</a>
                             <a href="#" className="flex items-center px-3.5 py-3 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-xl transition-colors font-medium"><div className="bg-purple-50 dark:bg-purple-900/30 text-purple-500 p-2 rounded-lg mr-3"><TrendingUp className="w-4 h-4" /></div> ความก้าวหน้า</a>
                             <a href="#" className="flex items-center px-3.5 py-3 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-xl transition-colors font-medium"><div className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 p-2 rounded-lg mr-3"><CheckCircle2 className="w-4 h-4" /></div> ฉบับสมบูรณ์</a>
-                            <div className="h-px bg-neutral-100 dark:bg-neutral-700 my-1.5 mx-2"></div>
-                            <a href="https://nu365-my.sharepoint.com/:w:/g/personal/suparinthona_nu_ac_th/IQAaFkowHjP6QKY2mVDYC2Z9ARxCJIOHoeKWKrLXmCfJFpY?e=P1xSqf" target="_blank" className="flex items-center px-3.5 py-3 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-xl transition-colors font-medium"><div className="bg-amber-50 dark:bg-amber-900/30 text-amber-500 p-2 rounded-lg mr-3"><FolderOpen className="w-4 h-4" /></div> คำร้องต่างๆ</a>
+                            {/* <div className="h-px bg-neutral-100 dark:bg-neutral-700 my-1.5 mx-2"></div> */}
                         </div>
                     </div>
                 </div>
@@ -635,7 +634,6 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                             <option value="โครงร่าง (Proposal)">โครงร่าง (Proposal)</option>
                             <option value="รายงานความก้าวหน้า">รายงานความก้าวหน้า</option>
                             <option value="รายงานฉบับสมบูรณ์">รายงานฉบับสมบูรณ์</option>
-                            <option value="แบบคำร้อง">แบบคำร้อง</option>
                         </select>
                     </div>
 
@@ -647,7 +645,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                     <div className={`space-y-5 pt-2 ${rejectTypes.length > 0 ? 'form-locked hidden' : ''}`}>
                         <div className="bg-orange-50/50 dark:bg-orange-950/20 p-4 sm:p-5 rounded-2xl border border-orange-100/80 dark:border-orange-900/30 flex flex-col justify-center gap-2">
                             <label className="block text-xs sm:text-sm font-bold text-orange-800 dark:text-orange-400 flex items-center ml-0.5 mb-1.5">
-                                <FileUp className="w-4.5 h-4.5 mr-2 opacity-80" /> {selectedWorkType === 'แบบคำร้อง' ? 'ไฟล์แบบคำร้อง (PDF)' : 'ไฟล์รูปเล่ม (PDF)'}
+                                <FileUp className="w-4.5 h-4.5 mr-2 opacity-80" /> ไฟล์รูปเล่ม (PDF)
                             </label>
                             <input 
                                 type="file" 
@@ -663,7 +661,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                             {submitting ? (
                                 <><svg className="animate-spin h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังอัปโหลด...</>
                             ) : (
-                                selectedWorkType === 'แบบคำร้อง' ? <><CloudUpload className="w-4.5 h-4.5 mr-2" /> อัปโหลดแบบคำร้อง</> : <><UploadCloud className="w-4.5 h-4.5 mr-2" /> อัปโหลดส่งงาน</>
+                                <><UploadCloud className="w-4.5 h-4.5 mr-2" /> อัปโหลดส่งงาน</>
                             )}
                         </button>
                     </div>
@@ -697,7 +695,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                             </thead>
                             <tbody id="historyTableBody" className="history-table-body">
                                 {submissions.length === 0 ? (
-                                    <tr><td colSpan={5} className="text-center py-12 text-neutral-500 text-sm font-medium"><Smile className="w-6 h-6 mr-2 inline-block opacity-70" /> ยินดีต้อนรับ! เริ่มส่งงานแรกของกลุ่มกันเลยครับ</td></tr>
+                                    <tr><td colSpan={5} className="text-center py-12 text-neutral-500 text-sm font-medium"><Smile className="w-6 h-6 mr-2 inline-block opacity-70" /> ยินดีต้อนรับ! เริ่มส่งงานแรกของกลุ่มกันเลย</td></tr>
                                 ) : (
                                     [...submissions].sort((a, b) => new Date(b.Timestamp ?? 0).getTime() - new Date(a.Timestamp ?? 0).getTime()).map((s, idx) => {
                                         const parsedStatus = parseSubmissionStatus(s['สถานะ']);
@@ -750,7 +748,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                                                 <td className="text-left align-middle py-4 sm:py-5 px-3 sm:px-4">{reasonHtml}</td>
                                                 <td className="text-center align-middle py-4 sm:py-5 px-3 sm:px-4">
                                                     <div className="flex justify-center items-center">
-                                                      <a href={fileUrl || '#'} target="_blank" className="btn-liquid text-orange-800 dark:text-orange-400 bg-orange-50 dark:bg-neutral-800 px-4 py-2 rounded-lg text-xs font-extrabold border border-orange-200 dark:border-neutral-700 inline-flex items-center justify-center whitespace-nowrap min-w-[115px] hover:bg-orange-100 dark:hover:bg-neutral-700 transition-all shadow-sm"><FileText className="w-4 h-4 mr-1.5 opacity-80 flex-shrink-0" /><span>{workType === 'แบบคำร้อง' ? 'ไฟล์แบบคำร้อง' : 'ไฟล์รูปเล่ม'}</span></a>
+                                                      <a href={fileUrl || '#'} target="_blank" className="btn-liquid text-orange-800 dark:text-orange-400 bg-orange-50 dark:bg-neutral-800 px-4 py-2 rounded-lg text-xs font-extrabold border border-orange-200 dark:border-neutral-700 inline-flex items-center justify-center whitespace-nowrap min-w-[115px] hover:bg-orange-100 dark:hover:bg-neutral-700 transition-all shadow-sm"><FileText className="w-4 h-4 mr-1.5 opacity-80 flex-shrink-0" /><span>ไฟล์รูปเล่ม</span></a>
                                                     </div>
                                                 </td>
                                             </tr>
