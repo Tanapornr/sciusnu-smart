@@ -230,7 +230,7 @@ export default function PetitionDashboard({ setPageView }: Props = {}) {
               {filtered.map(p => {
                 const created = formatDateTimeTH(p.created_at);
                 return (
-                  <button
+                  <div
                     key={p.petition_id}
                     onClick={() => setSelectedPetition(p.petition_id)}
                     className="w-full text-left px-5 py-4 hover:bg-orange-50/50 dark:hover:bg-orange-900/10 transition-colors flex items-center gap-4"
@@ -265,7 +265,7 @@ export default function PetitionDashboard({ setPageView }: Props = {}) {
                       </button>
                       <ChevronRight className="w-4 h-4 text-neutral-400" />
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
