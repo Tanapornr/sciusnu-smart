@@ -56,6 +56,10 @@ export interface PetitionPayload {
   fieldReason?: string;
   // Type 6
   description?: string;
+  // Requester details saved in payload
+  requesterPrefix?: string;
+  requesterGen?: string;
+  requesterPhone?: string;
 }
 
 export interface Petition {

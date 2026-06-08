@@ -175,6 +175,7 @@ export function parseProjectRow(row: any): ProjectInfo {
     phone: get('เบอร์โทรศัพท์').replace(/'/g, ''),
     // "รูปโปรไฟล์ " has a trailing space in the Google Sheet header
     profileUrl: fuzzyGet('รูปโปรไฟล์'),
+    field: fuzzyGet('สาขา'),
   };
 }
 

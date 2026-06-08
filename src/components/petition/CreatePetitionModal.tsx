@@ -2,8 +2,10 @@
 // components/petition/CreatePetitionModal.tsx
 // Wizard: Step 1 (type) → Step 2 (fields) → Step 3 (review) → Submit
 // ================================================================
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
+import { useProjectData } from '../../hooks/useProjectData';
+import { parseProjectRow } from '../../utils';
 import { apiCreatePetition } from '../../services/petitionApi';
 import type { PetitionType, PetitionPayload } from '../../types/petition';
 import { PETITION_TYPE_LABELS } from '../../types/petition';
@@ -35,6 +37,36 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
   const [payload, setPayload] = useState<PetitionPayload>({});
   const [submitting, setSubmitting] = useState(false);
 
+  const { data: rawData } = useProjectData();
+
+  useEffect(() => {
+    if (rawData?.projects && user) {
+      let myRow = null;
+      if (user.role === 'student') {
+        myRow = rawData.projects.find(p => (p['รหัสนักเรียน'] || '') === user.studentId);
+      } else {
+        myRow = rawData.projects.find(p => {
+          const info = parseProjectRow(p);
+          const userEmail = user.email.toLowerCase().trim();
+          return (
+            info.advEmail.toLowerCase().trim() === userEmail ||
+            info.coAdvEmail.toLowerCase().trim() === userEmail ||
+            info.schAdvEmail.toLowerCase().trim() === userEmail
+          );
+        });
+      }
+
+      if (myRow) {
+        const info = parseProjectRow(myRow);
+        setPayload(prev => ({
+          ...prev,
+          currentField: prev.currentField || info.field || '',
+          requesterPhone: prev.requesterPhone || info.phone || '',
+        }));
+      }
+    }
+  }, [rawData, user]);
+
   function updatePayload(updates: Partial<PetitionPayload>) {
     setPayload(prev => ({ ...prev, ...updates }));
   }
@@ -63,6 +95,9 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
   }
 
   function validateStep2() {
+    const hasRequesterInfo = !!(payload.requesterPrefix?.trim() && payload.requesterGen?.trim() && payload.requesterPhone?.trim());
+    if (!hasRequesterInfo) return false;
+
     switch (petitionType) {
       case 1: return !!(payload.faculty && payload.advisorName && payload.advisorEmail);
       case 2:
@@ -143,6 +178,40 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
               <div className="flex items-center gap-2 p-3 rounded-xl bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800">
                 <span className="text-lg">{PETITION_ICONS[petitionType]}</span>
                 <span className="text-sm font-semibold">{PETITION_TYPE_LABELS[petitionType]}</span>
+              </div>
+
+              {/* ข้อมูลผู้ยื่นคำร้อง */}
+              <div className="space-y-3 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-800/30">
+                <h4 className="font-bold text-xs text-neutral-400 uppercase tracking-wider">ข้อมูลผู้ยื่นคำร้อง</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">คำนำหน้า *</label>
+                    <input
+                      value={payload.requesterPrefix || ''}
+                      onChange={e => updatePayload({ requesterPrefix: e.target.value })}
+                      placeholder="เช่น นาย / นางสาว"
+                      className="glass-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">รุ่น วมว. *</label>
+                    <input
+                      value={payload.requesterGen || ''}
+                      onChange={e => updatePayload({ requesterGen: e.target.value })}
+                      placeholder="เช่น 15"
+                      className="glass-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">เบอร์ติดต่อ *</label>
+                    <input
+                      value={payload.requesterPhone || ''}
+                      onChange={e => updatePayload({ requesterPhone: e.target.value })}
+                      placeholder="เช่น 089xxxxxxx"
+                      className="glass-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Type 1 — Add University Advisor */}
@@ -271,6 +340,9 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
 
                 <ReviewRow label="ผู้ยื่นคำร้อง" value={user?.name || ''} />
                 <ReviewRow label="ประเภทผู้ใช้งาน" value={user?.role === 'student' ? 'นักเรียน' : 'อาจารย์ที่ปรึกษา'} />
+                <ReviewRow label="คำนำหน้า" value={payload.requesterPrefix || '-'} />
+                <ReviewRow label="รุ่น วมว." value={payload.requesterGen || '-'} />
+                <ReviewRow label="เบอร์ติดต่อ" value={payload.requesterPhone || '-'} />
                 <ReviewRow label="ประเภทคำร้อง" value={PETITION_TYPE_LABELS[petitionType]} />
 
                 {petitionType === 1 && <>

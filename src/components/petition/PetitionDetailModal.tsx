@@ -283,6 +283,9 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
             <Section title="ข้อมูลคำร้อง">
               <InfoRow icon="📋" label="ประเภท" value={PETITION_TYPE_LABELS[Number(petition.petition_type)] || petition.petition_type} />
               <InfoRow icon="👤" label="ผู้ยื่น" value={`${petition.requester_name} (${petition.requester_role === 'student' ? 'นักเรียน' : 'อาจารย์ที่ปรึกษา'})`} />
+              <InfoRow icon="👤" label="คำนำหน้า" value={petition.payload?.requesterPrefix || '-'} />
+              <InfoRow icon="🎓" label="รุ่น วมว." value={petition.payload?.requesterGen || '-'} />
+              <InfoRow icon="📞" label="เบอร์ติดต่อ" value={petition.payload?.requesterPhone || '-'} />
               <InfoRow icon="📁" label="โครงงาน" value={`${petition.project_code} — ${petition.project_name}`} />
               <InfoRow icon="🕐" label="วันที่ยื่น" value={formatDateTimeTH(petition.created_at).date + ' ' + formatDateTimeTH(petition.created_at).time} />
             </Section>

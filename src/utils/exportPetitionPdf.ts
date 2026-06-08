@@ -227,7 +227,7 @@ function buildPetitionHtml(petition: Petition): string {
   <div class="field-grid">
     <div class="field-line">
       <span class="field-label">คำนำหน้า</span>
-      <span class="field-spacer"></span>
+      <span class="field-value">${esc(p.requesterPrefix)}</span>
       <span class="field-label">ชื่อ</span>
       <span class="field-value">${esc(firstName)}</span>
       <span class="field-label">นามสกุล</span>
@@ -235,7 +235,7 @@ function buildPetitionHtml(petition: Petition): string {
     </div>
     <div class="field-line">
       <span class="field-label">โครงการ วมว. รุ่น</span>
-      <span class="field-spacer"></span>
+      <span class="field-value">${esc(p.requesterGen)}</span>
       <span class="field-label">รหัสโครงงาน</span>
       <span class="field-value">${esc(petition.project_code)}</span>
     </div>
@@ -247,7 +247,7 @@ function buildPetitionHtml(petition: Petition): string {
       <span class="field-label">อีเมล์</span>
       <span class="field-value">${esc(petition.requester_email)}</span>
       <span class="field-label">เบอร์ติดต่อ (มือถือ)</span>
-      <span class="field-spacer"></span>
+      <span class="field-value">${esc(p.requesterPhone)}</span>
     </div>
   </div>
 

@@ -54,6 +54,7 @@ export interface ProjectInfo {
   schAdvEmail: string;    // col 15
   schAdvName: string;     // col 16
   projectNameTH: string;  // col 17
+  field?: string;
 }
 
 // ---------------------------------------------------------------
