@@ -82,7 +82,7 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
 
   const viewStudentPopup = (name: string, id: string, phoneStr: string, picUrl: string) => {
     Swal.fire({
-        html: `<div class="text-center pt-2"><img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-orange-50 dark:border-orange-900/50 shadow-md bg-white" loading="lazy"><h3 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white leading-tight">${name}</h3><p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-5 mt-1">รหัสประจำตัว: ${id}</p><div class="bg-orange-50 dark:bg-orange-900/30 rounded-2xl p-3 sm:p-4 inline-block w-full max-w-[200px] border border-orange-100 dark:border-orange-800"><p class="text-[10px] sm:text-xs text-orange-600 dark:text-orange-400 mb-1 font-semibold uppercase flex items-center justify-center"><i data-lucide="phone" class="w-3 h-3 mr-1"></i> เบอร์โทรติดต่อ</p><p class="text-base sm:text-lg font-bold text-orange-800 dark:text-orange-300">${phoneStr || 'ไม่มีข้อมูล'}</p></div></div>`,
+        html: `<div class="text-center pt-2"><img src="${picUrl}" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover mx-auto mb-4 border-[4px] border-orange-50 dark:border-orange-900/50 shadow-md bg-white" loading="lazy"><h3 class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white leading-tight">${name}</h3><p class="text-xs sm:text-sm text-slate-500 dark:text-neutral-400 mb-5 mt-1">รหัสประจำตัว: ${id}</p><div class="bg-orange-50 dark:bg-orange-900/30 rounded-2xl p-3 sm:p-4 inline-block w-full max-w-[200px] border border-orange-100 dark:border-orange-800"><p class="text-[10px] sm:text-xs text-orange-600 dark:text-orange-400 mb-1 font-semibold uppercase flex items-center justify-center"><i data-lucide="phone" class="w-3 h-3 mr-1"></i> เบอร์โทรติดต่อ</p><p class="text-base sm:text-lg font-bold text-orange-800 dark:text-orange-300">${phoneStr || 'ไม่มีข้อมูล'}</p></div></div>`,
         showConfirmButton: true, confirmButtonText: 'ปิดหน้าต่าง', confirmButtonColor: '#334155', customClass: { popup: 'swal-admin rounded-[2rem] p-4 sm:p-6' }, backdrop: `rgba(15, 23, 42, 0.7)`
     });
   };
@@ -160,16 +160,16 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
 
     return (
         <div>
-            <span className="font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 px-2 sm:px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs shadow-sm">
+            <span className="font-bold text-slate-800 dark:text-neutral-200 bg-slate-100 dark:bg-neutral-700 px-2 sm:px-3 py-1 rounded-lg border border-slate-200 dark:border-neutral-600 text-[10px] sm:text-xs shadow-sm">
                 {submission['รหัสโครงงาน'] || submission['projectid'] || '-'}
             </span>
             {groupMembers.map(m => {
                 let isSender = (m.id.toLowerCase() === targetStuId);
                 return (
                     <button key={m.id} type="button" onClick={() => viewStudentPopup(`${m.firstName} ${m.lastName}`, m.id, m.phone, m.picUrl)} className="w-full text-left flex items-center gap-2 mt-2 bg-orange-50 dark:bg-orange-900/30 hover:bg-orange-100 dark:hover:bg-orange-800/50 p-2 sm:p-2.5 rounded-xl border border-orange-100 dark:border-orange-800 transition-colors btn-liquid">
-                        <img src={m.picUrl} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm bg-white" loading="lazy" />
+                        <img src={m.picUrl} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-neutral-600 shadow-sm bg-white" loading="lazy" />
                         <div className="flex flex-col leading-tight overflow-hidden">
-                            <p className="text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 truncate">
+                            <p className="text-[10px] sm:text-xs font-bold text-slate-700 dark:text-neutral-200 truncate">
                                 {m.id} {m.firstName} {m.lastName}
                                 {isSender && <span className="bg-orange-500 text-white px-1.5 py-0.5 rounded-lg text-[8px] sm:text-[9px] font-bold ml-1">ผู้ส่ง</span>}
                             </p>
@@ -240,20 +240,21 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
 
   return (
     <div className="pb-10 app-shell transition-colors">
-      <nav className="glass-panel border-b-0 shadow-sm sticky top-0 z-40">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-4">
-              <div className="flex items-center gap-4">
+      <nav className="glass-panel border-b-0 shadow-sm sticky top-0 z-40 relative">
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-500 to-pink-500"></div>
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-4 mt-1">
+              <div className="flex items-center gap-4 w-full">
                   <div>
-                      <h1 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white flex items-center"><Shield className="w-5 h-5 mr-2 text-orange-600 dark:text-orange-400" /> Administrator</h1>
-                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">ผู้ดูแลระบบ: โครงการ วมว. มน.</p>
+                      <h1 className="text-lg sm:text-xl font-bold text-neutral-800 dark:text-white flex items-center"><Shield className="w-5 h-5 mr-2 text-orange-600 dark:text-orange-400" /> Administrator</h1>
+                      <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-1">ผู้ดูแลระบบ: โครงการ วมว. มน.</p>
                   </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <PetitionNavButton pageView={pageView} setPageView={setPageView} />
-                  <button onClick={toggleTheme} className="btn-liquid bg-slate-200/50 dark:bg-slate-700/50 p-2.5 rounded-full text-slate-700 dark:text-slate-200 outline-none hover:text-orange-500">
-                      {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                  <button onClick={toggleTheme} className="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2.5 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-transparent dark:border-neutral-700">
+                      {theme === 'dark' ? <Sun className="w-4.5 h-4.5 text-orange-400" /> : <Moon className="w-4.5 h-4.5" />}
                   </button>
-                  <button onClick={logout} className="text-xs sm:text-sm text-red-600 dark:text-red-400 font-medium bg-red-50/50 dark:bg-red-900/20 px-4 py-2.5 rounded-xl border border-red-100 dark:border-red-800 flex items-center btn-liquid"><LogOut className="w-4 h-4 mr-1" /> <span className="hidden sm:inline">ออกจากระบบ</span></button>
+                  <button onClick={logout} className="text-xs sm:text-sm text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-950/30 px-4 py-2 rounded-full border border-rose-100 dark:border-rose-900/50 flex items-center btn-liquid"><LogOut className="w-3.5 h-3.5 mr-1.5 opacity-90" /> <span className="hidden sm:inline">ออกระบบ</span></button>
               </div>
           </div>
       </nav>
@@ -276,7 +277,7 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
               <>
                   <div className="glass-panel rounded-3xl p-4 sm:p-6 relative overflow-hidden">
                       <div className="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-rose-500"></div>
-                      <h2 className="text-base sm:text-lg font-bold text-rose-600 dark:text-rose-400 mb-4 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><span className="bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-xs sm:text-sm mr-2 shadow-sm font-black">{pendingPetitions.length}</span> แบบคำร้อง รอการตรวจสอบจาก Admin</h2>
+                      <h2 className="text-base sm:text-lg font-bold text-rose-600 dark:text-rose-400 mb-4 sm:mb-5 border-b border-slate-200 dark:border-neutral-700 pb-2 sm:pb-3 flex items-center ml-2"><span className="bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-xs sm:text-sm mr-2 shadow-sm font-black">{pendingPetitions.length}</span> แบบคำร้อง รอการตรวจสอบจาก Admin</h2>
                       <div className="overflow-x-auto w-full pb-2">
                           <table className="data-table w-full text-left">
                               <thead className="admin-table-head uppercase border-b text-[10px] sm:text-sm"><tr><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold">เวลา</th><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold min-w-[150px]">ข้อมูลนักเรียน</th><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold">ประเภทงาน</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ไฟล์แนบ</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ดำเนินการ</th></tr></thead>
@@ -288,7 +289,7 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
                                           const workType = item['ประเภทงาน'] || item['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)'] || 'ไม่ระบุ';
                                           const petitionFileUrl = (item['URL ไฟล์เล่ม'] || '').toString().trim();
                                           return (
-                                              <tr key={idx} className="border-b border-rose-100 dark:border-slate-700/50 hover:bg-rose-50/50 dark:hover:bg-rose-900/20 transition-colors">
+                                              <tr key={idx} className="border-b border-rose-100 dark:border-neutral-700/50 hover:bg-rose-50/50 dark:hover:bg-rose-900/20 transition-colors">
                                                   <td className="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">
                                                       {(() => {
                                                           const { date, time } = formatDateTimeTH(item.Timestamp);
@@ -301,7 +302,7 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
                                                       {isValidFileUrl(petitionFileUrl) ? (
                                                           <a href={petitionFileUrl} target="_blank" rel="noopener noreferrer" className="btn-liquid bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-3 py-2 rounded-lg text-[9px] sm:text-xs font-bold border border-orange-100 dark:border-orange-800 flex items-center justify-center mx-auto w-max"><FileText className="w-4 h-4 mr-1.5" />ไฟล์คำร้อง</a>
                                                       ) : (
-                                                          <span className="inline-flex items-center justify-center mx-auto px-3 py-2 rounded-lg text-[9px] sm:text-xs font-bold bg-slate-50 dark:bg-slate-800 text-slate-400 border border-slate-100 dark:border-slate-700"><FileX className="w-4 h-4 mr-1.5" />ไม่มีไฟล์แนบ</span>
+                                                          <span className="inline-flex items-center justify-center mx-auto px-3 py-2 rounded-lg text-[9px] sm:text-xs font-bold bg-slate-50 dark:bg-neutral-800 text-slate-400 border border-slate-100 dark:border-neutral-700"><FileX className="w-4 h-4 mr-1.5" />ไม่มีไฟล์แนบ</span>
                                                       )}
                                                   </td>
                                                   <td className="px-2 py-4 sm:px-4 sm:py-5 text-center align-middle">
@@ -321,7 +322,7 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
 
                   <div className="glass-panel rounded-3xl p-4 sm:p-6 relative overflow-hidden">
                       <div className="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-orange-500"></div>
-                      <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-3 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><BarChart2 className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-orange-600 dark:text-orange-400" /> ภาพรวมสถานะโครงงานทั้งหมดในระบบ</h2>
+                      <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-3 sm:mb-5 border-b border-slate-200 dark:border-neutral-700 pb-2 sm:pb-3 flex items-center ml-2"><BarChart2 className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-orange-600 dark:text-orange-400" /> ภาพรวมสถานะโครงงานทั้งหมดในระบบ</h2>
                       <div className="overflow-x-auto w-full pb-2">
                           <table className="data-table w-full text-left">
                               <thead className="admin-table-head uppercase border-b text-[10px] sm:text-sm"><tr><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold whitespace-nowrap">รหัสโครงงาน</th><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold min-w-[150px]">นักเรียนในกลุ่ม</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">โครงร่าง</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ความก้าวหน้า</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ฉบับสมบูรณ์</th></tr></thead>
@@ -340,7 +341,7 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
                                           
                                           const getStatusBadge = (workType: string) => {
                                               const subs = projectSubs.filter(s => (s['ประเภทงาน'] || s['ประเภทงาน (โครงร่าง/ความก้าวหน้า/สมบูรณ์)']) === workType);
-                                              if (subs.length === 0) return <span className="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 opacity-60">➖ ยังไม่ส่ง</span>;
+                                              if (subs.length === 0) return <span className="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-slate-100 dark:bg-neutral-800 text-slate-400 opacity-60">➖ ยังไม่ส่ง</span>;
                                               const status = subs[subs.length - 1]['สถานะ'] || subs[subs.length - 1]['สถานะ (รออนุมัติ/อนุมัติ/ไม่อนุมัติ)'];
                                               if (status === 'อนุมัติ') return <span className="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><CheckCircle className="w-3 h-3 mr-1" /> อนุมัติ</span>;
                                               if (status === 'ไม่อนุมัติ') return <span className="px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 flex items-center justify-center"><XCircle className="w-3 h-3 mr-1" /> ไม่อนุมัติ</span>;
@@ -348,9 +349,9 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
                                           };
 
                                           return (
-                                              <tr key={pid} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-orange-50/30 dark:hover:bg-orange-900/20 transition-colors">
-                                                  <td className="px-2 py-4 sm:px-4 sm:py-5 align-top font-bold text-slate-800 dark:text-slate-200 text-xs sm:text-sm border-r border-slate-50 dark:border-slate-700/50">{pid}</td>
-                                                  <td className="px-2 py-2 sm:px-4 sm:py-3 align-top border-r border-slate-50 dark:border-slate-700/50">
+                                              <tr key={pid} className="border-b border-slate-100 dark:border-neutral-700/50 hover:bg-orange-50/30 dark:hover:bg-orange-900/20 transition-colors">
+                                                  <td className="px-2 py-4 sm:px-4 sm:py-5 align-top font-bold text-slate-800 dark:text-neutral-200 text-xs sm:text-sm border-r border-slate-50 dark:border-neutral-700/50">{pid}</td>
+                                                  <td className="px-2 py-2 sm:px-4 sm:py-3 align-top border-r border-slate-50 dark:border-neutral-700/50">
                                                       {members.map((m: any) => {
                                                           const id = m['รหัสนักเรียน'] || '';
                                                           const fname = m['ชื่อ'] || '';
@@ -361,11 +362,11 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
                                                           const picRaw = (Object.entries(m).find(([k]) => k.trim() === 'รูปโปรไฟล์')?.[1] || '').toString().trim();
                                                           const pic = getProcessedImgUrl(picRaw, fname);
                                                           return (
-                                                              <button key={id} type="button" onClick={() => viewStudentPopup(`${fname} ${lname}`, id, phone, pic)} className="w-full text-left flex items-center gap-2 sm:gap-3 mb-2 bg-slate-50 dark:bg-slate-800/50 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 btn-liquid transition-colors">
-                                                                  <img src={pic} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm" loading="lazy" />
+                                                              <button key={id} type="button" onClick={() => viewStudentPopup(`${fname} ${lname}`, id, phone, pic)} className="w-full text-left flex items-center gap-2 sm:gap-3 mb-2 bg-slate-50 dark:bg-neutral-800/50 p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-neutral-700 btn-liquid transition-colors">
+                                                                  <img src={pic} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-white dark:border-neutral-600 shadow-sm" loading="lazy" />
                                                                   <div className="flex flex-col leading-tight overflow-hidden">
-                                                                      <span className="text-[10px] sm:text-xs text-slate-700 dark:text-slate-200 font-bold truncate">{id}</span>
-                                                                      <span className="text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">{fname} {lname}</span>
+                                                                      <span className="text-[10px] sm:text-xs text-slate-700 dark:text-neutral-200 font-bold truncate">{id}</span>
+                                                                      <span className="text-[9px] sm:text-[11px] text-slate-500 dark:text-neutral-400 font-medium truncate">{fname} {lname}</span>
                                                                   </div>
                                                               </button>
                                                           );
@@ -385,7 +386,7 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
 
                   <div className="glass-panel rounded-3xl p-4 sm:p-6 relative overflow-hidden">
                       <div className="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-amber-400"></div>
-                      <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-3 sm:mb-5 border-b border-slate-200 dark:border-slate-700 pb-2 sm:pb-3 flex items-center ml-2"><Folder className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-slate-300" /> ประวัติการส่งงาน/คำร้องทั้งหมด</h2>
+                      <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-3 sm:mb-5 border-b border-slate-200 dark:border-neutral-700 pb-2 sm:pb-3 flex items-center ml-2"><Folder className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-slate-700 dark:text-neutral-300" /> ประวัติการส่งงาน/คำร้องทั้งหมด</h2>
                       <div className="overflow-x-auto w-full pb-2">
                           <table className="data-table w-full text-left">
                               <thead className="admin-table-head uppercase border-b text-[10px] sm:text-sm"><tr><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold">เวลา</th><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold min-w-[150px]">ข้อมูลนักเรียน</th><th className="px-2 py-3 sm:px-4 sm:py-4 font-semibold">ประเภทงาน</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">หมายเหตุ</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">ไฟล์แนบ</th><th className="px-2 py-3 sm:px-4 sm:py-4 text-center font-semibold">สถานะปัจจุบัน</th></tr></thead>
@@ -405,7 +406,7 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
                                           let fileReportLabel = workType === 'แบบคำร้อง' ? 'ไฟล์คำร้อง' : 'รูปเล่ม';
                                           
                                           return (
-                                              <tr key={idx} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
+                                              <tr key={idx} className="border-b border-slate-100 dark:border-neutral-700/50 hover:bg-neutral-50/80 dark:hover:bg-neutral-800/30 transition-colors">
                                                   <td className="px-2 py-4 sm:px-4 sm:py-5 text-[10px] sm:text-xs text-slate-500 align-middle">
                                                       {(() => {
                                                           const { date, time } = formatDateTimeTH(item.Timestamp);
@@ -422,7 +423,7 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
                                                           {isValidFileUrl(reportFileUrl) ? (
                                                               <a href={reportFileUrl} target="_blank" rel="noopener noreferrer" className="btn-liquid bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-orange-100 dark:border-orange-800 flex items-center justify-center"><FileText className="w-3 h-3 mr-1" />{fileReportLabel}</a>
                                                           ) : (
-                                                              <span className="inline-flex items-center justify-center px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold bg-slate-50 dark:bg-slate-800 text-slate-400 border border-slate-100 dark:border-slate-700"><FileX className="w-3 h-3 mr-1" />ไม่มีไฟล์แนบ</span>
+                                                              <span className="inline-flex items-center justify-center px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold bg-slate-50 dark:bg-neutral-800 text-slate-400 border border-slate-100 dark:border-neutral-700"><FileX className="w-3 h-3 mr-1" />ไม่มีไฟล์แนบ</span>
                                                           )}
                                                           {workType !== 'แบบคำร้อง' && isValidFileUrl(signatureFileUrl) && (
                                                               <a href={signatureFileUrl} target="_blank" rel="noopener noreferrer" className="btn-liquid bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-1.5 rounded-lg text-[9px] sm:text-xs font-bold border border-amber-100 dark:border-amber-800 flex items-center justify-center"><PenTool className="w-3 h-3 mr-1" />หน้าลายเซ็น</a>

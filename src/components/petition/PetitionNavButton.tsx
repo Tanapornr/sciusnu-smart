@@ -52,10 +52,10 @@ export default function PetitionNavButton({ pageView, setPageView }: Props) {
   return (
     <button
       onClick={() => setPageView(active ? 'main' : 'petitions')}
-      className={`btn-liquid relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all ${
+      className={`btn-liquid relative flex items-center gap-1.5 text-xs sm:text-sm font-bold px-3.5 py-2 rounded-full border transition-colors outline-none ${
         active
-          ? 'bg-orange-500 text-white shadow-md shadow-orange-200/50 dark:shadow-orange-900/30'
-          : 'text-neutral-600 dark:text-neutral-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600'
+          ? 'bg-orange-500 text-white border-orange-500 shadow-md'
+          : 'bg-white dark:bg-neutral-800 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800/50 hover:bg-orange-50 dark:hover:bg-neutral-700 shadow-sm'
       }`}
       title="ระบบคำร้องออนไลน์"
     >

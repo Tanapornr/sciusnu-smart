@@ -110,49 +110,49 @@ export default function PetitionDashboard({ setPageView }: Props = {}) {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--color-bg)', color: 'var(--color-fg)' }}>
+    <div className="pb-10 app-shell transition-colors">
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b" style={{ background: 'var(--glass-panel-bg)', borderColor: 'var(--glass-panel-border)', backdropFilter: 'blur(20px)' }}>
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
+      <nav className="glass-panel border-b-0 shadow-sm sticky top-0 z-40 relative">
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-500 to-pink-500"></div>
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-4 mt-1">
+          <div className="flex items-center gap-4 w-full">
             {setPageView && (
               <button
                 onClick={() => setPageView('main')}
-                className="btn-liquid flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 transition-all border border-neutral-200/50 dark:border-neutral-700/50 mr-2"
+                className="btn-liquid text-xs sm:text-sm font-bold bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 px-3.5 py-2 rounded-full border border-neutral-200 dark:border-neutral-700 flex items-center hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors shadow-sm outline-none"
               >
                 ← หน้าหลัก
               </button>
             )}
-            <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center">
-              <ClipboardList className="w-4 h-4 text-white" />
+            <div className="w-9 h-9 rounded-xl bg-orange-500 flex items-center justify-center flex-shrink-0">
+              <ClipboardList className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="font-bold text-sm">ระบบคำร้องออนไลน์</span>
-              <span className="text-xs text-neutral-400 ml-2 hidden sm:inline">SCiUS NU</span>
+              <h1 className="text-lg sm:text-xl font-bold text-neutral-800 dark:text-white flex items-center">ระบบคำร้องออนไลน์</h1>
+              <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+                {user?.name} · {user?.role === 'student' ? 'นักเรียน' : user?.role === 'advisor_main' ? 'อาจารย์ที่ปรึกษา' : user?.role === 'advisor' ? 'ที่ปรึกษาร่วม' : 'ผู้ดูแลระบบ'}
+              </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={fetchPetitions} title="รีเฟรช" className="btn-liquid p-2 rounded-full text-neutral-500 hover:text-orange-500 transition-colors">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button onClick={fetchPetitions} title="รีเฟรช" className="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2.5 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-transparent dark:border-neutral-700">
               <RefreshCw className="w-4 h-4" />
             </button>
-            <button onClick={toggleTheme} className="btn-liquid p-2 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">
-              {theme === 'dark' ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4" />}
+            <button onClick={toggleTheme} className="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2.5 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-transparent dark:border-neutral-700">
+              {theme === 'dark' ? <Sun className="w-4.5 h-4.5 text-orange-400" /> : <Moon className="w-4.5 h-4.5" />}
             </button>
-            <button onClick={logout} className="btn-liquid flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
-              <LogOut className="w-3.5 h-3.5" /> ออกจากระบบ
+            <button onClick={logout} className="text-xs sm:text-sm text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-950/30 px-4 py-2 rounded-full border border-rose-100 dark:border-rose-900/50 flex items-center btn-liquid">
+              <LogOut className="w-3.5 h-3.5 mr-1.5 opacity-90" /> <span className="hidden sm:inline">ออกระบบ</span>
             </button>
           </div>
         </div>
-      </header>
+      </nav>
 
-      <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-5xl mx-auto mt-4 sm:mt-8 px-3 sm:px-4 space-y-4 sm:space-y-6">
         {/* Page title + create button */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold">คำร้องออนไลน์</h1>
-            <p className="text-sm text-neutral-500 mt-0.5">
-              {user?.name} · {user?.role === 'student' ? 'นักเรียน' : user?.role === 'advisor_main' ? 'อาจารย์ที่ปรึกษา' : user?.role === 'advisor' ? 'ที่ปรึกษาร่วม' : 'ผู้ดูแลระบบ'}
-            </p>
+            <h2 className="text-base sm:text-lg font-bold text-neutral-800 dark:text-white flex items-center"><ClipboardList className="w-5 h-5 mr-2 text-orange-500" /> คำร้องออนไลน์</h2>
           </div>
           {canCreate && (
             <button
@@ -271,7 +271,7 @@ export default function PetitionDashboard({ setPageView }: Props = {}) {
             </div>
           )}
         </div>
-      </main>
+      </div>
 
       {/* Modals */}
       {showCreate && (
