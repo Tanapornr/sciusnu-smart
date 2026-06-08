@@ -8,6 +8,9 @@
 import type { Petition, PetitionPayload } from '../types/petition';
 import { formatDateTimeTH } from './index';
 
+const LOGO_URL =
+  '/logo.jpg';
+
 // ── Main export function ──────────────────────────────────────────
 
 export async function exportViaPrint(petition: Petition): Promise<void> {
@@ -106,13 +109,12 @@ function buildPetitionHtml(petition: Petition): string {
   }
   /* Header */
   .header { text-align: center; margin-bottom: 5mm; }
-  .logo-circle {
-    width: 14mm; height: 14mm; border-radius: 50%;
-    border: 2px solid #f97316;
-    display: flex; align-items: center; justify-content: center;
+  .logo-image {
+    width: 22mm;
+    height: 22mm;
+    object-fit: contain;
+    display: block;
     margin: 0 auto 2.5mm;
-    font-size: 9pt; color: #f97316; font-weight: 700;
-    line-height: 1;
   }
   .title-main { font-size: 13pt; font-weight: 700; line-height: 1.45; }
   .title-sub  { font-size: 11pt; font-weight: 600; color: #374151; }
@@ -209,7 +211,11 @@ function buildPetitionHtml(petition: Petition): string {
 <div class="page">
 
   <div class="header">
-    <div class="logo-circle">วมว<br/>มน.</div>
+    <img
+      class="logo-image"
+      src="${LOGO_URL}"
+      alt="SCIUS Logo"
+    />
     <div class="title-main">แบบฟอร์มแจ้งคำร้องทั่วไป/และคำร้องขอเปลี่ยนแปลงข้อมูลโครงงาน</div>
     <div class="title-sub">สำหรับนักเรียนโครงการ วมว. มน.</div>
   </div>

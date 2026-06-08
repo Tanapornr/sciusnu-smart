@@ -265,20 +265,6 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
             {/* Status banner */}
             <StatusBanner status={petition.status} />
 
-            {/* Quick export shortcut at top of content */}
-            <button
-              onClick={doExport}
-              disabled={exporting}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border-2 border-dashed transition-all disabled:opacity-50 hover:border-orange-400 hover:bg-orange-50/50 dark:hover:bg-orange-900/10"
-              style={{ borderColor: 'var(--focus-border)', color: 'var(--focus-border)' }}
-            >
-              {exporting
-                ? <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                : <FileDown className="w-4 h-4" />
-              }
-              {exporting ? 'กำลังเตรียม PDF...' : 'ส่งออกเป็น PDF (แบบฟอร์มคำร้องทั่วไป)'}
-            </button>
-
             {/* Request info */}
             <Section title="ข้อมูลคำร้อง">
               <InfoRow icon="📋" label="ประเภท" value={PETITION_TYPE_LABELS[Number(petition.petition_type)] || petition.petition_type} />
