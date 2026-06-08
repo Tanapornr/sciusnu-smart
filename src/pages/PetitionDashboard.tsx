@@ -5,11 +5,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { apiListPetitions } from '../services/petitionApi';
 import { formatDateTimeTH } from '../utils';
+import { exportViaPrint } from '../utils/exportPetitionPdf';
+import { apiGetPetition } from '../services/petitionApi';
 import type { Petition } from '../types/petition';
 import { PETITION_TYPE_LABELS } from '../types/petition';
 import {
   Plus, ChevronRight, RefreshCw, LogOut, Moon, Sun,
-  ClipboardList, Inbox
+  ClipboardList, Inbox, FileDown
 } from 'lucide-react';
 import { Spinner } from '../components/ui';
 import CreatePetitionModal from '../components/petition/CreatePetitionModal';
@@ -53,8 +55,25 @@ export default function PetitionDashboard({ setPageView }: Props = {}) {
   const [activeTab, setActiveTab] = useState<TabKey>('all');
   const [showCreate, setShowCreate] = useState(false);
   const [selectedPetition, setSelectedPetition] = useState<string | null>(null);
+  const [exportingId, setExportingId] = useState<string | null>(null);
 
   const canCreate = user?.role === 'student' || user?.role === 'advisor_main';
+
+  // Export a petition to PDF — fetches full detail first (for payload + chain)
+  const handleExport = async (e: React.MouseEvent, petitionId: string) => {
+    e.stopPropagation(); // don't open the detail modal
+    setExportingId(petitionId);
+    try {
+      const res = await apiGetPetition(petitionId);
+      if (res.status === 'success') {
+        await exportViaPrint(res.petition);
+      }
+    } catch {
+      // silently ignore
+    } finally {
+      setExportingId(null);
+    }
+  };
 
   const fetchPetitions = useCallback(async () => {
     setLoading(true);
@@ -231,8 +250,19 @@ export default function PetitionDashboard({ setPageView }: Props = {}) {
                         <span className="hidden sm:inline">{created.date}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       {statusBadge(p.status)}
+                      <button
+                        onClick={e => handleExport(e, p.petition_id)}
+                        disabled={exportingId === p.petition_id}
+                        title="ส่งออก PDF"
+                        className="p-1.5 rounded-lg transition-colors hover:bg-orange-100 dark:hover:bg-orange-900/20 text-orange-400 hover:text-orange-600 disabled:opacity-40"
+                      >
+                        {exportingId === p.petition_id
+                          ? <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin block" />
+                          : <FileDown className="w-3.5 h-3.5" />
+                        }
+                      </button>
                       <ChevronRight className="w-4 h-4 text-neutral-400" />
                     </div>
                   </button>

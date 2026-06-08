@@ -10,11 +10,12 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { apiGetPetition, apiApprovePetition, apiRejectPetition } from '../../services/petitionApi';
 import { formatDateTimeTH } from '../../utils';
+import { exportViaPrint } from '../../utils/exportPetitionPdf';
 import type { Petition, ChainStep } from '../../types/petition';
 import { PETITION_TYPE_LABELS } from '../../types/petition';
 import {
   X, CheckCircle2, XCircle, Clock, ChevronDown,
-  AlertTriangle, Users, Shield
+  AlertTriangle, Users, Shield, FileDown
 } from 'lucide-react';
 import { Spinner } from '../ui';
 import SignaturePad from './SignaturePad';
@@ -72,6 +73,7 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
   const [adminName, setAdminName] = useState('');
   const [approving, setApproving] = useState(false);
   const [rejecting, setRejecting] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -206,6 +208,19 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
     } finally { setRejecting(false); }
   }
 
+  // ── Export handler ────────────────────────────────────────────
+  async function doExport() {
+    if (!petition) return;
+    setExporting(true);
+    try {
+      await exportViaPrint(petition);
+    } catch (e: any) {
+      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: e.message || 'ไม่สามารถส่งออก PDF ได้', confirmButtonColor: '#f97316' });
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div className="modal-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal-panel" style={{ maxWidth: '620px', maxHeight: '92vh', overflowY: 'auto' }}>
@@ -215,9 +230,30 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
             <h2 className="font-bold text-base">รายละเอียดคำร้อง</h2>
             {petition && <p className="text-xs text-orange-500 font-mono mt-0.5">{petition.petition_id}</p>}
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-500 transition-colors">
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            {petition && (
+              <button
+                onClick={doExport}
+                disabled={exporting}
+                title="ส่งออก PDF"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all disabled:opacity-50"
+                style={{
+                  background: 'var(--glass-input-bg)',
+                  borderColor: 'var(--glass-input-border)',
+                  color: 'var(--color-fg)',
+                }}
+              >
+                {exporting
+                  ? <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  : <FileDown className="w-3.5 h-3.5 text-orange-500" />
+                }
+                <span>{exporting ? 'กำลังส่งออก...' : 'ส่งออก PDF'}</span>
+              </button>
+            )}
+            <button onClick={onClose} className="p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-500 transition-colors">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -228,6 +264,20 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
           <div className="p-5 space-y-5">
             {/* Status banner */}
             <StatusBanner status={petition.status} />
+
+            {/* Quick export shortcut at top of content */}
+            <button
+              onClick={doExport}
+              disabled={exporting}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border-2 border-dashed transition-all disabled:opacity-50 hover:border-orange-400 hover:bg-orange-50/50 dark:hover:bg-orange-900/10"
+              style={{ borderColor: 'var(--focus-border)', color: 'var(--focus-border)' }}
+            >
+              {exporting
+                ? <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                : <FileDown className="w-4 h-4" />
+              }
+              {exporting ? 'กำลังเตรียม PDF...' : 'ส่งออกเป็น PDF (แบบฟอร์มคำร้องทั่วไป)'}
+            </button>
 
             {/* Request info */}
             <Section title="ข้อมูลคำร้อง">
