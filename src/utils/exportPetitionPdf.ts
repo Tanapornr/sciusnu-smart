@@ -158,7 +158,10 @@ function buildPetitionHtml(petition: Petition): string {
     display: flex; align-items: flex-start; gap: 2mm;
     margin-bottom: 1.8mm; padding: 1.5mm 2.5mm; border-radius: 4px;
   }
-  .petition-item.active  { background: #fff7ed; border: 1px solid #fed7aa; }
+  .petition-item.active {
+    background: transparent;
+    border: none;
+  }
   .petition-item.inactive{ opacity: 0.4; }
   .item-num   { font-weight: 700; flex-shrink: 0; width: 5.5mm; font-size: 10pt; }
   .item-title { font-weight: 600; font-size: 10pt; }
@@ -291,69 +294,78 @@ function buildItemsHtml(type: number, p: PetitionPayload): string {
     {
       num: 1,
       title: 'ขอเพิ่มชื่ออาจารย์ที่ปรึกษาจากมหาวิทยาลัยฯ',
-      detail: type === 1 ? `
+      detail: `
         <div class="detail-row"><span class="detail-lbl">คณะ/สังกัด:</span><span>${esc(p.faculty)}${p.affiliation ? ' — ' + esc(p.affiliation) : ''}</span></div>
         <div class="detail-row"><span class="detail-lbl">ชื่ออาจารย์:</span><span>${esc(p.advisorName)}</span></div>
         <div class="detail-row"><span class="detail-lbl">อีเมล:</span><span>${esc(p.advisorEmail)}</span></div>
-      ` : undefined,
+      `,
     },
     {
       num: 2,
       title: 'มีความประสงค์เพิ่มชื่ออาจารย์ที่ปรึกษาจากโรงเรียนมัธยมฯ',
-      detail: type === 2 ? (p.option === 'A'
-        ? `<div class="detail-row"><span class="detail-lbl">ชื่ออาจารย์:</span><span>${esc(p.schoolAdvisorName)}</span></div>
-           <div class="detail-row"><span class="detail-lbl">อีเมล:</span><span>${esc(p.schoolAdvisorEmail)}</span></div>`
-        : `<div class="detail-row"><span class="detail-lbl">ตัวเลือก:</span><span>ต้องการให้ทางโครงการ วมว. จัดหาให้</span></div>`
-      ) : undefined,
+      detail:
+        p.option === 'A'
+          ? `
+            <div class="detail-row"><span class="detail-lbl">ชื่ออาจารย์:</span><span>${esc(p.schoolAdvisorName)}</span></div>
+            <div class="detail-row"><span class="detail-lbl">อีเมล:</span><span>${esc(p.schoolAdvisorEmail)}</span></div>
+          `
+          : `
+            <div class="detail-row"><span class="detail-lbl">ตัวเลือก:</span><span>ต้องการให้ทางโครงการ วมว. จัดหาให้</span></div>
+          `,
     },
     {
       num: 3,
       title: 'ขอถอนชื่ออาจารย์ที่ปรึกษา',
-      detail: type === 3 ? `
+      detail: `
         <div class="detail-row"><span class="detail-lbl">ประเภท:</span><span>${p.removeType === 'university' ? 'จากมหาวิทยาลัย' : 'จากโรงเรียนมัธยมสาธิตฯ'}</span></div>
         ${p.removeFaculty ? `<div class="detail-row"><span class="detail-lbl">คณะ:</span><span>${esc(p.removeFaculty)}</span></div>` : ''}
         <div class="detail-row"><span class="detail-lbl">ชื่ออาจารย์:</span><span>${esc(p.removeName)}</span></div>
         ${p.removeEmail ? `<div class="detail-row"><span class="detail-lbl">อีเมล:</span><span>${esc(p.removeEmail)}</span></div>` : ''}
         <div class="detail-row"><span class="detail-lbl">เนื่องจาก:</span><span>${esc(p.removeReason)}</span></div>
-      ` : undefined,
+      `,
     },
     {
       num: 4,
       title: 'ขอเปลี่ยนชื่อโครงงาน เป็น (ข้อมูลใหม่)',
-      detail: type === 4 ? `
+      detail: `
         <div class="detail-row"><span class="detail-lbl">ชื่อใหม่ (ไทย):</span><span>${esc(p.newNameTH)}</span></div>
         <div class="detail-row"><span class="detail-lbl">ชื่อใหม่ (English):</span><span>${esc(p.newNameEN)}</span></div>
         <div class="detail-row"><span class="detail-lbl">เนื่องจาก:</span><span>${esc(p.renameReason)}</span></div>
-      ` : undefined,
+      `,
     },
     {
       num: 5,
       title: 'ขอเปลี่ยนแปลงสาขาโครงงาน',
-      detail: type === 5 ? `
+      detail: `
         <div class="detail-row"><span class="detail-lbl">สาขาเดิม:</span><span>${esc(p.currentField)}</span></div>
         <div class="detail-row"><span class="detail-lbl">สาขาใหม่:</span><span>${esc(p.newField)}</span></div>
         <div class="detail-row"><span class="detail-lbl">เนื่องจาก:</span><span>${esc(p.fieldReason)}</span></div>
-      ` : undefined,
+      `,
     },
     {
       num: 6,
       title: 'อื่นๆ (โปรดระบุ)',
-      detail: type === 6 ? `
+      detail: `
         <div class="detail-row"><span class="detail-lbl">รายละเอียด:</span><span>${esc(p.description)}</span></div>
-      ` : undefined,
+      `,
     },
   ];
 
-  return items.map(item => {
-    const isActive = item.num === type;
-    return `<div class="petition-item ${isActive ? 'active' : 'inactive'}">
-      <span class="item-num">${isActive ? '☑' : '☐'} ${item.num}.</span>
+  const selected = items.find(item => item.num === type);
+
+  if (!selected) return '';
+
+  return `
+    <div class="petition-item active">
+      <span class="item-num">☑ ${selected.num}.</span>
       <div>
-        <div class="item-title">${item.title}</div>
-        ${isActive && item.detail ? `<div class="item-detail">${item.detail}</div>` : ''}
+        <div class="item-title">${selected.title}</div>
+        <div class="item-detail">
+          ${selected.detail || ''}
+        </div>
       </div>
-    </div>`;
-  }).join('\n');
+    </div>
+  `;
 }
 
 // ── Signature box HTML ────────────────────────────────────────────
