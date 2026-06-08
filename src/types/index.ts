@@ -51,6 +51,12 @@ export interface ProjectInfo {
   advName: string;        // col 9
   coAdvEmail: string;     // col 12
   coAdvName: string;      // col 13
+  /** col O raw: "ภาควิชาXXX คณะYYY" */
+  coAdvAffiliation: string;
+  /** Parsed คณะXXX from coAdvAffiliation */
+  coAdvFaculty: string;
+  /** Parsed ภาควิชาXXX from coAdvAffiliation */
+  coAdvDepartment: string;
   schAdvEmail: string;    // col 15
   schAdvName: string;     // col 16
   projectNameTH: string;  // col 17

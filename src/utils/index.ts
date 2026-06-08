@@ -138,6 +138,27 @@ export function getColByIndex(obj: ProjectRow, index: number): string {
 }
 
 // ---------------------------------------------------------------
+// Parse col O "ภาควิชาXXX คณะYYY" → { faculty, department }
+// Used to auto-fill คณะ / สังกัด on petition type 3 (remove advisor)
+// when the selected professor is the co-advisor.
+// ---------------------------------------------------------------
+export function parseCoAdvAffiliation(raw: string | undefined): { faculty: string; department: string } {
+  const text = String(raw ?? '').trim();
+  if (!text) return { faculty: '', department: '' };
+
+  // e.g. "ภาควิชาเภสัชเคมีและเภสัชวิทยา คณะเภสัชศาสตร์"
+  const facultyMatch = text.match(/คณะ[\u0E00-\u0E7F\s]+/);
+  const deptMatch    = text.match(/ภาควิชา[\u0E00-\u0E7F\s]+(?=คณะ|$)/);
+
+  const faculty    = facultyMatch ? facultyMatch[0].trim() : '';
+  const department = deptMatch    ? deptMatch[0].trim()    : '';
+
+  // Fallback: no recognised prefix → treat whole string as faculty
+  if (!faculty && !department) return { faculty: text, department: '' };
+  return { faculty, department };
+}
+
+// ---------------------------------------------------------------
 // Parse a ProjectRow into structured ProjectInfo
 // Column indices match backend helpers.js getGroupInfo()
 // NOTE: Some Google Sheets column headers have trailing spaces
@@ -158,6 +179,9 @@ export function parseProjectRow(row: any): ProjectInfo {
     return '';
   };
 
+  const coAdvAffiliationRaw = fuzzyGet('สังกัด อ.ที่ปรึกษาร่วม');
+  const { faculty: coAdvFaculty, department: coAdvDepartment } = parseCoAdvAffiliation(coAdvAffiliationRaw);
+
   return {
     email: get('E-mail นักเรียน'),
     studentId: get('รหัสนักเรียน'),
@@ -168,6 +192,9 @@ export function parseProjectRow(row: any): ProjectInfo {
     advName: extractName(get('อ. ที่ปรึกษา TH')),
     coAdvEmail: extractEmail(get('E-mail อ.ที่ปรึกษาร่วม')),
     coAdvName: extractName(get('ที่ปรึกษาร่วม')),
+    coAdvAffiliation: coAdvAffiliationRaw,
+    coAdvFaculty,
+    coAdvDepartment,
     schAdvEmail: extractEmail(get('E-mail อ.ที่ปรึกษาโรงเรียน')),
     schAdvName: extractName(get('ที่ปรึกษา โรงเรียน')),
     // "ชื่อโครงงาน " has a trailing space in the Google Sheet header

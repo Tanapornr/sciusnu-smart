@@ -430,7 +430,8 @@ function PayloadSection({ petition }: { petition: Petition }) {
     }
   } else if (type === 3) {
     rows.push({ label: 'ประเภท', value: p.removeType === 'university' ? 'มหาวิทยาลัย' : 'โรงเรียน' });
-    if (p.removeFaculty) rows.push({ label: 'คณะ', value: p.removeFaculty });
+    if (p.removeFaculty)    rows.push({ label: 'คณะ', value: p.removeFaculty });
+    if (p.removeDepartment) rows.push({ label: 'สังกัด (ภาควิชา)', value: p.removeDepartment });
     if (p.removeName)    rows.push({ label: 'ชื่ออาจารย์', value: p.removeName });
     if (p.removeEmail)   rows.push({ label: 'อีเมล', value: p.removeEmail });
     if (p.removeReason)  rows.push({ label: 'เหตุผล', value: p.removeReason });

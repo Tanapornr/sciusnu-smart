@@ -44,6 +44,7 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
   const [submitting, setSubmitting] = useState(false);
 
   const { data: rawData } = useProjectData();
+  const [projectInfo, setProjectInfo] = useState<any>(null);
 
   useEffect(() => {
     if (rawData?.projects && user) {
@@ -64,6 +65,8 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
 
       if (myRow) {
         const info = parseProjectRow(myRow);
+
+        setProjectInfo(info);
         setPayload(prev => ({
           ...prev,
           currentField: prev.currentField || info.field || '',
@@ -72,6 +75,34 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
       }
     }
   }, [rawData, user]);
+
+  const professorOptions = projectInfo
+  ? [
+      {
+        type: 'university',
+        role: 'coadvisor',
+        name: projectInfo.coAdvName,
+        email: projectInfo.coAdvEmail,
+        label: `อาจารย์ที่ปรึกษาร่วม : ${projectInfo.coAdvName}`,
+        faculty: projectInfo.coAdvFaculty,
+        department: projectInfo.coAdvDepartment,
+      },
+
+      {
+        type: 'school',
+        role: 'school',
+        name: projectInfo.schAdvName,
+        email: projectInfo.schAdvEmail,
+        label: `อาจารย์โรงเรียน : ${projectInfo.schAdvName}`,
+        faculty: '',
+        department: '',
+      },
+    ].filter(
+      p =>
+        p.name &&
+        p.email
+    )
+  : [];
 
   function updatePayload(updates: Partial<PetitionPayload>) {
     setPayload(prev => ({ ...prev, ...updates }));
@@ -131,7 +162,19 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
         if (payload.option === 'A') return !!(payload.schoolAdvisorName && payload.schoolAdvisorEmail);
         if (payload.option === 'B') return true;
         return false;
-      case 3: return !!(payload.removeType && payload.removeName && payload.removeEmail && payload.removeReason);
+      case 3: {
+        const selected = professorOptions.find(
+          p => p.email === payload.removeEmail
+        );
+
+        return !!(
+          selected &&
+          payload.removeType &&
+          payload.removeName &&
+          payload.removeEmail &&
+          payload.removeReason
+        );
+      }
       case 4: return !!(payload.newNameTH || payload.newNameEN) && !!payload.renameReason;
       case 5: return !!(payload.newField && payload.fieldReason);
       case 6: return !!(payload.description && payload.description.trim().length > 10);
@@ -300,7 +343,15 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
                         { val: 'university', label: '🏫 อาจารย์มหาวิทยาลัย' },
                         { val: 'school',     label: '🏫 อาจารย์โรงเรียน' },
                       ].map(opt => (
-                        <button key={opt.val} onClick={() => updatePayload({ removeType: opt.val as any })}
+                        <button key={opt.val} onClick={() =>
+                                                    updatePayload({
+                                                      removeType: opt.val as any,
+                                                      removeName: '',
+                                                      removeEmail: '',
+                                                      removeFaculty: '',
+                                                      removeDepartment: '',
+                                                    })
+                                                  }
                           className={`p-3 rounded-xl border text-sm font-medium transition-all ${
                             payload.removeType === opt.val ? 'border-orange-400 bg-orange-50 dark:bg-orange-900/20 text-orange-600' : 'border-neutral-200 dark:border-neutral-700 text-neutral-500 hover:border-orange-300'
                           }`}>
@@ -310,10 +361,73 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
                     </div>
                   </div>
                   {payload.removeType === 'university' && (
-                    <Field label="คณะ / สังกัด" value={payload.removeFaculty || ''} onChange={v => updatePayload({ removeFaculty: v })} placeholder="คณะ" />
+                    <>
+                      {(payload.removeFaculty || payload.removeDepartment) && (
+                        <div className="flex items-start gap-2 rounded-xl px-3 py-2 text-xs text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800" style={{ background: 'var(--compact-info-bg, #eff6ff)' }}>
+                          <span className="mt-0.5">ℹ️</span>
+                          <span>คณะ / สังกัดดึงมาจากข้อมูลโครงงานโดยอัตโนมัติ — สามารถแก้ไขได้หากไม่ถูกต้อง</span>
+                        </div>
+                      )}
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">คณะ</label>
+                        <input
+                          value={payload.removeFaculty || ''}
+                          onChange={e => updatePayload({ removeFaculty: e.target.value })}
+                          placeholder="เช่น คณะวิทยาศาสตร์"
+                          className="glass-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">สังกัด (ภาควิชา / หน่วยงาน)</label>
+                        <input
+                          value={payload.removeDepartment || ''}
+                          onChange={e => updatePayload({ removeDepartment: e.target.value })}
+                          placeholder="เช่น ภาควิชาเคมี"
+                          className="glass-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none"
+                        />
+                      </div>
+                    </>
                   )}
-                  <Field label="ชื่ออาจารย์ *" value={payload.removeName || ''} onChange={v => updatePayload({ removeName: v })} placeholder="ชื่อ-นามสกุล" />
-                  <Field label="อีเมล *" value={payload.removeEmail || ''} onChange={v => updatePayload({ removeEmail: v })} placeholder="email@..." type="email" />
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5">
+                      อาจารย์ที่ต้องการถอดถอน *
+                    </label>
+
+                    <select
+                      value={payload.removeEmail || ''}
+                      onChange={(e) => {
+                        const selected = professorOptions.find(
+                          p => p.email === e.target.value
+                        );
+
+                        if (!selected) return;
+
+                        updatePayload({
+                          removeName:       selected.name,
+                          removeEmail:      selected.email,
+                          // Auto-fill from col O when co-advisor is selected
+                          removeFaculty:    selected.faculty    || payload.removeFaculty    || '',
+                          removeDepartment: selected.department || payload.removeDepartment || '',
+                        });
+                      }}
+                      className="glass-input w-full rounded-xl px-3 py-2 text-sm focus:outline-none"
+                    >
+                      <option value="">
+                        เลือกอาจารย์
+                      </option>
+
+                      {professorOptions
+                        .filter(p => p.type === payload.removeType)
+                        .map(p => (
+                          <option
+                            key={p.email}
+                            value={p.email}
+                          >
+                            {p.label}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
                   <div>
                     <label className="block text-sm font-medium mb-1.5">เหตุผล *</label>
                     <textarea value={payload.removeReason || ''} onChange={e => updatePayload({ removeReason: e.target.value })}
@@ -419,6 +533,10 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
                   <ReviewRow label="ประเภทที่ปรึกษา" value={payload.removeType === 'university' ? 'มหาวิทยาลัย' : 'โรงเรียน'} />
                   <ReviewRow label="ชื่ออาจารย์" value={payload.removeName || '-'} />
                   <ReviewRow label="อีเมล" value={payload.removeEmail || '-'} />
+                  {payload.removeType === 'university' && <>
+                    {payload.removeFaculty    && <ReviewRow label="คณะ"    value={payload.removeFaculty} />}
+                    {payload.removeDepartment && <ReviewRow label="สังกัด" value={payload.removeDepartment} />}
+                  </>}
                   <ReviewRow label="เหตุผล" value={payload.removeReason || '-'} />
                 </>}
                 {petitionType === 4 && <>

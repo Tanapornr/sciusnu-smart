@@ -39,6 +39,8 @@ const PROJECT_COL_MAP = {
   advName:          "ชื่อ อ.ที่ปรึกษา",
   coAdvEmail:       "อีเมล อ.ที่ปรึกษาร่วม",
   coAdvName:        "ชื่อ อ.ที่ปรึกษาร่วม",
+  // col O: "ภาควิชาXXX คณะYYY" — needs parsing on the frontend
+  coAdvAffiliation: "สังกัด อ.ที่ปรึกษาร่วม",
   schAdvEmail:      "อีเมล อ.ที่ปรึกษาโรงเรียน",
   schAdvName:       "ชื่อ อ.ที่ปรึกษาโรงเรียน",
 

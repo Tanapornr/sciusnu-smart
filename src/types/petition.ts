@@ -45,6 +45,7 @@ export interface PetitionPayload {
   removeName?: string;
   removeEmail?: string;
   removeFaculty?: string;
+  removeDepartment?: string;
   removeReason?: string;
   // Type 4
   newNameTH?: string;
