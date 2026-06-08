@@ -336,6 +336,14 @@ export default function AdvisorDashboard({ pageView, setPageView }: Props) {
       return (p['รหัสโครงงาน'] || '').toString();
   }).filter(id => id !== ""))];
 
+  // ประวัติการส่งงานทั้งหมด: show only submissions for projects where the current user
+  // is the MAIN advisor. Co-advisor / school-advisor only projects are excluded here
+  // because that panel lets users open submitted files.
+  const mainOnlySubmissions = submissions.filter(s => {
+      const pid = (s['รหัสโครงงาน'] || s['projectid'] || '').toString();
+      return mainProjectIds.includes(pid);
+  });
+
   return (
     <div className="pb-10 app-shell transition-colors">
       <nav className="glass-panel border-b-0 shadow-sm sticky top-0 z-40 relative">
@@ -588,7 +596,11 @@ export default function AdvisorDashboard({ pageView, setPageView }: Props) {
 
                 {/* ── All Works Section ── */}
                 <div id="allWorksSection" className="glass-panel rounded-[2rem] p-4 sm:p-7 relative overflow-hidden">
-                    <h2 className="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><FolderOpen className="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-indigo-500" /> ประวัติการส่งงานทั้งหมด</h2>
+                    <h2 className="text-base sm:text-lg font-bold text-neutral-800 dark:text-white mb-1 sm:mb-2 border-b border-neutral-100 dark:border-neutral-800 pb-3 flex items-center"><FolderOpen className="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-indigo-500" /> ประวัติการส่งงานทั้งหมด</h2>
+                    <p className="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 mb-4 sm:mb-5 flex items-center gap-1.5">
+                      <Eye className="w-3.5 h-3.5 opacity-70" />
+                      แสดงเฉพาะโครงงานที่คุณเป็น<span className="font-bold text-indigo-500">ที่ปรึกษาหลัก</span>เท่านั้น — โครงงานที่คุณเป็นที่ปรึกษาร่วม/ที่ปรึกษาโรงเรียนจะไม่แสดงในส่วนนี้
+                    </p>
                     <div className="table-fit-wrap w-full pb-2 overflow-x-hidden">
                         <table className="data-table advisor-table w-full text-left">
                             <thead className="text-[10px] sm:text-xs text-neutral-500">
@@ -603,10 +615,10 @@ export default function AdvisorDashboard({ pageView, setPageView }: Props) {
                                 </tr>
                             </thead>
                             <tbody id="allWorksTableBody" className="text-neutral-700 dark:text-neutral-200 text-xs sm:text-sm">
-                                {submissions.length === 0 ? (
+                                {mainOnlySubmissions.length === 0 ? (
                                     <tr><td colSpan={7} className="px-4 py-12 text-center text-neutral-500 font-medium">ยังไม่มีประวัติการส่งงานจากกลุ่มที่ดูแล</td></tr>
                                 ) : (
-                                    [...submissions].reverse().map((item, idx) => {
+                                    [...mainOnlySubmissions].reverse().map((item, idx) => {
                                         const workType = item['ประเภทงาน'] || 'ไม่ระบุ';
                                         const status = item['สถานะ'] || 'รออนุมัติ';
                                         const studentIdStr = item['รหัสนักเรียน'] || '';

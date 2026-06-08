@@ -26,7 +26,10 @@ dist-ssr
 .env
 .env.*
 *.zip
+*rar
 
 mail-relay/*.BACKUP
 
 oldcode/
+
+TODO.md
