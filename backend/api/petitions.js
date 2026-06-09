@@ -244,7 +244,19 @@ async function createPetition(req, res) {
 
     const petitionTypeNum = Number(petition_type);
 
-    // ── Fetch project data FIRST so groupInfo exists ──────────────
+    // For type 1 (add university coadvisor) or type 2 (add school coadvisor),
+    // the new advisor's info comes from the petition payload, not the sheet.
+    // Inject it into groupInfo so buildApprovalChain picks it up.
+    if (petitionTypeNum === 1 && payload?.newCoAdvEmail) {
+      groupInfo.coAdvEmail = payload.newCoAdvEmail.trim().toLowerCase();
+      groupInfo.coAdvName  = payload.newCoAdvName  || payload.newCoAdvEmail;
+    }
+    if (petitionTypeNum === 2 && payload?.newSchAdvEmail) {
+      groupInfo.schAdvEmail = payload.newSchAdvEmail.trim().toLowerCase();
+      groupInfo.schAdvName  = payload.newSchAdvName  || payload.newSchAdvEmail;
+    }
+
+    // Fetch project data to build approval chain
     const projectRows = await getSheetValues("TEST_DEV");
 
     let groupInfo;
@@ -259,16 +271,18 @@ async function createPetition(req, res) {
       return res.status(400).json({ status: "error", message: "ไม่พบข้อมูลโครงงาน" });
     }
 
-    // ── For type 1/2, inject the new advisor from payload into groupInfo ──
-    // Frontend sends: advisorEmail / advisorName (type 1)
-    //                 schoolAdvisorEmail / schoolAdvisorName (type 2)
-    if (petitionTypeNum === 1 && payload?.advisorEmail) {
-      groupInfo.coAdvEmail = payload.advisorEmail.trim().toLowerCase();
-      groupInfo.coAdvName  = payload.advisorName || payload.advisorEmail;
+    // ── Guard: block if the co-advisor slot is already filled in the sheet ──
+    if (petitionTypeNum === 1 && groupInfo.coAdvEmail) {
+      return res.status(400).json({
+        status: "error",
+        message: `โครงงานนี้มีอาจารย์ที่ปรึกษาร่วมอยู่แล้ว (${groupInfo.coAdvName || groupInfo.coAdvEmail}) ไม่สามารถเพิ่มได้อีก`,
+      });
     }
-    if (petitionTypeNum === 2 && payload?.schoolAdvisorEmail) {
-      groupInfo.schAdvEmail = payload.schoolAdvisorEmail.trim().toLowerCase();
-      groupInfo.schAdvName  = payload.schoolAdvisorName || payload.schoolAdvisorEmail;
+    if (petitionTypeNum === 2 && groupInfo.schAdvEmail) {
+      return res.status(400).json({
+        status: "error",
+        message: `โครงงานนี้มีอาจารย์ที่ปรึกษาโรงเรียนอยู่แล้ว (${groupInfo.schAdvName || groupInfo.schAdvEmail}) ไม่สามารถเพิ่มได้อีก`,
+      });
     }
 
     // After fetching projectRows:

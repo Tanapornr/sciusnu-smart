@@ -194,27 +194,48 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
           {step === 1 && (
             <div className="space-y-2">
               <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">เลือกประเภทคำร้องที่ต้องการยื่น</p>
-              {([1, 2, 3, 4, 5, 6] as PetitionType[]).map(type => (
-                <button
-                  key={type}
-                  onClick={() => setPetitionType(type)}
-                  className={`w-full text-left p-4 rounded-xl border transition-all ${
-                    petitionType === type
-                      ? 'border-orange-400 bg-orange-50 dark:bg-orange-900/20 dark:border-orange-600'
-                      : 'border-transparent hover:border-orange-200 dark:hover:border-orange-800'
-                  }`}
-                  style={petitionType !== type ? { background: 'var(--ios-card-bg)', borderColor: 'var(--ios-card-border)' } : {}}
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="text-xl mt-0.5">{PETITION_ICONS[type]}</span>
-                    <div>
-                      <div className="font-semibold text-sm">{PETITION_TYPE_LABELS[type]}</div>
-                      <div className="text-xs text-neutral-400 mt-0.5">{PETITION_DESCRIPTIONS[type]}</div>
+              {([1, 2, 3, 4, 5, 6] as PetitionType[]).map(type => {
+                // Disable type 1 if university co-advisor slot is already filled
+                const disabledType1 = type === 1 && !!(projectInfo?.coAdvEmail);
+                // Disable type 2 if school co-advisor slot is already filled
+                const disabledType2 = type === 2 && !!(projectInfo?.schAdvEmail);
+                const isDisabled = disabledType1 || disabledType2;
+                const disabledReason =
+                  disabledType1 ? `มีอาจารย์ที่ปรึกษาร่วมแล้ว: ${projectInfo?.coAdvName || projectInfo?.coAdvEmail}` :
+                  disabledType2 ? `มีอาจารย์ที่ปรึกษาโรงเรียนแล้ว: ${projectInfo?.schAdvName || projectInfo?.schAdvEmail}` :
+                  '';
+
+                return (
+                  <button
+                    key={type}
+                    onClick={() => !isDisabled && setPetitionType(type)}
+                    disabled={isDisabled}
+                    className={`w-full text-left p-4 rounded-xl border transition-all ${
+                      isDisabled
+                        ? 'opacity-50 cursor-not-allowed'
+                        : petitionType === type
+                          ? 'border-orange-400 bg-orange-50 dark:bg-orange-900/20 dark:border-orange-600'
+                          : 'border-transparent hover:border-orange-200 dark:hover:border-orange-800'
+                    }`}
+                    style={!isDisabled && petitionType !== type ? { background: 'var(--ios-card-bg)', borderColor: 'var(--ios-card-border)' } : {}}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="text-xl mt-0.5">{PETITION_ICONS[type]}</span>
+                      <div className="flex-1">
+                        <div className="font-semibold text-sm">{PETITION_TYPE_LABELS[type]}</div>
+                        <div className="text-xs text-neutral-400 mt-0.5">
+                          {isDisabled ? (
+                            <span className="text-amber-500 font-medium">⚠ {disabledReason}</span>
+                          ) : (
+                            PETITION_DESCRIPTIONS[type]
+                          )}
+                        </div>
+                      </div>
+                      {!isDisabled && petitionType === type && <CheckCircle2 className="w-4 h-4 text-orange-500 ml-auto mt-0.5 flex-shrink-0" />}
                     </div>
-                    {petitionType === type && <CheckCircle2 className="w-4 h-4 text-orange-500 ml-auto mt-0.5 flex-shrink-0" />}
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           )}
 
