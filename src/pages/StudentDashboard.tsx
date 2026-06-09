@@ -35,7 +35,6 @@ import {
   LogOut,
   FolderDown,
   TrendingUp,
-  FolderOpen,
   Settings,
   Hash,
   User as UserIcon,
