@@ -1,0 +1,306 @@
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS — single source of truth for all theme colors
+   Dark mode: ONLY html.dark (class on <html>)
+   Page shells: html.page-login | html.page-dashboard | html.page-admin
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --font-family: 'Prompt', sans-serif;
+  --font-scale: 16px;
+
+  --color-bg: #f7f9fc;
+  --color-fg: #1f2937;
+
+  --scrollbar-thumb: #9ca3af;
+  --scrollbar-thumb-hover: #6b7280;
+
+  --glass-panel-bg: rgba(255, 255, 255, 0.95);
+  --glass-panel-border: rgba(255, 255, 255, 0.6);
+  --glass-panel-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  --glass-panel-blur: 24px;
+
+  --glass-input-bg: rgba(255, 255, 255, 0.9);
+  --glass-input-border: rgba(0, 0, 0, 0.06);
+  --glass-input-fg: #1f2937;
+  --glass-input-focus-bg: #ffffff;
+  --focus-ring: rgba(249, 115, 22, 0.1);
+  --focus-border: #f97316;
+
+  --modal-panel-bg: rgba(255, 255, 255, 0.95);
+  --modal-panel-border: rgba(0, 0, 0, 0.06);
+
+  --table-row-bg: #ffffff;
+  --table-row-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  --table-head-fg: inherit;
+  --table-cell-fg: inherit;
+  --table-head-border: rgba(0, 0, 0, 0.08);
+
+  --ios-card-bg: #ffffff;
+  --ios-card-border: rgba(0, 0, 0, 0.03);
+  --ios-card-shadow: 0 4px 15px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01);
+  --ios-card-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.04);
+
+  --compact-shell-border: transparent;
+  --compact-shell-bg: transparent;
+  --compact-card-bg: rgba(255, 255, 255, 0.9);
+  --compact-card-border: rgba(15, 23, 42, 0.06);
+  --compact-card-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
+  --compact-title-card-bg: linear-gradient(135deg, rgba(255, 247, 237, 0.9), rgba(255, 255, 255, 0.94)), rgba(255, 255, 255, 0.9);
+  --compact-title-fg: inherit;
+  --compact-label-fg: #94a3b8;
+  --compact-info-bg: rgba(248, 250, 252, 0.76);
+  --compact-info-border: rgba(15, 23, 42, 0.055);
+  --compact-icon-bg: #ffffff;
+  --compact-icon-border: rgba(15, 23, 42, 0.06);
+  --compact-partner-bg: rgba(255, 255, 255, 0.78);
+  --compact-partner-border: rgba(15, 23, 42, 0.06);
+  --compact-partner-hover-bg: #ffffff;
+  --compact-partner-hover-border: rgba(59, 130, 246, 0.18);
+
+  --timeline-line: #e2e8f0;
+  --timeline-icon-bg: #f1f5f9;
+  --timeline-icon-fg: #94a3b8;
+  --timeline-icon-border: #ffffff;
+
+  --file-input-fg: #64748b;
+  --file-button-bg: #f97316;
+  --file-button-hover: #ea580c;
+
+  --review-btn-bg: rgba(255, 255, 255, 0.92);
+  --review-btn-border: rgba(15, 23, 42, 0.08);
+  --review-btn-approve-fg: #047857;
+  --review-btn-approve-bg: linear-gradient(180deg, #ffffff 0%, #ecfdf5 100%);
+  --review-btn-approve-border: #bbf7d0;
+  --review-btn-reject-fg: #be123c;
+  --review-btn-reject-bg: linear-gradient(180deg, #ffffff 0%, #fff1f2 100%);
+  --review-btn-reject-border: #fecdd3;
+
+  --btn-approve-bg: rgba(16, 185, 129, 0.2);
+  --btn-approve-border: rgba(16, 185, 129, 0.5);
+  --btn-approve-fg: #059669;
+  --btn-approve-hover: rgba(16, 185, 129, 0.3);
+  --btn-reject-bg: rgba(244, 63, 94, 0.2);
+  --btn-reject-border: rgba(244, 63, 94, 0.5);
+  --btn-reject-fg: #e11d48;
+  --btn-reject-hover: rgba(244, 63, 94, 0.3);
+
+  --swal-bg: #ffffff;
+  --swal-fg: #111827;
+  --swal-muted: #4b5563;
+  --swal-radius: 1.5rem;
+  --swal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  --swal-padding: 1.5rem;
+  --swal-border: transparent;
+  --swal-confirm: #f97316;
+  --swal-confirm-hover: #ea580c;
+  --swal-cancel-bg: #f3f4f6;
+  --swal-cancel-fg: #374151;
+  --swal-close-bg: #f5f5f5;
+  --swal-close-fg: #a3a3a3;
+  --swal-close-hover-bg: #e5e5e5;
+  --swal-close-hover-fg: #171717;
+
+  --swal-admin-title: #0f172a;
+  --swal-admin-muted: #475569;
+  --swal-admin-cancel-bg: #ffffff;
+  --swal-admin-cancel-fg: #0f172a;
+  --swal-admin-cancel-border: #cbd5e1;
+  --swal-admin-cancel-hover: #f8fafc;
+
+  --theme-toggle-bg: rgba(255, 255, 255, 0.5);
+  --theme-toggle-border: #e2e8f0;
+  --theme-toggle-fg: #334155;
+
+  --project-title-gradient: linear-gradient(135deg, #ea580c, #db2777);
+  --compact-title-fg: inherit;
+}
+
+html.page-dashboard {
+  --font-scale: 18px;
+}
+
+html.page-login {
+  --font-scale: 16px;
+  --login-page-bg: rgb(255 247 237 / 0.5);
+  --color-bg: var(--login-page-bg);
+  --theme-toggle-bg: rgba(255, 255, 255, 0.5);
+  --theme-toggle-border: #e2e8f0;
+  --theme-toggle-fg: #334155;
+  --glass-panel-bg: rgba(255, 255, 255, 0.7);
+  --glass-panel-border: rgba(255, 255, 255, 0.8);
+  --glass-panel-shadow: 0 10px 40px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  --glass-input-bg: rgba(255, 255, 255, 0.6);
+  --glass-input-border: rgba(255, 255, 255, 0.8);
+  --glass-input-fg: #334155;
+  --glass-input-focus-bg: #ffffff;
+  --swal-radius: 2rem;
+  --swal-padding: 2rem 1.5rem;
+  --swal-bg: rgba(255, 255, 255, 0.95);
+  --swal-border: rgba(255, 255, 255, 0.5);
+  color-scheme: light;
+}
+
+html.page-admin {
+  --color-bg: #fff7ed;
+  --glass-panel-bg: rgba(255, 255, 255, 0.8);
+  --glass-panel-blur: 20px;
+  --glass-panel-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  --glass-input-bg: rgba(255, 255, 255, 0.5);
+  --glass-input-border: rgba(255, 255, 255, 0.6);
+  --glass-input-fg: #334155;
+  --swal-radius: 20px;
+  --swal-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  --swal-padding: 2rem 1.5rem;
+  --table-head-fg: inherit;
+  --admin-table-head-fg: inherit;
+  --admin-table-cell-fg: inherit;
+  --admin-table-head-border: rgba(0, 0, 0, 0.08);
+  --admin-table-cell-border: transparent;
+  --admin-thead-bg: #f8fafc;
+}
+
+/* ── Dark: one block on html.dark only ───────────────────────── */
+html.dark {
+  color-scheme: dark;
+
+  --color-bg: #0d0d0d;
+  --color-fg: #f3f4f6;
+
+  --scrollbar-thumb: #64748b;
+  --scrollbar-thumb-hover: #94a3b8;
+
+  --glass-panel-bg: rgba(24, 24, 27, 0.75);
+  --glass-panel-border: rgba(255, 255, 255, 0.05);
+  --glass-panel-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+
+  --glass-input-bg: rgba(31, 41, 55, 0.6);
+  --glass-input-border: rgba(255, 255, 255, 0.08);
+  --glass-input-fg: #f9fafb;
+  --glass-input-focus-bg: rgba(15, 23, 42, 0.9);
+  --focus-ring: rgba(234, 88, 12, 0.15);
+  --focus-border: #ea580c;
+
+  --modal-panel-bg: rgba(23, 23, 23, 0.95);
+  --modal-panel-border: rgba(255, 255, 255, 0.08);
+
+  --table-row-bg: #1f2937;
+  --table-row-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --table-head-fg: #d4d4d4;
+  --table-cell-fg: #f5f5f5;
+  --table-head-border: rgba(255, 255, 255, 0.08);
+
+  --ios-card-bg: #18181b;
+  --ios-card-border: rgba(255, 255, 255, 0.05);
+  --ios-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  --ios-card-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.25);
+
+  --compact-shell-border: rgba(255, 255, 255, 0.06);
+  --compact-shell-bg: rgba(13, 13, 13, 0.45);
+  --compact-card-bg: rgba(24, 24, 27, 0.84);
+  --compact-card-border: rgba(255, 255, 255, 0.07);
+  --compact-card-shadow: 0 18px 42px rgba(0, 0, 0, 0.32);
+  --compact-title-card-bg: linear-gradient(135deg, rgba(67, 42, 28, 0.42), rgba(24, 24, 27, 0.92)), rgba(24, 24, 27, 0.86);
+  --compact-title-fg: #fb923c;
+  --compact-info-bg: rgba(39, 39, 42, 0.58);
+  --compact-info-border: rgba(255, 255, 255, 0.07);
+  --compact-icon-bg: rgba(24, 24, 27, 0.9);
+  --compact-icon-border: rgba(255, 255, 255, 0.07);
+  --compact-partner-bg: rgba(24, 24, 27, 0.68);
+  --compact-partner-border: rgba(255, 255, 255, 0.07);
+  --compact-partner-hover-bg: rgba(24, 24, 27, 0.68);
+  --compact-partner-hover-border: rgba(255, 255, 255, 0.07);
+
+  --timeline-line: #334155;
+  --timeline-icon-bg: #1e293b;
+  --timeline-icon-fg: #475569;
+  --timeline-icon-border: #18181b;
+
+  --file-input-fg: #94a3b8;
+  --file-button-bg: #ea580c;
+  --file-button-hover: #c2410c;
+
+  --review-btn-bg: rgba(39, 39, 42, 0.92);
+  --review-btn-border: rgba(255, 255, 255, 0.08);
+  --review-btn-approve-fg: #86efac;
+  --review-btn-approve-bg: rgba(6, 78, 59, 0.32);
+  --review-btn-approve-border: rgba(74, 222, 128, 0.26);
+  --review-btn-reject-fg: #fda4af;
+  --review-btn-reject-bg: rgba(136, 19, 55, 0.32);
+  --review-btn-reject-border: rgba(251, 113, 133, 0.28);
+
+  --btn-approve-bg: rgba(16, 185, 129, 0.25);
+  --btn-approve-border: rgba(16, 185, 129, 0.4);
+  --btn-approve-fg: #34d399;
+  --btn-reject-bg: rgba(244, 63, 94, 0.25);
+  --btn-reject-border: rgba(244, 63, 94, 0.4);
+  --btn-reject-fg: #fb7185;
+
+  --swal-bg: #1f2937;
+  --swal-fg: #f9fafb;
+  --swal-muted: #9ca3af;
+  --swal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  --swal-border: rgba(255, 255, 255, 0.05);
+  --swal-cancel-bg: #374151;
+  --swal-cancel-fg: #f9fafb;
+  --swal-close-bg: #262626;
+  --swal-close-fg: #a3a3a3;
+  --swal-close-hover-bg: #404040;
+  --swal-close-hover-fg: #f5f5f5;
+
+  --swal-admin-title: #f8fafc;
+  --swal-admin-muted: #cbd5e1;
+  --swal-admin-cancel-bg: transparent;
+  --swal-admin-cancel-fg: #f8fafc;
+  --swal-admin-cancel-border: #475569;
+  --swal-admin-cancel-hover: #334155;
+
+  --theme-toggle-bg: rgba(30, 41, 59, 0.5);
+  --theme-toggle-border: #334155;
+  --theme-toggle-fg: #e2e8f0;
+
+  --project-title-gradient: linear-gradient(135deg, #fb923c, #f472b6);
+}
+
+html.dark.page-login {
+  --login-page-bg: #0f172a;
+  --color-bg: var(--login-page-bg);
+  --color-fg: #f1f5f9;
+  --theme-toggle-bg: rgba(30, 41, 59, 0.5);
+  --theme-toggle-border: #334155;
+  --theme-toggle-fg: #e2e8f0;
+  --glass-panel-bg: rgba(30, 41, 59, 0.6);
+  --glass-panel-border: rgba(255, 255, 255, 0.1);
+  --glass-panel-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  --glass-input-bg: rgba(15, 23, 42, 0.5);
+  --glass-input-border: rgba(255, 255, 255, 0.1);
+  --glass-input-fg: #f1f5f9;
+  --glass-input-focus-bg: rgba(15, 23, 42, 0.9);
+  --swal-bg: rgba(30, 41, 59, 0.95);
+  --swal-border: rgba(255, 255, 255, 0.1);
+}
+
+html.dark.page-admin {
+  --color-bg: #0d0d0d;
+  --glass-panel-bg: rgba(24, 24, 27, 0.75);
+  --glass-panel-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-input-bg: rgba(31, 41, 55, 0.6);
+  --swal-bg: #1f2937;
+  --swal-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  --admin-table-head-fg: #d4d4d4;
+  --admin-table-cell-fg: #f5f5f5;
+  --admin-table-head-border: rgba(255, 255, 255, 0.08);
+  --admin-table-cell-border: rgba(255, 255, 255, 0.05);
+  --admin-thead-bg: rgba(13, 13, 13, 0.45);
+  --swal-close-bg: #262626;
+  --swal-close-fg: #a3a3a3;
+  --swal-close-hover-bg: #404040;
+  --swal-close-hover-fg: #f5f5f5;
+}
+
+@media (max-width: 768px) {
+  :root,
+  html.page-login,
+  html.page-dashboard {
+    --font-scale: 14px;
+  }
+}

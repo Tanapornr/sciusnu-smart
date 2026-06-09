@@ -1,0 +1,192 @@
+/* SweetAlert2 — token-driven; html.dark sets --swal-* in tokens.css */
+
+.swal2-shown {
+  overflow: hidden;
+}
+
+.swal2-popup {
+  background: var(--swal-bg);
+  color: var(--swal-fg);
+  border-radius: var(--swal-radius);
+  box-shadow: var(--swal-shadow);
+  padding: var(--swal-padding);
+  font-family: var(--font-family);
+  border: 1px solid var(--swal-border);
+}
+
+html.page-login .swal2-popup {
+  backdrop-filter: blur(20px);
+}
+
+.swal2-title {
+  color: var(--swal-fg);
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  padding-top: 0;
+  font-family: var(--font-family);
+}
+
+.swal2-html-container {
+  color: var(--swal-muted);
+  font-size: 0.95rem;
+  margin: 0;
+  font-family: var(--font-family);
+}
+
+.swal2-confirm {
+  background-color: var(--swal-confirm);
+  border-radius: 9999px;
+  padding: 10px 24px;
+  font-weight: bold;
+  font-family: var(--font-family);
+}
+
+.swal2-confirm:hover {
+  background-color: var(--swal-confirm-hover);
+}
+
+.swal2-cancel {
+  background: var(--swal-cancel-bg);
+  color: var(--swal-cancel-fg);
+  border-radius: 9999px;
+  padding: 10px 24px;
+  font-weight: bold;
+  border: none;
+  font-family: var(--font-family);
+}
+
+.swal2-close {
+  color: var(--swal-close-fg);
+  border-radius: 50%;
+  background: var(--swal-close-bg);
+  width: 34px;
+  height: 34px;
+  margin: 10px 10px 0 0;
+}
+
+.swal2-close:hover {
+  background: var(--swal-close-hover-bg);
+  color: var(--swal-close-hover-fg);
+}
+
+.swal-admin.swal2-popup .swal2-title {
+  color: var(--swal-admin-title);
+}
+
+.swal-admin.swal2-popup .swal2-html-container {
+  color: var(--swal-admin-muted);
+}
+
+.swal-admin.swal2-popup .swal2-actions {
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.swal-admin.swal2-popup .swal2-styled {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 10px 24px;
+  box-shadow: none;
+}
+
+.swal-admin.swal2-popup .swal2-cancel {
+  background: var(--swal-admin-cancel-bg);
+  color: var(--swal-admin-cancel-fg);
+  border: 1px solid var(--swal-admin-cancel-border);
+}
+
+.swal-admin.swal2-popup .swal2-cancel:hover {
+  background: var(--swal-admin-cancel-hover);
+}
+
+.swal-admin.swal2-popup .swal2-icon {
+  border: none;
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 1.5rem auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swal-admin.swal2-popup .swal2-icon.swal2-success {
+  background-color: #dcfce7;
+  color: #10b981;
+}
+
+.swal-admin.swal2-popup .swal2-icon.swal2-error {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.swal-admin.swal2-popup .swal2-icon.swal2-error .swal2-x-mark {
+  position: absolute;
+  inset: 0;
+  flex-grow: 0;
+}
+
+.swal-admin.swal2-popup .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  width: 34px;
+  height: 4px;
+  margin: 0;
+  transform-origin: center;
+}
+
+.swal-admin.swal2-popup .swal2-icon.swal2-error .swal2-x-mark-line-left {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.swal-admin.swal2-popup .swal2-icon.swal2-error .swal2-x-mark-line-right {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.swal-admin.swal2-popup .swal2-icon.swal2-warning {
+  background-color: #fef08a;
+  color: #eab308;
+}
+
+.swal-admin.swal2-popup .swal2-icon.swal2-info {
+  background-color: #e0f2fe;
+  color: #3b82f6;
+}
+
+.swal-admin.swal2-popup .swal2-icon.swal2-question {
+  background-color: #f3e8ff;
+  color: #0ea5e9;
+}
+
+.swal-admin.swal2-popup .swal2-success-circular-line-left,
+.swal-admin.swal2-popup .swal2-success-circular-line-right,
+.swal-admin.swal2-popup .swal2-success-fix,
+.swal-admin.swal2-popup .swal2-success-ring {
+  display: none;
+  background-color: transparent;
+}
+
+.swal-admin.swal2-popup .swal2-icon.swal2-success [class^='swal2-success-line'] {
+  background-color: #10b981;
+}
+
+.swal-admin.swal2-popup .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+  background-color: #ef4444;
+}
+
+html.page-admin .swal2-close {
+  color: var(--swal-close-fg);
+  background: var(--swal-close-bg);
+  width: 32px;
+  height: 32px;
+  margin: 8px 8px 0 0;
+}
+
+html.page-admin .swal2-close:hover {
+  background: var(--swal-close-hover-bg);
+  color: var(--swal-close-hover-fg);
+}
