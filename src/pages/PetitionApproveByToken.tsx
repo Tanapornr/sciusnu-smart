@@ -226,15 +226,6 @@ export default function PetitionApproveByToken() {
         {/* ── Action buttons ── */}
         <div className="token-action-row">
           <button
-            className="token-btn approve"
-            disabled={pageState === 'submitting'}
-            onClick={() => handleSubmit('approve')}
-          >
-            {pageState === 'submitting' && submitAction === 'approve'
-              ? 'กำลังบันทึก...'
-              : '✓  อนุมัติ'}
-          </button>
-          <button
             className="token-btn reject"
             disabled={pageState === 'submitting'}
             onClick={() => handleSubmit('reject')}
@@ -242,6 +233,15 @@ export default function PetitionApproveByToken() {
             {pageState === 'submitting' && submitAction === 'reject'
               ? 'กำลังบันทึก...'
               : '✕  ปฏิเสธ'}
+          </button>
+          <button
+            className="token-btn approve"
+            disabled={pageState === 'submitting'}
+            onClick={() => handleSubmit('approve')}
+          >
+            {pageState === 'submitting' && submitAction === 'approve'
+              ? 'กำลังบันทึก...'
+              : '✓  อนุมัติ'}
           </button>
         </div>
 

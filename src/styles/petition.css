@@ -389,7 +389,7 @@
 
 /* ── Info rows ── */
 .token-info-block {
-  background: rgba(248,250,252,.8);
+  background: rgba(255,255,255,.04);
   border: 1px solid rgba(15,23,42,.055);
   border-radius: 12px;
   overflow: hidden;
@@ -402,7 +402,7 @@
   align-items: flex-start;
   gap: 12px;
   padding: 9px 14px;
-  border-bottom: 1px solid rgba(15,23,42,.04);
+  border-bottom: 1px solid rgba(15, 42, 22, 0.04);
 }
 .token-info-row:last-child { border-bottom: none; }
 
