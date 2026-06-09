@@ -1,73 +1,52 @@
-# React + TypeScript + Vite
+# SCiUSNU Smart — Unified Vercel Deployment
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Single-repo deploy: React frontend + Express backend on one Vercel project.
 
-Currently, two official plugins are available:
+## Project Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+/
+├── api/
+│   └── index.cjs          ← Vercel serverless entry (loads backend/server.js)
+├── backend/
+│   ├── api/               ← Express route handlers
+│   ├── lib/               ← Shared utilities
+│   ├── server.js          ← Express app
+│   └── package.json       ← "type": "commonjs" (keeps backend as CJS)
+├── src/                   ← React frontend (TypeScript/Vite)
+├── package.json           ← Root: merged deps, "type": "module" for frontend build
+└── vercel.json            ← Routing: /api/* → serverless, everything else → SPA
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## How it works
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Frontend**: Vite builds `src/` → `dist/` (static files served by Vercel CDN)
+- **Backend**: `api/index.cjs` is a Vercel Serverless Function that imports `backend/server.js`
+- **Routing**: `vercel.json` sends `/api/*` to the serverless function; all other paths serve `index.html` (React Router)
+- **Module systems**: Root is ESM (`"type": "module"`) for the Vite build; `backend/package.json` declares `"type": "commonjs"` so all `require()` calls inside `backend/` work correctly; `api/index.cjs` uses the `.cjs` extension to force CommonJS regardless of root type
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Environment Variables
+
+Copy `.env.example` and add all variables in **Vercel Dashboard → Project → Settings → Environment Variables**.
+
+Required:
+- `JWT_SECRET` (≥32 chars)
+- `ADMIN_USERNAME` / `ADMIN_PASSWORD`
+- `SPREADSHEET_ID` + `GOOGLE_SERVICE_ACCOUNT_JSON`
+- `APPS_SCRIPT_URL` + `APPS_SCRIPT_SECRET`
+- `MAIL_RELAY_URL` + `MAIL_RELAY_SECRET`
+- `DRIVE_FOLDER_ID` + `UPLOAD_TOKEN_SECRET` + `SIGNATURE_KEY`
+- `ADMIN_EMAILS` (comma-separated)
+- `WEB_URL` (your Vercel deployment URL, e.g. `https://sciusnu-smart.vercel.app/`)
+
+## Deploy
+
+```bash
+# Install Vercel CLI (once)
+npm i -g vercel
+
+# Deploy from this folder
+vercel --prod
 ```
+
+Or connect the GitHub repo to Vercel for automatic deploys.
