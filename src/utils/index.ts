@@ -142,20 +142,22 @@ export function getColByIndex(obj: ProjectRow, index: number): string {
 // Used to auto-fill คณะ / สังกัด on petition type 3 (remove advisor)
 // when the selected professor is the co-advisor.
 // ---------------------------------------------------------------
-export function parseCoAdvAffiliation(raw: string | undefined): { faculty: string; department: string } {
+export function parseCoAdvAffiliation(
+  raw: string | undefined
+): { faculty: string; department: string } {
   const text = String(raw ?? '').trim();
-  if (!text) return { faculty: '', department: '' };
 
-  // e.g. "ภาควิชาเภสัชเคมีและเภสัชวิทยา คณะเภสัชศาสตร์"
-  const facultyMatch = text.match(/คณะ[\u0E00-\u0E7F\s]+/);
-  const deptMatch    = text.match(/ภาควิชา[\u0E00-\u0E7F\s]+(?=คณะ|$)/);
+  if (!text) {
+    return { faculty: '', department: '' };
+  }
 
-  const faculty    = facultyMatch ? facultyMatch[0].trim() : '';
-  const department = deptMatch    ? deptMatch[0].trim()    : '';
+  const facultyMatch = text.match(/คณะ.+$/);
+  const deptMatch = text.match(/^.+?(?=\s*คณะ)/);
 
-  // Fallback: no recognised prefix → treat whole string as faculty
-  if (!faculty && !department) return { faculty: text, department: '' };
-  return { faculty, department };
+  return {
+    faculty: facultyMatch?.[0].trim() ?? '',
+    department: deptMatch?.[0].trim() ?? '',
+  };
 }
 
 // ---------------------------------------------------------------
@@ -179,7 +181,7 @@ export function parseProjectRow(row: any): ProjectInfo {
     return '';
   };
 
-  const coAdvAffiliationRaw = fuzzyGet('สังกัด อ.ที่ปรึกษาร่วม');
+  const coAdvAffiliationRaw = fuzzyGet('สังกัดที่ปรึกษาร่วม');
   const { faculty: coAdvFaculty, department: coAdvDepartment } = parseCoAdvAffiliation(coAdvAffiliationRaw);
 
   return {

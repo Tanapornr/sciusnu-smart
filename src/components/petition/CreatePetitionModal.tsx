@@ -76,34 +76,6 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
     }
   }, [rawData, user]);
 
-  const professorOptions = projectInfo
-  ? [
-      {
-        type: 'university',
-        role: 'coadvisor',
-        name: projectInfo.coAdvName,
-        email: projectInfo.coAdvEmail,
-        label: `อาจารย์ที่ปรึกษาร่วม : ${projectInfo.coAdvName}`,
-        faculty: projectInfo.coAdvFaculty,
-        department: projectInfo.coAdvDepartment,
-      },
-
-      {
-        type: 'school',
-        role: 'school',
-        name: projectInfo.schAdvName,
-        email: projectInfo.schAdvEmail,
-        label: `อาจารย์โรงเรียน : ${projectInfo.schAdvName}`,
-        faculty: '',
-        department: '',
-      },
-    ].filter(
-      p =>
-        p.name &&
-        p.email
-    )
-  : [];
-
   function updatePayload(updates: Partial<PetitionPayload>) {
     setPayload(prev => ({ ...prev, ...updates }));
   }
@@ -163,12 +135,7 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
         if (payload.option === 'B') return true;
         return false;
       case 3: {
-        const selected = professorOptions.find(
-          p => p.email === payload.removeEmail
-        );
-
         return !!(
-          selected &&
           payload.removeType &&
           payload.removeName &&
           payload.removeEmail &&
@@ -340,94 +307,65 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
                     <label className="block text-sm font-medium mb-2">ประเภทที่ปรึกษา *</label>
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        { val: 'university', label: '🏫 อาจารย์มหาวิทยาลัย' },
+                        { val: 'university', label: '🎓 อาจารย์มหาวิทยาลัย' },
                         { val: 'school',     label: '🏫 อาจารย์โรงเรียน' },
-                      ].map(opt => (
-                        <button key={opt.val} onClick={() =>
-                                                    updatePayload({
-                                                      removeType: opt.val as any,
-                                                      removeName: '',
-                                                      removeEmail: '',
-                                                      removeFaculty: '',
-                                                      removeDepartment: '',
-                                                    })
-                                                  }
-                          className={`p-3 rounded-xl border text-sm font-medium transition-all ${
-                            payload.removeType === opt.val ? 'border-orange-400 bg-orange-50 dark:bg-orange-900/20 text-orange-600' : 'border-neutral-200 dark:border-neutral-700 text-neutral-500 hover:border-orange-300'
-                          }`}>
-                          {opt.label}
-                        </button>
-                      ))}
+                      ].map(opt => {
+                        const info = opt.val === 'university'
+                          ? { name: projectInfo?.coAdvName,  email: projectInfo?.coAdvEmail }
+                          : { name: projectInfo?.schAdvName, email: projectInfo?.schAdvEmail };
+                        const unavailable = !info.name || !info.email;
+                        return (
+                          <button
+                            key={opt.val}
+                            disabled={unavailable}
+                            onClick={() => updatePayload({
+                              removeType:       opt.val as any,
+                              removeName:       info.name  || '',
+                              removeEmail:      info.email || '',
+                              removeFaculty:    opt.val === 'university' ? (projectInfo?.coAdvFaculty    || '') : '',
+                              removeDepartment: opt.val === 'university' ? (projectInfo?.coAdvDepartment || '') : '',
+                            })}
+                            className={`p-3 rounded-xl border text-sm font-medium transition-all ${
+                              unavailable
+                                ? 'opacity-40 cursor-not-allowed border-neutral-200 dark:border-neutral-700 text-neutral-400'
+                                : payload.removeType === opt.val
+                                  ? 'border-orange-400 bg-orange-50 dark:bg-orange-900/20 text-orange-600'
+                                  : 'border-neutral-200 dark:border-neutral-700 text-neutral-500 hover:border-orange-300'
+                            }`}>
+                            {opt.label}
+                            {unavailable && <div className="text-[10px] font-normal mt-0.5 opacity-70">ไม่มีข้อมูล</div>}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                  {payload.removeType === 'university' && (
-                    <>
-                      {(payload.removeFaculty || payload.removeDepartment) && (
-                        <div className="flex items-start gap-2 rounded-xl px-3 py-2 text-xs text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800" style={{ background: 'var(--compact-info-bg, #eff6ff)' }}>
-                          <span className="mt-0.5">ℹ️</span>
-                          <span>คณะ / สังกัดดึงมาจากข้อมูลโครงงานโดยอัตโนมัติ — สามารถแก้ไขได้หากไม่ถูกต้อง</span>
+
+                  {/* Read-only advisor info card — shown once type is selected */}
+                  {payload.removeType && (
+                    <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 divide-y divide-neutral-100 dark:divide-neutral-800 text-sm overflow-hidden">
+                      {[
+                        { label: 'ชื่ออาจารย์', value: payload.removeName },
+                        { label: 'อีเมล',        value: payload.removeEmail },
+                        ...(payload.removeType === 'university' ? [
+  {
+    label: 'คณะ',
+    value: [
+      payload.removeFaculty,
+      payload.removeDepartment,
+    ]
+      .filter(Boolean)
+      .join(' / ')
+  },
+] : []),
+                      ].filter(r => r.value).map(row => (
+                        <div key={row.label} className="flex items-center px-3 py-2 gap-3">
+                          <span className="text-xs text-neutral-400 dark:text-neutral-500 w-20 shrink-0">{row.label}</span>
+                          <span className="text-xs font-medium flex-1">{row.value}</span>
                         </div>
-                      )}
-                      <div>
-                        <label className="block text-xs font-semibold mb-1">คณะ</label>
-                        <input
-                          value={payload.removeFaculty || ''}
-                          onChange={e => updatePayload({ removeFaculty: e.target.value })}
-                          placeholder="เช่น คณะวิทยาศาสตร์"
-                          className="glass-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold mb-1">สังกัด (ภาควิชา / หน่วยงาน)</label>
-                        <input
-                          value={payload.removeDepartment || ''}
-                          onChange={e => updatePayload({ removeDepartment: e.target.value })}
-                          placeholder="เช่น ภาควิชาเคมี"
-                          className="glass-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none"
-                        />
-                      </div>
-                    </>
+                      ))}
+                    </div>
                   )}
-                  <div>
-                    <label className="block text-sm font-medium mb-1.5">
-                      อาจารย์ที่ต้องการถอดถอน *
-                    </label>
 
-                    <select
-                      value={payload.removeEmail || ''}
-                      onChange={(e) => {
-                        const selected = professorOptions.find(
-                          p => p.email === e.target.value
-                        );
-
-                        if (!selected) return;
-
-                        updatePayload({
-                          removeName:       selected.name,
-                          removeEmail:      selected.email,
-                          // Auto-fill from col O when co-advisor is selected
-                          removeFaculty:    selected.faculty    || payload.removeFaculty    || '',
-                          removeDepartment: selected.department || payload.removeDepartment || '',
-                        });
-                      }}
-                      className="glass-input w-full rounded-xl px-3 py-2 text-sm focus:outline-none"
-                    >
-                      <option value="">
-                        เลือกอาจารย์
-                      </option>
-
-                      {professorOptions
-                        .filter(p => p.type === payload.removeType)
-                        .map(p => (
-                          <option
-                            key={p.email}
-                            value={p.email}
-                          >
-                            {p.label}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
                   <div>
                     <label className="block text-sm font-medium mb-1.5">เหตุผล *</label>
                     <textarea value={payload.removeReason || ''} onChange={e => updatePayload({ removeReason: e.target.value })}
@@ -534,8 +472,7 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
                   <ReviewRow label="ชื่ออาจารย์" value={payload.removeName || '-'} />
                   <ReviewRow label="อีเมล" value={payload.removeEmail || '-'} />
                   {payload.removeType === 'university' && <>
-                    {payload.removeFaculty    && <ReviewRow label="คณะ"    value={payload.removeFaculty} />}
-                    {payload.removeDepartment && <ReviewRow label="สังกัด" value={payload.removeDepartment} />}
+                    {(payload.removeFaculty || payload.removeDepartment) && <ReviewRow label="คณะ" value={[ payload.removeFaculty, payload.removeDepartment, ] .filter(Boolean).join(' / ')} />}
                   </>}
                   <ReviewRow label="เหตุผล" value={payload.removeReason || '-'} />
                 </>}
