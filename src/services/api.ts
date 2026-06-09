@@ -19,7 +19,6 @@ import type {
 } from '../types';
 
 const BASE = import.meta.env.VITE_API_URL || '';
-console.log('API base URL:', BASE);
 
 // ── Token management ─────────────────────────────────────────────
 const TOKEN_KEY = 'sciusnu_session_token';
