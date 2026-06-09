@@ -856,8 +856,7 @@ async function sendMagicLinkNotification(petitionId, toEmail, toName, type, proj
          <p style="margin:0 0 4px;font-size:14px;">📌 รหัสคำร้อง: <strong>${petitionId}</strong></p>
          <p style="margin:0 0 4px;font-size:14px;">📁 โครงงาน: <strong>${projCode} — ${projName}</strong></p>
          <p style="margin:0;font-size:14px;">👤 ผู้ยื่น: <strong>${requesterName}</strong></p>
-       </div>
-       <p style="color:#6b7280;font-size:13px;">ลิงก์นี้ใช้ได้ครั้งเดียวเท่านั้น ไม่จำเป็นต้องมีบัญชีในระบบ</p>`,
+       </div>`,
       "✍️ คลิกที่นี่เพื่อลงนาม", approveUrl
     ),
   });
