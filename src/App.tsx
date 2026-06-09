@@ -10,6 +10,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import AdvisorDashboard from './pages/AdvisorDashboard';
 import ViewerDashboard from './pages/ViewerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import PetitionApproveByToken from './pages/PetitionApproveByToken';
 
 // Global page context: 'main' | 'petitions'
 export type PageView = 'main' | 'petitions';
@@ -40,6 +41,12 @@ function App() {
       applyAuthenticatedPage(user.role);
     }
   }, [isAuthenticated, user]);
+
+  // ── Magic-link: show token page for anyone (no login required) ──
+  const hasTokenInUrl = new URLSearchParams(window.location.search).has('petitionToken');
+  if (hasTokenInUrl) {
+    return <PetitionApproveByToken />;
+  }
 
   if (verifying) return null;
 

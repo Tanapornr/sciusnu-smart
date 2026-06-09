@@ -524,7 +524,14 @@ function ApprovalTimeline({ petition }: { petition: Petition }) {
               ? <p className="text-xs text-neutral-400 mt-0.5">อนุมัติโดย: {approver.name}</p>
               : <p className="text-xs text-neutral-400 mt-0.5">ผู้ดูแลระบบ</p>
           ) : (
-            <p className="text-xs text-neutral-400 mt-0.5">{step.name} · {step.email}</p>
+            <p className="text-xs text-neutral-400 mt-0.5">
+              {step.name} · {step.email}
+              {(step as any).token && (
+                <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+                  🔗 ลิงก์
+                </span>
+              )}
+            </p>
           )}
           {isDone && approver?.time && (
             <p className="text-xs text-neutral-400 mt-0.5">

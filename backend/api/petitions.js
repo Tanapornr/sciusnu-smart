@@ -161,14 +161,13 @@ function rowToPetition(row, rowIndex) {
 }
 
 /** Build the approval chain from project data (students → advisors; admin is handled separately) */
-function buildApprovalChain(groupInfo) {
+function buildApprovalChain(groupInfo, existingEmails = new Set()) {
   const chain = [];
   if (groupInfo.members.length > 0) chain.push({ role: "student1", email: groupInfo.members[0]?.email || "", name: groupInfo.members[0]?.firstName + " " + groupInfo.members[0]?.lastName });
   if (groupInfo.members.length > 1) chain.push({ role: "student2", email: groupInfo.members[1]?.email || "", name: groupInfo.members[1]?.firstName + " " + groupInfo.members[1]?.lastName });
-  if (groupInfo.advEmail) chain.push({ role: "advisor", email: groupInfo.advEmail, name: groupInfo.advName });
-  if (groupInfo.coAdvEmail) chain.push({ role: "coadvisor1", email: groupInfo.coAdvEmail, name: groupInfo.coAdvName });
-  if (groupInfo.schAdvEmail) chain.push({ role: "coadvisor2", email: groupInfo.schAdvEmail, name: groupInfo.schAdvName });
-  // Admin is always the final stage (not a named user in chain, handled by role)
+  if (groupInfo.advEmail)    chain.push({ role: "advisor",    email: groupInfo.advEmail,    name: groupInfo.advName });
+  if (groupInfo.coAdvEmail)  chain.push({ role: "coadvisor1", email: groupInfo.coAdvEmail,  name: groupInfo.coAdvName,  token: !existingEmails.has(groupInfo.coAdvEmail.toLowerCase())  ? crypto.randomBytes(32).toString("hex") : undefined });
+  if (groupInfo.schAdvEmail) chain.push({ role: "coadvisor2", email: groupInfo.schAdvEmail, name: groupInfo.schAdvName, token: !existingEmails.has(groupInfo.schAdvEmail.toLowerCase()) ? crypto.randomBytes(32).toString("hex") : undefined });
   chain.push({ role: "admin", email: "admin", name: "ผู้ดูแลระบบ" });
   return chain;
 }
@@ -243,7 +242,9 @@ async function createPetition(req, res) {
       return res.status(400).json({ status: "error", message: "ประเภทคำร้องไม่ถูกต้อง" });
     }
 
-    // Fetch project data to build approval chain
+    const petitionTypeNum = Number(petition_type);
+
+    // ── Fetch project data FIRST so groupInfo exists ──────────────
     const projectRows = await getSheetValues("TEST_DEV");
 
     let groupInfo;
@@ -258,7 +259,27 @@ async function createPetition(req, res) {
       return res.status(400).json({ status: "error", message: "ไม่พบข้อมูลโครงงาน" });
     }
 
-    const chain = buildApprovalChain(groupInfo);
+    // ── For type 1/2, inject the new advisor from payload into groupInfo ──
+    // Frontend sends: advisorEmail / advisorName (type 1)
+    //                 schoolAdvisorEmail / schoolAdvisorName (type 2)
+    if (petitionTypeNum === 1 && payload?.advisorEmail) {
+      groupInfo.coAdvEmail = payload.advisorEmail.trim().toLowerCase();
+      groupInfo.coAdvName  = payload.advisorName || payload.advisorEmail;
+    }
+    if (petitionTypeNum === 2 && payload?.schoolAdvisorEmail) {
+      groupInfo.schAdvEmail = payload.schoolAdvisorEmail.trim().toLowerCase();
+      groupInfo.schAdvName  = payload.schoolAdvisorName || payload.schoolAdvisorEmail;
+    }
+
+    // After fetching projectRows:
+    const existingEmails = new Set();
+    for (let i = 1; i < projectRows.length; i++) {
+      [0, 8, 12, 15].forEach(col => {
+        const e = String(projectRows[i][col] || "").trim().toLowerCase();
+        if (e.includes("@")) existingEmails.add(e);
+      });
+    }
+    const chain = buildApprovalChain(groupInfo, existingEmails);
     if (chain.length === 0) {
       return res.status(400).json({ status: "error", message: "ไม่พบผู้อนุมัติ" });
     }
@@ -506,8 +527,12 @@ async function handleApproval(req, res, action) {
         if (nextStage === "advisors") {
           const advisorSteps = chain.filter(s => ["advisor","coadvisor1","coadvisor2"].includes(s.role));
           for (const step of advisorSteps) {
-            sendPetitionNotification(p.petition_id, step.email, step.name,
-              p.petition_type, p.project_code, p.project_name, p.requester_name).catch(console.error);
+            if (step.token) {
+              // New co-advisor (no account): send magic link email
+              sendMagicLinkNotification(p.petition_id, step.email, step.name, p.petition_type, p.project_code, p.project_name, p.requester_name, step.token).catch(console.error);
+            } else {
+              sendPetitionNotification(p.petition_id, step.email, step.name, p.petition_type, p.project_code, p.project_name, p.requester_name).catch(console.error);
+            }
           }
         } else if (nextStage === "admin") {
           // Notify all admins
@@ -592,6 +617,145 @@ async function updateProjectField(projectCode, newField) {
   }
 }
 
+// ================================================================
+// POST /api/petitions/approve-by-token  — Token-based approval
+// PUBLIC — no JWT required. Used by new co-advisors who have no account.
+// ================================================================
+async function handleTokenApproval(req, res) {
+  if (req.method !== "POST") return res.status(405).end();
+  const { token, signature, note, action } = req.body;  // action: "approve" | "reject"
+
+  if (!token) return res.status(400).json({ status: "error", message: "ไม่พบ token" });
+  if (!signature) return res.status(400).json({ status: "error", message: "กรุณาลงนามก่อนดำเนินการ" });
+
+  try {
+    await ensurePetitionsSheet();
+    const rows = await getSheetValues(SHEET);
+
+    for (let i = 1; i < rows.length; i++) {
+      const p = rowToPetition(rows[i], i + 1);
+      if (!p || !p.petition_id) continue;
+      if (p.status === "เสร็จสิ้น" || p.status === "ปฏิเสธ") continue;
+
+      const chainData = safeParseChain(p.payload_json);
+      const chain = chainData.chain || [];
+
+      // Find the chain step that matches this token
+      const step = chain.find(s => s.token === token);
+      if (!step) continue;
+
+      // Token found — check role hasn't already approved
+      if (p[step.role]?.status) {
+        return res.status(400).json({ status: "error", message: "ได้ดำเนินการไปแล้ว" });
+      }
+
+      // Check it's the advisor stage
+      const activeStage = getPendingStage(p, chain);
+      if (activeStage !== "advisors") {
+        return res.status(400).json({ status: "error", message: "ยังไม่ถึงขั้นตอนของคุณ (รอนักเรียนอนุมัติก่อน)" });
+      }
+
+      const now = new Date().toISOString();
+      const statusVal = (action === "reject") ? "ปฏิเสธ" : "อนุมัติ";
+      const encryptedSig = encryptSignature(signature);
+
+      const roleColMap = {
+        coadvisor1: { status: COL.coadvisor1_status, note: COL.coadvisor1_note, sig: COL.coadvisor1_signature, time: COL.coadvisor1_time },
+        coadvisor2: { status: COL.coadvisor2_status, note: COL.coadvisor2_note, sig: COL.coadvisor2_signature, time: COL.coadvisor2_time },
+      };
+      const cols = roleColMap[step.role];
+      if (!cols) return res.status(400).json({ status: "error", message: "บทบาทไม่ถูกต้อง" });
+
+      const updates = [
+        { col: cols.status, value: statusVal },
+        { col: cols.note,   value: note || "" },
+        { col: cols.sig,    value: encryptedSig },
+        { col: cols.time,   value: now },
+        { col: COL.updated_at, value: now },
+      ];
+
+      if (action === "reject") {
+        updates.push({ col: COL.status,       value: "ปฏิเสธ" });
+        updates.push({ col: COL.final_result, value: "ปฏิเสธ" });
+        updates.push({ col: COL.current_step, value: "สิ้นสุด" });
+        await updateRowCells(SHEET, p._row, updates);
+        notifyRejected(p, step.name, note).catch(console.error);
+        return res.json({ status: "success", message: "ปฏิเสธคำร้องแล้ว", petition_id: p.petition_id });
+      }
+
+      // Approve — check if stage is complete after this
+      const updatedP = Object.assign({}, p, { [step.role]: { status: statusVal } });
+      const nextStage = getPendingStage(updatedP, chain);
+
+      if (nextStage === "done") {
+        updates.push({ col: COL.status,       value: "เสร็จสิ้น" });
+        updates.push({ col: COL.final_result, value: "อนุมัติ" });
+        updates.push({ col: COL.current_step, value: "สิ้นสุด" });
+        await updateRowCells(SHEET, p._row, updates);
+        await handlePostApproval(p, chainData.payload).catch(console.error);
+        notifyCompleted(p).catch(console.error);
+      } else if (nextStage !== activeStage) {
+        updates.push({ col: COL.current_step, value: nextStage });
+        await updateRowCells(SHEET, p._row, updates);
+        if (nextStage === "admin") {
+          for (const adminEmail of ADMIN_EMAILS) {
+            sendPetitionAdminNotification(p.petition_id, adminEmail, p.petition_type, p.project_code, p.project_name, p.requester_name).catch(console.error);
+          }
+        }
+      } else {
+        await updateRowCells(SHEET, p._row, updates);
+      }
+
+      return res.json({ status: "success", message: "อนุมัติแล้ว", petition_id: p.petition_id });
+    }
+
+    return res.status(404).json({ status: "error", message: "ไม่พบคำร้องหรือ token ไม่ถูกต้อง" });
+  } catch (e) {
+    return res.status(500).json({ status: "error", message: e.message });
+  }
+}
+
+// Add a public GET endpoint for the token page to load petition info
+async function getPetitionByToken(req, res) {
+  if (req.method !== "GET") return res.status(405).end();
+  const { token } = req.query;
+  if (!token) return res.status(400).json({ status: "error", message: "ไม่พบ token" });
+
+  try {
+    await ensurePetitionsSheet();
+    const rows = await getSheetValues(SHEET);
+    for (let i = 1; i < rows.length; i++) {
+      const p = rowToPetition(rows[i], i + 1);
+      if (!p) continue;
+      const chainData = safeParseChain(p.payload_json);
+      const step = (chainData.chain || []).find(s => s.token === token);
+      if (!step) continue;
+
+      // Return petition info + the approver's name (no sensitive data)
+      return res.json({
+        status: "success",
+        petition: {
+          petition_id:        p.petition_id,
+          petition_type:      p.petition_type,
+          petition_type_label: PETITION_TYPES[p.petition_type] || p.petition_type,
+          project_code:       p.project_code,
+          project_name:       p.project_name,
+          requester_name:     p.requester_name,
+          petition_status:    p.status,
+          approver_name:      step.name,
+          approver_role:      step.role,
+          already_actioned:   !!p[step.role]?.status,
+          my_status:          p[step.role]?.status || "",
+          active_stage:       getPendingStage(p, chainData.chain || []),
+        },
+      });
+    }
+    return res.status(404).json({ status: "error", message: "ไม่พบคำร้องหรือ token หมดอายุ" });
+  } catch (e) {
+    return res.status(500).json({ status: "error", message: e.message });
+  }
+}
+
 // ── Email helpers ─────────────────────────────────────────────────
 
 async function sendPetitionNotification(petitionId, toEmail, toName, type, projCode, projName, requesterName) {
@@ -664,6 +828,27 @@ async function notifyCompleted(petition) {
   });
 }
 
+async function sendMagicLinkNotification(petitionId, toEmail, toName, type, projCode, projName, requesterName, token) {
+  if (!toEmail?.includes("@")) return;
+  const approveUrl = `${WEB_URL}?petitionToken=${token}`;
+  await sendMail({
+    to: toEmail,
+    subject: `[คำร้อง] ${petitionId} ต้องการลายเซ็นของคุณ`,
+    htmlBody: buildFlexEmailHtml(
+      "📋 มีคำร้องรอลายเซ็นของคุณ", "#8b5cf6",
+      `<p>เรียน <strong>${toName || toEmail}</strong></p>
+       <p>คุณได้รับการเพิ่มเป็นอาจารย์ที่ปรึกษาในคำร้อง <strong>${PETITION_TYPES[type] || type}</strong></p>
+       <div style="background:#f8fafc;padding:12px;border-radius:8px;margin:12px 0;border-left:4px solid #8b5cf6;">
+         <p style="margin:0 0 4px;font-size:14px;">📌 รหัสคำร้อง: <strong>${petitionId}</strong></p>
+         <p style="margin:0 0 4px;font-size:14px;">📁 โครงงาน: <strong>${projCode} — ${projName}</strong></p>
+         <p style="margin:0;font-size:14px;">👤 ผู้ยื่น: <strong>${requesterName}</strong></p>
+       </div>
+       <p style="color:#6b7280;font-size:13px;">ลิงก์นี้ใช้ได้ครั้งเดียวเท่านั้น ไม่จำเป็นต้องมีบัญชีในระบบ</p>`,
+      "✍️ คลิกที่นี่เพื่อลงนาม", approveUrl
+    ),
+  });
+}
+
 // ── Utils ─────────────────────────────────────────────────────────
 function safeParseChain(json) {
   try { return JSON.parse(json); } catch { return {}; }
@@ -689,11 +874,16 @@ const router = Router();
 
 const [authMW] = [requireAuth];
 
-router.post("/",           authMW, createPetition);
-router.get("/",            authMW, listPetitions);
-router.get("/:id",         authMW, getPetitionDetail);
+// ── Public token routes (NO auth) — must be BEFORE /:id ──────────
+router.get("/approve-by-token",  getPetitionByToken);
+router.post("/approve-by-token", handleTokenApproval);
+
+// ── Authenticated routes ──────────────────────────────────────────
+router.post("/",            authMW, createPetition);
+router.get("/",             authMW, listPetitions);
+router.post("/signature",   authMW, handleSignature);
+router.get("/:id",          authMW, getPetitionDetail);
 router.post("/:id/approve", authMW, (req, res) => handleApproval(req, res, "approve"));
 router.post("/:id/reject",  authMW, (req, res) => handleApproval(req, res, "reject"));
-router.post("/signature",  authMW, handleSignature);
 
 module.exports = router;

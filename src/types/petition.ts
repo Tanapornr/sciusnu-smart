@@ -114,3 +114,29 @@ export interface PetitionApprovePayload {
   signature: string; // base64 SVG data URI from canvas
   adminName?: string; // only sent when role === admin
 }
+
+// ── Magic-link token types (for new co-advisors without an account) ──
+
+/** What the backend returns for GET /api/petitions/approve-by-token?token=... */
+export interface PetitionByTokenInfo {
+  petition_id: string;
+  petition_type: string;
+  petition_type_label: string;
+  project_code: string;
+  project_name: string;
+  requester_name: string;
+  petition_status: string;
+  approver_name: string;
+  approver_role: string;
+  already_actioned: boolean;
+  my_status: string;        // "อนุมัติ" | "ปฏิเสธ" | ""
+  active_stage: string;     // "students" | "advisors" | "admin" | "done"
+}
+
+/** Body sent to POST /api/petitions/approve-by-token */
+export interface TokenApprovePayload {
+  token: string;
+  signature: string;
+  note?: string;
+  action: 'approve' | 'reject';
+}
