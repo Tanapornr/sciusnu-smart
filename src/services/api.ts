@@ -193,7 +193,7 @@ export async function uploadFileDirect(
   // STREAM_TIMEOUT  : max silence between SSE events (GAS/Drive stall).
   //                   Resets on every chunk event; fires if 90 s of silence.
   const FETCH_TIMEOUT_MS  = Math.max(60_000, file.size / 1024 / 1024 * 3_000);
-  const STREAM_TIMEOUT_MS = 120_000;
+  const STREAM_TIMEOUT_MS = 90_000;
 
   // Single controller for the entire request lifetime.
   // A fresh one is created every call so a previous abort never

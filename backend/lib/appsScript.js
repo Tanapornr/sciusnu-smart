@@ -2,28 +2,22 @@
 // lib/appsScript.js
 // Apps Script relay — sequential chunked upload with SSE progress.
 //
-// uploadFileToDrive now accepts an onProgress(event) callback.
-// Events emitted:
-//   { type: "start",    totalChunks: N }
-//   { type: "chunk",    index: i, total: N }   ← after each chunk ACK
-//   { type: "finalize" }                        ← before finalizeUpload call
+// onProgress(event)    — SSE events for the frontend
+// onSessionStart({sessionId, totalChunks}) — called as soon as the
+//   session is created so the HTTP handler can abort on disconnect
 // ================================================================
 
 const RELAY_URL    = process.env.APPS_SCRIPT_URL;
 const RELAY_SECRET = process.env.APPS_SCRIPT_SECRET;
 
-// 1 MB raw → ~1.33 MB base64, well under GAS 6 MB POST cap
-const CHUNK_BYTES = 1 * 1024 * 1024;
+const CHUNK_BYTES         = 1 * 1024 * 1024; // 1 MB raw per chunk
+const GAS_CALL_TIMEOUT_MS = 90_000;           // 90 s per individual GAS call
 
-// 90 s per GAS call — covers slow Drive writes on finalize.
-// node-fetch v3 / native fetch both honour AbortSignal.timeout().
-const GAS_CALL_TIMEOUT_MS = 120_000;
-
+// ── callRelay ────────────────────────────────────────────────────
 async function callRelay(payload) {
   if (!RELAY_URL) throw new Error("APPS_SCRIPT_URL is not configured");
 
   const signal = AbortSignal.timeout(GAS_CALL_TIMEOUT_MS);
-
   let res;
   try {
     res = await fetch(RELAY_URL, {
@@ -45,20 +39,25 @@ async function callRelay(payload) {
   try { json = JSON.parse(text); } catch (_) {
     throw new Error(`Apps Script returned non-JSON: ${text.slice(0, 300)}`);
   }
-
   if (json.status !== "success") {
     throw new Error(`Apps Script error: ${json.message || JSON.stringify(json)}`);
   }
-
   return json;
+}
+
+// ── callRelayForCleanup ──────────────────────────────────────────
+// Same as callRelay but never throws — used for best-effort cleanup
+// (abort on disconnect) where we don't want to mask the original error.
+async function callRelayForCleanup(payload) {
+  try { await callRelay(payload); } catch (_) {}
 }
 
 // ================================================================
 // uploadFileToDrive
-// onProgress(event) — called with SSE event objects (see top of file)
 // ================================================================
-async function uploadFileToDrive({ fileName, mimeType, buffer, folderId, onProgress }) {
-  const emit = onProgress || (() => {});
+async function uploadFileToDrive({ fileName, mimeType, buffer, folderId, onProgress, onSessionStart }) {
+  const emit        = onProgress    || (() => {});
+  const emitSession = onSessionStart || (() => {});
 
   // ── Small file: single shot ──────────────────────────────────────
   if (buffer.length <= CHUNK_BYTES) {
@@ -74,7 +73,7 @@ async function uploadFileToDrive({ fileName, mimeType, buffer, folderId, onProgr
     return { id: result.id, webViewLink: result.webViewLink };
   }
 
-  // ── Large file: chunked upload ────────────────────────────────────
+  // ── Large file: chunked ──────────────────────────────────────────
   const base64Full  = buffer.toString("base64");
   const chunkB64Len = Math.ceil(CHUNK_BYTES * 4 / 3);
   const chunks      = [];
@@ -86,9 +85,13 @@ async function uploadFileToDrive({ fileName, mimeType, buffer, folderId, onProgr
   const sessionId   = `upload_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 
   console.log(`[appsScript] chunked upload — ${totalChunks} chunks, sessionId=${sessionId}`);
+
+  // Tell the HTTP handler about this session immediately so it can
+  // call abortUpload if the client disconnects before we finish
+  emitSession({ sessionId, totalChunks });
   emit({ type: "start", totalChunks });
 
-  // Phase 1: send each chunk, emit progress after each ACK
+  // Phase 1: send chunks
   for (let i = 0; i < chunks.length; i++) {
     await callRelay({
       action:      "uploadChunk",
@@ -114,7 +117,8 @@ async function uploadFileToDrive({ fileName, mimeType, buffer, folderId, onProgr
       folderId,
     });
   } catch (err) {
-    try { await callRelay({ action: "abortUpload", sessionId, totalChunks }); } catch (_) {}
+    // Backend-side error: clean up orphaned temp files before re-throwing
+    await callRelayForCleanup({ action: "abortUpload", sessionId, totalChunks });
     throw err;
   }
 
@@ -127,11 +131,7 @@ async function getResumableUploadUrl() {
 
 async function trashFile(fileId) {
   if (!fileId) return;
-  try {
-    await callRelay({ action: "trashFile", fileId });
-  } catch (err) {
-    console.error("[appsScript] trashFile failed:", err.message);
-  }
+  await callRelayForCleanup({ action: "trashFile", fileId });
 }
 
 function extractFileId(url) {
@@ -139,4 +139,4 @@ function extractFileId(url) {
   return match ? match[0] : null;
 }
 
-module.exports = { uploadFileToDrive, getResumableUploadUrl, trashFile, extractFileId };
+module.exports = { uploadFileToDrive, callRelayForCleanup, getResumableUploadUrl, trashFile, extractFileId };

@@ -251,6 +251,21 @@ function handleFinalizeUpload(data, debug) {
   if (!totalChunks) return jsonResponse({ status: "error", message: "totalChunks required", debug: debug });
   if (!fileName)    return jsonResponse({ status: "error", message: "fileName required",     debug: debug });
 
+  // GAS execution deadline — Apps Script hard-kills at 6 min with no
+  // cleanup. We self-terminate at 5 min 20 s, trash our own temp files,
+  // and return a clean error the backend can surface to the user.
+  var GAS_DEADLINE_MS = 5 * 60 * 1000 + 20 * 1000; // 5 min 20 s
+  var startTime       = Date.now();
+  var checkDeadline   = function(step) {
+    if (Date.now() - startTime > GAS_DEADLINE_MS) {
+      for (var ci = 0; ci < totalChunks; ci++) {
+        var tf = DriveApp.getFilesByName("_chunk_" + sessionId + "_" + ci);
+        while (tf.hasNext()) { tf.next().setTrashed(true); }
+      }
+      throw new Error("GAS execution deadline reached at step: " + step + " — temp files cleaned up");
+    }
+  };
+
   debug.sessionId   = sessionId;
   debug.totalChunks = totalChunks;
   debug.steps.push("reading_chunks");
@@ -259,6 +274,7 @@ function handleFinalizeUpload(data, debug) {
   var parts = [];
   for (var i = 0; i < totalChunks; i++) {
     var tempFileName = "_chunk_" + sessionId + "_" + i;
+    checkDeadline("reading chunk " + i);
     var files = DriveApp.getFilesByName(tempFileName);
     if (!files.hasNext()) {
       return jsonResponse({ status: "error", message: "Missing chunk " + i + " for session " + sessionId, debug: debug });
@@ -275,11 +291,13 @@ function handleFinalizeUpload(data, debug) {
   var targetFolderId = folderId || DRIVE_FOLDER_ID;
   if (!targetFolderId) return jsonResponse({ status: "error", message: "No DRIVE_FOLDER_ID", debug: debug });
 
+  checkDeadline("pre-decode");
   debug.steps.push("decoding_base64");
   var decoded = Utilities.base64Decode(fullBase64);
   var blob    = Utilities.newBlob(decoded, mimeType || "application/octet-stream", fileName);
   debug.steps.push("blob_created");
 
+  checkDeadline("pre-createFile");
   var folder = DriveApp.getFolderById(targetFolderId);
   var file   = folder.createFile(blob);
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
