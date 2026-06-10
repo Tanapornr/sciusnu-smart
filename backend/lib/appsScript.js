@@ -1,19 +1,26 @@
 // ================================================================
 // lib/appsScript.js
-// Replaces lib/drive.js (Service Account) with Apps Script relay calls.
-// The Apps Script Web App runs as the @nu.ac.th owner, so Drive/Sheet
-// operations inherit that account's permissions — no SA quota issues.
+// Apps Script relay — true sequential chunked upload.
+//
+// For small files (≤ CHUNK_BYTES): single "uploadFile" call (unchanged).
+// For large files (> CHUNK_BYTES): three-phase protocol:
+//   1. "uploadChunk" × N  — send each chunk individually, GAS caches them
+//   2. "finalizeUpload"   — GAS joins all chunks, writes to Drive, returns id/url
+//   3. On any error:  "abortUpload" — GAS clears the cache session
+//
+// This avoids sending a huge JSON body in one shot, which causes GAS
+// to run out of memory or hit the UrlFetchApp 50 MB request limit.
 //
 // Env vars required:
-//   APPS_SCRIPT_URL        — Web App deployment URL
-//   APPS_SCRIPT_SECRET     — shared secret (DRIVE_RELAY_SECRET in Script Props)
+//   APPS_SCRIPT_URL    — Web App deployment URL
+//   APPS_SCRIPT_SECRET — shared secret (DRIVE_RELAY_SECRET in Script Props)
 // ================================================================
 
 const RELAY_URL    = process.env.APPS_SCRIPT_URL;
 const RELAY_SECRET = process.env.APPS_SCRIPT_SECRET;
 
-// Base64 chunk size: 3 MB of raw bytes → ~4 MB of base64 (safe under Apps Script 6 MB POST limit)
-const CHUNK_BYTES = 3 * 1024 * 1024;
+// 1 MB of raw bytes → ~1.33 MB base64. Keep well under GAS 6 MB POST cap.
+const CHUNK_BYTES = 1 * 1024 * 1024; // 1 MB per chunk
 
 // ── Internal fetch helper ────────────────────────────────────────
 
@@ -24,15 +31,13 @@ async function callRelay(payload) {
     method:  "POST",
     headers: { "Content-Type": "application/json" },
     body:    JSON.stringify({ ...payload, secret: RELAY_SECRET }),
-    // Apps Script follows its own redirect on POST — node-fetch handles it
     redirect: "follow",
   });
 
-  // Apps Script always returns 200; read JSON body for actual status
   const text = await res.text();
   let json;
   try { json = JSON.parse(text); } catch (_) {
-    throw new Error(`Apps Script returned non-JSON: ${text.slice(0, 200)}`);
+    throw new Error(`Apps Script returned non-JSON: ${text.slice(0, 300)}`);
   }
 
   if (json.status !== "success") {
@@ -44,70 +49,90 @@ async function callRelay(payload) {
 
 // ================================================================
 // uploadFileToDrive
-// Drop-in replacement for the old lib/drive.js export of the same name.
-//
-// For files ≤ CHUNK_BYTES  → single-shot { base64Data }
-// For files >  CHUNK_BYTES → chunked     { chunks: [] }
-// Apps Script reassembles chunks before writing to Drive.
 // ================================================================
 async function uploadFileToDrive({ fileName, mimeType, buffer, folderId }) {
-  const base64Full = buffer.toString("base64");
-
-  // Split into chunks if the buffer exceeds the single-call threshold
-  let payload;
-  if (buffer.length > CHUNK_BYTES) {
-    const chunks = [];
-    for (let offset = 0; offset < base64Full.length; ) {
-      // Each raw chunk of CHUNK_BYTES bytes → ceil(CHUNK_BYTES * 4/3) base64 chars
-      const chunkBase64Len = Math.ceil(CHUNK_BYTES * 4 / 3);
-      chunks.push(base64Full.slice(offset, offset + chunkBase64Len));
-      offset += chunkBase64Len;
-    }
-    payload = { action: "uploadFile", fileName, mimeType, chunks, folderId };
-  } else {
-    payload = { action: "uploadFile", fileName, mimeType, base64Data: base64Full, folderId };
+  // ── Small file: single shot ───────────────────────────────────
+  if (buffer.length <= CHUNK_BYTES) {
+    const result = await callRelay({
+      action:     "uploadFile",
+      fileName,
+      mimeType,
+      base64Data: buffer.toString("base64"),
+      folderId,
+    });
+    return { id: result.id, webViewLink: result.webViewLink };
   }
 
-  const result = await callRelay(payload);
-  // Return shape matches old googleapis drive.files.create response
+  // ── Large file: chunked upload ────────────────────────────────
+  const base64Full = buffer.toString("base64");
+
+  // Split base64 string into chunks
+  const chunkB64Len = Math.ceil(CHUNK_BYTES * 4 / 3); // base64 chars per chunk
+  const chunks = [];
+  for (let offset = 0; offset < base64Full.length; offset += chunkB64Len) {
+    chunks.push(base64Full.slice(offset, offset + chunkB64Len));
+  }
+
+  const totalChunks = chunks.length;
+  // Generate a random session ID so GAS can namespace its cache keys
+  const sessionId = `upload_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+
+  console.log(`[appsScript] chunked upload — ${totalChunks} chunks, sessionId=${sessionId}`);
+
+  // Phase 1: send each chunk individually
+  for (let i = 0; i < chunks.length; i++) {
+    await callRelay({
+      action:      "uploadChunk",
+      sessionId,
+      chunkIndex:  i,
+      totalChunks,
+      chunkData:   chunks[i],
+    });
+    console.log(`[appsScript] chunk ${i + 1}/${totalChunks} sent`);
+  }
+
+  // Phase 2: finalize — GAS joins chunks and writes to Drive
+  let result;
+  try {
+    result = await callRelay({
+      action:      "finalizeUpload",
+      sessionId,
+      totalChunks,
+      fileName,
+      mimeType,
+      folderId,
+    });
+  } catch (err) {
+    // Best-effort cleanup
+    try { await callRelay({ action: "abortUpload", sessionId, totalChunks }); } catch (_) {}
+    throw err;
+  }
+
   return { id: result.id, webViewLink: result.webViewLink };
 }
 
 // ================================================================
-// getResumableUploadUrl
-// The old architecture generated a SA-signed resumable URL so the
-// frontend could PUT directly to Drive.  That pattern is incompatible
-// with Apps Script (no signed URLs).
-//
-// Replacement strategy: the backend receives the file and proxies it
-// through uploadFileToDrive above.  This function is kept so callers
-// don't break — but it throws to make the migration obvious.
-// See api/drive-upload-url.js for the updated route.
+// getResumableUploadUrl — kept for compatibility, not used
 // ================================================================
 async function getResumableUploadUrl() {
   throw new Error(
-    "getResumableUploadUrl is not supported in the Apps Script relay architecture. " +
-    "Use POST /api/drive-upload instead (backend streams through Apps Script)."
+    "getResumableUploadUrl is not supported. Use POST /api/drive-upload instead."
   );
 }
 
 // ================================================================
 // trashFile
-// Drive files created by DriveApp belong to the @nu.ac.th owner.
-// The only way to trash them is via another Apps Script call.
-// We add a "trashFile" action to the relay for this.
 // ================================================================
 async function trashFile(fileId) {
   if (!fileId) return;
   try {
     await callRelay({ action: "trashFile", fileId });
   } catch (err) {
-    // Non-fatal — log and continue (same behaviour as the old SA version)
     console.error("[appsScript] trashFile failed:", err.message);
   }
 }
 
-// ── extractFileId — unchanged helper (no SA dependency) ─────────
+// ── extractFileId ─────────────────────────────────────────────────
 function extractFileId(url) {
   const match = String(url || "").match(/[-\w]{25,}/);
   return match ? match[0] : null;

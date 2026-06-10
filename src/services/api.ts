@@ -160,6 +160,9 @@ export async function apiUpdateAdvisorPassword(payload: {
 
 // ================================================================
 // uploadFileDirect
+// Uploads a file through the backend proxy (/api/drive-upload).
+// The backend handles chunking to Apps Script, so we can support
+// files up to ~45 MB without hitting GAS URL Fetch limits.
 // ================================================================
 export async function uploadFileDirect(
   file: File,
@@ -168,72 +171,49 @@ export async function uploadFileDirect(
 ): Promise<string> {
   onProgress?.(5);
 
-  const tokenRes = await apiFetch<{
-    status: string;
-    uploadToken: string;
-    gasUrl: string;
-    message?: string;
-  }>('/api/drive-upload-token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      fileName,
-      mimeType: file.type || 'application/pdf',
-    }),
+  const token = getToken();
+
+  return new Promise<string>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `${BASE}/api/drive-upload`);
+
+    if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    xhr.setRequestHeader('X-File-Name', encodeURIComponent(fileName));
+    xhr.setRequestHeader('X-File-Type', file.type || 'application/pdf');
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        // Map upload progress to 10–90% range
+        const pct = 10 + Math.round((e.loaded / e.total) * 80);
+        onProgress?.(pct);
+      }
+    };
+
+    xhr.onload = () => {
+      onProgress?.(95);
+      let json: DriveUploadResponse;
+      try {
+        json = JSON.parse(xhr.responseText);
+      } catch {
+        return reject(new Error(`Server returned non-JSON: ${xhr.responseText.slice(0, 120)}`));
+      }
+      if (xhr.status !== 200 || json.status !== 'success' || !json.id) {
+        return reject(new Error(json.message || `Upload failed (HTTP ${xhr.status})`));
+      }
+      onProgress?.(100);
+      resolve(json.webViewLink ?? `https://drive.google.com/file/d/${json.id}/view`);
+    };
+
+    xhr.onerror = () => reject(new Error('Network error during upload'));
+    xhr.ontimeout = () => reject(new Error('Upload timed out'));
+
+    xhr.timeout = 5 * 60 * 1000; // 5-minute timeout for large files
+    xhr.send(file);
   });
-
-  if (tokenRes.status !== 'success' || !tokenRes.uploadToken) {
-    throw new Error(tokenRes.message || 'ไม่สามารถขอ upload token ได้');
-  }
-
-  onProgress?.(15);
-  const base64Data = await fileToBase64(file);
-  onProgress?.(40);
-
-  const params = new URLSearchParams();
-  params.append('uploadToken', tokenRes.uploadToken);
-  params.append('base64Data',  base64Data);
-  params.append('fileName',    fileName);
-
-  const gasRes = await fetch(tokenRes.gasUrl, {
-    method:   'POST',
-    headers:  { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body:     params.toString(),
-    redirect: 'follow',
-  });
-
-  onProgress?.(90);
-
-  const gasText = await gasRes.text();
-  let gasJson: DriveUploadResponse;
-  try {
-    gasJson = JSON.parse(gasText);
-  } catch {
-    throw new Error(`GAS returned non-JSON: ${gasText.slice(0, 120)}`);
-  }
-
-  if (gasJson.status !== 'success' || !gasJson.id) {
-    throw new Error(gasJson.message || 'การอัปโหลดไฟล์ไปยัง Google Drive ล้มเหลว');
-  }
-
-  onProgress?.(100);
-  return gasJson.webViewLink ?? `https://drive.google.com/file/d/${gasJson.id}/view`;
 }
 
 export async function uploadFileToDrive(file: File, fileName: string): Promise<string> {
   return uploadFileDirect(file, fileName);
 }
 
-function fileToBase64(file: File | Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      const base64 = result.split(',')[1];
-      if (!base64) reject(new Error('FileReader returned empty result'));
-      else resolve(base64);
-    };
-    reader.onerror = () => reject(new Error('FileReader error'));
-    reader.readAsDataURL(file);
-  });
-}
+

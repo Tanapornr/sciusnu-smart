@@ -1,7 +1,5 @@
 // ================================================================
-// Code.gs — SCiUSNU SMART Apps Script  [DEBUG BUILD]
-// Every response includes a `debug` object showing exactly what
-// ran and where it failed. Remove debug fields before production.
+// Code.gs — SCiUSNU SMART Apps Script
 // ================================================================
 
 const RELAY_SECRET        = PropertiesService.getScriptProperties().getProperty("MAIL_RELAY_SECRET");
@@ -11,7 +9,7 @@ const DRIVE_FOLDER_ID     = PropertiesService.getScriptProperties().getProperty(
 const SPREADSHEET_ID      = PropertiesService.getScriptProperties().getProperty("SPREADSHEET_ID");
 
 // ================================================================
-// buildDebugInfo — gathered once per request, returned in every response
+// buildDebugInfo
 // ================================================================
 function buildDebugInfo() {
   var info = {};
@@ -40,7 +38,7 @@ function buildDebugInfo() {
 }
 
 // ================================================================
-// SECTION 1 — Direct upload (Frontend → GAS)
+// SECTION 1 — Direct upload (Frontend → GAS, token-authenticated)
 // ================================================================
 function handleDirectUpload(e, routerDebug) {
   var debug = { section: "handleDirectUpload", steps: [] };
@@ -63,15 +61,6 @@ function handleDirectUpload(e, routerDebug) {
     var claims = verifyUploadToken(tokenParam);
     debug.tokenValid   = claims.valid;
     debug.tokenError   = claims.error || null;
-    debug.tokenPayload = claims.valid ? {
-      sub:      claims.payload.sub,
-      purpose:  claims.payload.purpose,
-      fileName: claims.payload.fileName,
-      mimeType: claims.payload.mimeType,
-      folderId: claims.payload.folderId,
-      jti:      claims.payload.jti ? claims.payload.jti.slice(0,8) + "..." : null,
-      exp:      claims.payload.exp,
-    } : null;
 
     if (!claims.valid) return jsonResponse({ status: "error", message: claims.error, debug: debug });
     if (claims.payload.purpose !== "drive-upload") return jsonResponse({ status: "error", message: "Invalid token purpose", debug: debug });
@@ -82,7 +71,6 @@ function handleDirectUpload(e, routerDebug) {
     var cache       = CacheService.getScriptCache();
     var cacheKey    = "jti_used_" + jti;
     var alreadyUsed = cache.get(cacheKey);
-    debug.jtiAlreadyUsed = !!alreadyUsed;
     if (alreadyUsed) return jsonResponse({ status: "error", message: "Token already used", debug: debug });
     cache.put(cacheKey, "1", 600);
     debug.steps.push("jti_consumed");
@@ -91,38 +79,18 @@ function handleDirectUpload(e, routerDebug) {
     var mimeType         = claims.payload.mimeType;
     var targetFolderId   = claims.payload.folderId || DRIVE_FOLDER_ID;
 
-    debug.expectedFileName = expectedFileName;
-    debug.targetFolderId   = targetFolderId || "EMPTY";
-    debug.mimeType         = mimeType;
+    if (!targetFolderId) return jsonResponse({ status: "error", message: "No target folder", debug: debug });
 
-    if (!targetFolderId) return jsonResponse({ status: "error", message: "No target folder — missing from token.folderId and Script Properties DRIVE_FOLDER_ID", debug: debug });
-
-    if (clientFileName && !clientFileName.startsWith(expectedFileName.replace(/\.pdf$/, ""))) {
-      debug.fileNameMismatch = true;
-      return jsonResponse({ status: "error", message: "File name mismatch", debug: debug });
-    }
     var finalFileName = clientFileName || expectedFileName;
-    debug.finalFileName = finalFileName;
-    debug.steps.push("file_name_ok");
-
     debug.steps.push("decoding_base64");
     var decoded = Utilities.base64Decode(base64Data);
-    debug.decodedBytes = decoded.length;
-    debug.steps.push("base64_decoded");
-
-    var blob = Utilities.newBlob(decoded, mimeType || "application/pdf", finalFileName);
+    var blob    = Utilities.newBlob(decoded, mimeType || "application/pdf", finalFileName);
     debug.steps.push("blob_created");
 
-    debug.steps.push("calling_DriveApp_getFolderById");
-    try { debug.effectiveUser = Session.getEffectiveUser().getEmail(); } catch(_) { debug.effectiveUser = "unknown"; }
     var folder = DriveApp.getFolderById(targetFolderId);
-    debug.folderName = folder.getName();
-    debug.steps.push("folder_obtained");
-
-    var file = folder.createFile(blob);
-    debug.steps.push("file_created");
+    var file   = folder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    debug.steps.push("sharing_set");
+    debug.steps.push("file_created");
 
     return jsonResponse({ status: "success", id: file.getId(), webViewLink: file.getUrl(), debug: debug });
 
@@ -130,7 +98,6 @@ function handleDirectUpload(e, routerDebug) {
     debug.steps.push("CAUGHT_ERROR");
     debug.error      = err.toString();
     debug.errorStack = err.stack || "";
-    try { debug.effectiveUser = Session.getEffectiveUser().getEmail(); } catch(_) { debug.effectiveUser = "unknown"; }
     return jsonResponse({ status: "error", message: err.toString(), debug: debug });
   }
 }
@@ -159,7 +126,7 @@ function verifyUploadToken(token) {
     ).getDataAsString();
     var payload = JSON.parse(payloadJson);
     var nowSeconds = Math.floor(Date.now() / 1000);
-    if (payload.exp && payload.exp < nowSeconds) return { valid: false, error: "Token expired (exp=" + payload.exp + " now=" + nowSeconds + ")" };
+    if (payload.exp && payload.exp < nowSeconds) return { valid: false, error: "Token expired" };
     return { valid: true, payload: payload };
   } catch (err) {
     return { valid: false, error: "Token parse error: " + err.toString() };
@@ -167,7 +134,7 @@ function verifyUploadToken(token) {
 }
 
 // ================================================================
-// SECTION 2 — Email relay (unchanged)
+// SECTION 2 — Email relay
 // ================================================================
 function handleMail(data, routerDebug) {
   try {
@@ -195,17 +162,17 @@ function authorizeDriveRequest(data) {
 function handleDriveRelay(action, data, routerDebug) {
   var debug = { section: "handleDriveRelay", action: action, steps: [] };
   try {
-    debug.secretPresent = !!DRIVE_RELAY_SECRET;
-    debug.secretMatch   = data.secret === DRIVE_RELAY_SECRET;
-    try { debug.effectiveUser = Session.getEffectiveUser().getEmail(); } catch(_) { debug.effectiveUser = "unknown"; }
-
     if (!authorizeDriveRequest(data)) return jsonResponse({ status: "error", message: "Unauthorized", debug: debug });
     debug.steps.push("authorized");
 
-    if (action === "uploadFile") return handleUploadFile(data, debug);
-    if (action === "appendRow")  return handleAppendRow(data, debug);
-    if (action === "updateRow")  return handleUpdateRow(data, debug);
-    if (action === "trashFile")  return handleTrashFile(data, debug);
+    if (action === "uploadFile")      return handleUploadFile(data, debug);
+    if (action === "uploadChunk")     return handleUploadChunk(data, debug);
+    if (action === "finalizeUpload")  return handleFinalizeUpload(data, debug);
+    if (action === "abortUpload")     return handleAbortUpload(data, debug);
+    if (action === "appendRow")       return handleAppendRow(data, debug);
+    if (action === "updateRow")       return handleUpdateRow(data, debug);
+    if (action === "trashFile")       return handleTrashFile(data, debug);
+
     return jsonResponse({ status: "error", message: "Unknown drive action", debug: debug });
   } catch (err) {
     debug.error      = err.toString();
@@ -214,37 +181,133 @@ function handleDriveRelay(action, data, routerDebug) {
   }
 }
 
+// ── Single-shot upload (small files ≤ 1 MB) ─────────────────────
 function handleUploadFile(data, debug) {
   debug = debug || {};
   debug.steps = debug.steps || [];
-  var fileName = data.fileName, mimeType = data.mimeType, base64Data = data.base64Data, chunks = data.chunks, folderId = data.folderId;
-  if (!fileName) return jsonResponse({ status: "error", message: "fileName required", debug: debug });
-  var fullBase64;
-  if (chunks && Array.isArray(chunks) && chunks.length > 0) {
-    fullBase64 = chunks.join(""); debug.mode = "chunked:" + chunks.length;
-  } else if (base64Data) {
-    fullBase64 = base64Data; debug.mode = "single_base64";
-  } else {
-    return jsonResponse({ status: "error", message: "base64Data or chunks required", debug: debug });
-  }
+  var fileName = data.fileName, mimeType = data.mimeType, base64Data = data.base64Data, folderId = data.folderId;
+  if (!fileName)    return jsonResponse({ status: "error", message: "fileName required", debug: debug });
+  if (!base64Data)  return jsonResponse({ status: "error", message: "base64Data required", debug: debug });
+
   var targetFolderId = folderId || DRIVE_FOLDER_ID;
-  debug.targetFolderId = targetFolderId || "EMPTY";
   if (!targetFolderId) return jsonResponse({ status: "error", message: "No DRIVE_FOLDER_ID", debug: debug });
-  debug.steps.push("calling_DriveApp_getFolderById");
-  var decoded = Utilities.base64Decode(fullBase64);
+
+  debug.steps.push("decoding");
+  var decoded = Utilities.base64Decode(base64Data);
   var blob    = Utilities.newBlob(decoded, mimeType || "application/octet-stream", fileName);
   var folder  = DriveApp.getFolderById(targetFolderId);
-  debug.steps.push("folder_ok");
-  var file = folder.createFile(blob);
+  var file    = folder.createFile(blob);
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  debug.steps.push("done");
   return jsonResponse({ status: "success", id: file.getId(), webViewLink: file.getUrl(), debug: debug });
 }
 
+// ── Chunked upload — Phase 1: receive one chunk ──────────────────
+// GAS CacheService max value size = 100 KB.
+// We store each chunk in a DriveApp temp file instead (no size limit).
+function handleUploadChunk(data, debug) {
+  debug = debug || {};
+  debug.steps = debug.steps || [];
+  var sessionId   = data.sessionId;
+  var chunkIndex  = data.chunkIndex;
+  var totalChunks = data.totalChunks;
+  var chunkData   = data.chunkData;
+
+  if (!sessionId)              return jsonResponse({ status: "error", message: "sessionId required",   debug: debug });
+  if (chunkData === undefined) return jsonResponse({ status: "error", message: "chunkData required",   debug: debug });
+  if (totalChunks === undefined) return jsonResponse({ status: "error", message: "totalChunks required", debug: debug });
+
+  debug.sessionId  = sessionId;
+  debug.chunkIndex = chunkIndex;
+  debug.steps.push("storing_chunk");
+
+  // Store chunk as a temp file in Drive root (no folder restriction needed)
+  var tempFileName = "_chunk_" + sessionId + "_" + chunkIndex;
+  var blob = Utilities.newBlob(chunkData, "text/plain", tempFileName);
+
+  // Check if a temp file with this name already exists and remove it (retry safety)
+  var existing = DriveApp.getFilesByName(tempFileName);
+  while (existing.hasNext()) { existing.next().setTrashed(true); }
+
+  var tempFile = DriveApp.createFile(blob);
+  // Tag it so cleanup can find all chunks for this session
+  debug.steps.push("chunk_stored");
+  debug.tempFileId = tempFile.getId();
+
+  return jsonResponse({ status: "success", chunkIndex: chunkIndex, debug: debug });
+}
+
+// ── Chunked upload — Phase 2: finalize ───────────────────────────
+function handleFinalizeUpload(data, debug) {
+  debug = debug || {};
+  debug.steps = debug.steps || [];
+  var sessionId   = data.sessionId;
+  var totalChunks = data.totalChunks;
+  var fileName    = data.fileName;
+  var mimeType    = data.mimeType;
+  var folderId    = data.folderId;
+
+  if (!sessionId)   return jsonResponse({ status: "error", message: "sessionId required",   debug: debug });
+  if (!totalChunks) return jsonResponse({ status: "error", message: "totalChunks required", debug: debug });
+  if (!fileName)    return jsonResponse({ status: "error", message: "fileName required",     debug: debug });
+
+  debug.sessionId   = sessionId;
+  debug.totalChunks = totalChunks;
+  debug.steps.push("reading_chunks");
+
+  // Collect all chunk strings in order
+  var parts = [];
+  for (var i = 0; i < totalChunks; i++) {
+    var tempFileName = "_chunk_" + sessionId + "_" + i;
+    var files = DriveApp.getFilesByName(tempFileName);
+    if (!files.hasNext()) {
+      return jsonResponse({ status: "error", message: "Missing chunk " + i + " for session " + sessionId, debug: debug });
+    }
+    var f = files.next();
+    parts.push(f.getBlob().getDataAsString());
+    f.setTrashed(true); // clean up immediately
+  }
+
+  debug.steps.push("chunks_assembled");
+  var fullBase64 = parts.join("");
+  debug.base64Length = fullBase64.length;
+
+  var targetFolderId = folderId || DRIVE_FOLDER_ID;
+  if (!targetFolderId) return jsonResponse({ status: "error", message: "No DRIVE_FOLDER_ID", debug: debug });
+
+  debug.steps.push("decoding_base64");
+  var decoded = Utilities.base64Decode(fullBase64);
+  var blob    = Utilities.newBlob(decoded, mimeType || "application/octet-stream", fileName);
+  debug.steps.push("blob_created");
+
+  var folder = DriveApp.getFolderById(targetFolderId);
+  var file   = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  debug.steps.push("file_created");
+
+  return jsonResponse({ status: "success", id: file.getId(), webViewLink: file.getUrl(), debug: debug });
+}
+
+// ── Chunked upload — Phase 3: abort / cleanup ────────────────────
+function handleAbortUpload(data, debug) {
+  debug = debug || {};
+  var sessionId   = data.sessionId;
+  var totalChunks = data.totalChunks || 100; // upper bound for cleanup sweep
+  if (!sessionId) return jsonResponse({ status: "error", message: "sessionId required", debug: debug });
+
+  for (var i = 0; i < totalChunks; i++) {
+    var tempFileName = "_chunk_" + sessionId + "_" + i;
+    var files = DriveApp.getFilesByName(tempFileName);
+    while (files.hasNext()) { files.next().setTrashed(true); }
+  }
+  return jsonResponse({ status: "success", debug: debug });
+}
+
+// ── Sheet operations ──────────────────────────────────────────────
 function handleAppendRow(data, debug) {
   debug = debug || {};
   var sheetName = data.sheetName, values = data.values;
   if (!sheetName || !Array.isArray(values)) return jsonResponse({ status: "error", message: "sheetName and values[] required", debug: debug });
-  debug.sheetName = sheetName;
   var ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
   var sheet = ss.getSheetByName(sheetName);
   if (!sheet) return jsonResponse({ status: "error", message: "Sheet not found: " + sheetName, debug: debug });
@@ -256,7 +319,6 @@ function handleUpdateRow(data, debug) {
   debug = debug || {};
   var sheetName = data.sheetName, row = data.row, updates = data.updates;
   if (!sheetName || !row || !Array.isArray(updates)) return jsonResponse({ status: "error", message: "sheetName, row, updates[] required", debug: debug });
-  debug.sheetName = sheetName; debug.row = row;
   var ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
   var sheet = ss.getSheetByName(sheetName);
   if (!sheet) return jsonResponse({ status: "error", message: "Sheet not found: " + sheetName, debug: debug });
@@ -270,11 +332,8 @@ function handleTrashFile(data, debug) {
   debug = debug || {};
   debug.steps = debug.steps || [];
   var fileId = data.fileId;
-  debug.fileId = fileId || "MISSING";
   if (!fileId) return jsonResponse({ status: "error", message: "fileId required", debug: debug });
   try {
-    debug.steps.push("calling_DriveApp_getFileById");
-    try { debug.effectiveUser = Session.getEffectiveUser().getEmail(); } catch(_) { debug.effectiveUser = "unknown"; }
     DriveApp.getFileById(fileId).setTrashed(true);
     debug.steps.push("trashed_ok");
     return jsonResponse({ status: "success", debug: debug });

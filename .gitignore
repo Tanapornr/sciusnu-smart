@@ -11,3 +11,4 @@ backend/.env
 *rar
 mail-relay/*.BACKUP
 oldcode/
+package-lock.json

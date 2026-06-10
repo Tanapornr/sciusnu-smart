@@ -109,7 +109,7 @@ export default function Login() {
         type="button"
         onClick={toggleTheme}
         aria-label="สลับธีมสว่าง/มืด"
-        className="!absolute top-6 right-6 btn-liquid theme-toggle-btn p-3 rounded-full shadow-md z-50 outline-none"
+        className="!absolute top-6 right-6 btn-liquid theme-toggle-btn p-3 rounded-full shadow-md z-50 outline-none overflow-hidden"
       >
         <Moon className="w-5 h-5 dark:hidden" />
         <Sun className="w-5 h-5 hidden dark:block" />
