@@ -11,7 +11,7 @@ const RELAY_URL    = process.env.APPS_SCRIPT_URL;
 const RELAY_SECRET = process.env.APPS_SCRIPT_SECRET;
 
 const CHUNK_BYTES         = 1 * 1024 * 1024; // 1 MB raw per chunk
-const GAS_CALL_TIMEOUT_MS = 90_000;           // 90 s per individual GAS call
+const GAS_CALL_TIMEOUT_MS = 180_000;           // 90 s per individual GAS call
 
 // ── callRelay ────────────────────────────────────────────────────
 async function callRelay(payload) {
