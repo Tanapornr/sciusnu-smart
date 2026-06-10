@@ -110,6 +110,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
     useEffect(() => { setLoading(dataLoading); }, [dataLoading]);
 
     const [submitting, setSubmitting] = useState(false);
+    const [uploadPct, setUploadPct] = useState(0);
     const [selectedWorkType, setSelectedWorkType] = useState<WorkType | ''>('');
     const [file1, setFile1] = useState<File | null>(null);
     const [_file2, _setFile2] = useState<File | null>(null);
@@ -247,15 +248,15 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
     });
 
     if (formValues && projectInfo) {
-        Swal.fire({
-            title: '<div class="font-bold text-base sm:text-lg">กำลังอัปโหลด...</div>',
-            allowOutsideClick: false,
-            didOpen: () => { Swal.showLoading(); },
-            customClass: { popup: 'rounded-[1.5rem]' }
-        });
+        setSubmitting(true);
+        setUploadPct(0);
 
         try {
-            const file1Url = await uploadFileToDrive(formValues.rFile, `${projectInfo.projectId}_${type}_file1`);
+            const file1Url = await uploadFileToDrive(
+              formValues.rFile,
+              `${projectInfo.projectId}_${type}_file1`,
+              setUploadPct,
+            );
             
             const payload = {
                 studentId: projectInfo.studentId,
@@ -278,6 +279,9 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
             }
         } catch(e: any) {
              Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: e.message, confirmButtonColor: '#f97316', customClass: {popup: 'rounded-2xl'} });
+        } finally {
+            setSubmitting(false);
+            setUploadPct(0);
         }
     }
   };
@@ -303,9 +307,14 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
     }
 
     setSubmitting(true);
+    setUploadPct(0);
 
     try {
-      const file1Url = await uploadFileToDrive(file1, `${projectInfo.projectId}_${selectedWorkType}_file1`);
+      const file1Url = await uploadFileToDrive(
+        file1,
+        `${projectInfo.projectId}_${selectedWorkType}_file1`,
+        setUploadPct,
+      );
       
       const payload = {
         studentId: projectInfo.studentId,
@@ -346,6 +355,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
       });
     } finally {
       setSubmitting(false);
+      setUploadPct(0);
     }
   };
 
@@ -656,13 +666,30 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                                 disabled={submitting}
                             />
                         </div>
-                        <button type="submit" disabled={submitting} className="w-full btn-liquid bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-3.5 sm:py-4 rounded-xl sm:rounded-2xl hover:shadow-md transition-all text-sm flex items-center justify-center mt-2 tracking-wide">
-                            {submitting ? (
-                                <><svg className="animate-spin h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังอัปโหลด...</>
-                            ) : (
-                                <><UploadCloud className="w-4.5 h-4.5 mr-2" /> อัปโหลดส่งงาน</>
-                            )}
-                        </button>
+                        {submitting ? (
+                            <div className="w-full mt-2 rounded-xl sm:rounded-2xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
+                                <div className="px-4 pt-3.5 pb-2 flex items-center justify-between gap-3">
+                                    <span className="text-xs font-bold text-neutral-600 dark:text-neutral-300 flex items-center gap-1.5 min-w-0 truncate">
+                                        {uploadPct < 100
+                                          ? <svg className="animate-spin h-3.5 w-3.5 text-orange-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>
+                                          : <svg className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                        }
+                                        {uploadPct < 10 ? 'กำลังส่งไฟล์...' : uploadPct < 92 ? 'กำลังส่งไปยัง Google Drive...' : uploadPct < 100 ? 'กำลังบันทึกลง Drive...' : 'อัปโหลดสำเร็จ!'}
+                                    </span>
+                                    <span className="text-xs font-extrabold text-orange-500 flex-shrink-0">{uploadPct}%</span>
+                                </div>
+                                <div className="mx-4 mb-3.5 h-2.5 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
+                                    <div
+                                        className={`h-full rounded-full transition-all duration-500 ease-out ${uploadPct >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-orange-400 to-pink-500'}`}
+                                        style={{ width: `${uploadPct}%` }}
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <button type="submit" className="w-full btn-liquid bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-3.5 sm:py-4 rounded-xl sm:rounded-2xl hover:shadow-md transition-all text-sm flex items-center justify-center mt-2 tracking-wide">
+                                <UploadCloud className="w-4.5 h-4.5 mr-2" /> อัปโหลดส่งงาน
+                            </button>
+                        )}
                     </div>
                 </form>
             </div>

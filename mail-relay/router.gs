@@ -57,8 +57,10 @@ function doPost(e) {
     }
 
     // ── Route 3: Drive / Sheet relay (requires DRIVE_RELAY_SECRET) ──
-    if (action === "uploadFile" || action === "appendRow" ||
-        action === "updateRow"  || action === "trashFile") {
+    if (action === "uploadFile"     || action === "uploadChunk"    ||
+        action === "finalizeUpload" || action === "abortUpload"    ||
+        action === "appendRow"      || action === "updateRow"      ||
+        action === "trashFile") {
       if (IS_DEBUG) routerDebug.step = "routing_to_handleDriveRelay";
       return handleDriveRelay(action, data, routerDebug);
     }

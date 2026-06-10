@@ -15,7 +15,7 @@ import type {
   ProfilePayload,
   DriveUploadUrlPayload,
   DriveUploadUrlResponse,
-  DriveUploadResponse,
+  // DriveUploadResponse,
 } from '../types';
 
 const BASE = import.meta.env.VITE_API_URL || '';
@@ -160,80 +160,164 @@ export async function apiUpdateAdvisorPassword(payload: {
 
 // ================================================================
 // uploadFileDirect
+// Uploads a file through the backend proxy (/api/drive-upload).
+//
+// The backend streams Server-Sent Events back as it processes each chunk:
+//   { type:"start",    totalChunks:N }
+//   { type:"chunk",    index:i, total:N }   ← after each GAS chunk ACK
+//   { type:"finalize" }                     ← GAS assembling + writing to Drive
+//   { type:"done",     id, webViewLink }
+//   { type:"error",    message }
+//
+// Progress mapping:
+//   Uploading browser→server : 0–10%  (fetch upload progress via ReadableStream)
+//   Each chunk ACK from GAS  : 10–90% (real, proportional to chunk count)
+//   Finalize (GAS→Drive)     : 90–98% (brief pause, no sub-steps)
+//   Done                     : 100%
 // ================================================================
 export async function uploadFileDirect(
   file: File,
   fileName: string,
   onProgress?: (pct: number) => void,
 ): Promise<string> {
-  onProgress?.(5);
+  const token = getToken();
 
-  const tokenRes = await apiFetch<{
-    status: string;
-    uploadToken: string;
-    gasUrl: string;
-    message?: string;
-  }>('/api/drive-upload-token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      fileName,
-      mimeType: file.type || 'application/pdf',
-    }),
-  });
+  // ── Timeouts ─────────────────────────────────────────────────────
+  // One AbortController rules everything — both the fetch upload phase
+  // and the SSE reading phase use the same signal.  When either timeout
+  // fires it just calls abort() and the browser tears down the whole
+  // connection cleanly without leaving a locked ReadableStream behind.
+  //
+  // FETCH_TIMEOUT   : browser → server upload + initial SSE open.
+  //                   ≥60 s, +3 s per MB so large files aren't cut short.
+  // STREAM_TIMEOUT  : max silence between SSE events (GAS/Drive stall).
+  //                   Resets on every chunk event; fires if 90 s of silence.
+  const FETCH_TIMEOUT_MS  = Math.max(60_000, file.size / 1024 / 1024 * 3_000);
+  const STREAM_TIMEOUT_MS = 180_000;
 
-  if (tokenRes.status !== 'success' || !tokenRes.uploadToken) {
-    throw new Error(tokenRes.message || 'ไม่สามารถขอ upload token ได้');
-  }
+  // Single controller for the entire request lifetime.
+  // A fresh one is created every call so a previous abort never
+  // bleeds into the next upload attempt.
+  const ctrl = new AbortController();
 
-  onProgress?.(15);
-  const base64Data = await fileToBase64(file);
-  onProgress?.(40);
+  // Human-readable reason so the error message is accurate
+  let timeoutReason = 'การอัปโหลดหมดเวลา — เครือข่ายช้าหรือไฟล์ใหญ่เกินไป';
 
-  const params = new URLSearchParams();
-  params.append('uploadToken', tokenRes.uploadToken);
-  params.append('base64Data',  base64Data);
-  params.append('fileName',    fileName);
+  const fetchTimer = setTimeout(() => {
+    timeoutReason = 'การอัปโหลดหมดเวลา — เครือข่ายช้าหรือไฟล์ใหญ่เกินไป';
+    ctrl.abort();
+  }, FETCH_TIMEOUT_MS);
 
-  const gasRes = await fetch(tokenRes.gasUrl, {
-    method:   'POST',
-    headers:  { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body:     params.toString(),
-    redirect: 'follow',
-  });
+  let streamTimer: ReturnType<typeof setTimeout> | null = null;
+  const resetStreamTimer = () => {
+    if (streamTimer) clearTimeout(streamTimer);
+    streamTimer = setTimeout(() => {
+      timeoutReason = 'การอัปโหลดค้าง — Apps Script หรือ Google Drive ไม่ตอบสนอง';
+      ctrl.abort(); // abort the fetch/reader via signal — no manual reader.cancel()
+    }, STREAM_TIMEOUT_MS);
+  };
+  const clearAllTimers = () => {
+    clearTimeout(fetchTimer);
+    if (streamTimer) { clearTimeout(streamTimer); streamTimer = null; }
+  };
 
-  onProgress?.(90);
+  const headers: Record<string, string> = {
+    'X-File-Name': encodeURIComponent(fileName),
+    'X-File-Type': file.type || 'application/pdf',
+  };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const gasText = await gasRes.text();
-  let gasJson: DriveUploadResponse;
+  let res: Response;
   try {
-    gasJson = JSON.parse(gasText);
-  } catch {
-    throw new Error(`GAS returned non-JSON: ${gasText.slice(0, 120)}`);
+    res = await fetch(`${BASE}/api/drive-upload`, {
+      method: 'POST',
+      headers,
+      body: file,
+      signal: ctrl.signal,
+    });
+  } catch (err: any) {
+    clearAllTimers();
+    if (err?.name === 'AbortError') throw new Error(timeoutReason);
+    throw err;
+  }
+  clearTimeout(fetchTimer); // upload reached server; cancel upload-phase timer
+
+  if (!res.ok || !res.body) {
+    clearAllTimers();
+    const text = await res.text();
+    let msg = `HTTP ${res.status}`;
+    try { msg = JSON.parse(text).message ?? msg; } catch { /* noop */ }
+    throw new Error(msg);
   }
 
-  if (gasJson.status !== 'success' || !gasJson.id) {
-    throw new Error(gasJson.message || 'การอัปโหลดไฟล์ไปยัง Google Drive ล้มเหลว');
-  }
+  // ── Read the SSE stream ─────────────────────────────────────────
+  // We do NOT call getReader() here. Instead we use a for-await loop
+  // on res.body which the browser owns — when ctrl.abort() fires the
+  // signal, the browser cancels the underlying fetch and the for-await
+  // throws an AbortError naturally, leaving no locked stream behind.
+  try {
+    resetStreamTimer(); // start silence watchdog
 
-  onProgress?.(100);
-  return gasJson.webViewLink ?? `https://drive.google.com/file/d/${gasJson.id}/view`;
-}
+    let buf = '';
 
-export async function uploadFileToDrive(file: File, fileName: string): Promise<string> {
-  return uploadFileDirect(file, fileName);
-}
+    const handleEvent = (line: string): { result: string } | null => {
+      if (!line.startsWith('data: ')) return null;
+      let evt: Record<string, unknown>;
+      try { evt = JSON.parse(line.slice(6)); } catch { return null; }
 
-function fileToBase64(file: File | Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      const base64 = result.split(',')[1];
-      if (!base64) reject(new Error('FileReader returned empty result'));
-      else resolve(base64);
+      resetStreamTimer(); // got data — push watchdog back
+
+      switch (evt.type) {
+        case 'start':    { onProgress?.(10);  return null; }
+        case 'chunk':    {
+          const done  = (evt.index as number) + 1;
+          const total = evt.total as number;
+          onProgress?.(10 + Math.round((done / total) * 80));
+          return null;
+        }
+        case 'finalize': { onProgress?.(92); return null; }
+        case 'done': {
+          onProgress?.(100);
+          return {
+            result: (evt.webViewLink as string) ??
+                    `https://drive.google.com/file/d/${evt.id as string}/view`,
+          };
+        }
+        case 'error':    { throw new Error((evt.message as string) || 'Upload failed'); }
+      }
+      return null;
     };
-    reader.onerror = () => reject(new Error('FileReader error'));
-    reader.readAsDataURL(file);
-  });
+
+    const decoder = new TextDecoder();
+    const reader  = res.body.getReader();
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split('\n');
+        buf = lines.pop() ?? '';
+        for (const line of lines) {
+          const r = handleEvent(line.trim());
+          if (r) { clearAllTimers(); return r.result; }
+        }
+      }
+    } finally {
+      // Always release the reader lock so the next upload can use a fresh stream
+      reader.releaseLock();
+    }
+
+    throw new Error('SSE stream closed without a done event');
+  } catch (err: any) {
+    clearAllTimers();
+    if (err?.name === 'AbortError') throw new Error(timeoutReason);
+    throw err;
+  }
 }
+
+export async function uploadFileToDrive(file: File, fileName: string, onProgress?: (pct: number) => void): Promise<string> {
+  return uploadFileDirect(file, fileName, onProgress);
+}
+
+
