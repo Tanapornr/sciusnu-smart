@@ -17,7 +17,7 @@ const CHUNK_BYTES = 1 * 1024 * 1024;
 
 // 90 s per GAS call — covers slow Drive writes on finalize.
 // node-fetch v3 / native fetch both honour AbortSignal.timeout().
-const GAS_CALL_TIMEOUT_MS = 90_000;
+const GAS_CALL_TIMEOUT_MS = 120_000;
 
 async function callRelay(payload) {
   if (!RELAY_URL) throw new Error("APPS_SCRIPT_URL is not configured");

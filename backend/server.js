@@ -34,8 +34,8 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json({ limit: "2mb" })); // increased for signature payloads
-// Raw binary parser for /api/drive-upload (supports up to 45 MB files)
-app.use("/api/drive-upload", express.raw({ type: "*/*", limit: "45mb" }));
+// Raw binary parser for /api/drive-upload (supports up to 25 MB files)
+app.use("/api/drive-upload", express.raw({ type: "*/*", limit: "25mb" }));
 
 // ── Token blocklist for logout ────────────────────────────────────
 const revokedTokens = new Set();

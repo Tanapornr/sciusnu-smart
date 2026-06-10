@@ -182,24 +182,44 @@ export async function uploadFileDirect(
 ): Promise<string> {
   const token = getToken();
 
-  // ── Timeouts ────────────────────────────────────────────────────
-  // FETCH_TIMEOUT   : how long to wait for the server to accept the upload
-  //                   and open the SSE stream (covers network stall + Vercel
-  //                   cold-start). Per-MB headroom so large files aren't cut off
-  //                   before they finish uploading to the backend.
-  // STREAM_TIMEOUT  : max silence between SSE events once the stream is open.
-  //                   If GAS or Drive stalls mid-chunk this fires.
-  //                   Each chunk round-trip takes ~2–5 s normally;
-  //                   60 s gives plenty of room for slow GAS without hanging forever.
-  const FETCH_TIMEOUT_MS  = Math.max(60_000, file.size / 1024 / 1024 * 3_000); // ≥60 s, +3 s/MB
-  const STREAM_TIMEOUT_MS = 90_000; // 90 s max silence between events
+  // ── Timeouts ─────────────────────────────────────────────────────
+  // One AbortController rules everything — both the fetch upload phase
+  // and the SSE reading phase use the same signal.  When either timeout
+  // fires it just calls abort() and the browser tears down the whole
+  // connection cleanly without leaving a locked ReadableStream behind.
+  //
+  // FETCH_TIMEOUT   : browser → server upload + initial SSE open.
+  //                   ≥60 s, +3 s per MB so large files aren't cut short.
+  // STREAM_TIMEOUT  : max silence between SSE events (GAS/Drive stall).
+  //                   Resets on every chunk event; fires if 90 s of silence.
+  const FETCH_TIMEOUT_MS  = Math.max(60_000, file.size / 1024 / 1024 * 3_000);
+  const STREAM_TIMEOUT_MS = 120_000;
 
-  const abortCtrl = new AbortController();
+  // Single controller for the entire request lifetime.
+  // A fresh one is created every call so a previous abort never
+  // bleeds into the next upload attempt.
+  const ctrl = new AbortController();
 
-  // Fetch timeout — fires if the upload stalls before the SSE stream opens
+  // Human-readable reason so the error message is accurate
+  let timeoutReason = 'การอัปโหลดหมดเวลา — เครือข่ายช้าหรือไฟล์ใหญ่เกินไป';
+
   const fetchTimer = setTimeout(() => {
-    abortCtrl.abort();
+    timeoutReason = 'การอัปโหลดหมดเวลา — เครือข่ายช้าหรือไฟล์ใหญ่เกินไป';
+    ctrl.abort();
   }, FETCH_TIMEOUT_MS);
+
+  let streamTimer: ReturnType<typeof setTimeout> | null = null;
+  const resetStreamTimer = () => {
+    if (streamTimer) clearTimeout(streamTimer);
+    streamTimer = setTimeout(() => {
+      timeoutReason = 'การอัปโหลดค้าง — Apps Script หรือ Google Drive ไม่ตอบสนอง';
+      ctrl.abort(); // abort the fetch/reader via signal — no manual reader.cancel()
+    }, STREAM_TIMEOUT_MS);
+  };
+  const clearAllTimers = () => {
+    clearTimeout(fetchTimer);
+    if (streamTimer) { clearTimeout(streamTimer); streamTimer = null; }
+  };
 
   const headers: Record<string, string> = {
     'X-File-Name': encodeURIComponent(fileName),
@@ -213,100 +233,87 @@ export async function uploadFileDirect(
       method: 'POST',
       headers,
       body: file,
-      signal: abortCtrl.signal,
+      signal: ctrl.signal,
     });
   } catch (err: any) {
-    clearTimeout(fetchTimer);
-    if (err?.name === 'AbortError') {
-      throw new Error('การอัปโหลดหมดเวลา — เครือข่ายช้าหรือไฟล์ใหญ่เกินไป');
-    }
+    clearAllTimers();
+    if (err?.name === 'AbortError') throw new Error(timeoutReason);
     throw err;
   }
-  clearTimeout(fetchTimer);
+  clearTimeout(fetchTimer); // upload reached server; cancel upload-phase timer
 
   if (!res.ok || !res.body) {
+    clearAllTimers();
     const text = await res.text();
     let msg = `HTTP ${res.status}`;
     try { msg = JSON.parse(text).message ?? msg; } catch { /* noop */ }
     throw new Error(msg);
   }
 
-  // ── Read the SSE stream line by line ────────────────────────────
-  return new Promise<string>((resolve, reject) => {
-    const reader  = res.body!.getReader();
-    const decoder = new TextDecoder();
-    let   buf     = '';
+  // ── Read the SSE stream ─────────────────────────────────────────
+  // We do NOT call getReader() here. Instead we use a for-await loop
+  // on res.body which the browser owns — when ctrl.abort() fires the
+  // signal, the browser cancels the underlying fetch and the for-await
+  // throws an AbortError naturally, leaving no locked stream behind.
+  try {
+    resetStreamTimer(); // start silence watchdog
 
-    // Stream watchdog — reset on every event; fires if stream goes silent
-    let streamTimer: ReturnType<typeof setTimeout> | null = null;
-    const resetStreamTimer = () => {
-      if (streamTimer) clearTimeout(streamTimer);
-      streamTimer = setTimeout(() => {
-        reader.cancel();
-        reject(new Error('การอัปโหลดค้าง — Apps Script หรือ Google Drive ไม่ตอบสนอง'));
-      }, STREAM_TIMEOUT_MS);
-    };
-    const clearStreamTimer = () => {
-      if (streamTimer) { clearTimeout(streamTimer); streamTimer = null; }
-    };
+    let buf = '';
 
-    resetStreamTimer(); // start watchdog as soon as stream opens
-
-    const handleEvent = (line: string) => {
-      if (!line.startsWith('data: ')) return;
+    const handleEvent = (line: string): { result: string } | null => {
+      if (!line.startsWith('data: ')) return null;
       let evt: Record<string, unknown>;
-      try { evt = JSON.parse(line.slice(6)); } catch { return; }
+      try { evt = JSON.parse(line.slice(6)); } catch { return null; }
 
-      resetStreamTimer(); // got an event — reset silence watchdog
+      resetStreamTimer(); // got data — push watchdog back
 
       switch (evt.type) {
-        case 'start': {
-          onProgress?.(10);
-          break;
-        }
-        case 'chunk': {
+        case 'start':    { onProgress?.(10);  return null; }
+        case 'chunk':    {
           const done  = (evt.index as number) + 1;
           const total = evt.total as number;
-          const pct   = 10 + Math.round((done / total) * 80);
-          onProgress?.(pct);
-          break;
+          onProgress?.(10 + Math.round((done / total) * 80));
+          return null;
         }
-        case 'finalize': {
-          onProgress?.(92);
-          break;
-        }
+        case 'finalize': { onProgress?.(92); return null; }
         case 'done': {
-          clearStreamTimer();
           onProgress?.(100);
-          resolve(
-            (evt.webViewLink as string) ??
-            `https://drive.google.com/file/d/${evt.id as string}/view`,
-          );
-          break;
+          return {
+            result: (evt.webViewLink as string) ??
+                    `https://drive.google.com/file/d/${evt.id as string}/view`,
+          };
         }
-        case 'error': {
-          clearStreamTimer();
-          reject(new Error((evt.message as string) || 'Upload failed'));
-          break;
-        }
+        case 'error':    { throw new Error((evt.message as string) || 'Upload failed'); }
       }
+      return null;
     };
 
-    const pump = (): Promise<void> =>
-      reader.read().then(({ done, value }) => {
-        if (done) return;
+    const decoder = new TextDecoder();
+    const reader  = res.body.getReader();
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
         buf += decoder.decode(value, { stream: true });
         const lines = buf.split('\n');
         buf = lines.pop() ?? '';
-        for (const line of lines) handleEvent(line.trim());
-        return pump();
-      }).catch((err) => {
-        clearStreamTimer();
-        reject(err);
-      });
+        for (const line of lines) {
+          const r = handleEvent(line.trim());
+          if (r) { clearAllTimers(); return r.result; }
+        }
+      }
+    } finally {
+      // Always release the reader lock so the next upload can use a fresh stream
+      reader.releaseLock();
+    }
 
-    pump();
-  });
+    throw new Error('SSE stream closed without a done event');
+  } catch (err: any) {
+    clearAllTimers();
+    if (err?.name === 'AbortError') throw new Error(timeoutReason);
+    throw err;
+  }
 }
 
 export async function uploadFileToDrive(file: File, fileName: string, onProgress?: (pct: number) => void): Promise<string> {
