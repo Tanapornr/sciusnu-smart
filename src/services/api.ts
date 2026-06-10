@@ -212,8 +212,8 @@ export async function uploadFileDirect(
   });
 }
 
-export async function uploadFileToDrive(file: File, fileName: string): Promise<string> {
-  return uploadFileDirect(file, fileName);
+export async function uploadFileToDrive(file: File, fileName: string, onProgress?: (pct: number) => void): Promise<string> {
+  return uploadFileDirect(file, fileName, onProgress);
 }
 
 
