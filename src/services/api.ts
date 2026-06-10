@@ -15,7 +15,7 @@ import type {
   ProfilePayload,
   DriveUploadUrlPayload,
   DriveUploadUrlResponse,
-  DriveUploadResponse,
+  // DriveUploadResponse,
 } from '../types';
 
 const BASE = import.meta.env.VITE_API_URL || '';
@@ -161,54 +161,151 @@ export async function apiUpdateAdvisorPassword(payload: {
 // ================================================================
 // uploadFileDirect
 // Uploads a file through the backend proxy (/api/drive-upload).
-// The backend handles chunking to Apps Script, so we can support
-// files up to ~45 MB without hitting GAS URL Fetch limits.
+//
+// The backend streams Server-Sent Events back as it processes each chunk:
+//   { type:"start",    totalChunks:N }
+//   { type:"chunk",    index:i, total:N }   ← after each GAS chunk ACK
+//   { type:"finalize" }                     ← GAS assembling + writing to Drive
+//   { type:"done",     id, webViewLink }
+//   { type:"error",    message }
+//
+// Progress mapping:
+//   Uploading browser→server : 0–10%  (fetch upload progress via ReadableStream)
+//   Each chunk ACK from GAS  : 10–90% (real, proportional to chunk count)
+//   Finalize (GAS→Drive)     : 90–98% (brief pause, no sub-steps)
+//   Done                     : 100%
 // ================================================================
 export async function uploadFileDirect(
   file: File,
   fileName: string,
   onProgress?: (pct: number) => void,
 ): Promise<string> {
-  onProgress?.(5);
-
   const token = getToken();
 
+  // ── Timeouts ────────────────────────────────────────────────────
+  // FETCH_TIMEOUT   : how long to wait for the server to accept the upload
+  //                   and open the SSE stream (covers network stall + Vercel
+  //                   cold-start). Per-MB headroom so large files aren't cut off
+  //                   before they finish uploading to the backend.
+  // STREAM_TIMEOUT  : max silence between SSE events once the stream is open.
+  //                   If GAS or Drive stalls mid-chunk this fires.
+  //                   Each chunk round-trip takes ~2–5 s normally;
+  //                   60 s gives plenty of room for slow GAS without hanging forever.
+  const FETCH_TIMEOUT_MS  = Math.max(60_000, file.size / 1024 / 1024 * 3_000); // ≥60 s, +3 s/MB
+  const STREAM_TIMEOUT_MS = 90_000; // 90 s max silence between events
+
+  const abortCtrl = new AbortController();
+
+  // Fetch timeout — fires if the upload stalls before the SSE stream opens
+  const fetchTimer = setTimeout(() => {
+    abortCtrl.abort();
+  }, FETCH_TIMEOUT_MS);
+
+  const headers: Record<string, string> = {
+    'X-File-Name': encodeURIComponent(fileName),
+    'X-File-Type': file.type || 'application/pdf',
+  };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}/api/drive-upload`, {
+      method: 'POST',
+      headers,
+      body: file,
+      signal: abortCtrl.signal,
+    });
+  } catch (err: any) {
+    clearTimeout(fetchTimer);
+    if (err?.name === 'AbortError') {
+      throw new Error('การอัปโหลดหมดเวลา — เครือข่ายช้าหรือไฟล์ใหญ่เกินไป');
+    }
+    throw err;
+  }
+  clearTimeout(fetchTimer);
+
+  if (!res.ok || !res.body) {
+    const text = await res.text();
+    let msg = `HTTP ${res.status}`;
+    try { msg = JSON.parse(text).message ?? msg; } catch { /* noop */ }
+    throw new Error(msg);
+  }
+
+  // ── Read the SSE stream line by line ────────────────────────────
   return new Promise<string>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', `${BASE}/api/drive-upload`);
+    const reader  = res.body!.getReader();
+    const decoder = new TextDecoder();
+    let   buf     = '';
 
-    if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-    xhr.setRequestHeader('X-File-Name', encodeURIComponent(fileName));
-    xhr.setRequestHeader('X-File-Type', file.type || 'application/pdf');
+    // Stream watchdog — reset on every event; fires if stream goes silent
+    let streamTimer: ReturnType<typeof setTimeout> | null = null;
+    const resetStreamTimer = () => {
+      if (streamTimer) clearTimeout(streamTimer);
+      streamTimer = setTimeout(() => {
+        reader.cancel();
+        reject(new Error('การอัปโหลดค้าง — Apps Script หรือ Google Drive ไม่ตอบสนอง'));
+      }, STREAM_TIMEOUT_MS);
+    };
+    const clearStreamTimer = () => {
+      if (streamTimer) { clearTimeout(streamTimer); streamTimer = null; }
+    };
 
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) {
-        // Map upload progress to 10–90% range
-        const pct = 10 + Math.round((e.loaded / e.total) * 80);
-        onProgress?.(pct);
+    resetStreamTimer(); // start watchdog as soon as stream opens
+
+    const handleEvent = (line: string) => {
+      if (!line.startsWith('data: ')) return;
+      let evt: Record<string, unknown>;
+      try { evt = JSON.parse(line.slice(6)); } catch { return; }
+
+      resetStreamTimer(); // got an event — reset silence watchdog
+
+      switch (evt.type) {
+        case 'start': {
+          onProgress?.(10);
+          break;
+        }
+        case 'chunk': {
+          const done  = (evt.index as number) + 1;
+          const total = evt.total as number;
+          const pct   = 10 + Math.round((done / total) * 80);
+          onProgress?.(pct);
+          break;
+        }
+        case 'finalize': {
+          onProgress?.(92);
+          break;
+        }
+        case 'done': {
+          clearStreamTimer();
+          onProgress?.(100);
+          resolve(
+            (evt.webViewLink as string) ??
+            `https://drive.google.com/file/d/${evt.id as string}/view`,
+          );
+          break;
+        }
+        case 'error': {
+          clearStreamTimer();
+          reject(new Error((evt.message as string) || 'Upload failed'));
+          break;
+        }
       }
     };
 
-    xhr.onload = () => {
-      onProgress?.(95);
-      let json: DriveUploadResponse;
-      try {
-        json = JSON.parse(xhr.responseText);
-      } catch {
-        return reject(new Error(`Server returned non-JSON: ${xhr.responseText.slice(0, 120)}`));
-      }
-      if (xhr.status !== 200 || json.status !== 'success' || !json.id) {
-        return reject(new Error(json.message || `Upload failed (HTTP ${xhr.status})`));
-      }
-      onProgress?.(100);
-      resolve(json.webViewLink ?? `https://drive.google.com/file/d/${json.id}/view`);
-    };
+    const pump = (): Promise<void> =>
+      reader.read().then(({ done, value }) => {
+        if (done) return;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split('\n');
+        buf = lines.pop() ?? '';
+        for (const line of lines) handleEvent(line.trim());
+        return pump();
+      }).catch((err) => {
+        clearStreamTimer();
+        reject(err);
+      });
 
-    xhr.onerror = () => reject(new Error('Network error during upload'));
-    xhr.ontimeout = () => reject(new Error('Upload timed out'));
-
-    xhr.timeout = 5 * 60 * 1000; // 5-minute timeout for large files
-    xhr.send(file);
+    pump();
   });
 }
 
