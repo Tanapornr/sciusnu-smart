@@ -64,6 +64,14 @@ import PetitionDashboard from './PetitionDashboard';
 import PetitionNavButton from '../components/petition/PetitionNavButton';
 import type { PageView } from '../App';
 
+// ── Downloadable form templates (.docx) ──────────────────────────
+// Replace these with your actual Google Drive / hosted file URLs.
+const FORM_DOWNLOAD_URLS: Record<string, string> = {
+  proposal: 'https://docs.google.com/document/d/1CNu3RLyMV_5Ed2DGhpeBDqequcLaKOtr/edit?usp=sharing&ouid=105067184503016665340&rtpof=true&sd=true',
+  progress: 'https://docs.google.com/document/d/1gIe6IvtvNvH0-TKQYnt1YnwTW61Q97yp/edit?usp=sharing&ouid=105067184503016665340&rtpof=true&sd=true',
+  final:    'https://docs.google.com/document/d/1X6aaJXNvl_nWefa4jK5nKz7bQYtniQ2A/edit?usp=sharing&ouid=105067184503016665340&rtpof=true&sd=true',
+};
+
 interface Props { pageView: PageView; setPageView: (v: PageView) => void; }
 export default function StudentDashboard({ pageView, setPageView }: Props) {
     const { user, updateProfile, theme, toggleTheme, logout } = useAuthStore();
@@ -248,6 +256,18 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
     });
 
     if (formValues && projectInfo) {
+        const MAX_SIZE = 25 * 1024 * 1024;
+        if (formValues.rFile.size > MAX_SIZE) {
+            Swal.fire({
+                icon: 'error',
+                title: '<div class="font-bold text-sm sm:text-base">ไฟล์มีขนาดใหญ่เกินไป</div>',
+                text: `ไฟล์ของคุณมีขนาด ${(formValues.rFile.size / 1024 / 1024).toFixed(1)} MB แต่ระบบรองรับไฟล์สูงสุด 25 MB กรุณาบีบอัดหรือลดขนาดไฟล์แล้วลองใหม่`,
+                confirmButtonColor: '#f97316',
+                customClass: { popup: 'rounded-2xl' }
+            });
+            return;
+        }
+
         setSubmitting(true);
         setUploadPct(0);
 
@@ -304,6 +324,18 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
 
     if (!file1) {
       return;
+    }
+
+    const MAX_SIZE = 25 * 1024 * 1024;
+    if (file1.size > MAX_SIZE) {
+        Swal.fire({
+            icon: 'error',
+            title: '<div class="font-bold text-sm sm:text-base">ไฟล์มีขนาดใหญ่เกินไป</div>',
+            text: `ไฟล์ของคุณมีขนาด ${(file1.size / 1024 / 1024).toFixed(1)} MB แต่ระบบรองรับไฟล์สูงสุด 25 MB กรุณาบีบอัดหรือลดขนาดไฟล์แล้วลองใหม่`,
+            confirmButtonColor: '#f97316',
+            customClass: { popup: 'rounded-2xl' }
+        });
+        return;
     }
 
     setSubmitting(true);
@@ -469,9 +501,9 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                     </button>
                     <div className={`absolute right-0 mt-2 w-48 sm:w-52 bg-white dark:bg-neutral-800 rounded-2xl shadow-xl border border-neutral-100 dark:border-neutral-700 z-50 overflow-hidden transform transition-all origin-top-right ${isDownloadOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 hidden'}`}>
                         <div className="p-1.5">
-                            <a href="#" className="flex items-center px-3.5 py-3 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-xl transition-colors font-medium"><div className="bg-blue-50 dark:bg-blue-900/30 text-blue-500 p-2 rounded-lg mr-3"><FileText className="w-4 h-4" /></div> โครงร่าง (Proposal)</a>
-                            <a href="#" className="flex items-center px-3.5 py-3 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-xl transition-colors font-medium"><div className="bg-purple-50 dark:bg-purple-900/30 text-purple-500 p-2 rounded-lg mr-3"><TrendingUp className="w-4 h-4" /></div> ความก้าวหน้า</a>
-                            <a href="#" className="flex items-center px-3.5 py-3 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-xl transition-colors font-medium"><div className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 p-2 rounded-lg mr-3"><CheckCircle2 className="w-4 h-4" /></div> ฉบับสมบูรณ์</a>
+                            <a href={FORM_DOWNLOAD_URLS.proposal} target="_blank" rel="noopener noreferrer" className="flex items-center px-3.5 py-3 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-xl transition-colors font-medium"><div className="bg-blue-50 dark:bg-blue-900/30 text-blue-500 p-2 rounded-lg mr-3"><FileText className="w-4 h-4" /></div> โครงร่าง (Proposal)</a>
+                            <a href={FORM_DOWNLOAD_URLS.progress} target="_blank" rel="noopener noreferrer" className="flex items-center px-3.5 py-3 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-xl transition-colors font-medium"><div className="bg-purple-50 dark:bg-purple-900/30 text-purple-500 p-2 rounded-lg mr-3"><TrendingUp className="w-4 h-4" /></div> ความก้าวหน้า</a>
+                            <a href={FORM_DOWNLOAD_URLS.final} target="_blank" rel="noopener noreferrer" className="flex items-center px-3.5 py-3 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 rounded-xl transition-colors font-medium"><div className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 p-2 rounded-lg mr-3"><CheckCircle2 className="w-4 h-4" /></div> ฉบับสมบูรณ์</a>
                             {/* <div className="h-px bg-neutral-100 dark:bg-neutral-700 my-1.5 mx-2"></div> */}
                         </div>
                     </div>
@@ -701,6 +733,27 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                 <h2 className="text-sm sm:text-base font-bold text-neutral-800 dark:text-white mb-4 sm:mb-5 border-b border-neutral-100 dark:border-neutral-800 pb-2.5 sm:pb-3.5 flex items-center">
                     <History className="w-5 h-5 sm:w-6 sm:h-6 mr-2.5 text-neutral-500 dark:text-neutral-400" /> ประวัติการส่งงานของกลุ่ม
                 </h2>
+
+                {submitting && rejectTypes.length > 0 && (
+                    <div className="w-full mb-4 rounded-xl sm:rounded-2xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
+                        <div className="px-4 pt-3.5 pb-2 flex items-center justify-between gap-3">
+                            <span className="text-xs font-bold text-neutral-600 dark:text-neutral-300 flex items-center gap-1.5 min-w-0 truncate">
+                                {uploadPct < 100
+                                  ? <svg className="animate-spin h-3.5 w-3.5 text-orange-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>
+                                  : <svg className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                }
+                                {uploadPct < 10 ? 'กำลังส่งไฟล์...' : uploadPct < 92 ? 'กำลังส่งไปยัง Google Drive...' : uploadPct < 100 ? 'กำลังบันทึกลง Drive...' : 'อัปโหลดสำเร็จ!'}
+                            </span>
+                            <span className="text-xs font-extrabold text-orange-500 flex-shrink-0">{uploadPct}%</span>
+                        </div>
+                        <div className="mx-4 mb-3.5 h-2.5 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
+                            <div
+                                className={`h-full rounded-full transition-all duration-500 ease-out ${uploadPct >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-orange-400 to-pink-500'}`}
+                                style={{ width: `${uploadPct}%` }}
+                            />
+                        </div>
+                    </div>
+                )}
                 
                 {loading ? (
                     <div className="text-center py-16 sm:py-20 text-sm text-neutral-500 flex flex-col items-center">
@@ -767,7 +820,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                                                     <div className="flex flex-col items-center">
                                                       <span className={`px-3.5 py-2 rounded-lg text-xs font-extrabold ${statusClass} inline-flex items-center whitespace-nowrap justify-center`}>{statusIcon} {statusText}</span>
                                                         {parsedStatus === 'ไม่อนุมัติ' && rejectTypes.includes(workType as WorkType) && (
-                                                            <button onClick={() => prepareResubmitPopup(workType as WorkType)} className="mt-2.5 w-full text-xs text-white bg-rose-500 hover:bg-rose-600 px-3 py-2.5 rounded-full flex items-center justify-center transition-all shadow-sm font-semibold btn-liquid"><CloudUpload className="w-4 h-4 mr-1.5 opacity-90" /> ส่งไฟล์แก้ไข</button>
+                                                            <button onClick={() => prepareResubmitPopup(workType as WorkType)} disabled={submitting} className="mt-2.5 w-full text-xs text-white bg-rose-500 hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed px-3 py-2.5 rounded-full flex items-center justify-center transition-all shadow-sm font-semibold btn-liquid"><CloudUpload className="w-4 h-4 mr-1.5 opacity-90" /> ส่งไฟล์แก้ไข</button>
                                                         )}
                                                     </div>
                                                 </td>

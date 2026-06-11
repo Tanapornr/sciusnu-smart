@@ -247,6 +247,12 @@ export async function uploadFileDirect(
     const text = await res.text();
     let msg = `HTTP ${res.status}`;
     try { msg = JSON.parse(text).message ?? msg; } catch { /* noop */ }
+
+    if (res.status === 413) {
+      const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+      msg = `ไฟล์มีขนาดใหญ่เกินไป (${sizeMB} MB) — ระบบรองรับไฟล์สูงสุด 25 MB กรุณาบีบอัดหรือลดขนาดไฟล์แล้วลองใหม่`;
+    }
+
     throw new Error(msg);
   }
 
@@ -319,5 +325,3 @@ export async function uploadFileDirect(
 export async function uploadFileToDrive(file: File, fileName: string, onProgress?: (pct: number) => void): Promise<string> {
   return uploadFileDirect(file, fileName, onProgress);
 }
-
-
