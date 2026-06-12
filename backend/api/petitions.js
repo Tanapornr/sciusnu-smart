@@ -8,6 +8,7 @@ const { getSheetValues, appendRow, updateRowCells } = require("../lib/sheets");
 const { sendMail, buildFlexEmailHtml, WEB_URL } = require("../lib/mail");
 const { getGroupInfo, normalizeEmail, ADMIN_EMAILS } = require("../lib/helpers");
 const { requireAuth, requireRole } = require("../lib/auth");
+const { getAllSettings, getWindowStatus } = require("../lib/settings");
 
 // ── Column indices for PETITIONS sheet ──────────────────────────
 // petition_id | project_code | project_name | petition_type | requester_role |
@@ -243,6 +244,19 @@ async function createPetition(req, res) {
     }
 
     const petitionTypeNum = Number(petition_type);
+
+    // ── Date-window guard: types 1/2/3 (เพิ่ม/ถอดถอนอาจารย์ที่ปรึกษา) ──
+    if ([1, 2, 3].includes(petitionTypeNum)) {
+      const settings = await getAllSettings();
+      const setting  = settings.petition_advisor;
+      const { isOpen, hasLimit } = getWindowStatus(setting);
+      if (hasLimit && !isOpen) {
+        return res.status(400).json({
+          status: "error",
+          message: "ขณะนี้ไม่อยู่ในช่วงเวลาที่เปิดให้ยื่นคำร้องเพิ่ม/ถอดถอนอาจารย์ที่ปรึกษา",
+        });
+      }
+    }
 
     // For type 1 (add university coadvisor) or type 2 (add school coadvisor),
     // the new advisor's info comes from the petition payload, not the sheet.

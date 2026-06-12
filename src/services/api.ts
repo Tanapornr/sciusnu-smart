@@ -15,6 +15,8 @@ import type {
   ProfilePayload,
   DriveUploadUrlPayload,
   DriveUploadUrlResponse,
+  SettingsResponse,
+  SettingsUpdatePayload,
   // DriveUploadResponse,
 } from '../types';
 
@@ -152,6 +154,21 @@ export async function apiUpdateAdvisorPassword(payload: {
   newPassword: string;
 }): Promise<{ status: string; message?: string }> {
   return apiFetch('/api/advisor-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+}
+
+// ── Settings (open/close date windows) ───────────────────────────
+// GET /api/settings — any authenticated user
+export async function apiGetSettings(): Promise<SettingsResponse> {
+  return apiFetch<SettingsResponse>('/api/settings');
+}
+
+// POST /api/settings — admin only
+export async function apiUpdateSettings(payload: SettingsUpdatePayload): Promise<SettingsResponse> {
+  return apiFetch<SettingsResponse>('/api/settings', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
