@@ -196,6 +196,7 @@ export async function uploadFileDirect(
   file: File,
   fileName: string,
   onProgress?: (pct: number) => void,
+  uploadMeta?: { workType?: string; isResubmit?: boolean },
 ): Promise<string> {
   const token = getToken();
 
@@ -242,6 +243,8 @@ export async function uploadFileDirect(
     'X-File-Name': encodeURIComponent(fileName),
     'X-File-Type': file.type || 'application/pdf',
   };
+  if (uploadMeta?.workType) headers['X-Work-Type'] = encodeURIComponent(uploadMeta.workType);
+  if (uploadMeta?.isResubmit) headers['X-Is-Resubmit'] = '1';
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
   let res: Response;
@@ -339,6 +342,11 @@ export async function uploadFileDirect(
   }
 }
 
-export async function uploadFileToDrive(file: File, fileName: string, onProgress?: (pct: number) => void): Promise<string> {
-  return uploadFileDirect(file, fileName, onProgress);
+export async function uploadFileToDrive(
+  file: File,
+  fileName: string,
+  onProgress?: (pct: number) => void,
+  uploadMeta?: { workType?: string; isResubmit?: boolean },
+): Promise<string> {
+  return uploadFileDirect(file, fileName, onProgress, uploadMeta);
 }

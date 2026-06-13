@@ -295,6 +295,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
               formValues.rFile,
               `${projectInfo.projectId}_${type}_file1`,
               setUploadPct,
+              { workType: type as string, isResubmit: true },
             );
             
             const payload = {
@@ -382,6 +383,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
         file1,
         `${projectInfo.projectId}_${selectedWorkType}_file1`,
         setUploadPct,
+        { workType: selectedWorkType as string, isResubmit: rejectTypes.length > 0 },
       );
       
       const payload = {
