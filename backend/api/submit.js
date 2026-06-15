@@ -30,11 +30,22 @@ async function handler(req, res) {
     // Skipped for resubmissions of previously-rejected work (data.reason
     // set by the "ส่งไฟล์แก้ไข" flow) so students can always fix issues
     // an advisor flagged, even outside the open window.
+    //
+    // GRACE PERIOD: The file upload to Drive (/api/drive-upload) already
+    // validates the deadline using the server clock BEFORE any bytes are
+    // sent. If the student clicked "submit" just before the deadline,
+    // the upload may take several minutes (chunked transfer). By the
+    // time this /api/submit endpoint is called to record the submission,
+    // the deadline may have just passed — but the file is already on
+    // Drive.  We add a 15-minute grace period so these legitimate
+    // submissions are still recorded.
+    const GRACE_MS = 15 * 60 * 1000; // 15 minutes
     const settingKey = WORK_TYPE_SETTING_KEY[String(data.workType || "").trim()];
     if (settingKey && !data.reason) {
       const settings = await getAllSettings();
       const setting  = settings[settingKey];
-      const { isOpen, hasLimit } = getWindowStatus(setting);
+      const graceTime = new Date(Date.now() - GRACE_MS);
+      const { isOpen, hasLimit } = getWindowStatus(setting, graceTime);
       if (hasLimit && !isOpen) {
         return res.status(400).json({
           status: "error",
