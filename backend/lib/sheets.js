@@ -13,6 +13,7 @@ const { withCache, invalidate } = require("./sheetCache");
 // ── Apps Script relay ────────────────────────────────────────────
 const RELAY_URL    = process.env.APPS_SCRIPT_URL;
 const RELAY_SECRET = process.env.APPS_SCRIPT_SECRET;
+const GS_MAIN_TABLE_NAME = process.env.GS_MAIN_TABLE_NAME;
 
 async function callRelay(payload) {
   if (!RELAY_URL) throw new Error("APPS_SCRIPT_URL is not configured");
@@ -58,7 +59,7 @@ async function getSheetsClient() {
  * @param {string} sheetName  - Sheet tab name
  * @param {string|null} range - Optional A1 range, e.g. "A:U". Defaults to full sheet.
  */
-async function getSheetValues(sheetName = "TEST_DEV", range = null) {
+async function getSheetValues(sheetName = GS_MAIN_TABLE_NAME, range = null) {
   const cacheKey = `sheet:${sheetName}:${range ?? "all"}`;
 
   return withCache(cacheKey, 60_000, async () => {

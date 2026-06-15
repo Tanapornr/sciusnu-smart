@@ -7,6 +7,7 @@ const { getGroupInfo, getPayloadReason, INITIAL_SUBMISSION_STATUS, ADMIN_EMAILS 
 const { requireRole } = require("../lib/auth");
 const { getAllSettings, getWindowStatus } = require("../lib/settings");
 
+const GS_MAIN_TABLE_NAME = process.env.GS_MAIN_TABLE_NAME;
 const WORK_TYPE_SETTING_KEY = {
   "โครงร่าง (Proposal)":     "submission_proposal",
   "รายงานความก้าวหน้า":      "submission_progress",
@@ -22,7 +23,7 @@ async function handler(req, res) {
     // { studentId, firstName, lastName, projectId, workType,
     //   advisorName, file1Url, file2Url?, reason? }
 
-    const projectRows = await getSheetValues("TEST_DEV");
+    const projectRows = await getSheetValues(GS_MAIN_TABLE_NAME);
     const subRows     = await getSheetValues("Submissions");
     const headers     = subRows[0] || [];
 

@@ -9,6 +9,7 @@ const { sendMail, buildFlexEmailHtml, WEB_URL } = require("../lib/mail");
 const { getGroupInfo, normalizeEmail, ADMIN_EMAILS } = require("../lib/helpers");
 const { requireAuth, requireRole } = require("../lib/auth");
 const { getAllSettings, getWindowStatus } = require("../lib/settings");
+const GS_MAIN_TABLE_NAME = process.env.GS_MAIN_TABLE_NAME;
 
 // ── Column indices for PETITIONS sheet ──────────────────────────
 // petition_id | project_code | project_name | petition_type | requester_role |
@@ -271,7 +272,7 @@ async function createPetition(req, res) {
     }
 
     // Fetch project data to build approval chain
-    const projectRows = await getSheetValues("TEST_DEV");
+    const projectRows = await getSheetValues(GS_MAIN_TABLE_NAME);
 
     let groupInfo;
     if (user.role === "student") {
@@ -612,7 +613,7 @@ async function handlePostApproval(petition, payload) {
 }
 
 async function updateProjectName(projectCode, nameTH, nameEN) {
-  const rows = await getSheetValues("TEST_DEV");
+  const rows = await getSheetValues(GS_MAIN_TABLE_NAME);
   const headers = rows[0] || [];
   const hProj = headers.findIndex(h => String(h).includes("รหัสโครงงาน"));
   const hNameTH = headers.findIndex(h => String(h).trim().startsWith("ชื่อโครงงาน"));
@@ -624,13 +625,13 @@ async function updateProjectName(projectCode, nameTH, nameEN) {
     if (rowCode === normCode) {
       const updates = [];
       if (nameTH && hNameTH !== -1) updates.push({ col: hNameTH + 1, value: nameTH });
-      if (updates.length) await updateRowCells("TEST_DEV", i + 1, updates);
+      if (updates.length) await updateRowCells(GS_MAIN_TABLE_NAME, i + 1, updates);
     }
   }
 }
 
 async function updateProjectField(projectCode, newField) {
-  const rows = await getSheetValues("TEST_DEV");
+  const rows = await getSheetValues(GS_MAIN_TABLE_NAME);
   const headers = rows[0] || [];
   const hProj = headers.findIndex(h => String(h).includes("รหัสโครงงาน"));
   const hField = headers.findIndex(h => String(h).includes("สาขา") || String(h).includes("field"));
@@ -640,7 +641,7 @@ async function updateProjectField(projectCode, newField) {
   for (let i = 1; i < rows.length; i++) {
     const rowCode = String(rows[i][hProj] || "").replace(/\s+/g, "").toUpperCase();
     if (rowCode === normCode) {
-      await updateRowCells("TEST_DEV", i + 1, [{ col: hField + 1, value: newField }]);
+      await updateRowCells(GS_MAIN_TABLE_NAME, i + 1, [{ col: hField + 1, value: newField }]);
     }
   }
 }

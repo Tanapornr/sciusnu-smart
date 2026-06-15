@@ -6,6 +6,7 @@
 require("dotenv").config();
 const { getSheetValues, updateCell } = require("../lib/sheets");
 const { requireRole }                = require("../lib/auth");
+const GS_MAIN_TABLE_NAME = process.env.GS_MAIN_TABLE_NAME;
 
 async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
@@ -25,7 +26,7 @@ async function handler(req, res) {
     else if (role === "advisor") { emailCol = 12; passCol = 22; }
     else return res.status(403).json({ status: "error", message: "สถานะอาจารย์ไม่ถูกต้อง" });
 
-    const rows = await getSheetValues("TEST_DEV");
+    const rows = await getSheetValues(GS_MAIN_TABLE_NAME);
     let found = false;
 
     for (let i = 1; i < rows.length; i++) {
@@ -33,7 +34,7 @@ async function handler(req, res) {
         if ((rows[i][passCol] || "").trim() !== String(oldPassword).trim()) {
           return res.status(400).json({ status: "error", message: "รหัสผ่านเดิมไม่ถูกต้อง" });
         }
-        await updateCell("TEST_DEV", i + 1, passCol + 1, "'" + newPassword);
+        await updateCell(GS_MAIN_TABLE_NAME, i + 1, passCol + 1, "'" + newPassword);
         found = true;
       }
     }

@@ -22,6 +22,7 @@ const {
   normalizeCompare,
   INITIAL_SUBMISSION_STATUS,
 } = require("../lib/helpers");
+const GS_MAIN_TABLE_NAME = process.env.GS_MAIN_TABLE_NAME;
 
 const handler = guard(async (req, res) => {
   if (req.method !== "GET") return fail(res, "Method not allowed", 405);
@@ -29,7 +30,7 @@ const handler = guard(async (req, res) => {
   await ensureSubmissionsSheet();
 
   // ── Partial fetch: only columns A–X (24 cols) for main project data.
-  const projectRows = await getSheetValues("TEST_DEV", "A:X");
+  const projectRows = await getSheetValues(GS_MAIN_TABLE_NAME, "A:X");
   const subRows     = await getSheetValues("Submissions");
 
   // Strip password columns using the central model (no Thai strings here)

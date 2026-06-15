@@ -5,6 +5,7 @@
 require("dotenv").config();
 const { getSheetValues, updateCell } = require("../lib/sheets");
 const { requireAuth }                = require("../lib/auth");
+const GS_MAIN_TABLE_NAME = process.env.GS_MAIN_TABLE_NAME;
 
 async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
@@ -14,7 +15,7 @@ async function handler(req, res) {
     // Email always comes from the JWT — never trust client-supplied email
     const email = req.jwtUser.email;
 
-    const rows     = await getSheetValues("TEST_DEV");
+    const rows     = await getSheetValues(GS_MAIN_TABLE_NAME);
     const emailIdx = 0, passIdx = 18, phoneIdx = 19, picIdx = 20;
 
     let found = false;
@@ -25,10 +26,10 @@ async function handler(req, res) {
             return res.status(400).json({ status: "error",
               message: "รหัสผ่านเดิมไม่ถูกต้อง กรุณาลองใหม่" });
           }
-          await updateCell("TEST_DEV", i + 1, passIdx + 1, + newPassword);
+          await updateCell(GS_MAIN_TABLE_NAME, i + 1, passIdx + 1, + newPassword);
         }
-        if (phone)      await updateCell("TEST_DEV", i + 1, phoneIdx + 1, "'" + phone);
-        if (profileUrl) await updateCell("TEST_DEV", i + 1, picIdx   + 1, profileUrl);
+        if (phone)      await updateCell(GS_MAIN_TABLE_NAME, i + 1, phoneIdx + 1, "'" + phone);
+        if (profileUrl) await updateCell(GS_MAIN_TABLE_NAME, i + 1, picIdx   + 1, profileUrl);
         found = true;
         break;
       }
