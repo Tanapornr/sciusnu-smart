@@ -52,7 +52,9 @@ export default function PetitionApproveByToken() {
     apiGetPetitionByToken(token)
       .then((info) => {
         setPetition(info);
-        if (info.already_actioned) {
+        if (info.petition_status === 'เสร็จสิ้น' || info.petition_status === 'ปฏิเสธ') {
+          setPageState('already_done');
+        } else if (info.already_actioned) {
           setPageState('already_done');
         } else if (info.active_stage !== 'advisors') {
           setPageState('waiting');
@@ -112,13 +114,18 @@ export default function PetitionApproveByToken() {
   }
 
   if (pageState === 'waiting') {
+    const waitingMsg = petition?.active_stage === 'students'
+      ? 'รอให้นักเรียนทุกคนอนุมัติก่อน'
+      : petition?.active_stage === 'admin'
+        ? 'คำร้องอยู่ในขั้นตอนของผู้ดูแลระบบแล้ว'
+        : 'รอขั้นตอนก่อนหน้าให้ครบก่อน';
     return (
       <PageShell>
         <div className="token-status-card">
           <Clock size={48} className="token-status-icon yellow" />
           <h2 className="token-status-title">ยังไม่ถึงขั้นตอนของคุณ</h2>
           <p className="token-status-text muted">
-            รอให้นักเรียนอนุมัติก่อน
+            {waitingMsg}
             <br />ระบบจะส่งอีเมลแจ้งให้คุณทราบเมื่อถึงขั้นตอนของคุณ
           </p>
         </div>
@@ -127,13 +134,18 @@ export default function PetitionApproveByToken() {
   }
 
   if (pageState === 'already_done') {
+    const petStatus = petition?.petition_status;
+    const isFinished = petStatus === 'เสร็จสิ้น' || petStatus === 'ปฏิเสธ';
     return (
       <PageShell>
         <div className="token-status-card">
           <CheckCircle size={48} className="token-status-icon green" />
-          <h2 className="token-status-title">ดำเนินการแล้ว</h2>
+          <h2 className="token-status-title">{isFinished ? 'คำร้องสิ้นสุดแล้ว' : 'ดำเนินการแล้ว'}</h2>
           <p className="token-status-text muted">
-            คุณได้ <strong>{petition?.my_status}</strong> คำร้องนี้เรียบร้อยแล้ว
+            {isFinished
+              ? <>คำร้องนี้ <strong>{petStatus}</strong> เรียบร้อยแล้ว</>
+              : <>คุณได้ <strong>{petition?.my_status}</strong> คำร้องนี้เรียบร้อยแล้ว</>
+            }
           </p>
         </div>
       </PageShell>

@@ -259,18 +259,6 @@ async function createPetition(req, res) {
       }
     }
 
-    // For type 1 (add university coadvisor) or type 2 (add school coadvisor),
-    // the new advisor's info comes from the petition payload, not the sheet.
-    // Inject it into groupInfo so buildApprovalChain picks it up.
-    if (petitionTypeNum === 1 && payload?.newCoAdvEmail) {
-      groupInfo.coAdvEmail = payload.newCoAdvEmail.trim().toLowerCase();
-      groupInfo.coAdvName  = payload.newCoAdvName  || payload.newCoAdvEmail;
-    }
-    if (petitionTypeNum === 2 && payload?.newSchAdvEmail) {
-      groupInfo.schAdvEmail = payload.newSchAdvEmail.trim().toLowerCase();
-      groupInfo.schAdvName  = payload.newSchAdvName  || payload.newSchAdvEmail;
-    }
-
     // Fetch project data to build approval chain
     const projectRows = await getSheetValues(GS_MAIN_TABLE_NAME);
 
@@ -287,6 +275,8 @@ async function createPetition(req, res) {
     }
 
     // ── Guard: block if the co-advisor slot is already filled in the sheet ──
+    // (Check BEFORE injecting the new advisor from payload — groupInfo still
+    //  reflects the sheet at this point, so a non-empty slot means it is taken.)
     if (petitionTypeNum === 1 && groupInfo.coAdvEmail) {
       return res.status(400).json({
         status: "error",
@@ -298,6 +288,26 @@ async function createPetition(req, res) {
         status: "error",
         message: `โครงงานนี้มีอาจารย์ที่ปรึกษาโรงเรียนอยู่แล้ว (${groupInfo.schAdvName || groupInfo.schAdvEmail}) ไม่สามารถเพิ่มได้อีก`,
       });
+    }
+
+    // For type 1 (add university coadvisor) or type 2 (add school coadvisor),
+    // inject the new advisor's info from the petition payload into groupInfo
+    // so buildApprovalChain picks them up as a chain step.
+    if (petitionTypeNum === 1) {
+      const coAdvEmail = payload?.advisorEmail || payload?.newCoAdvEmail;
+      const coAdvName  = payload?.advisorName  || payload?.newCoAdvName;
+      if (coAdvEmail) {
+        groupInfo.coAdvEmail = coAdvEmail.trim().toLowerCase();
+        groupInfo.coAdvName  = coAdvName  || coAdvEmail;
+      }
+    }
+    if (petitionTypeNum === 2) {
+      const schAdvEmail = payload?.schoolAdvisorEmail || payload?.newSchAdvEmail;
+      const schAdvName  = payload?.schoolAdvisorName  || payload?.newSchAdvName;
+      if (schAdvEmail) {
+        groupInfo.schAdvEmail = schAdvEmail.trim().toLowerCase();
+        groupInfo.schAdvName  = schAdvName  || schAdvEmail;
+      }
     }
 
     // After fetching projectRows:
@@ -689,6 +699,7 @@ async function handleTokenApproval(req, res) {
       const encryptedSig = encryptSignature(signature);
 
       const roleColMap = {
+        advisor:    { status: COL.advisor_status,    note: COL.advisor_note,    sig: COL.advisor_signature,    time: COL.advisor_time },
         coadvisor1: { status: COL.coadvisor1_status, note: COL.coadvisor1_note, sig: COL.coadvisor1_signature, time: COL.coadvisor1_time },
         coadvisor2: { status: COL.coadvisor2_status, note: COL.coadvisor2_note, sig: COL.coadvisor2_signature, time: COL.coadvisor2_time },
       };
