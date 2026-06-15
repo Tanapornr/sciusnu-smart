@@ -242,6 +242,23 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
   };
 
   const prepareResubmitPopup = async (type: WorkType) => {
+    // ── Block resubmits outside the open window (same rule as new submissions) ──
+    if (settings) {
+      const key = WORK_TYPE_SETTING_KEY[type];
+      const win = key ? settings[key] : undefined;
+      if (win?.hasLimit && !win.isOpen) {
+        Swal.fire({
+          icon: 'error',
+          title: '<div class="font-bold text-sm sm:text-base">ปิดรับการส่งงานนี้แล้ว</div>',
+          html: `<span class="text-xs sm:text-sm">ขณะนี้ไม่อยู่ในช่วงเวลาที่เปิดให้ส่ง <b>${type}</b> จึงไม่สามารถส่งไฟล์แก้ไขได้</span>`,
+          confirmButtonText: 'ตกลง',
+          confirmButtonColor: '#e11d48',
+          customClass: { popup: 'rounded-[1.5rem]' }
+        });
+        return;
+      }
+    }
+
     const previousRejectReason = getSubmissionReason((submissions.filter(s => s['ประเภทงาน'] === type).pop() || {}) as any);
     const previousReasonHtml = previousRejectReason
         ? `<div class="text-left bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/60 text-rose-800 dark:text-rose-300 p-3 rounded-xl mb-3 text-xs leading-relaxed"><div class="font-bold mb-1">หมายเหตุที่ต้องแก้ไข</div></div>`
@@ -504,9 +521,8 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
   };
 
   const selectedWindow = getWorkTypeWindow(selectedWorkType);
-  // Only block NEW submissions outside the window — resubmits of rejected
-  // work (rejectTypes flow) are always allowed regardless of date.
-  const selectedTypeClosed = rejectTypes.length === 0 && !!selectedWindow && !selectedWindow.isOpen;
+  // Block ALL submissions (including resubmits) outside the open window.
+  const selectedTypeClosed = !!selectedWindow && !selectedWindow.isOpen;
 
   return (
     <div className="pb-10 app-shell transition-colors">
@@ -742,7 +758,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                               : <CalendarX2 className="w-4.5 h-4.5 mt-0.5 flex-shrink-0 opacity-80" />
                             }
                             <div>
-                                <div className="font-bold">{selectedWindow.isOpen ? 'เปิดรับการส่งงานนี้' : (rejectTypes.length > 0 ? 'นอกช่วงเวลาที่เปิดรับ (อนุญาตส่งแก้ไขได้)' : 'ปิดรับการส่งงานนี้แล้ว')}</div>
+                                <div className="font-bold"> {selectedWindow.isOpen ? 'เปิดรับการส่งงานนี้' : 'ปิดรับการส่งงานนี้แล้ว' }</div>
                                 <div className="mt-0.5 opacity-90">
                                     {selectedWindow.openAt && <>เปิด: {formatDateTimeTH(selectedWindow.openAt).date} {formatDateTimeTH(selectedWindow.openAt).time}</>}
                                     {selectedWindow.openAt && selectedWindow.closeAt && '  —  '}
@@ -893,9 +909,14 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                                                 <td className="text-center align-middle py-4 sm:py-5 px-2">
                                                     <div className="flex flex-col items-center">
                                                       <span className={`px-3.5 py-2 rounded-lg text-xs font-extrabold ${statusClass} inline-flex items-center whitespace-nowrap justify-center`}>{statusIcon} {statusText}</span>
-                                                        {parsedStatus === 'ไม่อนุมัติ' && rejectTypes.includes(workType as WorkType) && (
-                                                            <button onClick={() => prepareResubmitPopup(workType as WorkType)} disabled={submitting} className="mt-2.5 w-full text-xs text-white bg-rose-500 hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed px-3 py-2.5 rounded-full flex items-center justify-center transition-all shadow-sm font-semibold btn-liquid"><CloudUpload className="w-4 h-4 mr-1.5 opacity-90" /> ส่งไฟล์แก้ไข</button>
-                                                        )}
+                                                        {parsedStatus === 'ไม่อนุมัติ' && rejectTypes.includes(workType as WorkType) && (() => {
+                                                            const wKey = WORK_TYPE_SETTING_KEY[workType as WorkType];
+                                                            const wWin = wKey && settings ? settings[wKey] : undefined;
+                                                            const windowClosed = !!wWin?.hasLimit && !wWin.isOpen;
+                                                            return windowClosed
+                                                              ? <div className="mt-2.5 w-full text-xs text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-3 py-2.5 rounded-full flex items-center justify-center font-semibold border border-neutral-200 dark:border-neutral-700"><CalendarX2 className="w-4 h-4 mr-1.5 opacity-70" /> ปิดรับงานแล้ว</div>
+                                                              : <button onClick={() => prepareResubmitPopup(workType as WorkType)} disabled={submitting} className="mt-2.5 w-full text-xs text-white bg-rose-500 hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed px-3 py-2.5 rounded-full flex items-center justify-center transition-all shadow-sm font-semibold btn-liquid"><CloudUpload className="w-4 h-4 mr-1.5 opacity-90" /> ส่งไฟล์แก้ไข</button>;
+                                                        })()}
                                                     </div>
                                                 </td>
                                                 <td className="text-left align-middle py-4 sm:py-5 px-3 sm:px-4">{reasonHtml}</td>

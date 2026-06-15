@@ -27,9 +27,8 @@ async function handler(req, res) {
     const headers     = subRows[0] || [];
 
     // ── Date-window guard: โครงร่าง / ความก้าวหน้า / ฉบับสมบูรณ์ ──
-    // Skipped for resubmissions of previously-rejected work (data.reason
-    // set by the "ส่งไฟล์แก้ไข" flow) so students can always fix issues
-    // an advisor flagged, even outside the open window.
+    // Blocks ALL submissions (including resubmits of rejected work)
+    // once the submission window has closed.
     //
     // GRACE PERIOD: The file upload to Drive (/api/drive-upload) already
     // validates the deadline using the server clock BEFORE any bytes are
@@ -41,7 +40,7 @@ async function handler(req, res) {
     // submissions are still recorded.
     const GRACE_MS = 15 * 60 * 1000; // 15 minutes
     const settingKey = WORK_TYPE_SETTING_KEY[String(data.workType || "").trim()];
-    if (settingKey && !data.reason) {
+    if (settingKey) {
       const settings = await getAllSettings();
       const setting  = settings[settingKey];
       const graceTime = new Date(Date.now() - GRACE_MS);

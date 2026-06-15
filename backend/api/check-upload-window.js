@@ -29,12 +29,12 @@ const WORK_TYPE_SETTING_KEY = {
 async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const { workType, isResubmit } = req.body || {};
+  const { workType } = req.body || {};
   const workTypeStr = String(workType || "").trim();
 
   // No workType header or unknown type → nothing to gate, allow
   const settingKey = WORK_TYPE_SETTING_KEY[workTypeStr];
-  if (!settingKey || isResubmit) {
+  if (!settingKey) {
     return res.json({ allowed: true });
   }
 
