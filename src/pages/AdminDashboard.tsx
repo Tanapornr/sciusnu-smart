@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { apiUpdateStatus } from '../services/api';
+import { apiUpdateStatus, apiGetSettings, apiUpdateSettings } from '../services/api';
 import { useProjectData } from '../hooks/useProjectData';
 import {
   formatDateTimeTH,
   escapeHtml
 } from '../utils';
-import type { SubmissionRow, ProjectRow, WorkType } from '../types';
+import type { SubmissionRow, ProjectRow, WorkType, SettingsMap, SettingKey } from '../types';
 import {
   Search,
   Check,
@@ -23,6 +23,9 @@ import {
   CheckCircle,
   XCircle,
   Clock,
+  CalendarClock,
+  Save,
+  RotateCcw,
   } from 'lucide-react';
 import Swal from 'sweetalert2';
 import PetitionDashboard from './PetitionDashboard';
@@ -47,6 +50,99 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
     setProjectRows(rawData.projects || []);
     setSubmissions(rawData.submissions || []);
   }, [rawData, dataLoading]);
+
+  // ── Date-window settings panel ────────────────────────────────
+  const [settings, setSettings] = useState<SettingsMap | null>(null);
+  const [settingsLoading, setSettingsLoading] = useState(true);
+  const [settingsSaving, setSettingsSaving] = useState(false);
+  // Local editable copy keyed by setting -> { openAt, closeAt } in
+  // <input type="datetime-local"> format (no trailing "Z", no seconds)
+  const [settingsForm, setSettingsForm] = useState<Record<string, { openAt: string; closeAt: string }>>({});
+
+  const SETTING_LABELS: Record<SettingKey, string> = {
+    petition_advisor:    'ยื่นคำร้องเพิ่ม/ถอดถอนอาจารย์ที่ปรึกษา',
+    submission_proposal: 'ส่งโครงร่าง (Proposal)',
+    submission_progress: 'ส่งรายงานความก้าวหน้า',
+    submission_final:    'ส่งรายงานฉบับสมบูรณ์',
+  };
+  const SETTING_KEY_ORDER: SettingKey[] = ['petition_advisor', 'submission_proposal', 'submission_progress', 'submission_final'];
+
+  // ISO datetime <-> <input type="datetime-local"> ("YYYY-MM-DDTHH:mm") conversion
+  const isoToLocalInput = (iso: string): string => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+  const localInputToIso = (local: string): string => {
+    if (!local) return '';
+    const d = new Date(local);
+    if (isNaN(d.getTime())) return '';
+    return d.toISOString();
+  };
+
+  const fetchSettings = async () => {
+    setSettingsLoading(true);
+    try {
+      const res = await apiGetSettings();
+      if (res.status === 'success') {
+        setSettings(res.settings);
+        const form: Record<string, { openAt: string; closeAt: string }> = {};
+        for (const key of SETTING_KEY_ORDER) {
+          const w = res.settings[key];
+          form[key] = { openAt: isoToLocalInput(w?.openAt || ''), closeAt: isoToLocalInput(w?.closeAt || '') };
+        }
+        setSettingsForm(form);
+      }
+    } catch (e: any) {
+      Swal.fire({ icon: 'error', title: 'โหลดการตั้งค่าไม่สำเร็จ', text: e.message, confirmButtonColor: '#f97316', customClass: { popup: 'swal-admin' } });
+    } finally {
+      setSettingsLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchSettings(); }, []);
+
+  const handleSettingsFieldChange = (key: SettingKey, field: 'openAt' | 'closeAt', value: string) => {
+    setSettingsForm(prev => ({ ...prev, [key]: { ...prev[key], [field]: value } }));
+  };
+
+  const handleClearSetting = (key: SettingKey) => {
+    setSettingsForm(prev => ({ ...prev, [key]: { openAt: '', closeAt: '' } }));
+  };
+
+  const handleSaveSettings = async () => {
+    // Validate: open must be before close, if both set
+    for (const key of SETTING_KEY_ORDER) {
+      const { openAt, closeAt } = settingsForm[key] || { openAt: '', closeAt: '' };
+      if (openAt && closeAt && new Date(openAt) > new Date(closeAt)) {
+        Swal.fire({ icon: 'warning', title: `${SETTING_LABELS[key]}: วันเปิดต้องมาก่อนวันปิด`, confirmButtonColor: '#f97316', customClass: { popup: 'swal-admin' } });
+        return;
+      }
+    }
+
+    setSettingsSaving(true);
+    try {
+      const updates: Record<string, { openAt: string; closeAt: string }> = {};
+      for (const key of SETTING_KEY_ORDER) {
+        const { openAt, closeAt } = settingsForm[key] || { openAt: '', closeAt: '' };
+        updates[key] = { openAt: localInputToIso(openAt), closeAt: localInputToIso(closeAt) };
+      }
+      const res = await apiUpdateSettings({ updates });
+      if (res.status === 'success') {
+        setSettings(res.settings);
+        Swal.fire({ icon: 'success', title: 'บันทึกการตั้งค่าเรียบร้อย!', showConfirmButton: false, timer: 1500, customClass: { popup: 'swal-admin' } });
+      } else {
+        throw new Error(res.message);
+      }
+    } catch (e: any) {
+      Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จ', text: e.message, confirmButtonColor: '#f97316', customClass: { popup: 'swal-admin' } });
+    } finally {
+      setSettingsSaving(false);
+    }
+  };
+
 
     
 
@@ -449,6 +545,94 @@ export default function AdminDashboard({ pageView, setPageView }: Props) {
                   </div>
               </>
           )}
+
+          {/* ── Date-window settings panel ──────────────────────── */}
+          <div className="glass-panel rounded-3xl p-4 sm:p-6 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-blue-500"></div>
+              <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-3 sm:mb-5 border-b border-slate-200 dark:border-neutral-700 pb-2 sm:pb-3 flex items-center ml-2">
+                  <CalendarClock className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-blue-500" /> ตั้งค่าวันเปิด/ปิดรับ
+              </h2>
+
+              {settingsLoading ? (
+                  <div className="text-center py-8 text-sm text-slate-500 flex flex-col items-center">
+                      <svg className="animate-spin h-6 w-6 text-blue-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                      กำลังโหลดการตั้งค่า...
+                  </div>
+              ) : (
+                  <div className="space-y-3 sm:space-y-4 ml-2">
+                      <p className="text-xs sm:text-sm text-slate-500 dark:text-neutral-400">
+                          กำหนดช่วงเวลาที่เปิดให้ยื่น/ส่งงานแต่ละประเภท หากเว้นว่างทั้งสองช่อง = ไม่จำกัดเวลา (เปิดตลอด)
+                          สำหรับงานที่ถูกตีกลับ (ไม่อนุมัติ) นักเรียนยังสามารถส่งไฟล์แก้ไขได้แม้อยู่นอกช่วงเวลาที่กำหนด
+                      </p>
+
+                      {SETTING_KEY_ORDER.map((key) => {
+                          const form = settingsForm[key] || { openAt: '', closeAt: '' };
+                          const win = settings?.[key];
+                          const hasLimit = !!(form.openAt || form.closeAt);
+                          return (
+                              <div key={key} className="p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-neutral-700 bg-slate-50/60 dark:bg-neutral-800/40">
+                                  <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+                                      <span className="font-bold text-sm text-slate-800 dark:text-white">{SETTING_LABELS[key]}</span>
+                                      {win && win.hasLimit && (
+                                          win.isOpen
+                                            ? <span className="px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">เปิดอยู่</span>
+                                            : <span className="px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400">ปิดอยู่</span>
+                                      )}
+                                      {win && !win.hasLimit && (
+                                          <span className="px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-slate-100 dark:bg-neutral-700 text-slate-500 dark:text-neutral-300">ไม่จำกัดเวลา</span>
+                                      )}
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                      <div>
+                                          <label className="block text-[11px] sm:text-xs font-semibold mb-1 text-slate-500 dark:text-neutral-400">วันเปิดรับ</label>
+                                          <input
+                                              type="datetime-local"
+                                              value={form.openAt}
+                                              onChange={(e) => handleSettingsFieldChange(key, 'openAt', e.target.value)}
+                                              className="w-full text-xs sm:text-sm rounded-xl p-2.5 sm:p-3 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-400"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-[11px] sm:text-xs font-semibold mb-1 text-slate-500 dark:text-neutral-400">วันปิดรับ</label>
+                                          <input
+                                              type="datetime-local"
+                                              value={form.closeAt}
+                                              onChange={(e) => handleSettingsFieldChange(key, 'closeAt', e.target.value)}
+                                              className="w-full text-xs sm:text-sm rounded-xl p-2.5 sm:p-3 border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-400"
+                                          />
+                                      </div>
+                                  </div>
+                                  {hasLimit && (
+                                      <button
+                                          type="button"
+                                          onClick={() => handleClearSetting(key)}
+                                          className="mt-2.5 inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-slate-500 hover:text-rose-500 transition-colors"
+                                      >
+                                          <RotateCcw className="w-3 h-3" /> ล้างวันที่ (ไม่จำกัดเวลา)
+                                      </button>
+                                  )}
+                              </div>
+                          );
+                      })}
+
+                      <div className="flex justify-end pt-1">
+                          <button
+                              type="button"
+                              onClick={handleSaveSettings}
+                              disabled={settingsSaving}
+                              className="btn-liquid inline-flex items-center gap-2 px-5 py-2.5 sm:py-3 rounded-xl font-bold text-sm text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 shadow-md shadow-blue-200/60 dark:shadow-blue-900/30 transition-colors"
+                          >
+                              {settingsSaving ? (
+                                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                              ) : (
+                                  <Save className="w-4 h-4" />
+                              )}
+                              บันทึกการตั้งค่า
+                          </button>
+                      </div>
+                  </div>
+              )}
+          </div>
 
       </div>
     </div>

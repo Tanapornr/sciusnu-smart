@@ -13,16 +13,45 @@
 require("dotenv").config();
 const { uploadFileToDrive } = require("../lib/drive");
 const { requireAuth }       = require("../lib/auth");
+const { getAllSettings, getWindowStatus } = require("../lib/settings");
+
+const WORK_TYPE_SETTING_KEY = {
+  "โครงร่าง (Proposal)":     "submission_proposal",
+  "รายงานความก้าวหน้า":      "submission_progress",
+  "รายงานฉบับสมบูรณ์":       "submission_final",
+};
 
 async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
   const fileName = decodeURIComponent(String(req.headers["x-file-name"] || ""));
   const mimeType = String(req.headers["x-file-type"] || "application/octet-stream");
+  const workType = decodeURIComponent(String(req.headers["x-work-type"] || "")).trim();
+  const isResubmit = String(req.headers["x-is-resubmit"] || "") === "1";
   const buffer   = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body || "");
 
   if (!fileName) return res.status(400).json({ status: "error", message: "fileName required" });
   if (!buffer.length) return res.status(400).json({ status: "error", message: "file body required" });
+
+  // ── Date-window guard (server clock — not affected by client-side
+  // clock manipulation). Blocks NEW report uploads to Drive once the
+  // submission window has closed. Resubmits of rejected work (flagged
+  // via X-Is-Resubmit) are always allowed, matching the /api/submit rule.
+  const settingKey = WORK_TYPE_SETTING_KEY[workType];
+  if (settingKey && !isResubmit) {
+    try {
+      const settings = await getAllSettings();
+      const { isOpen, hasLimit } = getWindowStatus(settings[settingKey]);
+      if (hasLimit && !isOpen) {
+        return res.status(403).json({
+          status: "error",
+          message: `ขณะนี้ไม่อยู่ในช่วงเวลาที่เปิดให้ส่ง "${workType}" — ไม่สามารถอัปโหลดไฟล์ได้`,
+        });
+      }
+    } catch (e) {
+      console.warn("[drive-upload] settings check failed, allowing upload:", e.message);
+    }
+  }
 
   // ── Open SSE stream ──────────────────────────────────────────────
   res.setHeader("Content-Type",      "text/event-stream");

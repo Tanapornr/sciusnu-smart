@@ -15,6 +15,8 @@ import type {
   ProfilePayload,
   DriveUploadUrlPayload,
   DriveUploadUrlResponse,
+  SettingsResponse,
+  SettingsUpdatePayload,
   // DriveUploadResponse,
 } from '../types';
 
@@ -158,6 +160,36 @@ export async function apiUpdateAdvisorPassword(payload: {
   });
 }
 
+// ── Settings (open/close date windows) ───────────────────────────
+// GET /api/settings — any authenticated user
+export async function apiGetSettings(): Promise<SettingsResponse> {
+  return apiFetch<SettingsResponse>('/api/settings');
+}
+
+// POST /api/settings — admin only
+export async function apiUpdateSettings(payload: SettingsUpdatePayload): Promise<SettingsResponse> {
+  return apiFetch<SettingsResponse>('/api/settings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+}
+
+// POST /api/check-upload-window — tiny pre-flight that asks the SERVER
+// (using server clock) whether the submission window is open.
+// Called BEFORE the client sends any file bytes — so if the window is
+// closed, zero bytes ever reach the server/Drive.
+export async function apiCheckUploadWindow(
+  workType: string,
+  isResubmit: boolean,
+): Promise<{ allowed: boolean; message?: string }> {
+  return apiFetch('/api/check-upload-window', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ workType, isResubmit }),
+  });
+}
+
 // ================================================================
 // uploadFileDirect
 // Uploads a file through the backend proxy (/api/drive-upload).
@@ -179,6 +211,7 @@ export async function uploadFileDirect(
   file: File,
   fileName: string,
   onProgress?: (pct: number) => void,
+  uploadMeta?: { workType?: string; isResubmit?: boolean },
 ): Promise<string> {
   const token = getToken();
 
@@ -225,6 +258,8 @@ export async function uploadFileDirect(
     'X-File-Name': encodeURIComponent(fileName),
     'X-File-Type': file.type || 'application/pdf',
   };
+  if (uploadMeta?.workType) headers['X-Work-Type'] = encodeURIComponent(uploadMeta.workType);
+  if (uploadMeta?.isResubmit) headers['X-Is-Resubmit'] = '1';
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
   let res: Response;
@@ -322,6 +357,25 @@ export async function uploadFileDirect(
   }
 }
 
-export async function uploadFileToDrive(file: File, fileName: string, onProgress?: (pct: number) => void): Promise<string> {
-  return uploadFileDirect(file, fileName, onProgress);
+export async function uploadFileToDrive(
+  file: File,
+  fileName: string,
+  onProgress?: (pct: number) => void,
+  uploadMeta?: { workType?: string; isResubmit?: boolean },
+): Promise<string> {
+  // ── Pre-flight: ask the server (using SERVER clock) whether the
+  // upload window is open BEFORE sending any file bytes. This is the
+  // primary security gate — changing the client device's date/time
+  // has zero effect since the check runs entirely on the server.
+  if (uploadMeta?.workType) {
+    const check = await apiCheckUploadWindow(
+      uploadMeta.workType,
+      uploadMeta.isResubmit ?? false,
+    );
+    if (!check.allowed) {
+      throw new Error(check.message ?? 'ปิดรับการส่งงานนี้แล้ว');
+    }
+  }
+
+  return uploadFileDirect(file, fileName, onProgress, uploadMeta);
 }

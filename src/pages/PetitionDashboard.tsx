@@ -1,19 +1,20 @@
-
 // ================================================================
 // pages/PetitionDashboard.tsx
 // ================================================================
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { apiListPetitions } from '../services/petitionApi';
+import { apiGetSettings } from '../services/api';
 import { formatDateTimeTH } from '../utils';
 import { exportViaPrint } from '../utils/exportPetitionPdf';
 import { apiGetPetition } from '../services/petitionApi';
 import type { Petition } from '../types/petition';
+import type { SettingWindow } from '../types';
 import { PETITION_TYPE_LABELS } from '../types/petition';
 import {
   Plus, ChevronRight, RefreshCw, LogOut, Moon, Sun,
   ClipboardList, Inbox, FileDown, Search, X, ChevronDown,
-  ArrowUpDown, SlidersHorizontal
+  ArrowUpDown, SlidersHorizontal, CalendarClock, CalendarX2
 } from 'lucide-react';
 import { Spinner } from '../components/ui';
 import CreatePetitionModal from '../components/petition/CreatePetitionModal';
@@ -75,6 +76,15 @@ export default function PetitionDashboard({ setPageView }: Props = {}) {
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const sortMenuRef = useRef<HTMLDivElement>(null);
+
+  // ── Open/close window for advisor add/remove petitions (type 1/2/3) ──
+  const [advisorWindow, setAdvisorWindow] = useState<SettingWindow | null>(null);
+
+  useEffect(() => {
+    apiGetSettings()
+      .then(res => { if (res.status === 'success') setAdvisorWindow(res.settings.petition_advisor); })
+      .catch(() => { /* non-critical — fall back to "always open" */ });
+  }, []);
 
   // Close sort menu on outside click
   useEffect(() => {
@@ -252,6 +262,37 @@ export default function PetitionDashboard({ setPageView }: Props = {}) {
             </button>
           )}
         </div>
+
+        {/* ── Notice: open/close window for advisor add/remove petitions ── */}
+        {advisorWindow && advisorWindow.hasLimit && (
+          <div className={`rounded-2xl border p-3.5 sm:p-4 flex items-start gap-3 text-xs sm:text-sm ${
+            advisorWindow.isOpen
+              ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900/50 text-blue-700 dark:text-blue-300'
+              : 'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300'
+          }`}>
+            {advisorWindow.isOpen
+              ? <CalendarClock className="w-5 h-5 mt-0.5 flex-shrink-0 opacity-80" />
+              : <CalendarX2 className="w-5 h-5 mt-0.5 flex-shrink-0 opacity-80" />
+            }
+            <div>
+              <p className="font-bold">
+                {advisorWindow.isOpen ? 'เปิดรับคำร้องเพิ่ม/ถอดถอนอาจารย์ที่ปรึกษา' : 'ปิดรับคำร้องเพิ่ม/ถอดถอนอาจารย์ที่ปรึกษาแล้ว'}
+              </p>
+              <p className="mt-0.5 opacity-90">
+                {advisorWindow.openAt && (
+                  <>เปิด: {formatDateTimeTH(advisorWindow.openAt).date} {formatDateTimeTH(advisorWindow.openAt).time}</>
+                )}
+                {advisorWindow.openAt && advisorWindow.closeAt && '  —  '}
+                {advisorWindow.closeAt && (
+                  <>ปิด: {formatDateTimeTH(advisorWindow.closeAt).date} {formatDateTimeTH(advisorWindow.closeAt).time}</>
+                )}
+              </p>
+              {!advisorWindow.isOpen && (
+                <p className="mt-1 opacity-90">คำร้องประเภทอื่น (เปลี่ยนชื่อ/สาขาโครงงาน, คำร้องอื่นๆ) ยังสามารถยื่นได้ตามปกติ</p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Stats cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

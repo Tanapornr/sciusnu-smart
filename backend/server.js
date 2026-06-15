@@ -16,6 +16,8 @@ const submit           = require("./api/submit");
 const status           = require("./api/status");
 const profile          = require("./api/profile");
 const advisorPassword  = require("./api/advisor-password");
+const settings         = require("./api/settings");
+const checkUploadWindow = require("./api/check-upload-window");
 const petitionsRouter  = require("./api/petitions"); // NEW
 
 const app = express();
@@ -74,6 +76,9 @@ app.post("/api/submit",             ...(Array.isArray(submit) ? submit : [submit
 app.post("/api/status",             ...(Array.isArray(status) ? status : [status]));
 app.post("/api/profile",            ...(Array.isArray(profile) ? profile : [profile]));
 app.post("/api/advisor-password",   ...(Array.isArray(advisorPassword) ? advisorPassword : [advisorPassword]));
+app.get( "/api/settings",            ...(Array.isArray(settings) ? settings : [settings]));
+app.post("/api/settings",            ...(Array.isArray(settings) ? settings : [settings]));
+app.post("/api/check-upload-window", ...(Array.isArray(checkUploadWindow) ? checkUploadWindow : [checkUploadWindow]));
 
 // ── Petition routes (NEW) ─────────────────────────────────────────
 app.use("/api/petitions", petitionsRouter);

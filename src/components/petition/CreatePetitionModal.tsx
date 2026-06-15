@@ -8,7 +8,9 @@ import { useAuthStore } from '../../store/authStore';
 import { useProjectData } from '../../hooks/useProjectData';
 import { parseProjectRow } from '../../utils';
 import { apiCreatePetition, apiApprovePetition } from '../../services/petitionApi';
+import { apiGetSettings } from '../../services/api';
 import type { PetitionType, PetitionPayload } from '../../types/petition';
+import type { SettingWindow } from '../../types';
 import { PETITION_TYPE_LABELS } from '../../types/petition';
 import { X, ChevronRight, ChevronLeft, Send, CheckCircle2 } from 'lucide-react';
 import SignaturePad from './SignaturePad';
@@ -45,6 +47,15 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
 
   const { data: rawData } = useProjectData();
   const [projectInfo, setProjectInfo] = useState<any>(null);
+
+  // ── Open/close window for advisor add/remove petitions (type 1/2/3) ──
+  const [advisorWindow, setAdvisorWindow] = useState<SettingWindow | null>(null);
+  useEffect(() => {
+    apiGetSettings()
+      .then(res => { if (res.status === 'success') setAdvisorWindow(res.settings.petition_advisor); })
+      .catch(() => { /* non-critical — fall back to "always open" */ });
+  }, []);
+  const advisorTypesClosed = !!advisorWindow?.hasLimit && !advisorWindow?.isOpen;
 
   useEffect(() => {
     if (rawData?.projects && user) {
@@ -194,15 +205,23 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
           {step === 1 && (
             <div className="space-y-2">
               <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">เลือกประเภทคำร้องที่ต้องการยื่น</p>
+              {advisorTypesClosed && (
+                <div className="mb-3 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-xs">
+                  ⚠ ขณะนี้ปิดรับคำร้องเพิ่ม/ถอดถอนอาจารย์ที่ปรึกษา คำร้องประเภทที่เกี่ยวข้องจึงถูกปิดใช้งานชั่วคราว
+                </div>
+              )}
               {([1, 2, 3, 4, 5, 6] as PetitionType[]).map(type => {
                 // Disable type 1 if university co-advisor slot is already filled
                 const disabledType1 = type === 1 && !!(projectInfo?.coAdvEmail);
                 // Disable type 2 if school co-advisor slot is already filled
                 const disabledType2 = type === 2 && !!(projectInfo?.schAdvEmail);
-                const isDisabled = disabledType1 || disabledType2;
+                // Disable types 1/2/3 if the admin has closed the advisor add/remove window
+                const disabledByWindow = [1, 2, 3].includes(type) && advisorTypesClosed;
+                const isDisabled = disabledType1 || disabledType2 || disabledByWindow;
                 const disabledReason =
                   disabledType1 ? `มีอาจารย์ที่ปรึกษาร่วมแล้ว: ${projectInfo?.coAdvName || projectInfo?.coAdvEmail}` :
                   disabledType2 ? `มีอาจารย์ที่ปรึกษาโรงเรียนแล้ว: ${projectInfo?.schAdvName || projectInfo?.schAdvEmail}` :
+                  disabledByWindow ? 'ปิดรับคำร้องประเภทนี้ในขณะนี้' :
                   '';
 
                 return (

@@ -181,3 +181,32 @@ export interface DriveUploadResponse {
   webViewLink?: string;
   message?: string;
 }
+
+// ── Open/close date-window settings ───────────────────────────────
+export type SettingKey =
+  | 'petition_advisor'
+  | 'submission_proposal'
+  | 'submission_progress'
+  | 'submission_final';
+
+export interface SettingWindow {
+  label: string;
+  openAt: string;   // ISO datetime, or "" = no lower bound
+  closeAt: string;  // ISO datetime, or "" = no upper bound
+  updatedBy?: string;
+  updatedAt?: string;
+  isOpen: boolean;
+  hasLimit: boolean;
+}
+
+export type SettingsMap = Record<SettingKey, SettingWindow>;
+
+export interface SettingsResponse {
+  status: 'success' | 'error';
+  settings: SettingsMap;
+  message?: string;
+}
+
+export interface SettingsUpdatePayload {
+  updates: Partial<Record<SettingKey, { openAt: string; closeAt: string }>>;
+}

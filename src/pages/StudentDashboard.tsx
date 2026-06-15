@@ -5,6 +5,7 @@ import {
   apiSubmit,
   apiUpdateProfile,
   uploadFileToDrive,
+  apiGetSettings,
 } from '../services/api';
 import { useProjectData } from '../hooks/useProjectData';
 import {
@@ -23,6 +24,7 @@ import type {
   GroupMember,
   SubmissionRow,
   WorkType,
+  SettingsMap,
 } from '../types';
 import {
   BookOpen,
@@ -57,7 +59,9 @@ import {
   AlertCircle,
   Smile,
   ChevronDown,
-  Clock
+  Clock,
+  CalendarClock,
+  CalendarX2
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import PetitionDashboard from './PetitionDashboard';
@@ -67,9 +71,16 @@ import type { PageView } from '../App';
 // ── Downloadable form templates (.docx) ──────────────────────────
 // Replace these with your actual Google Drive / hosted file URLs.
 const FORM_DOWNLOAD_URLS: Record<string, string> = {
-  proposal: 'https://docs.google.com/document/d/1CNu3RLyMV_5Ed2DGhpeBDqequcLaKOtr/edit?usp=sharing&ouid=105067184503016665340&rtpof=true&sd=true',
-  progress: 'https://docs.google.com/document/d/1gIe6IvtvNvH0-TKQYnt1YnwTW61Q97yp/edit?usp=sharing&ouid=105067184503016665340&rtpof=true&sd=true',
-  final:    'https://docs.google.com/document/d/1X6aaJXNvl_nWefa4jK5nKz7bQYtniQ2A/edit?usp=sharing&ouid=105067184503016665340&rtpof=true&sd=true',
+  proposal: 'https://drive.google.com/uc?export=download&id=YOUR_PROPOSAL_DOCX_ID',
+  progress: 'https://drive.google.com/uc?export=download&id=YOUR_PROGRESS_DOCX_ID',
+  final:    'https://drive.google.com/uc?export=download&id=YOUR_FINAL_DOCX_ID',
+};
+
+// Maps each work-type to its open/close setting key (see lib/settings.js)
+const WORK_TYPE_SETTING_KEY: Partial<Record<WorkType, keyof SettingsMap>> = {
+  'โครงร่าง (Proposal)':  'submission_proposal',
+  'รายงานความก้าวหน้า':   'submission_progress',
+  'รายงานฉบับสมบูรณ์':    'submission_final',
 };
 
 interface Props { pageView: PageView; setPageView: (v: PageView) => void; }
@@ -116,6 +127,14 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
 
     // Keep loading state in sync with hook
     useEffect(() => { setLoading(dataLoading); }, [dataLoading]);
+
+    // ── Open/close date windows for the 3 report submission types ──
+    const [settings, setSettings] = useState<SettingsMap | null>(null);
+    useEffect(() => {
+      apiGetSettings()
+        .then(res => { if (res.status === 'success') setSettings(res.settings); })
+        .catch(() => { /* non-critical — fall back to "always open" */ });
+    }, []);
 
     const [submitting, setSubmitting] = useState(false);
     const [uploadPct, setUploadPct] = useState(0);
@@ -276,6 +295,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
               formValues.rFile,
               `${projectInfo.projectId}_${type}_file1`,
               setUploadPct,
+              { workType: type as string, isResubmit: true },
             );
             
             const payload = {
@@ -326,6 +346,23 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
       return;
     }
 
+    // ── Date-window guard: block new submissions outside the open window ──
+    if (selectedWorkType && settings) {
+      const key = WORK_TYPE_SETTING_KEY[selectedWorkType as WorkType];
+      const win = key ? settings[key] : undefined;
+      if (win?.hasLimit && !win.isOpen) {
+        Swal.fire({
+            icon: 'error',
+            title: '<div class="font-bold text-sm sm:text-base">ปิดรับการส่งงานนี้แล้ว</div>',
+            html: `<span class="text-xs sm:text-sm">ขณะนี้ไม่อยู่ในช่วงเวลาที่เปิดให้ส่ง <b>${selectedWorkType}</b></span>`,
+            confirmButtonText: 'ตกลง',
+            confirmButtonColor: '#e11d48',
+            customClass: { popup: 'rounded-[1.5rem]' }
+        });
+        return;
+      }
+    }
+
     const MAX_SIZE = 25 * 1024 * 1024;
     if (file1.size > MAX_SIZE) {
         Swal.fire({
@@ -346,6 +383,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
         file1,
         `${projectInfo.projectId}_${selectedWorkType}_file1`,
         setUploadPct,
+        { workType: selectedWorkType as string, isResubmit: rejectTypes.length > 0 },
       );
       
       const payload = {
@@ -455,6 +493,20 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
       setAvatarPreview(URL.createObjectURL(file));
     }
   };
+
+  // Returns the SettingWindow for a work type, or null if no limit/unknown
+  const getWorkTypeWindow = (type: WorkType | '') => {
+    if (!type || !settings) return null;
+    const key = WORK_TYPE_SETTING_KEY[type as WorkType];
+    if (!key) return null;
+    const win = settings[key];
+    return win?.hasLimit ? win : null;
+  };
+
+  const selectedWindow = getWorkTypeWindow(selectedWorkType);
+  // Only block NEW submissions outside the window — resubmits of rejected
+  // work (rejectTypes flow) are always allowed regardless of date.
+  const selectedTypeClosed = rejectTypes.length === 0 && !!selectedWindow && !selectedWindow.isOpen;
 
   return (
     <div className="pb-10 app-shell transition-colors">
@@ -672,11 +724,33 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                             title={rejectTypes.length > 0 ? 'ระบบล็อกให้เลือกเฉพาะงานที่ต้องแก้ไข' : ''}
                         >
                             <option value="">-- กรุณาเลือก --</option>
-                            <option value="โครงร่าง (Proposal)">โครงร่าง (Proposal)</option>
-                            <option value="รายงานความก้าวหน้า">รายงานความก้าวหน้า</option>
-                            <option value="รายงานฉบับสมบูรณ์">รายงานฉบับสมบูรณ์</option>
+                            <option value="โครงร่าง (Proposal)" disabled={rejectTypes.length === 0 && !!settings?.submission_proposal?.hasLimit && !settings.submission_proposal.isOpen}>โครงร่าง (Proposal){rejectTypes.length === 0 && settings?.submission_proposal?.hasLimit && !settings.submission_proposal.isOpen ? ' (ปิดรับ)' : ''}</option>
+                            <option value="รายงานความก้าวหน้า" disabled={rejectTypes.length === 0 && !!settings?.submission_progress?.hasLimit && !settings.submission_progress.isOpen}>รายงานความก้าวหน้า{rejectTypes.length === 0 && settings?.submission_progress?.hasLimit && !settings.submission_progress.isOpen ? ' (ปิดรับ)' : ''}</option>
+                            <option value="รายงานฉบับสมบูรณ์" disabled={rejectTypes.length === 0 && !!settings?.submission_final?.hasLimit && !settings.submission_final.isOpen}>รายงานฉบับสมบูรณ์{rejectTypes.length === 0 && settings?.submission_final?.hasLimit && !settings.submission_final.isOpen ? ' (ปิดรับ)' : ''}</option>
                         </select>
                     </div>
+
+                    {/* ── Notice: open/close window for the selected work type ── */}
+                    {selectedWindow && (
+                        <div className={`p-3 sm:p-3.5 rounded-xl border text-xs sm:text-sm font-medium flex items-start gap-2.5 shadow-sm ${
+                            selectedWindow.isOpen
+                              ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900/50 text-blue-700 dark:text-blue-300'
+                              : 'bg-rose-50 dark:bg-rose-950/40 border-rose-100 dark:border-rose-900/50 text-rose-700 dark:text-rose-300'
+                        }`}>
+                            {selectedWindow.isOpen
+                              ? <CalendarClock className="w-4.5 h-4.5 mt-0.5 flex-shrink-0 opacity-80" />
+                              : <CalendarX2 className="w-4.5 h-4.5 mt-0.5 flex-shrink-0 opacity-80" />
+                            }
+                            <div>
+                                <div className="font-bold">{selectedWindow.isOpen ? 'เปิดรับการส่งงานนี้' : (rejectTypes.length > 0 ? 'นอกช่วงเวลาที่เปิดรับ (อนุญาตส่งแก้ไขได้)' : 'ปิดรับการส่งงานนี้แล้ว')}</div>
+                                <div className="mt-0.5 opacity-90">
+                                    {selectedWindow.openAt && <>เปิด: {formatDateTimeTH(selectedWindow.openAt).date} {formatDateTimeTH(selectedWindow.openAt).time}</>}
+                                    {selectedWindow.openAt && selectedWindow.closeAt && '  —  '}
+                                    {selectedWindow.closeAt && <>ปิด: {formatDateTimeTH(selectedWindow.closeAt).date} {formatDateTimeTH(selectedWindow.closeAt).time}</>}
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     <div className={`bg-rose-50 dark:bg-rose-950/40 p-4 rounded-xl border border-rose-100 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-xs sm:text-sm font-medium flex items-start shadow-sm ${rejectTypes.length > 0 ? '' : 'hidden'}`}>
                         <AlertTriangle className="w-5 h-5 mr-2.5 flex-shrink-0 mt-0.5 text-rose-500" />
@@ -718,8 +792,8 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                                 </div>
                             </div>
                         ) : (
-                            <button type="submit" className="w-full btn-liquid bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-3.5 sm:py-4 rounded-xl sm:rounded-2xl hover:shadow-md transition-all text-sm flex items-center justify-center mt-2 tracking-wide">
-                                <UploadCloud className="w-4.5 h-4.5 mr-2" /> อัปโหลดส่งงาน
+                            <button type="submit" disabled={selectedTypeClosed} className="w-full btn-liquid bg-neutral-800 dark:bg-neutral-700 text-white font-bold py-3.5 sm:py-4 rounded-xl sm:rounded-2xl hover:shadow-md transition-all text-sm flex items-center justify-center mt-2 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed">
+                                <UploadCloud className="w-4.5 h-4.5 mr-2" /> {selectedTypeClosed ? 'ปิดรับการส่งงานนี้' : 'อัปโหลดส่งงาน'}
                             </button>
                         )}
                     </div>

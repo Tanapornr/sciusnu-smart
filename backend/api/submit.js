@@ -5,6 +5,13 @@ const { trashFile, extractFileId } = require("../lib/appsScript");
 const { sendMail, buildFlexEmailHtml, WEB_URL } = require("../lib/mail");
 const { getGroupInfo, getPayloadReason, INITIAL_SUBMISSION_STATUS, ADMIN_EMAILS } = require("../lib/helpers");
 const { requireRole } = require("../lib/auth");
+const { getAllSettings, getWindowStatus } = require("../lib/settings");
+
+const WORK_TYPE_SETTING_KEY = {
+  "โครงร่าง (Proposal)":     "submission_proposal",
+  "รายงานความก้าวหน้า":      "submission_progress",
+  "รายงานฉบับสมบูรณ์":       "submission_final",
+};
 
 async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
@@ -18,6 +25,23 @@ async function handler(req, res) {
     const projectRows = await getSheetValues("TEST_DEV");
     const subRows     = await getSheetValues("Submissions");
     const headers     = subRows[0] || [];
+
+    // ── Date-window guard: โครงร่าง / ความก้าวหน้า / ฉบับสมบูรณ์ ──
+    // Skipped for resubmissions of previously-rejected work (data.reason
+    // set by the "ส่งไฟล์แก้ไข" flow) so students can always fix issues
+    // an advisor flagged, even outside the open window.
+    const settingKey = WORK_TYPE_SETTING_KEY[String(data.workType || "").trim()];
+    if (settingKey && !data.reason) {
+      const settings = await getAllSettings();
+      const setting  = settings[settingKey];
+      const { isOpen, hasLimit } = getWindowStatus(setting);
+      if (hasLimit && !isOpen) {
+        return res.status(400).json({
+          status: "error",
+          message: `ขณะนี้ไม่อยู่ในช่วงเวลาที่เปิดให้ส่ง "${data.workType}"`,
+        });
+      }
+    }
 
     const colStuId    = headers.findIndex((h) => String(h).includes("รหัสนักเรียน"));
     const colProjId   = headers.findIndex((h) => String(h).includes("รหัสโครงงาน"));
