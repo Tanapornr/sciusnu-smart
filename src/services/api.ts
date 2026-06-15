@@ -175,6 +175,21 @@ export async function apiUpdateSettings(payload: SettingsUpdatePayload): Promise
   });
 }
 
+// POST /api/check-upload-window — tiny pre-flight that asks the SERVER
+// (using server clock) whether the submission window is open.
+// Called BEFORE the client sends any file bytes — so if the window is
+// closed, zero bytes ever reach the server/Drive.
+export async function apiCheckUploadWindow(
+  workType: string,
+  isResubmit: boolean,
+): Promise<{ allowed: boolean; message?: string }> {
+  return apiFetch('/api/check-upload-window', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ workType, isResubmit }),
+  });
+}
+
 // ================================================================
 // uploadFileDirect
 // Uploads a file through the backend proxy (/api/drive-upload).
@@ -348,5 +363,19 @@ export async function uploadFileToDrive(
   onProgress?: (pct: number) => void,
   uploadMeta?: { workType?: string; isResubmit?: boolean },
 ): Promise<string> {
+  // ── Pre-flight: ask the server (using SERVER clock) whether the
+  // upload window is open BEFORE sending any file bytes. This is the
+  // primary security gate — changing the client device's date/time
+  // has zero effect since the check runs entirely on the server.
+  if (uploadMeta?.workType) {
+    const check = await apiCheckUploadWindow(
+      uploadMeta.workType,
+      uploadMeta.isResubmit ?? false,
+    );
+    if (!check.allowed) {
+      throw new Error(check.message ?? 'ปิดรับการส่งงานนี้แล้ว');
+    }
+  }
+
   return uploadFileDirect(file, fileName, onProgress, uploadMeta);
 }
