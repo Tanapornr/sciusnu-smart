@@ -11,6 +11,7 @@ const {
   getGroupInfo, getPayloadReason, normalizeSubmissionStatus, normalizeCompare,
   isAdminReviewer, isMainAdvisorReviewer, INITIAL_SUBMISSION_STATUS,
 } = require("../lib/helpers");
+const GS_MAIN_TABLE_NAME = process.env.GS_MAIN_TABLE_NAME;
 
 async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
@@ -31,7 +32,7 @@ async function handler(req, res) {
         message: "กรุณาเลือกผลการพิจารณา อนุมัติ หรือ ไม่อนุมัติ" });
     }
 
-    const projectRows = await getSheetValues("TEST_DEV");
+    const projectRows = await getSheetValues(GS_MAIN_TABLE_NAME);
     const subRows     = await getSheetValues("Submissions");
     const headers     = subRows[0] || [];
 

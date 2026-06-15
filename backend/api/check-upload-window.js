@@ -29,12 +29,12 @@ const WORK_TYPE_SETTING_KEY = {
 async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const { workType, isResubmit } = req.body || {};
+  const { workType } = req.body || {};
   const workTypeStr = String(workType || "").trim();
 
   // No workType header or unknown type → nothing to gate, allow
   const settingKey = WORK_TYPE_SETTING_KEY[workTypeStr];
-  if (!settingKey || isResubmit) {
+  if (!settingKey) {
     return res.json({ allowed: true });
   }
 
@@ -44,15 +44,37 @@ async function handler(req, res) {
     const { isOpen, hasLimit } = getWindowStatus(setting);
 
     if (hasLimit && !isOpen) {
-      const openAt  = setting?.openAt  ? new Date(setting.openAt).toLocaleString("th-TH")  : null;
-      const closeAt = setting?.closeAt ? new Date(setting.closeAt).toLocaleString("th-TH") : null;
-      const range   = [openAt && `เปิด ${openAt}`, closeAt && `ปิด ${closeAt}`]
-                        .filter(Boolean).join("  —  ");
+      function formatThaiDateTime(dateStr) {
+        const d = new Date(dateStr);
 
-      return res.json({
+        return new Intl.DateTimeFormat("th-TH", {
+            timeZone: "Asia/Bangkok",
+            day: "numeric",
+            month: "numeric",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+        }).format(d) + " น.";
+        }
+
+        const openAt = setting?.openAt
+        ? formatThaiDateTime(setting.openAt)
+        : null;
+
+        const closeAt = setting?.closeAt
+        ? formatThaiDateTime(setting.closeAt)
+        : null;
+
+        const range = [
+        openAt && `เปิด: ${openAt}`,
+        closeAt && `ปิด: ${closeAt}`,
+        ].filter(Boolean).join(" — ");
+
+        return res.json({
         allowed: false,
         message: `ขณะนี้ไม่อยู่ในช่วงเวลาที่เปิดให้ส่ง "${workTypeStr}"${range ? `\n${range}` : ""}`,
-      });
+        });
     }
 
     return res.json({ allowed: true });

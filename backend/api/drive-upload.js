@@ -27,18 +27,16 @@ async function handler(req, res) {
   const fileName = decodeURIComponent(String(req.headers["x-file-name"] || ""));
   const mimeType = String(req.headers["x-file-type"] || "application/octet-stream");
   const workType = decodeURIComponent(String(req.headers["x-work-type"] || "")).trim();
-  const isResubmit = String(req.headers["x-is-resubmit"] || "") === "1";
   const buffer   = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body || "");
 
   if (!fileName) return res.status(400).json({ status: "error", message: "fileName required" });
   if (!buffer.length) return res.status(400).json({ status: "error", message: "file body required" });
 
   // ── Date-window guard (server clock — not affected by client-side
-  // clock manipulation). Blocks NEW report uploads to Drive once the
-  // submission window has closed. Resubmits of rejected work (flagged
-  // via X-Is-Resubmit) are always allowed, matching the /api/submit rule.
+  // clock manipulation). Blocks ALL report uploads (including resubmits
+  // of rejected work) once the submission window has closed.
   const settingKey = WORK_TYPE_SETTING_KEY[workType];
-  if (settingKey && !isResubmit) {
+  if (settingKey) {
     try {
       const settings = await getAllSettings();
       const { isOpen, hasLimit } = getWindowStatus(settings[settingKey]);

@@ -106,6 +106,7 @@ html.page-login .swal2-popup {
   border: none;
   width: 70px;
   height: 70px;
+  font-size: 14px;
   margin: 0 auto 1.5rem auto;
   border-radius: 50%;
   display: flex;

@@ -6,6 +6,7 @@
 require("dotenv").config();
 const { getSheetValues } = require("../lib/sheets");
 const { signToken }      = require("../lib/auth");
+const GS_MAIN_TABLE_NAME = process.env.GS_MAIN_TABLE_NAME;
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).end();
@@ -29,7 +30,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    const data = await getSheetValues("TEST_DEV");
+    const data = await getSheetValues(GS_MAIN_TABLE_NAME);
 
     for (let i = 1; i < data.length; i++) {
       const r = data[i];

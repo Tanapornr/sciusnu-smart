@@ -7,6 +7,7 @@ const { getGroupInfo, getPayloadReason, INITIAL_SUBMISSION_STATUS, ADMIN_EMAILS 
 const { requireRole } = require("../lib/auth");
 const { getAllSettings, getWindowStatus } = require("../lib/settings");
 
+const GS_MAIN_TABLE_NAME = process.env.GS_MAIN_TABLE_NAME;
 const WORK_TYPE_SETTING_KEY = {
   "โครงร่าง (Proposal)":     "submission_proposal",
   "รายงานความก้าวหน้า":      "submission_progress",
@@ -22,19 +23,29 @@ async function handler(req, res) {
     // { studentId, firstName, lastName, projectId, workType,
     //   advisorName, file1Url, file2Url?, reason? }
 
-    const projectRows = await getSheetValues("TEST_DEV");
+    const projectRows = await getSheetValues(GS_MAIN_TABLE_NAME);
     const subRows     = await getSheetValues("Submissions");
     const headers     = subRows[0] || [];
 
     // ── Date-window guard: โครงร่าง / ความก้าวหน้า / ฉบับสมบูรณ์ ──
-    // Skipped for resubmissions of previously-rejected work (data.reason
-    // set by the "ส่งไฟล์แก้ไข" flow) so students can always fix issues
-    // an advisor flagged, even outside the open window.
+    // Blocks ALL submissions (including resubmits of rejected work)
+    // once the submission window has closed.
+    //
+    // GRACE PERIOD: The file upload to Drive (/api/drive-upload) already
+    // validates the deadline using the server clock BEFORE any bytes are
+    // sent. If the student clicked "submit" just before the deadline,
+    // the upload may take several minutes (chunked transfer). By the
+    // time this /api/submit endpoint is called to record the submission,
+    // the deadline may have just passed — but the file is already on
+    // Drive.  We add a 15-minute grace period so these legitimate
+    // submissions are still recorded.
+    const GRACE_MS = 15 * 60 * 1000; // 15 minutes
     const settingKey = WORK_TYPE_SETTING_KEY[String(data.workType || "").trim()];
-    if (settingKey && !data.reason) {
+    if (settingKey) {
       const settings = await getAllSettings();
       const setting  = settings[settingKey];
-      const { isOpen, hasLimit } = getWindowStatus(setting);
+      const graceTime = new Date(Date.now() - GRACE_MS);
+      const { isOpen, hasLimit } = getWindowStatus(setting, graceTime);
       if (hasLimit && !isOpen) {
         return res.status(400).json({
           status: "error",

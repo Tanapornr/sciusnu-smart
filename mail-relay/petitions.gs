@@ -311,7 +311,7 @@ function handlePostApprovalGS(petitionRow, petitionPayload) {
 
 function updateProjectNameGS(projectCode, newNameTH, newNameEN) {
   var ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
-  var sheet = ss.getSheetByName("TEST_DEV");
+  var sheet = ss.getSheetByName("sheet1");
   if (!sheet) return;
   var data    = sheet.getDataRange().getValues();
   var headers = data[0];
@@ -333,7 +333,7 @@ function updateProjectNameGS(projectCode, newNameTH, newNameEN) {
 
 function updateProjectFieldGS(projectCode, newField) {
   var ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
-  var sheet = ss.getSheetByName("TEST_DEV");
+  var sheet = ss.getSheetByName("sheet1");
   if (!sheet) return;
   var data    = sheet.getDataRange().getValues();
   var headers = data[0];
