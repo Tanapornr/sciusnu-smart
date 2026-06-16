@@ -11,6 +11,7 @@ import AdvisorDashboard from './pages/AdvisorDashboard';
 import ViewerDashboard from './pages/ViewerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import PetitionApproveByToken from './pages/PetitionApproveByToken';
+import RequireStudentEmail from './components/auth/RequireStudentEmail';
 
 // Global page context: 'main' | 'petitions'
 export type PageView = 'main' | 'petitions';
@@ -37,6 +38,9 @@ function App() {
   useEffect(() => {
     if (!isAuthenticated || !user) {
       applyPageScope('page-login');
+    } else if (user.role === 'student' && (!user.email || !user.email.trim())) {
+      // Email gate reuses the login screen's glass/background tokens
+      applyPageScope('page-login');
     } else {
       applyAuthenticatedPage(user.role);
     }
@@ -58,6 +62,12 @@ function App() {
 
   switch (user.role) {
     case 'student':
+      // Students must have an email on file before touching anything
+      // else in the app — every notification (submission results,
+      // petition approvals) is sent to this address.
+      if (!user.email || !user.email.trim()) {
+        return <RequireStudentEmail />;
+      }
       return <StudentDashboard {...props} />;
     case 'advisor_main':
       return <AdvisorDashboard {...props} />;

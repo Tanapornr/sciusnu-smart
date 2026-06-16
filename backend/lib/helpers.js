@@ -182,6 +182,32 @@ function getObjVal(obj, keywords) {
   return "";
 }
 
+/**
+ * Look up a student's own email (col 0) directly from the live master
+ * sheet by their studentId (col 1). Used to gate student-only actions
+ * (submit work, create petitions) behind "email is on file" — reads the
+ * sheet fresh every time so it reflects /api/profile updates immediately,
+ * without needing the caller's JWT to be reissued.
+ */
+function getStudentEmailById(displayData, studentId) {
+  if (!displayData?.length || !studentId) return "";
+  const headers = displayData[0];
+  const hStu = headers.findIndex(
+    (h) => String(h).includes("รหัสนักเรียน") || String(h).includes("รหัสประจำตัว")
+  );
+  const colStuId = hStu !== -1 ? hStu : 1;
+  const colEmail = 0;
+
+  const norm = String(studentId).replace(/\s+/g, "").toUpperCase();
+  for (let i = 1; i < displayData.length; i++) {
+    const sId = String(displayData[i][colStuId] || "").replace(/\s+/g, "").toUpperCase();
+    if (sId === norm && sId !== "") {
+      return String(displayData[i][colEmail] || "").trim();
+    }
+  }
+  return "";
+}
+
 module.exports = {
   INITIAL_SUBMISSION_STATUS,
   ADMIN_EMAILS,
@@ -193,6 +219,7 @@ module.exports = {
   isMainAdvisorReviewer,
   getPayloadReason,
   getGroupInfo,
+  getStudentEmailById,
   rowsToObjects,
   getObjVal,
 };

@@ -6,7 +6,7 @@ require("dotenv").config();
 const crypto = require("crypto");
 const { getSheetValues, appendRow, updateRowCells } = require("../lib/sheets");
 const { sendMail, buildFlexEmailHtml, WEB_URL } = require("../lib/mail");
-const { getGroupInfo, normalizeEmail, ADMIN_EMAILS } = require("../lib/helpers");
+const { getGroupInfo, normalizeEmail, getStudentEmailById, ADMIN_EMAILS } = require("../lib/helpers");
 const { requireAuth, requireRole } = require("../lib/auth");
 const { getAllSettings, getWindowStatus } = require("../lib/settings");
 const GS_MAIN_TABLE_NAME = process.env.GS_MAIN_TABLE_NAME;
@@ -281,6 +281,20 @@ async function createPetition(req, res) {
 
     // Fetch project data to build approval chain
     const projectRows = await getSheetValues(GS_MAIN_TABLE_NAME);
+
+    // ── Email-required guard (students only) ──────────────────────
+    // Read fresh from the sheet so an /api/profile update is picked up
+    // immediately. Petition approval emails route through this address,
+    // so a blank email would mean the student never sees the outcome.
+    if (user.role === "student") {
+      const myEmail = getStudentEmailById(projectRows, user.studentId);
+      if (!myEmail) {
+        return res.status(403).json({
+          status: "error",
+          message: "กรุณาระบุอีเมลของคุณในหน้าโปรไฟล์ก่อนยื่นคำร้อง",
+        });
+      }
+    }
 
     let groupInfo;
     if (user.role === "student") {
