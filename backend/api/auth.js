@@ -69,7 +69,7 @@ module.exports = async (req, res) => {
         });
       }
       if (schAdvEmail === user && schAdvPass === pass && schAdvEmail) {
-        const token = signToken({ email: r[15], role: "school_advisor", name: r[16], studentId: "" });
+        const token = signToken({ email: r[15], role: "viewer", name: r[16], studentId: "" });
         return res.json({
           status: "success", role: "viewer",
           email: r[15], name: r[16], studentId: "", profileUrl: "",

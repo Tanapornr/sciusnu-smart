@@ -227,7 +227,7 @@ export default function ViewerDashboard({ pageView, setPageView }: Props) {
           </div>
           <div className="flex items-center gap-2">
             <PetitionNavButton pageView={pageView} setPageView={setPageView} />
-            {(user?.role === 'advisor' || user?.role === 'school_advisor') && (
+            {(user?.role === 'advisor' || user?.role === 'viewer') && (
               <button onClick={() => setIsPassModalOpen(true)} title="เปลี่ยนรหัสผ่าน" className="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2.5 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-transparent dark:border-neutral-700">
                 <KeyRound className="w-4 h-4" />
               </button>
