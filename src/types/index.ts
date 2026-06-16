@@ -3,7 +3,7 @@
 // and validated against all 5 old HTML files.
 // ============================================================
 
-export type UserRole = 'student' | 'admin' | 'advisor_main' | 'advisor' | 'school_advisor' | 'viewer';
+export type UserRole = 'student' | 'admin' | 'advisor_main' | 'advisor' | 'viewer';
 
 export interface AuthResult {
   status: 'success' | 'error';

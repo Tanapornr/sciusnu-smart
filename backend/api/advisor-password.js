@@ -24,7 +24,7 @@ async function handler(req, res) {
     let emailCol, passCol;
     if (role === "advisor_main")        { emailCol = 8;  passCol = 21; }
     else if (role === "advisor")        { emailCol = 12; passCol = 22; }
-    else if (role === "school_advisor") { emailCol = 15; passCol = 23; }
+    else if (role === "viewer")         { emailCol = 15; passCol = 23; }
     else return res.status(403).json({ status: "error", message: "สถานะอาจารย์ไม่ถูกต้อง" });
 
     const rows = await getSheetValues(GS_MAIN_TABLE_NAME);
@@ -47,4 +47,4 @@ async function handler(req, res) {
   }
 }
 
-module.exports = [...requireRole("advisor_main", "advisor", "school_advisor"), handler];
+module.exports = [...requireRole("advisor_main", "advisor", "viewer"), handler];
