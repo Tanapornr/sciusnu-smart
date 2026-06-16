@@ -582,7 +582,7 @@ function ApprovalTimeline({ petition }: { petition: Petition }) {
 
   const orderedKeys = getStageSequence(stageOrder); // e.g. ['students','advisors'] or ['advisors','students']
   const blocksByKey: Record<string, typeof studentBlock | typeof advisorBlock> = { students: studentBlock, advisors: advisorBlock };
-  const orderedBlocks = orderedKeys.map(k => blocksByKey[k]).filter(Boolean) as Array<{ key: string; label: string; icon: JSX.Element; done: boolean; steps: ChainStep[] }>;
+  const orderedBlocks = orderedKeys.map(k => blocksByKey[k]).filter(Boolean) as Array<{ key: string; label: string; icon: React.ReactNode; done: boolean; steps: ChainStep[] }>;
 
   // First incomplete block (in order) is the active one
   const firstIncompleteIdx = orderedBlocks.findIndex(b => !b.done);
