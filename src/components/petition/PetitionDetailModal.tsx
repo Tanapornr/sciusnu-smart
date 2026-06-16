@@ -1,17 +1,17 @@
 // ================================================================
 // components/petition/PetitionDetailModal.tsx
 // Shows petition details, timeline, approval chain, and action UI
-// Concurrent stage-based approval:
-//   Stage 1 — students approve simultaneously
-//   Stage 2 — advisors approve simultaneously
-//   Stage 3 — any admin approves (with dropdown name + confirm popup)
+// Concurrent stage-based approval (order depends on who filed the petition):
+//   student_first (default, student-filed): students → advisors → admin
+//   advisor_first (advisor-filed):           advisors → students → admin
+//   Final stage — any admin approves (with dropdown name + confirm popup)
 // ================================================================
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { apiGetPetition, apiApprovePetition, apiRejectPetition } from '../../services/petitionApi';
 import { formatDateTimeTH } from '../../utils';
 import { exportViaPrint } from '../../utils/exportPetitionPdf';
-import type { Petition, ChainStep } from '../../types/petition';
+import type { Petition, ChainStep, StageOrder } from '../../types/petition';
 import { PETITION_TYPE_LABELS } from '../../types/petition';
 import {
   X, CheckCircle2, XCircle, Clock, ChevronDown,
@@ -47,16 +47,23 @@ function normalizeEmail(email: string) {
   return String(email || '').trim().toLowerCase();
 }
 
-/** Determine which stage the petition is currently in */
-function getPendingStage(petition: Petition, chain: ChainStep[]): 'students' | 'advisors' | 'admin' | 'done' {
+function getStageSequence(stageOrder: StageOrder): Array<'students' | 'advisors'> {
+  return stageOrder === 'advisor_first' ? ['advisors', 'students'] : ['students', 'advisors'];
+}
+
+/** Determine which stage the petition is currently in, respecting stageOrder */
+function getPendingStage(petition: Petition, chain: ChainStep[], stageOrder: StageOrder = 'student_first'): 'students' | 'advisors' | 'admin' | 'done' {
   const studentRoles  = chain.filter(s => s.role.startsWith('student')).map(s => s.role);
   const advisorRoles  = chain.filter(s => ['advisor','coadvisor1','coadvisor2'].includes(s.role)).map(s => s.role);
   const allStudentsDone = studentRoles.every(r => !!(petition[r as keyof Petition] as any)?.status);
   const allAdvisorsDone = advisorRoles.every(r => !!(petition[r as keyof Petition] as any)?.status);
   const adminDone       = !!(petition.admin as any)?.status;
-  if (!allStudentsDone) return 'students';
-  if (!allAdvisorsDone) return 'advisors';
-  if (!adminDone)       return 'admin';
+
+  const doneMap = { students: allStudentsDone, advisors: allAdvisorsDone };
+  for (const stage of getStageSequence(stageOrder)) {
+    if (!doneMap[stage]) return stage;
+  }
+  if (!adminDone) return 'admin';
   return 'done';
 }
 
@@ -92,7 +99,8 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
     if (petition.status !== 'รอดำเนินการ') return { canApprove: false, isAdminStage: false };
 
     const chain = petition.chain || [];
-    const stage = getPendingStage(petition, chain);
+    const stageOrder: StageOrder = petition.stageOrder || 'student_first';
+    const stage = getPendingStage(petition, chain, stageOrder);
 
     if (stage === 'done') return { canApprove: false, isAdminStage: false };
 
@@ -476,6 +484,8 @@ function ApprovalTimeline({ petition }: { petition: Petition }) {
   const chain = petition.chain || [];
   if (chain.length === 0) return null;
 
+  const stageOrder: StageOrder = petition.stageOrder || 'student_first';
+
   // Group into stages
   const studentSteps  = chain.filter(s => s.role.startsWith('student'));
   const advisorSteps  = chain.filter(s => ['advisor','coadvisor1','coadvisor2'].includes(s.role));
@@ -553,6 +563,30 @@ function ApprovalTimeline({ petition }: { petition: Petition }) {
     );
   };
 
+  // Stage blocks for students and advisors, reordered based on who filed the petition.
+  // Both stages always render — nobody's sign-off is skipped, just the order changes.
+  const studentBlock = studentSteps.length > 0 ? {
+    key: 'students',
+    label: 'นักเรียน',
+    icon: <Users className="w-3.5 h-3.5" />,
+    done: allStudentsDone,
+    steps: studentSteps,
+  } : null;
+  const advisorBlock = advisorSteps.length > 0 ? {
+    key: 'advisors',
+    label: 'อาจารย์ที่ปรึกษา',
+    icon: <Users className="w-3.5 h-3.5" />,
+    done: allAdvisorsDone,
+    steps: advisorSteps,
+  } : null;
+
+  const orderedKeys = getStageSequence(stageOrder); // e.g. ['students','advisors'] or ['advisors','students']
+  const blocksByKey: Record<string, typeof studentBlock | typeof advisorBlock> = { students: studentBlock, advisors: advisorBlock };
+  const orderedBlocks = orderedKeys.map(k => blocksByKey[k]).filter(Boolean) as Array<{ key: string; label: string; icon: JSX.Element; done: boolean; steps: ChainStep[] }>;
+
+  // First incomplete block (in order) is the active one
+  const firstIncompleteIdx = orderedBlocks.findIndex(b => !b.done);
+
   return (
     <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--ios-card-border)' }}>
       <div className="px-4 py-2.5 text-xs font-bold text-neutral-500 uppercase tracking-wider border-b" style={{ background: 'var(--compact-info-bg)', borderColor: 'var(--ios-card-border)' }}>
@@ -560,39 +594,24 @@ function ApprovalTimeline({ petition }: { petition: Petition }) {
       </div>
       <div className="p-4 space-y-2">
 
-        {/* Stage 1: Students */}
-        {studentSteps.length > 0 && (
-          <div>
+        {orderedBlocks.map((block, blockIdx) => (
+          <div key={block.key} className={blockIdx > 0 ? 'mt-3' : ''}>
             <StageGroupHeader
-              label="ขั้นที่ 1 — นักเรียน"
-              icon={<Users className="w-3.5 h-3.5" />}
-              done={allStudentsDone}
+              label={`ขั้นที่ ${blockIdx + 1} — ${block.label}`}
+              icon={block.icon}
+              done={block.done}
             />
             <div className="space-y-1">
-              {studentSteps.map((s, i) => renderStep(s, i, !allStudentsDone))}
+              {block.steps.map((s, i) => renderStep(s, i, blockIdx === firstIncompleteIdx))}
             </div>
           </div>
-        )}
+        ))}
 
-        {/* Stage 2: Advisors */}
-        {advisorSteps.length > 0 && (
-          <div className="mt-3">
-            <StageGroupHeader
-              label="ขั้นที่ 2 — อาจารย์ที่ปรึกษา"
-              icon={<Users className="w-3.5 h-3.5" />}
-              done={allAdvisorsDone}
-            />
-            <div className="space-y-1">
-              {advisorSteps.map((s, i) => renderStep(s, i, allStudentsDone && !allAdvisorsDone))}
-            </div>
-          </div>
-        )}
-
-        {/* Stage 3: Admin */}
+        {/* Final stage: Admin */}
         {adminStep && (
           <div className="mt-3">
             <StageGroupHeader
-              label="ขั้นที่ 3 — ผู้ดูแลระบบ"
+              label={`ขั้นที่ ${orderedBlocks.length + 1} — ผู้ดูแลระบบ`}
               icon={<Shield className="w-3.5 h-3.5" />}
               done={adminDone}
             />

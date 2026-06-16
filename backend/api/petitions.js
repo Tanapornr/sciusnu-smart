@@ -162,8 +162,16 @@ function rowToPetition(row, rowIndex) {
   };
 }
 
-/** Build the approval chain from project data (students → advisors; admin is handled separately) */
-function buildApprovalChain(groupInfo, existingEmails = new Set()) {
+/**
+ * Build the approval chain from project data (admin is handled separately).
+ * Normal order: students → advisors → admin.
+ * When the requester is the main advisor, THEY filed the petition, so it makes more
+ * sense for the advisor stage to go first and the student stage second — the advisor
+ * shouldn't be stuck waiting behind students for something the advisor themself asked for.
+ * `requesterRole` flips that ordering; both stages still require everyone's signature,
+ * just in a different sequence.
+ */
+function buildApprovalChain(groupInfo, existingEmails = new Set(), requesterRole = "student") {
   const chain = [];
   if (groupInfo.members.length > 0) chain.push({ role: "student1", email: groupInfo.members[0]?.email || "", name: groupInfo.members[0]?.firstName + " " + groupInfo.members[0]?.lastName });
   if (groupInfo.members.length > 1) chain.push({ role: "student2", email: groupInfo.members[1]?.email || "", name: groupInfo.members[1]?.firstName + " " + groupInfo.members[1]?.lastName });
@@ -171,7 +179,16 @@ function buildApprovalChain(groupInfo, existingEmails = new Set()) {
   if (groupInfo.coAdvEmail)  chain.push({ role: "coadvisor1", email: groupInfo.coAdvEmail,  name: groupInfo.coAdvName,  token: !existingEmails.has(groupInfo.coAdvEmail.toLowerCase())  ? crypto.randomBytes(32).toString("hex") : undefined });
   if (groupInfo.schAdvEmail) chain.push({ role: "coadvisor2", email: groupInfo.schAdvEmail, name: groupInfo.schAdvName, token: !existingEmails.has(groupInfo.schAdvEmail.toLowerCase()) ? crypto.randomBytes(32).toString("hex") : undefined });
   chain.push({ role: "admin", email: "admin", name: "ผู้ดูแลระบบ" });
-  return chain;
+
+  // "advisor_first" = advisors → students → admin (used when an advisor files the petition).
+  // "student_first" = students → advisors → admin (default, student-filed petitions).
+  const stageOrder = requesterRole === "advisor_main" ? "advisor_first" : "student_first";
+  return { chain, stageOrder };
+}
+
+/** Returns the ordered list of non-admin stage names for a given stageOrder tag. */
+function getStageSequence(stageOrder) {
+  return stageOrder === "advisor_first" ? ["advisors", "students"] : ["students", "advisors"];
 }
 
 /** Determine what role the current user plays in a petition's approval chain */
@@ -187,23 +204,26 @@ function getUserRoleInChain(petition, userEmail, userRole, chain) {
 }
 
 /**
- * Determine the current active approval stage:
- *   "students"  — any student step not yet approved
- *   "advisors"  — all student steps done, any advisor step not yet done
- *   "admin"     — all student+advisor steps done, admin not yet done
- *   "done"      — all steps done
+ * Determine the current active approval stage, respecting stageOrder:
+ *   "student_first" (default, student-filed petitions): students → advisors → admin
+ *   "advisor_first" (advisor-filed petitions):           advisors → students → admin
+ * Returns "students" | "advisors" | "admin" | "done".
  */
-function getPendingStage(petition, chain) {
-  const studentRoles  = chain.filter(s => s.role.startsWith("student")).map(s => s.role);
+function getPendingStage(petition, chain, stageOrder = "student_first") {
+  const studentRoles = chain.filter(s => s.role.startsWith("student")).map(s => s.role);
   const advisorRoles  = chain.filter(s => ["advisor","coadvisor1","coadvisor2"].includes(s.role)).map(s => s.role);
 
   const allStudentsDone  = studentRoles.every(r => petition[r]?.status);
   const allAdvisorsDone  = advisorRoles.every(r => petition[r]?.status);
   const adminDone        = !!petition.admin?.status;
 
-  if (!allStudentsDone) return "students";
-  if (!allAdvisorsDone) return "advisors";
-  if (!adminDone)       return "admin";
+  const doneMap = { students: allStudentsDone, advisors: allAdvisorsDone };
+  const sequence = getStageSequence(stageOrder);
+
+  for (const stage of sequence) {
+    if (!doneMap[stage]) return stage;
+  }
+  if (!adminDone) return "admin";
   return "done";
 }
 
@@ -318,14 +338,15 @@ async function createPetition(req, res) {
         if (e.includes("@")) existingEmails.add(e);
       });
     }
-    const chain = buildApprovalChain(groupInfo, existingEmails);
+    const { chain, stageOrder } = buildApprovalChain(groupInfo, existingEmails, user.role);
     if (chain.length === 0) {
       return res.status(400).json({ status: "error", message: "ไม่พบผู้อนุมัติ" });
     }
 
     const petitionId = generatePetitionId();
     const now = new Date().toISOString();
-    const chainJson = JSON.stringify({ chain, payload: payload || {} });
+    const chainJson = JSON.stringify({ chain, stageOrder, payload: payload || {} });
+    const firstStage = getStageSequence(stageOrder)[0];
 
     const row = new Array(38).fill("");
     row[COL.petition_id - 1]     = petitionId;
@@ -338,19 +359,33 @@ async function createPetition(req, res) {
     row[COL.created_at - 1]      = now;
     row[COL.status - 1]          = "รอดำเนินการ";
     row[COL.payload_json - 1]    = chainJson;
-    row[COL.current_step - 1]    = "students";
+    row[COL.current_step - 1]    = firstStage;
     row[COL.final_result - 1]    = "";
     row[COL.updated_at - 1]      = now;
 
     await appendRow(SHEET, row);
 
-    // Notify ALL students in the chain simultaneously
+    // Notify everyone in the FIRST stage simultaneously (students, or advisors if
+    // an advisor filed the petition — see stageOrder above).
     const projCode = groupInfo.targetProjId || project_code;
     const projName = groupInfo.projectNameTH || project_name;
-    const studentSteps = chain.filter(s => s.role.startsWith("student"));
-    for (const step of studentSteps) {
-      sendPetitionNotification(petitionId, step.email, step.name,
-        petition_type, projCode, projName, user.name).catch(console.error);
+
+    if (firstStage === "students") {
+      const studentSteps = chain.filter(s => s.role.startsWith("student"));
+      for (const step of studentSteps) {
+        sendPetitionNotification(petitionId, step.email, step.name,
+          petition_type, projCode, projName, user.name).catch(console.error);
+      }
+    } else {
+      const advisorSteps = chain.filter(s => ["advisor", "coadvisor1", "coadvisor2"].includes(s.role));
+      for (const step of advisorSteps) {
+        if (step.token) {
+          sendMagicLinkNotification(petitionId, step.email, step.name, petition_type, projCode, projName, user.name, step.token).catch(console.error);
+        } else {
+          sendPetitionNotification(petitionId, step.email, step.name,
+            petition_type, projCode, projName, user.name).catch(console.error);
+        }
+      }
     }
 
     return res.json({ status: "success", petition_id: petitionId });
@@ -433,6 +468,7 @@ async function getPetitionDetail(req, res) {
           ...p,
           petition_type_label: PETITION_TYPES[p.petition_type] || p.petition_type,
           chain: chainData.chain || [],
+          stageOrder: chainData.stageOrder || "student_first",
           payload: chainData.payload || {},
         },
       });
@@ -472,9 +508,10 @@ async function handleApproval(req, res, action) {
 
       const chainData = safeParseChain(p.payload_json);
       const chain = chainData.chain || [];
+      const stageOrder = chainData.stageOrder || "student_first";
 
       // Determine active stage
-      const activeStage = getPendingStage(p, chain);
+      const activeStage = getPendingStage(p, chain, stageOrder);
       if (activeStage === "done") {
         return res.status(400).json({ status: "error", message: "คำร้องได้รับการอนุมัติครบถ้วนแล้ว" });
       }
@@ -548,7 +585,7 @@ async function handleApproval(req, res, action) {
       const updatedP = Object.assign({}, p, {
         [userChainRole]: { status: statusVal, note: note || "", signature: encryptedSig, time: now }
       });
-      const nextStage = getPendingStage(updatedP, chain);
+      const nextStage = getPendingStage(updatedP, chain, stageOrder);
 
       if (nextStage === "done") {
         // All stages complete — finalise
@@ -563,7 +600,12 @@ async function handleApproval(req, res, action) {
         updates.push({ col: COL.current_step, value: nextStage });
         await updateRowCells(SHEET, p._row, updates);
 
-        if (nextStage === "advisors") {
+        if (nextStage === "students") {
+          const studentSteps = chain.filter(s => s.role.startsWith("student"));
+          for (const step of studentSteps) {
+            sendPetitionNotification(p.petition_id, step.email, step.name, p.petition_type, p.project_code, p.project_name, p.requester_name).catch(console.error);
+          }
+        } else if (nextStage === "advisors") {
           const advisorSteps = chain.filter(s => ["advisor","coadvisor1","coadvisor2"].includes(s.role));
           for (const step of advisorSteps) {
             if (step.token) {
@@ -678,6 +720,7 @@ async function handleTokenApproval(req, res) {
 
       const chainData = safeParseChain(p.payload_json);
       const chain = chainData.chain || [];
+      const stageOrder = chainData.stageOrder || "student_first";
 
       // Find the chain step that matches this token
       const step = chain.find(s => s.token === token);
@@ -689,9 +732,10 @@ async function handleTokenApproval(req, res) {
       }
 
       // Check it's the advisor stage
-      const activeStage = getPendingStage(p, chain);
+      const activeStage = getPendingStage(p, chain, stageOrder);
       if (activeStage !== "advisors") {
-        return res.status(400).json({ status: "error", message: "ยังไม่ถึงขั้นตอนของคุณ (รอนักเรียนอนุมัติก่อน)" });
+        const waitMsg = activeStage === "students" ? "ยังไม่ถึงขั้นตอนของคุณ (รอนักเรียนอนุมัติก่อน)" : "ยังไม่ถึงขั้นตอนของคุณ";
+        return res.status(400).json({ status: "error", message: waitMsg });
       }
 
       const now = new Date().toISOString();
@@ -725,7 +769,7 @@ async function handleTokenApproval(req, res) {
 
       // Approve — check if stage is complete after this
       const updatedP = Object.assign({}, p, { [step.role]: { status: statusVal } });
-      const nextStage = getPendingStage(updatedP, chain);
+      const nextStage = getPendingStage(updatedP, chain, stageOrder);
 
       if (nextStage === "done") {
         updates.push({ col: COL.status,       value: "เสร็จสิ้น" });
@@ -737,7 +781,12 @@ async function handleTokenApproval(req, res) {
       } else if (nextStage !== activeStage) {
         updates.push({ col: COL.current_step, value: nextStage });
         await updateRowCells(SHEET, p._row, updates);
-        if (nextStage === "admin") {
+        if (nextStage === "students") {
+          const studentSteps = chain.filter(s => s.role.startsWith("student"));
+          for (const studentStep of studentSteps) {
+            sendPetitionNotification(p.petition_id, studentStep.email, studentStep.name, p.petition_type, p.project_code, p.project_name, p.requester_name).catch(console.error);
+          }
+        } else if (nextStage === "admin") {
           for (const adminEmail of ADMIN_EMAILS) {
             sendPetitionAdminNotification(p.petition_id, adminEmail, p.petition_type, p.project_code, p.project_name, p.requester_name).catch(console.error);
           }
@@ -786,7 +835,7 @@ async function getPetitionByToken(req, res) {
           approver_role:      step.role,
           already_actioned:   !!p[step.role]?.status,
           my_status:          p[step.role]?.status || "",
-          active_stage:       getPendingStage(p, chainData.chain || []),
+          active_stage:       getPendingStage(p, chainData.chain || [], chainData.stageOrder || "student_first"),
         },
       });
     }

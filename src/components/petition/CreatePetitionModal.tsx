@@ -136,7 +136,10 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
   }
 
   function validateStep2() {
-    const hasRequesterInfo = !!(payload.requesterPrefix?.trim() && payload.requesterGen?.trim() && payload.requesterPhone?.trim());
+    const isStudent = user?.role === 'student';
+    const hasRequesterInfo = isStudent
+      ? !!(payload.requesterPrefix?.trim() && payload.requesterGen?.trim() && payload.requesterPhone?.trim())
+      : !!payload.requesterPhone?.trim();
     if (!hasRequesterInfo) return false;
 
     switch (petitionType) {
@@ -269,25 +272,29 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
               {/* ข้อมูลผู้ยื่นคำร้อง */}
               <div className="space-y-3 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-800/30">
                 <h4 className="font-bold text-xs text-neutral-400 uppercase tracking-wider">ข้อมูลผู้ยื่นคำร้อง</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold mb-1">คำนำหน้า *</label>
-                    <input
-                      value={payload.requesterPrefix || ''}
-                      onChange={e => updatePayload({ requesterPrefix: e.target.value })}
-                      placeholder="เช่น นาย / นางสาว"
-                      className="glass-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold mb-1">รุ่น วมว. *</label>
-                    <input
-                      value={payload.requesterGen || ''}
-                      onChange={e => updatePayload({ requesterGen: e.target.value })}
-                      placeholder="เช่น 15"
-                      className="glass-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none"
-                    />
-                  </div>
+                <div className={`grid grid-cols-1 ${user?.role === 'student' ? 'sm:grid-cols-3' : ''} gap-3`}>
+                  {user?.role === 'student' && (
+                    <>
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">คำนำหน้า *</label>
+                        <input
+                          value={payload.requesterPrefix || ''}
+                          onChange={e => updatePayload({ requesterPrefix: e.target.value })}
+                          placeholder="เช่น นาย / นางสาว"
+                          className="glass-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">รุ่น วมว. *</label>
+                        <input
+                          value={payload.requesterGen || ''}
+                          onChange={e => updatePayload({ requesterGen: e.target.value })}
+                          placeholder="เช่น 15"
+                          className="glass-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none"
+                        />
+                      </div>
+                    </>
+                  )}
                   <div>
                     <label className="block text-xs font-semibold mb-1">เบอร์ติดต่อ *</label>
                     <input
@@ -490,8 +497,10 @@ export default function CreatePetitionModal({ onClose, onSuccess }: Props) {
 
                 <ReviewRow label="ผู้ยื่นคำร้อง" value={user?.name || ''} />
                 <ReviewRow label="ประเภทผู้ใช้งาน" value={user?.role === 'student' ? 'นักเรียน' : 'อาจารย์ที่ปรึกษา'} />
-                <ReviewRow label="คำนำหน้า" value={payload.requesterPrefix || '-'} />
-                <ReviewRow label="รุ่น วมว." value={payload.requesterGen || '-'} />
+                {user?.role === 'student' && <>
+                  <ReviewRow label="คำนำหน้า" value={payload.requesterPrefix || '-'} />
+                  <ReviewRow label="รุ่น วมว." value={payload.requesterGen || '-'} />
+                </>}
                 <ReviewRow label="เบอร์ติดต่อ" value={payload.requesterPhone || '-'} />
                 <ReviewRow label="ประเภทคำร้อง" value={PETITION_TYPE_LABELS[petitionType]} />
 

@@ -27,7 +27,10 @@ export interface ChainStep {
   role: string; // student1, student2, advisor, coadvisor1, coadvisor2, admin
   email: string;
   name: string;
+  token?: string;
 }
+
+export type StageOrder = "student_first" | "advisor_first";
 
 export interface PetitionPayload {
   // Type 1
@@ -87,6 +90,7 @@ export interface Petition {
   admin: ApproverRecord & { name?: string };
   // Enriched on detail call
   chain?: ChainStep[];
+  stageOrder?: StageOrder; // "student_first" (default) or "advisor_first" when an advisor filed the petition
   payload?: PetitionPayload;
 }
 
