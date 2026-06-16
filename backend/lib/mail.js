@@ -45,8 +45,6 @@ async function sendMail({ to, subject, htmlBody }) {
  * @param {{ isTest?: boolean }} [opts] - Extra options; set isTest:true to show the test banner
  */
 function buildFlexEmailHtml(headerText, headerColor, bodyContent, buttonText, buttonUrl, opts = {}) {
-  // ── Derive a lighter tint (20 % opacity) from the header colour for the footer & accents.
-  // Works for any 3- or 6-digit hex value.
   function hexToRgb(hex) {
     const h = hex.replace("#", "");
     const full = h.length === 3 ? h.split("").map(c => c + c).join("") : h;
@@ -54,15 +52,16 @@ function buildFlexEmailHtml(headerText, headerColor, bodyContent, buttonText, bu
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
   const [r, g, b] = hexToRgb(headerColor);
-  const tint = `rgba(${r},${g},${b},0.10)`;
-  const tintBorder = `rgba(${r},${g},${b},0.25)`;
 
-  // ── Optional test warning banner ──────────────────────────────────────────
+  // Solid fallback hex versions instead of rgba (Outlook can't parse rgba)
+  const tintHex = "#fff7ed";       // light tint fallback, solid
+  const tintBorderHex = "#fed7aa"; // border fallback, solid
+
   const testNotice = opts.isTest ? `
     <tr>
       <td style="padding: 0 25px 5px 25px;">
         <div style="
-          background: #fef3c7;
+          background-color: #fef3c7;
           border: 2px dashed #f59e0b;
           color: #92400e;
           padding: 12px 16px;
@@ -77,68 +76,82 @@ function buildFlexEmailHtml(headerText, headerColor, bodyContent, buttonText, bu
       </td>
     </tr>` : "";
 
-  // ── Gradient bar at the very top of the card ─────────────────────────────
-  const gradientBar = `linear-gradient(135deg, ${headerColor} 0%, ${headerColor}cc 100%)`;
-
   return `
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <style>
+    table, td { border-collapse: collapse; }
+    .fallback-bg { background-color: ${headerColor} !important; }
+  </style>
+  <![endif]-->
 </head>
 <body style="margin:0;padding:0;background-color:#fff7ed;">
   <div style="font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background-color:#fff7ed;padding:40px 16px;text-align:center;">
 
-    <!--  Outer card  -->
     <table align="center" width="100%"
            style="max-width:500px;background-color:#ffffff;border-radius:18px;overflow:hidden;
-                  box-shadow:0 12px 30px rgba(0,0,0,0.07);border-collapse:collapse;
-                  margin:0 auto;border:1px solid ${tintBorder};">
+                  border-collapse:collapse;margin:0 auto;border:1px solid ${tintBorderHex};">
 
-      <!--  Header bar  -->
+      <!-- Header bar: bgcolor attribute = Outlook fallback, background-color in style = solid fallback for everyone -->
       <tr>
-        <td style="background:${gradientBar};padding:22px 24px;color:#ffffff;
+        <td bgcolor="${headerColor}"
+            style="background-color:${headerColor};padding:22px 24px;color:#ffffff;
                    font-size:19px;font-weight:700;text-align:center;letter-spacing:0.4px;
                    line-height:1.4;">
           ${headerText}
         </td>
       </tr>
 
-      <!--  Decorative accent strip  -->
       <tr>
-        <td style="height:4px;background:linear-gradient(90deg,${headerColor}44,${headerColor},${headerColor}44);"></td>
+        <td bgcolor="${headerColor}" style="height:4px;background-color:${headerColor};font-size:0;line-height:0;">&nbsp;</td>
       </tr>
 
-      <!--  Optional test banner  -->
       ${testNotice}
 
-      <!--  Body  -->
       <tr>
         <td style="padding:28px 28px 20px 28px;color:#334155;font-size:15px;line-height:1.75;text-align:left;">
           ${bodyContent}
         </td>
       </tr>
 
-      <!--  CTA button  -->
+      <!-- CTA button: VML for Outlook rounded fill, plain table cell fallback for everyone else -->
       <tr>
         <td style="padding:4px 28px 34px 28px;text-align:center;">
+          <!--[if mso]>
+          <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="${buttonUrl}"
+            style="height:48px;v-text-anchor:middle;width:220px;" arcsize="20%" stroke="f" fillcolor="${headerColor}">
+            <w:anchorlock/>
+            <center style="color:#ffffff;font-family:'Segoe UI',sans-serif;font-size:15px;font-weight:bold;">
+              ${buttonText}
+            </center>
+          </v:roundrect>
+          <![endif]-->
+          <!--[if !mso]><!-->
           <a href="${buttonUrl}"
-             style="display:inline-block;background:${gradientBar};color:#ffffff;
+             style="display:inline-block;background-color:${headerColor};color:#ffffff;
                     padding:14px 32px;text-decoration:none;border-radius:12px;
-                    font-weight:700;font-size:15px;letter-spacing:0.3px;
-                    box-shadow:0 5px 15px rgba(${r},${g},${b},0.35);
-                    transition:opacity .2s;">
+                    font-weight:700;font-size:15px;letter-spacing:0.3px;">
             ${buttonText}
           </a>
+          <!--<![endif]-->
         </td>
       </tr>
 
-      <!--  Footer  -->
       <tr>
-        <td style="background-color:${tint};padding:16px 24px;text-align:center;
+        <td bgcolor="${tintHex}" style="background-color:${tintHex};padding:16px 24px;text-align:center;
                    color:#7c3d12;font-size:12px;line-height:1.7;
-                   border-top:1px solid ${tintBorder};">
+                   border-top:1px solid ${tintBorderHex};">
           <strong style="font-size:13px;letter-spacing:0.3px;">SCiUSNU SMART</strong><br>
           โครงการ วมว. มหาวิทยาลัยนเรศวร<br>
           <span style="color:#a8a29e;font-size:11px;">อีเมลนี้ถูกส่งโดยระบบอัตโนมัติ กรุณาอย่าตอบกลับ</span>
@@ -147,7 +160,6 @@ function buildFlexEmailHtml(headerText, headerColor, bodyContent, buttonText, bu
 
     </table>
 
-    <!--  Below-card note  -->
     <p style="margin-top:20px;font-size:12px;color:#a8a29e;">
       หากไม่สามารถกดปุ่มได้ ให้คัดลอก URL นี้:
       <a href="${buttonUrl}" style="color:#ea580c;word-break:break-all;">${buttonUrl}</a>
