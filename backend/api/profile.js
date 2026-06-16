@@ -25,7 +25,7 @@ async function handler(req, res) {
     }
 
     const rows     = await getSheetValues(GS_MAIN_TABLE_NAME);
-    const emailIdx = 0, passIdx = 18, phoneIdx = 19, picIdx = 20;
+    const emailIdx = 0, stuIdIdx = 1, passIdx = 18, phoneIdx = 19, picIdx = 20;
 
     // Check new email uniqueness across all rows (skip current user's row)
     if (newEmail && newEmail.trim().toLowerCase() !== email.toLowerCase()) {
@@ -37,10 +37,25 @@ async function handler(req, res) {
       }
     }
 
+    // Students are matched by studentId, never by email — a student who
+    // hasn't set an email yet has email === "" in the JWT, and matching
+    // on an empty string against the email column would silently land on
+    // whichever row happens to also be blank, corrupting the wrong row.
+    // studentId is always present for a student (login requires it), so
+    // it's the reliable key. Non-student roles (advisor/viewer/admin)
+    // have no studentId and are still matched by their login email.
+    const myStudentId = String(req.jwtUser.studentId || "").trim().toLowerCase();
+    const matchesMe = (row) => {
+      if (req.jwtUser.role === "student" && myStudentId) {
+        return (row[stuIdIdx] || "").trim().toLowerCase() === myStudentId;
+      }
+      return (row[emailIdx] || "").trim().toLowerCase() === email.toLowerCase();
+    };
+
     let found = false;
     let updatedEmail = null;
     for (let i = 1; i < rows.length; i++) {
-      if ((rows[i][emailIdx] || "").trim().toLowerCase() === email.toLowerCase()) {
+      if (matchesMe(rows[i])) {
         if (newPassword) {
           if ((rows[i][passIdx] || "").trim() !== String(oldPassword).trim()) {
             return res.status(400).json({ status: "error",

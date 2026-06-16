@@ -3,7 +3,7 @@ require("dotenv").config();
 const { getSheetValues, appendRow, updateRowCells, ensureSubmissionsSheet } = require("../lib/sheets");
 const { trashFile, extractFileId } = require("../lib/appsScript");
 const { sendMail, buildFlexEmailHtml, WEB_URL } = require("../lib/mail");
-const { getGroupInfo, getPayloadReason, INITIAL_SUBMISSION_STATUS, ADMIN_EMAILS } = require("../lib/helpers");
+const { getGroupInfo, getPayloadReason, getStudentEmailById, INITIAL_SUBMISSION_STATUS, ADMIN_EMAILS } = require("../lib/helpers");
 const { requireRole } = require("../lib/auth");
 const { getAllSettings, getWindowStatus } = require("../lib/settings");
 
@@ -26,6 +26,21 @@ async function handler(req, res) {
     const projectRows = await getSheetValues(GS_MAIN_TABLE_NAME);
     const subRows     = await getSheetValues("Submissions");
     const headers     = subRows[0] || [];
+
+    // ── Email-required guard ─────────────────────────────────────
+    // Read directly from the live sheet (not the JWT) so this reflects
+    // an /api/profile email update immediately, with no re-login needed.
+    // Notification emails (advisor/co-advisor/own confirmation) silently
+    // skip recipients with no "@" on file, so a blank email here means
+    // the student would submit work and never be told whether it was
+    // approved — block the action instead of failing silently later.
+    const myEmail = getStudentEmailById(projectRows, req.jwtUser.studentId);
+    if (!myEmail) {
+      return res.status(403).json({
+        status: "error",
+        message: "กรุณาระบุอีเมลของคุณในหน้าโปรไฟล์ก่อนส่งงาน",
+      });
+    }
 
     // ── Date-window guard: โครงร่าง / ความก้าวหน้า / ฉบับสมบูรณ์ ──
     // Blocks ALL submissions (including resubmits of rejected work)
