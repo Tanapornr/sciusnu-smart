@@ -719,7 +719,7 @@ export default function AdvisorDashboard({ pageView, setPageView }: Props) {
       {isPassModalOpen && (
       <div className="modal-backdrop transition-opacity">
         <div className="modal-panel glass-panel">
-            <button onClick={() => setIsPassModalOpen(false)} className="absolute top-5 right-5 text-neutral-400 hover:text-slate-700 dark:hover:text-white bg-slate-100/80 dark:bg-neutral-800/80 rounded-full p-2 transition-colors z-10 btn-liquid"><X className="w-4 h-4" /></button>
+            <button onClick={() => setIsPassModalOpen(false)} className="!absolute top-5 right-5 text-neutral-400 hover:text-slate-700 dark:hover:text-white bg-slate-100/80 dark:bg-neutral-800/80 rounded-full p-2 transition-colors z-10 btn-liquid"><X className="w-4 h-4" /></button>
             <div className="p-6 sm:p-8 overflow-y-auto max-h-[85vh]">
                 <div className="text-center mb-6">
                     <h2 className="text-xl font-bold text-neutral-800 dark:text-white tracking-wide">ตั้งค่าบัญชี</h2>
