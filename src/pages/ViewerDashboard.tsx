@@ -16,8 +16,12 @@ import {
   Clock,
   Info,
   User,
+  KeyRound,
+  X,
+  Save,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { apiUpdateAdvisorPassword } from '../services/api';
 import PetitionDashboard from './PetitionDashboard';
 import PetitionNavButton from '../components/petition/PetitionNavButton';
 import type { PageView } from '../App';
@@ -34,6 +38,13 @@ export default function ViewerDashboard({ pageView, setPageView }: Props) {
   const [myAssignedSubmissions, setMyAssignedSubmissions] = useState<SubmissionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPermWarning, setShowPermWarning] = useState(false);
+
+  // Password change modal state
+  const [isPassModalOpen, setIsPassModalOpen] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passSaving, setPassSaving] = useState(false);
 
   // ── useProjectData: shared L3 cache ───────────────────────────
   const { data: rawData, loading: dataLoading } = useProjectData();
@@ -66,6 +77,34 @@ export default function ViewerDashboard({ pageView, setPageView }: Props) {
       setMyAssignedSubmissions(allSubs.filter(s => myProjectIds.includes(getVal(s, ['รหัสโครงงาน', 'projectid']))));
     }
   }, [rawData, dataLoading, user]);
+
+  const handlePassSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    if (newPassword !== confirmPassword) {
+      Swal.fire({ icon: 'warning', title: 'รหัสผ่านใหม่ไม่ตรงกัน', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-2xl' } });
+      return;
+    }
+
+    setPassSaving(true);
+    try {
+      const res = await apiUpdateAdvisorPassword({ oldPassword, newPassword });
+      if (res.status === 'success') {
+        Swal.fire({ title: 'เปลี่ยนรหัสผ่านเรียบร้อย!', icon: 'success', timer: 1500, showConfirmButton: false, customClass: { popup: 'rounded-2xl' } });
+        setOldPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setIsPassModalOpen(false);
+      } else {
+        throw new Error(res.message);
+      }
+    } catch (err: any) {
+      Swal.fire({ title: 'เกิดข้อผิดพลาด', text: err.message, icon: 'error', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-2xl' } });
+    } finally {
+      setPassSaving(false);
+    }
+  };
 
   const getProcessedImgUrl = (url: any, studentName: string) => {
     if (!url || url === '-' || url === '') return `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=f0f0f0&color=1a1a1a`;
@@ -188,6 +227,11 @@ export default function ViewerDashboard({ pageView, setPageView }: Props) {
           </div>
           <div className="flex items-center gap-2">
             <PetitionNavButton pageView={pageView} setPageView={setPageView} />
+            {(user?.role === 'advisor' || user?.role === 'school_advisor') && (
+              <button onClick={() => setIsPassModalOpen(true)} title="เปลี่ยนรหัสผ่าน" className="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2.5 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-transparent dark:border-neutral-700">
+                <KeyRound className="w-4 h-4" />
+              </button>
+            )}
             <button onClick={toggleTheme} className="btn-liquid bg-neutral-100 dark:bg-neutral-800 p-2.5 rounded-full text-neutral-600 dark:text-neutral-300 outline-none hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-transparent dark:border-neutral-700">
               {theme === 'dark' ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4" />}
             </button>
@@ -352,6 +396,41 @@ export default function ViewerDashboard({ pageView, setPageView }: Props) {
         )}
 
       </div>
+
+      {/* ── Password Change Modal ──────────────────────────────────────────────── */}
+      {isPassModalOpen && (
+      <div className="modal-backdrop transition-opacity" onClick={(e) => { if (e.target === e.currentTarget) setIsPassModalOpen(false); }}>
+        <div className="modal-panel glass-panel">
+          <button onClick={() => setIsPassModalOpen(false)} className="!absolute top-5 right-5 text-neutral-400 hover:text-slate-700 dark:hover:text-white bg-slate-100/80 dark:bg-neutral-800/80 rounded-full p-2 transition-colors z-10 btn-liquid">
+            <X className="w-4 h-4" />
+          </button>
+          <div className="p-6 sm:p-8 overflow-y-auto max-h-[85vh]">
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-neutral-800 dark:text-white tracking-wide">ตั้งค่าบัญชี</h2>
+              <p className="text-xs text-neutral-500 dark:text-slate-400 mt-1">เปลี่ยนรหัสผ่านของคุณ</p>
+            </div>
+            <form className="space-y-4" onSubmit={handlePassSave}>
+              <div className="space-y-3.5 mt-2">
+                <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 ml-1">รหัสผ่านเดิม <span className="text-red-500">*</span></label>
+                <input type="password" required className="w-full text-sm rounded-2xl p-3.5 glass-input outline-none focus:ring-2 focus:ring-orange-400 bg-white dark:bg-neutral-800" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} disabled={passSaving} />
+
+                <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 ml-1 mt-3">รหัสผ่านใหม่ <span className="text-red-500">*</span></label>
+                <input type="password" required className="w-full text-sm rounded-2xl p-3.5 glass-input outline-none focus:ring-2 focus:ring-orange-400 bg-white dark:bg-neutral-800" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} disabled={passSaving} />
+
+                <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 ml-1 mt-3">ยืนยันรหัสผ่านใหม่ <span className="text-red-500">*</span></label>
+                <input type="password" required className="w-full text-sm rounded-2xl p-3.5 glass-input outline-none focus:ring-2 focus:ring-orange-400 bg-white dark:bg-neutral-800" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={passSaving} />
+              </div>
+              <button type="submit" disabled={passSaving} className="w-full btn-liquid bg-neutral-800 dark:bg-orange-600 text-white font-bold py-4 rounded-2xl hover:shadow-lg transition-all mt-6 flex items-center justify-center">
+                {passSaving
+                  ? <><svg className="animate-spin h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังบันทึก...</>
+                  : <><Save className="w-4.5 h-4.5 mr-2" /> บันทึกข้อมูล</>
+                }
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      )}
     </div>
   );
 }

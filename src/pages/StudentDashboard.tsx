@@ -110,6 +110,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
       const info = parseProjectRow(myRow);
       setProjectInfo(info);
       setPhone(info.phone || '');
+      setNewEmailInput(user?.email || '');
 
       const groupMembers = extractGroupMembers(rawData.projects, info.projectId);
       setMembers(groupMembers);
@@ -147,6 +148,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
 
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [phone, setPhone] = useState('');
+    const [newEmailInput, setNewEmailInput] = useState('');
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState('');
     
@@ -456,6 +458,17 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
     }
     
     if (!phone) { Swal.fire({ icon: 'warning', title: '<div class="font-bold text-sm sm:text-base">โปรดระบุเบอร์โทรศัพท์</div>', confirmButtonText: 'ตกลง', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-[1.5rem]'} }); return; }
+
+    // Validate new email if changed
+    const trimmedNewEmail = newEmailInput.trim().toLowerCase();
+    const emailChanged = trimmedNewEmail && trimmedNewEmail !== user.email.toLowerCase();
+    if (emailChanged) {
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRe.test(trimmedNewEmail)) {
+        Swal.fire({ icon: 'warning', title: '<div class="font-bold text-sm sm:text-base">รูปแบบอีเมลไม่ถูกต้อง</div>', confirmButtonColor: '#f97316', customClass: {popup: 'rounded-2xl'} });
+        return;
+      }
+    }
     
     setProfileSaving(true);
 
@@ -476,18 +489,19 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
         phone: phone.trim(),
         oldPassword: oldPassword.trim() || undefined,
         newPassword: newPassword.trim() || undefined,
+        newEmail: emailChanged ? trimmedNewEmail : undefined,
       };
       if (picData) {
           payload.newPicData = picData;
           payload.newPicMime = picMime;
       }
-      console.log('Updating profile with payload:', payload);
       const res = await apiUpdateProfile(payload);
       if (res.status === 'success') {
           Swal.fire({ icon: 'success', title: '<div class="font-bold text-lg">บันทึกข้อมูลเรียบร้อย!</div>', showConfirmButton: false, timer: 1500, customClass: {popup: 'rounded-2xl'} }); 
-          if (res.profileUrl) {
-              updateProfile({ profileUrl: res.profileUrl });
-          }
+          const profileUpdates: { profileUrl?: string; email?: string } = {};
+          if (res.profileUrl) profileUpdates.profileUrl = res.profileUrl;
+          if (res.newEmail)   profileUpdates.email = res.newEmail;
+          if (Object.keys(profileUpdates).length) updateProfile(profileUpdates);
           setIsProfileOpen(false);
           setShowPasswordSection(false);
           setOldPassword('');
@@ -532,7 +546,7 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-4 py-3 sm:py-4 mt-1">
             <div className="flex items-center gap-3 sm:gap-4 w-full">
                 <button 
-                    onClick={() => setIsProfileOpen(true)} 
+                    onClick={() => { setIsProfileOpen(true); setNewEmailInput(user?.email || ''); }} 
                     className="relative group outline-none rounded-full flex-shrink-0 transition-transform hover:scale-105 cursor-pointer"
                     >
                         <img 
@@ -939,9 +953,9 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
 
       {/* ── Profile Modal ──────────────────────────────────────────────────────── */}
       {isProfileOpen && (
-      <div className="modal-backdrop transition-opacity" onClick={(e) => { if (e.target === e.currentTarget) setIsProfileOpen(false); }}>
+      <div className="modal-backdrop transition-opacity" onClick={(e) => { if (e.target === e.currentTarget) { setIsProfileOpen(false); setNewEmailInput(user?.email || ''); } }}>
         <div className="modal-panel glass-panel">
-            <button onClick={() => setIsProfileOpen(false)} className="!absolute top-4 sm:top-5 right-4 sm:right-5 text-neutral-400 hover:text-slate-700 dark:hover:text-white bg-slate-100/80 dark:bg-neutral-800/80 rounded-full p-2 transition-colors z-10 btn-liquid"><X className="w-4 h-4" /></button>
+            <button onClick={() => { setIsProfileOpen(false); setNewEmailInput(user?.email || ''); }} className="!absolute top-4 sm:top-5 right-4 sm:right-5 text-neutral-400 hover:text-slate-700 dark:hover:text-white bg-slate-100/80 dark:bg-neutral-800/80 rounded-full p-2 transition-colors z-10 btn-liquid"><X className="w-4 h-4" /></button>
             <div className="p-5 sm:p-8 overflow-y-auto max-h-[85vh]">
                 <div className="text-center mb-5 sm:mb-6">
                     <h2 className="text-lg sm:text-xl font-bold text-neutral-800 dark:text-white tracking-wide">ตั้งค่าโปรไฟล์</h2>
@@ -955,6 +969,10 @@ export default function StudentDashboard({ pageView, setPageView }: Props) {
                             <div className="absolute bottom-0 right-0 sm:bottom-1 sm:right-1 bg-orange-500 rounded-full p-2 sm:p-2.5 shadow-md border-2 border-white dark:border-neutral-900"><Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" /></div>
                         </div>
                        <input type="file" id="profilePicInput" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleAvatarChange} disabled={profileSaving} />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold mb-1.5 text-neutral-700 dark:text-slate-300 ml-1">อีเมล</label>
+                        <input type="email" placeholder="example@email.com" value={newEmailInput} onChange={(e) => setNewEmailInput(e.target.value)} disabled={profileSaving} className="w-full text-sm rounded-xl sm:rounded-2xl p-3 sm:p-3.5 glass-input outline-none focus:ring-2 focus:ring-orange-400" />
                     </div>
                     <div>
                         <label className="block text-xs font-bold mb-1.5 text-neutral-700 dark:text-slate-300 ml-1">เบอร์โทรศัพท์ <span className="text-red-500">*</span></label>

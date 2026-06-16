@@ -140,7 +140,7 @@ export async function apiUpdateStatus(
 // ── Profile update — POST /api/profile ───────────────────────────
 export async function apiUpdateProfile(
   payload: ProfilePayload,
-): Promise<{ status: string; profileUrl?: string; message?: string }> {
+): Promise<{ status: string; profileUrl?: string; newEmail?: string; message?: string }> {
   return apiFetch('/api/profile', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

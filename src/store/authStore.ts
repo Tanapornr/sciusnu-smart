@@ -35,7 +35,7 @@ interface AuthState {
     profileUrl?: string;
   }) => void;
   logout: () => void;
-  updateProfile: (updates: Partial<Pick<User, 'profileUrl'>>) => void;
+  updateProfile: (updates: Partial<Pick<User, 'profileUrl' | 'email'>>) => void;
   setTheme: (theme: 'light' | 'dark') => void;
   toggleTheme: () => void;
   hydrate: () => void;
