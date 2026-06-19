@@ -61,7 +61,7 @@ async function handler(req, res) {
             return res.status(400).json({ status: "error",
               message: "รหัสผ่านเดิมไม่ถูกต้อง กรุณาลองใหม่" });
           }
-          await updateCell(GS_MAIN_TABLE_NAME, i + 1, passIdx + 1, + newPassword);
+          await updateCell(GS_MAIN_TABLE_NAME, i + 1, passIdx + 1, "'" + newPassword);
         }
         if (phone)      await updateCell(GS_MAIN_TABLE_NAME, i + 1, phoneIdx + 1, "'" + phone);
         if (profileUrl) await updateCell(GS_MAIN_TABLE_NAME, i + 1, picIdx   + 1, profileUrl);
