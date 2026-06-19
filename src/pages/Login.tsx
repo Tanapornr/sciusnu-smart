@@ -169,7 +169,28 @@ export default function Login() {
         </form>
 
         <div className="mt-8 text-center border-t border-slate-200 dark:border-slate-700/50 pt-6">
-            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">มีปัญหาการเข้าสู่ระบบ? <br className="sm:hidden" /><a href="https://line.me/ti/p/pnrY3kVbE0" target="_blank" className="text-orange-600 dark:text-orange-400 font-bold hover:underline ml-1">ติดต่อเจ้าหน้าที่โครงการ</a></p>
+          <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">
+            มีปัญหาการเข้าสู่ระบบ?
+            <br className="sm:hidden" />
+            <a
+              href="https://line.me/ti/p/pnrY3kVbE0"
+              target="_blank"
+              className="text-orange-600 dark:text-orange-400 font-bold hover:underline ml-1"
+            >
+              ติดต่อเจ้าหน้าที่โครงการ
+            </a>
+          </p>
+
+          <p className="mt-5 text-[10px] text-slate-400 dark:text-slate-500">
+            ออกแบบและพัฒนาระบบโดย
+            <span className="font-medium text-slate-500 dark:text-slate-400">
+              {" "}ธนาภรณ์ รอดฉ่ำ
+            </span>
+            <span className="mx-1">•</span>
+            <span className="font-medium text-slate-500 dark:text-slate-400">
+              นิพิฐพนธ์ บุณยาทร
+            </span>
+          </p>
         </div>
       </div>
     </div>
