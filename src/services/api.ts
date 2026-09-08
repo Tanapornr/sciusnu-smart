@@ -215,146 +215,92 @@ export async function uploadFileDirect(
 ): Promise<string> {
   const token = getToken();
 
-  // ── Timeouts ─────────────────────────────────────────────────────
-  // One AbortController rules everything — both the fetch upload phase
-  // and the SSE reading phase use the same signal.  When either timeout
-  // fires it just calls abort() and the browser tears down the whole
-  // connection cleanly without leaving a locked ReadableStream behind.
-  //
-  // FETCH_TIMEOUT   : browser → server upload + initial SSE open.
-  //                   ≥60 s, +3 s per MB so large files aren't cut short.
-  // STREAM_TIMEOUT  : max silence between SSE events (GAS/Drive stall).
-  //                   Resets on every chunk event; fires if 90 s of silence.
-  const FETCH_TIMEOUT_MS  = Math.max(60_000, file.size / 1024 / 1024 * 3_000);
-  const STREAM_TIMEOUT_MS = 180_000;
+  // Each chunk sent to backend must be under 4.5 MB (Vercel serverless limit).
+  // 2 MB per chunk ensures every POST is safely under Vercel's payload limit.
+  const CHUNK_SIZE = 2 * 1024 * 1024;
+  const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+  const sessionId = `upload_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 
-  // Single controller for the entire request lifetime.
-  // A fresh one is created every call so a previous abort never
-  // bleeds into the next upload attempt.
-  const ctrl = new AbortController();
-
-  // Human-readable reason so the error message is accurate
-  let timeoutReason = 'การอัปโหลดหมดเวลา — เครือข่ายช้าหรือไฟล์ใหญ่เกินไป';
-
-  const fetchTimer = setTimeout(() => {
-    timeoutReason = 'การอัปโหลดหมดเวลา — เครือข่ายช้าหรือไฟล์ใหญ่เกินไป';
-    ctrl.abort();
-  }, FETCH_TIMEOUT_MS);
-
-  let streamTimer: ReturnType<typeof setTimeout> | null = null;
-  const resetStreamTimer = () => {
-    if (streamTimer) clearTimeout(streamTimer);
-    streamTimer = setTimeout(() => {
-      timeoutReason = 'การอัปโหลดค้าง — Apps Script หรือ Google Drive ไม่ตอบสนอง';
-      ctrl.abort(); // abort the fetch/reader via signal — no manual reader.cancel()
-    }, STREAM_TIMEOUT_MS);
-  };
-  const clearAllTimers = () => {
-    clearTimeout(fetchTimer);
-    if (streamTimer) { clearTimeout(streamTimer); streamTimer = null; }
-  };
-
-  const headers: Record<string, string> = {
+  const baseHeaders: Record<string, string> = {
     'X-File-Name': encodeURIComponent(fileName),
     'X-File-Type': file.type || 'application/pdf',
+    'X-Session-Id': sessionId,
+    'X-Total-Chunks': String(totalChunks),
   };
-  if (uploadMeta?.workType) headers['X-Work-Type'] = encodeURIComponent(uploadMeta.workType);
-  if (uploadMeta?.isResubmit) headers['X-Is-Resubmit'] = '1';
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (uploadMeta?.workType) baseHeaders['X-Work-Type'] = encodeURIComponent(uploadMeta.workType);
+  if (uploadMeta?.isResubmit) baseHeaders['X-Is-Resubmit'] = '1';
+  if (token) baseHeaders['Authorization'] = `Bearer ${token}`;
 
-  let res: Response;
-  try {
-    res = await fetch(`${BASE}/api/drive-upload`, {
-      method: 'POST',
-      headers,
-      body: file,
-      signal: ctrl.signal,
-    });
-  } catch (err: any) {
-    clearAllTimers();
-    if (err?.name === 'AbortError') throw new Error(timeoutReason);
-    throw err;
-  }
-  clearTimeout(fetchTimer); // upload reached server; cancel upload-phase timer
+  onProgress?.(5);
 
-  if (!res.ok || !res.body) {
-    clearAllTimers();
-    const text = await res.text();
-    let msg = `HTTP ${res.status}`;
-    try { msg = JSON.parse(text).message ?? msg; } catch { /* noop */ }
+  // ── Step 1: Upload each chunk sequentially ───────────────────────
+  for (let i = 0; i < totalChunks; i++) {
+    const start = i * CHUNK_SIZE;
+    const end = Math.min(file.size, start + CHUNK_SIZE);
+    const chunkBlob = file.slice(start, end);
 
-    if (res.status === 413) {
-      const sizeMB = (file.size / 1024 / 1024).toFixed(1);
-      msg = `ไฟล์มีขนาดใหญ่เกินไป (${sizeMB} MB) — ระบบรองรับไฟล์สูงสุด 25 MB กรุณาบีบอัดหรือลดขนาดไฟล์แล้วลองใหม่`;
+    const chunkHeaders = {
+      ...baseHeaders,
+      'X-Action': 'uploadChunk',
+      'X-Chunk-Index': String(i),
+    };
+
+    let res: Response;
+    try {
+      res = await fetch(`${BASE}/api/drive-upload`, {
+        method: 'POST',
+        headers: chunkHeaders,
+        body: chunkBlob,
+      });
+    } catch (err: any) {
+      throw new Error(`การเชื่อมต่อขัดข้องขณะอัปโหลดชิ้นส่วนที่ ${i + 1}/${totalChunks}: ${err.message}`);
     }
 
+    if (!res.ok) {
+      const text = await res.text();
+      let msg = `HTTP ${res.status}`;
+      try { msg = JSON.parse(text).message ?? msg; } catch { /* noop */ }
+      if (res.status === 413) {
+        msg = `ไฟล์ชิ้นส่วนมีขนาดใหญ่เกินไป (${(chunkBlob.size / 1024 / 1024).toFixed(1)} MB)`;
+      }
+      throw new Error(msg);
+    }
+
+    const pct = Math.round(((i + 1) / totalChunks) * 80);
+    onProgress?.(pct);
+  }
+
+  // ── Step 2: Finalize upload (Google Apps Script assembles chunks) ─
+  onProgress?.(85);
+  const finalizeHeaders = {
+    ...baseHeaders,
+    'X-Action': 'finalize',
+  };
+
+  let finalRes: Response;
+  try {
+    finalRes = await fetch(`${BASE}/api/drive-upload`, {
+      method: 'POST',
+      headers: finalizeHeaders,
+    });
+  } catch (err: any) {
+    throw new Error(`การรวมไฟล์ที่ Google Drive ขัดข้อง: ${err.message}`);
+  }
+
+  if (!finalRes.ok) {
+    const text = await finalRes.text();
+    let msg = `HTTP ${finalRes.status}`;
+    try { msg = JSON.parse(text).message ?? msg; } catch { /* noop */ }
     throw new Error(msg);
   }
 
-  // ── Read the SSE stream ─────────────────────────────────────────
-  // We do NOT call getReader() here. Instead we use a for-await loop
-  // on res.body which the browser owns — when ctrl.abort() fires the
-  // signal, the browser cancels the underlying fetch and the for-await
-  // throws an AbortError naturally, leaving no locked stream behind.
-  try {
-    resetStreamTimer(); // start silence watchdog
-
-    let buf = '';
-
-    const handleEvent = (line: string): { result: string } | null => {
-      if (!line.startsWith('data: ')) return null;
-      let evt: Record<string, unknown>;
-      try { evt = JSON.parse(line.slice(6)); } catch { return null; }
-
-      resetStreamTimer(); // got data — push watchdog back
-
-      switch (evt.type) {
-        case 'start':    { onProgress?.(10);  return null; }
-        case 'chunk':    {
-          const done  = (evt.index as number) + 1;
-          const total = evt.total as number;
-          onProgress?.(10 + Math.round((done / total) * 80));
-          return null;
-        }
-        case 'finalize': { onProgress?.(92); return null; }
-        case 'done': {
-          onProgress?.(100);
-          return {
-            result: (evt.webViewLink as string) ??
-                    `https://drive.google.com/file/d/${evt.id as string}/view`,
-          };
-        }
-        case 'error':    { throw new Error((evt.message as string) || 'Upload failed'); }
-      }
-      return null;
-    };
-
-    const decoder = new TextDecoder();
-    const reader  = res.body.getReader();
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buf += decoder.decode(value, { stream: true });
-        const lines = buf.split('\n');
-        buf = lines.pop() ?? '';
-        for (const line of lines) {
-          const r = handleEvent(line.trim());
-          if (r) { clearAllTimers(); return r.result; }
-        }
-      }
-    } finally {
-      // Always release the reader lock so the next upload can use a fresh stream
-      reader.releaseLock();
-    }
-
-    throw new Error('SSE stream closed without a done event');
-  } catch (err: any) {
-    clearAllTimers();
-    if (err?.name === 'AbortError') throw new Error(timeoutReason);
-    throw err;
+  const json = await finalRes.json();
+  if (json.status !== 'success') {
+    throw new Error(json.message || 'การสร้างไฟล์ใน Google Drive ล้มเหลว');
   }
+
+  onProgress?.(100);
+  return json.webViewLink || `https://drive.google.com/file/d/${json.id}/view`;
 }
 
 export async function uploadFileToDrive(

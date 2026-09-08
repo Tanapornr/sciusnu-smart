@@ -11,7 +11,7 @@
 //   so we always have what we need to clean up.
 // ================================================================
 require("dotenv").config();
-const { uploadFileToDrive } = require("../lib/drive");
+const { uploadFileToDrive, uploadChunk, finalizeUpload, abortUpload } = require("../lib/appsScript");
 const { requireAuth }       = require("../lib/auth");
 const { getAllSettings, getWindowStatus } = require("../lib/settings");
 
@@ -24,32 +24,79 @@ const WORK_TYPE_SETTING_KEY = {
 async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const fileName = decodeURIComponent(String(req.headers["x-file-name"] || ""));
-  const mimeType = String(req.headers["x-file-type"] || "application/octet-stream");
-  const workType = decodeURIComponent(String(req.headers["x-work-type"] || "")).trim();
-  const buffer   = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body || "");
+  const action    = String(req.headers["x-action"] || "").trim();
+  const fileName  = decodeURIComponent(String(req.headers["x-file-name"] || ""));
+  const mimeType  = String(req.headers["x-file-type"] || "application/octet-stream");
+  const workType  = decodeURIComponent(String(req.headers["x-work-type"] || "")).trim();
+  const sessionId = String(req.headers["x-session-id"] || "");
 
+  // ── Date-window guard ─────────────────────────────────────────────
+  const checkWindow = async () => {
+    const settingKey = WORK_TYPE_SETTING_KEY[workType];
+    if (settingKey) {
+      try {
+        const settings = await getAllSettings();
+        const { isOpen, hasLimit } = getWindowStatus(settings[settingKey]);
+        if (hasLimit && !isOpen) {
+          throw new Error(`ขณะนี้ไม่อยู่ในช่วงเวลาที่เปิดให้ส่ง "${workType}" — ไม่สามารถอัปโหลดไฟล์ได้`);
+        }
+      } catch (e) {
+        if (e.message.includes("ไม่อยู่ในช่วงเวลา")) throw e;
+        console.warn("[drive-upload] settings check failed, allowing upload:", e.message);
+      }
+    }
+  };
+
+  // ── Mode 1: Chunk Upload (client-driven chunk) ───────────────────
+  if (action === "uploadChunk" || req.headers["x-chunk-index"] !== undefined) {
+    const chunkIndex  = Number(req.headers["x-chunk-index"] || 0);
+    const totalChunks = Number(req.headers["x-total-chunks"] || 1);
+
+    if (chunkIndex === 0) {
+      try { await checkWindow(); } catch (e) { return res.status(403).json({ status: "error", message: e.message }); }
+    }
+
+    const buffer = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body || "");
+    if (!buffer.length) return res.status(400).json({ status: "error", message: "chunk body required" });
+
+    try {
+      await uploadChunk({
+        sessionId,
+        chunkIndex,
+        totalChunks,
+        chunkData: buffer.toString("base64"),
+      });
+      return res.json({ status: "success", chunkIndex });
+    } catch (err) {
+      return res.status(500).json({ status: "error", message: err.message });
+    }
+  }
+
+  // ── Mode 2: Finalize Upload (assemble chunks in Drive) ───────────
+  if (action === "finalize") {
+    const totalChunks = Number(req.headers["x-total-chunks"] || 1);
+    if (!fileName) return res.status(400).json({ status: "error", message: "fileName required" });
+
+    try {
+      const result = await finalizeUpload({
+        sessionId,
+        totalChunks,
+        fileName,
+        mimeType,
+        folderId: process.env.DRIVE_FOLDER_ID,
+      });
+      return res.json({ status: "success", id: result.id, webViewLink: result.webViewLink });
+    } catch (err) {
+      return res.status(500).json({ status: "error", message: err.message });
+    }
+  }
+
+  // ── Mode 3: Legacy Single-shot Upload (SSE Stream) ───────────────
+  const buffer = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body || "");
   if (!fileName) return res.status(400).json({ status: "error", message: "fileName required" });
   if (!buffer.length) return res.status(400).json({ status: "error", message: "file body required" });
 
-  // ── Date-window guard (server clock — not affected by client-side
-  // clock manipulation). Blocks ALL report uploads (including resubmits
-  // of rejected work) once the submission window has closed.
-  const settingKey = WORK_TYPE_SETTING_KEY[workType];
-  if (settingKey) {
-    try {
-      const settings = await getAllSettings();
-      const { isOpen, hasLimit } = getWindowStatus(settings[settingKey]);
-      if (hasLimit && !isOpen) {
-        return res.status(403).json({
-          status: "error",
-          message: `ขณะนี้ไม่อยู่ในช่วงเวลาที่เปิดให้ส่ง "${workType}" — ไม่สามารถอัปโหลดไฟล์ได้`,
-        });
-      }
-    } catch (e) {
-      console.warn("[drive-upload] settings check failed, allowing upload:", e.message);
-    }
-  }
+  try { await checkWindow(); } catch (e) { return res.status(403).json({ status: "error", message: e.message }); }
 
   // ── Open SSE stream ──────────────────────────────────────────────
   res.setHeader("Content-Type",      "text/event-stream");
@@ -57,6 +104,7 @@ async function handler(req, res) {
   res.setHeader("Connection",        "keep-alive");
   res.setHeader("X-Accel-Buffering", "no");
   res.flushHeaders();
+
 
   const send = (obj) => {
     if (res.writableEnded) return;
