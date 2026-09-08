@@ -25,6 +25,12 @@ const UPLOAD_TOKEN_SECRET = process.env.UPLOAD_TOKEN_SECRET;
 const UPLOAD_TOKEN_TTL    = 5 * 60; // 5 minutes in seconds
 
 async function handler(req, res) {
+  if (req.method === "OPTIONS") {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "*");
+    return res.status(200).end();
+  }
   if (req.method !== "POST") return res.status(405).end();
 
   if (!UPLOAD_TOKEN_SECRET || UPLOAD_TOKEN_SECRET.length < 32) {

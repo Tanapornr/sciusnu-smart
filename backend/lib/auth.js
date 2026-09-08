@@ -39,6 +39,12 @@ function verifyToken(token) {
  * Attaches decoded payload to req.jwtUser.
  */
 function requireAuth(req, res, next) {
+  if (req.method === "OPTIONS") {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "*");
+    return res.status(200).end();
+  }
   const header = req.headers["authorization"] || "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : null;
   if (!token) {
