@@ -23,8 +23,15 @@ const petitionsRouter  = require("./api/petitions"); // NEW
 const app = express();
 
 // ── CORS ──────────────────────────────────────────────────────────
-const ALLOWED_ORIGIN = process.env.WEB_URL ? process.env.WEB_URL.replace(/\/$/, "") : "*";
-app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }));
+// In production the frontend and /api/* are served from the same Vercel
+// origin, so browser CORS headers are not required.  We default to "*"
+// (open) unless WEB_URL is explicitly set to a non-localhost value.
+const _raw = (process.env.WEB_URL || "").replace(/\/$/, "");
+const ALLOWED_ORIGIN =
+  _raw && !_raw.includes("localhost") && !_raw.includes("127.0.0.1")
+    ? _raw
+    : "*";
+app.use(cors({ origin: ALLOWED_ORIGIN, credentials: ALLOWED_ORIGIN !== "*" }));
 
 // ── Security headers ──────────────────────────────────────────────
 app.use((req, res, next) => {
