@@ -151,6 +151,20 @@ async function abortUpload({ sessionId, totalChunks }) {
   await callRelayForCleanup({ action: "abortUpload", sessionId, totalChunks: Number(totalChunks) });
 }
 
+async function getResumableUploadUrl() {
+  throw new Error("getResumableUploadUrl is not supported. Use POST /api/drive-upload instead.");
+}
+
+async function trashFile(fileId) {
+  if (!fileId) return;
+  await callRelayForCleanup({ action: "trashFile", fileId });
+}
+
+function extractFileId(url) {
+  const match = String(url || "").match(/[-\w]{25,}/);
+  return match ? match[0] : null;
+}
+
 module.exports = {
   uploadFileToDrive,
   uploadChunk,
@@ -161,4 +175,5 @@ module.exports = {
   trashFile,
   extractFileId,
 };
+
 
