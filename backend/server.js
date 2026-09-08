@@ -40,9 +40,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Parse upload chunks before the global JSON parser. Blob.slice() may produce a
+// body without Content-Type, so a predicate is required instead of "*/*";
+// body-parser otherwise skips the request and leaves req.body empty.
+app.use("/api/drive-upload", express.raw({ type: () => true, limit: "25mb" }));
 app.use(express.json({ limit: "2mb" })); // increased for signature payloads
-// Raw binary parser for /api/drive-upload (supports up to 25 MB files)
-app.use("/api/drive-upload", express.raw({ type: "*/*", limit: "25mb" }));
 
 // ── Token blocklist for logout ────────────────────────────────────
 const revokedTokens = new Set();

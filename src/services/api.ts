@@ -241,6 +241,7 @@ export async function uploadFileDirect(
 
     const chunkHeaders = {
       ...baseHeaders,
+      'Content-Type': 'application/octet-stream',
       'X-Action': 'uploadChunk',
       'X-Chunk-Index': String(i),
     };
@@ -252,8 +253,12 @@ export async function uploadFileDirect(
         headers: chunkHeaders,
         body: chunkBlob,
       });
-    } catch (err: any) {
-      throw new Error(`การเชื่อมต่อขัดข้องขณะอัปโหลดชิ้นส่วนที่ ${i + 1}/${totalChunks}: ${err.message}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      throw new Error(
+        `การเชื่อมต่อขัดข้องขณะอัปโหลดชิ้นส่วนที่ ${i + 1}/${totalChunks}: ${message}`,
+        { cause: err },
+      );
     }
 
     if (!res.ok) {
@@ -283,8 +288,9 @@ export async function uploadFileDirect(
       method: 'POST',
       headers: finalizeHeaders,
     });
-  } catch (err: any) {
-    throw new Error(`การรวมไฟล์ที่ Google Drive ขัดข้อง: ${err.message}`);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(`การรวมไฟล์ที่ Google Drive ขัดข้อง: ${message}`, { cause: err });
   }
 
   if (!finalRes.ok) {
