@@ -216,8 +216,11 @@ export async function uploadFileDirect(
   const token = getToken();
 
   // Each chunk sent to backend must be under 4.5 MB (Vercel serverless limit).
-  // 2 MB per chunk ensures every POST is safely under Vercel's payload limit.
-  const CHUNK_SIZE = 2 * 1024 * 1024;
+  // Keep every non-final chunk divisible by 3 bytes. The Apps Script relay
+  // stores each chunk as Base64 text and joins the strings before decoding;
+  // a non-aligned chunk would add "=" padding in the middle of that string.
+  const MAX_CHUNK_SIZE = 2 * 1024 * 1024;
+  const CHUNK_SIZE = MAX_CHUNK_SIZE - (MAX_CHUNK_SIZE % 3);
   const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
   const sessionId = `upload_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 
