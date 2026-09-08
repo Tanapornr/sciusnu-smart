@@ -9,6 +9,12 @@ const { requireAuth }                = require("../lib/auth");
 const GS_MAIN_TABLE_NAME = process.env.GS_MAIN_TABLE_NAME;
 
 async function handler(req, res) {
+  if (req.method === "OPTIONS") {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "*");
+    return res.status(200).end();
+  }
   if (req.method !== "POST") return res.status(405).end();
   try {
     const { oldPassword, newPassword, phone, profileUrl, newEmail } = req.body;
