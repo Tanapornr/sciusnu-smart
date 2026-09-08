@@ -22,6 +22,11 @@ const petitionsRouter  = require("./api/petitions"); // NEW
 
 const app = express();
 
+// Vercel forwards the real client address through one trusted proxy hop.
+// express-rate-limit reads req.ip, so this must be enabled before the limiter
+// to avoid treating every visitor as the same proxy and rejecting valid logins.
+app.set("trust proxy", 1);
+
 // ── CORS ──────────────────────────────────────────────────────────
 const ALLOWED_ORIGIN = process.env.WEB_URL ? process.env.WEB_URL.replace(/\/$/, "") : "*";
 app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }));

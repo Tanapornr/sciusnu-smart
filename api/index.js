@@ -12,4 +12,19 @@
 
 import app from "../backend/server.js";
 
-export default app;
+const LEGACY_SERVICE_PREFIX = "/_/backend";
+
+export default function handler(req, res) {
+  // VITE_API_URL on the existing Vercel project still points to the former
+  // Services prefix. Rewrites select this function but intentionally preserve
+  // the incoming URL, so normalize that one legacy prefix before Express
+  // performs route matching. Canonical /api/* requests remain unchanged.
+  if (
+    req.url === LEGACY_SERVICE_PREFIX ||
+    req.url.startsWith(`${LEGACY_SERVICE_PREFIX}/`)
+  ) {
+    req.url = req.url.slice(LEGACY_SERVICE_PREFIX.length) || "/";
+  }
+
+  return app(req, res);
+}
