@@ -125,18 +125,40 @@ async function uploadFileToDrive({ fileName, mimeType, buffer, folderId, onProgr
   return { id: result.id, webViewLink: result.webViewLink };
 }
 
-async function getResumableUploadUrl() {
-  throw new Error("getResumableUploadUrl is not supported. Use POST /api/drive-upload instead.");
+async function uploadChunk({ sessionId, chunkIndex, totalChunks, chunkData }) {
+  return await callRelay({
+    action:      "uploadChunk",
+    sessionId,
+    chunkIndex:  Number(chunkIndex),
+    totalChunks: Number(totalChunks),
+    chunkData,
+  });
 }
 
-async function trashFile(fileId) {
-  if (!fileId) return;
-  await callRelayForCleanup({ action: "trashFile", fileId });
+async function finalizeUpload({ sessionId, totalChunks, fileName, mimeType, folderId }) {
+  const result = await callRelay({
+    action:      "finalizeUpload",
+    sessionId,
+    totalChunks: Number(totalChunks),
+    fileName,
+    mimeType,
+    folderId,
+  });
+  return { id: result.id, webViewLink: result.webViewLink };
 }
 
-function extractFileId(url) {
-  const match = String(url || "").match(/[-\w]{25,}/);
-  return match ? match[0] : null;
+async function abortUpload({ sessionId, totalChunks }) {
+  await callRelayForCleanup({ action: "abortUpload", sessionId, totalChunks: Number(totalChunks) });
 }
 
-module.exports = { uploadFileToDrive, callRelayForCleanup, getResumableUploadUrl, trashFile, extractFileId };
+module.exports = {
+  uploadFileToDrive,
+  uploadChunk,
+  finalizeUpload,
+  abortUpload,
+  callRelayForCleanup,
+  getResumableUploadUrl,
+  trashFile,
+  extractFileId,
+};
+
