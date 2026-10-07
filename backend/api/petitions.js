@@ -90,6 +90,9 @@ function encryptSignature(text) {
   return iv.toString("hex") + ":" + encrypted;
 }
 
+// Google Sheets hard limit is 50,000 chars per cell
+const SHEET_CELL_LIMIT = 49000;
+
 function decryptSignature(text) {
   if (!text) return "";
   const parts = text.split(":");
@@ -570,12 +573,17 @@ async function handleApproval(req, res, action) {
       const cols = roleColMap[userChainRole];
       if (!cols) return res.status(400).json({ status: "error", message: "ประเภทผู้ใช้งานไม่ถูกต้อง" });
 
+      if (encryptedSig.length > SHEET_CELL_LIMIT) {
+        return res.status(413).json({ status: "error", message: "ลายเซ็นมีขนาดใหญ่เกินไป กรุณากดล้างแล้วเซ็นใหม่อีกครั้ง" });
+      }
+
+      // Status is written LAST so a failed write can never leave "approved" without sig/time
       const updates = [
-        { col: cols.status, value: statusVal },
         { col: cols.note,   value: note || "" },
         { col: cols.sig,    value: encryptedSig },
         { col: cols.time,   value: now },
         { col: COL.updated_at, value: now },
+        { col: cols.status, value: statusVal },
       ];
 
       // Save admin name if this is the admin step
@@ -764,12 +772,17 @@ async function handleTokenApproval(req, res) {
       const cols = roleColMap[step.role];
       if (!cols) return res.status(400).json({ status: "error", message: "บทบาทไม่ถูกต้อง" });
 
+      if (encryptedSig.length > SHEET_CELL_LIMIT) {
+        return res.status(413).json({ status: "error", message: "ลายเซ็นมีขนาดใหญ่เกินไป กรุณากดล้างแล้วเซ็นใหม่อีกครั้ง" });
+      }
+
+      // Status is written LAST so a failed write can never leave "approved" without sig/time
       const updates = [
-        { col: cols.status, value: statusVal },
         { col: cols.note,   value: note || "" },
         { col: cols.sig,    value: encryptedSig },
         { col: cols.time,   value: now },
         { col: COL.updated_at, value: now },
+        { col: cols.status, value: statusVal },
       ];
 
       if (action === "reject") {
@@ -968,6 +981,133 @@ function getGroupInfoByAdvisorEmail(projectRows, advisorEmail) {
   return { members: [], targetProjId: "", projectNameTH: "", advEmail: "", advName: "", coAdvEmail: "", coAdvName: "", schAdvEmail: "", schAdvName: "" };
 }
 
+
+// ================================================================
+// POST /api/petitions/:id/resign — Re-sign a step that was approved but has no signature
+// Only fills signature + time. Status / stage / final_result are NOT changed,
+// so nobody else has to sign again and the petition is not re-processed.
+// ================================================================
+async function handleResign(req, res) {
+  if (req.method !== "POST") return res.status(405).end();
+  const user = req.jwtUser;
+  const petitionId = req.params?.id || req.query?.id;
+  const { signature } = req.body || {};
+
+  if (!signature) {
+    return res.status(400).json({ status: "error", message: "กรุณาลงนามก่อนดำเนินการ" });
+  }
+
+  try {
+    await ensurePetitionsSheet();
+    const rows = await getSheetValues(SHEET);
+
+    for (let i = 1; i < rows.length; i++) {
+      const p = rowToPetition(rows[i], i + 1);
+      if (!p || p.petition_id !== petitionId) continue;
+
+      const chainData = safeParseChain(p.payload_json);
+      const chain = chainData.chain || [];
+
+      const role = getUserRoleInChain(p, user.email, user.role, chain);
+      if (!role) {
+        return res.status(403).json({ status: "error", message: "คุณไม่มีสิทธิ์ลงนามคำร้องนี้" });
+      }
+
+      const roleColMap = {
+        student1:   { status: COL.student1_status,   sig: COL.student1_signature,   time: COL.student1_time },
+        student2:   { status: COL.student2_status,   sig: COL.student2_signature,   time: COL.student2_time },
+        advisor:    { status: COL.advisor_status,    sig: COL.advisor_signature,    time: COL.advisor_time },
+        coadvisor1: { status: COL.coadvisor1_status, sig: COL.coadvisor1_signature, time: COL.coadvisor1_time },
+        coadvisor2: { status: COL.coadvisor2_status, sig: COL.coadvisor2_signature, time: COL.coadvisor2_time },
+        admin:      { status: COL.admin_status,      sig: COL.admin_signature,      time: COL.admin_time },
+      };
+      const cols = roleColMap[role];
+      if (!cols) return res.status(400).json({ status: "error", message: "ประเภทผู้ใช้งานไม่ถูกต้อง" });
+
+      // Read RAW cells (rowToPetition decrypts, so check the sheet value itself)
+      const rawStatus = String(rows[i][cols.status - 1] || "").trim();
+      const rawSig    = String(rows[i][cols.sig - 1] || "").trim();
+
+      if (rawStatus !== "อนุมัติ") {
+        return res.status(400).json({ status: "error", message: "คุณยังไม่ได้อนุมัติคำร้องนี้ กรุณาใช้ปุ่มอนุมัติตามปกติ" });
+      }
+      if (rawSig) {
+        return res.status(400).json({ status: "error", message: "คุณลงนามไว้แล้ว" });
+      }
+
+      const encryptedSig = encryptSignature(signature);
+      if (encryptedSig.length > SHEET_CELL_LIMIT) {
+        return res.status(413).json({ status: "error", message: "ลายเซ็นมีขนาดใหญ่เกินไป กรุณากดล้างแล้วเซ็นใหม่อีกครั้ง" });
+      }
+
+      const now = new Date().toISOString();
+      // time is written last; status/current_step/final_result are untouched
+      await updateRowCells(SHEET, p._row, [
+        { col: cols.sig,  value: encryptedSig },
+        { col: cols.time, value: now },
+        { col: COL.updated_at, value: now },
+      ]);
+      console.log(`[petitions] RESIGN ${petitionId} role=${role} by=${user.email}`);
+      return res.json({ status: "success", message: "ลงนามเพิ่มเติมสำเร็จ" });
+    }
+    return res.status(404).json({ status: "error", message: "ไม่พบคำร้อง" });
+  } catch (e) {
+    return res.status(500).json({ status: "error", message: e.message });
+  }
+}
+
+// ================================================================
+// POST /api/petitions/:id/fix-chain-email — ADMIN ONLY
+// Corrects a mistyped approver email (e.g. "nu.acth") so that person can log in
+// and re-sign. Only allowed for a step that is approved but has no signature.
+// ================================================================
+async function handleFixChainEmail(req, res) {
+  if (req.method !== "POST") return res.status(405).end();
+  const user = req.jwtUser;
+  if (user.role !== "admin") {
+    return res.status(403).json({ status: "error", message: "เฉพาะผู้ดูแลระบบเท่านั้น" });
+  }
+  const petitionId = req.params?.id || req.query?.id;
+  const { role, newEmail } = req.body || {};
+  const email = normalizeEmail(newEmail);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ status: "error", message: "รูปแบบอีเมลไม่ถูกต้อง" });
+  }
+  if (!["student1","student2","advisor","coadvisor1","coadvisor2"].includes(role)) {
+    return res.status(400).json({ status: "error", message: "บทบาทไม่ถูกต้อง" });
+  }
+
+  try {
+    await ensurePetitionsSheet();
+    const rows = await getSheetValues(SHEET);
+    for (let i = 1; i < rows.length; i++) {
+      const p = rowToPetition(rows[i], i + 1);
+      if (!p || p.petition_id !== petitionId) continue;
+
+      const rawSigCol = COL[role + "_signature"];
+      if (String(rows[i][rawSigCol - 1] || "").trim()) {
+        return res.status(400).json({ status: "error", message: "ขั้นตอนนี้ลงนามแล้ว ไม่สามารถแก้อีเมลได้" });
+      }
+      const chainData = safeParseChain(p.payload_json);
+      const step = (chainData.chain || []).find(s => s.role === role);
+      if (!step) return res.status(404).json({ status: "error", message: "ไม่พบผู้อนุมัติในคำร้องนี้" });
+
+      const oldEmail = step.email;
+      step.email = email;
+      const now = new Date().toISOString();
+      await updateRowCells(SHEET, p._row, [
+        { col: COL.payload_json, value: JSON.stringify(chainData) },
+        { col: COL.updated_at,   value: now },
+      ]);
+      console.log(`[petitions] FIX-EMAIL ${petitionId} role=${role} ${oldEmail} -> ${email} by=${user.email}`);
+      return res.json({ status: "success", message: "แก้ไขอีเมลแล้ว" });
+    }
+    return res.status(404).json({ status: "error", message: "ไม่พบคำร้อง" });
+  } catch (e) {
+    return res.status(500).json({ status: "error", message: e.message });
+  }
+}
+
 // ================================================================
 // Express router — mount in server.js
 // ================================================================
@@ -985,6 +1125,8 @@ router.post("/",            authMW, createPetition);
 router.get("/",             authMW, listPetitions);
 router.post("/signature",   authMW, handleSignature);
 router.get("/:id",          authMW, getPetitionDetail);
+router.post("/:id/resign", authMW, handleResign);
+router.post("/:id/fix-chain-email", authMW, handleFixChainEmail);
 router.post("/:id/approve", authMW, (req, res) => handleApproval(req, res, "approve"));
 router.post("/:id/reject",  authMW, (req, res) => handleApproval(req, res, "reject"));
 
