@@ -95,3 +95,18 @@ export async function apiApproveByToken(payload: TokenApprovePayload) {
   }
   return json;
 }
+// ── Re-sign (approved but signature missing) ──────────────────────
+export async function apiResignPetition(id: string, signature: string) {
+  return petitionFetch<{ status: string; message?: string }>(
+    `/api/petitions/${encodeURIComponent(id)}/resign`,
+    { method: 'POST', body: JSON.stringify({ signature }) }
+  );
+}
+
+// ── Admin: fix mistyped approver email ────────────────────────────
+export async function apiFixChainEmail(id: string, role: string, newEmail: string) {
+  return petitionFetch<{ status: string; message?: string }>(
+    `/api/petitions/${encodeURIComponent(id)}/fix-chain-email`,
+    { method: 'POST', body: JSON.stringify({ role, newEmail }) }
+  );
+}

@@ -90,8 +90,16 @@ export default function SignaturePad({ onSign, onClear, label = 'ลงนาม
 
     const canvas = canvasRef.current;
     if (canvas) {
-      const dataUrl = canvas.toDataURL('image/png');
-      onSign(dataUrl);
+      // Downscale before export: on high-DPR phones the raw canvas is huge, and the
+      // encrypted (hex) result exceeds Google Sheets' 50,000-char cell limit.
+      const MAX_W = 400;
+      const ratio = Math.min(1, MAX_W / canvas.width);
+      const out = document.createElement('canvas');
+      out.width = Math.max(1, Math.round(canvas.width * ratio));
+      out.height = Math.max(1, Math.round(canvas.height * ratio));
+      const octx = out.getContext('2d');
+      if (octx) octx.drawImage(canvas, 0, 0, out.width, out.height);
+      onSign((octx ? out : canvas).toDataURL('image/png'));
     }
   }, [drawing, onSign]);
 

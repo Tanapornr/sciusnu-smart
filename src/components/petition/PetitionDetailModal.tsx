@@ -8,7 +8,7 @@
 // ================================================================
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import { apiGetPetition, apiApprovePetition, apiRejectPetition } from '../../services/petitionApi';
+import { apiGetPetition, apiApprovePetition, apiRejectPetition, apiResignPetition, apiFixChainEmail } from '../../services/petitionApi';
 import { formatDateTimeTH } from '../../utils';
 import { exportViaPrint } from '../../utils/exportPetitionPdf';
 import type { Petition, ChainStep, StageOrder } from '../../types/petition';
@@ -133,6 +133,73 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
       isAdminStage: false,
     };
   })();
+
+  // ── Re-sign: my step is approved but has no signature ─────────
+  const [resignSig, setResignSig] = useState('');
+  const [resigning, setResigning] = useState(false);
+
+  const missingSigRoles: string[] = petition
+    ? [
+        ...(petition.chain || []).map(s => s.role),
+      ].filter(r => {
+        const a = petition[r as keyof Petition] as any;
+        return !!a?.status && a.status === 'อนุมัติ' && !a?.signature;
+      })
+    : [];
+
+  const myMissingRole: string | null = (() => {
+    if (!petition || !user) return null;
+    for (const r of missingSigRoles) {
+      if (r === 'admin') { if (user.role === 'admin') return 'admin'; continue; }
+      const step = (petition.chain || []).find(s => s.role === r);
+      if (step && normalizeEmail(step.email) === normalizeEmail(user.email)) return r;
+    }
+    return null;
+  })();
+
+  async function reload() {
+    const res = await apiGetPetition(petitionId);
+    if (res.status === 'success') setPetition(res.petition);
+  }
+
+  async function doResign() {
+    if (!resignSig) {
+      Swal.fire({ icon: 'warning', title: 'กรุณาลงนาม', confirmButtonColor: '#f97316' });
+      return;
+    }
+    setResigning(true);
+    try {
+      const res = await apiResignPetition(petitionId, resignSig);
+      if (res.status !== 'success') throw new Error(res.message);
+      await Swal.fire({ icon: 'success', title: 'ลงนามเพิ่มเติมสำเร็จ', confirmButtonColor: '#f97316' });
+      setResignSig('');
+      await reload();
+      onUpdate();
+    } catch (e: any) {
+      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: e.message, confirmButtonColor: '#f97316' });
+    } finally { setResigning(false); }
+  }
+
+  async function doFixEmail(role: string, current: string) {
+    const r = await Swal.fire({
+      title: 'แก้ไขอีเมลผู้อนุมัติ',
+      input: 'email',
+      inputValue: current,
+      showCancelButton: true,
+      confirmButtonText: 'บันทึก',
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#f97316',
+    });
+    if (!r.isConfirmed || !r.value) return;
+    try {
+      const res = await apiFixChainEmail(petitionId, role, r.value);
+      if (res.status !== 'success') throw new Error(res.message);
+      await reload();
+      Swal.fire({ icon: 'success', title: 'แก้ไขอีเมลแล้ว', confirmButtonColor: '#f97316' });
+    } catch (e: any) {
+      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: e.message, confirmButtonColor: '#f97316' });
+    }
+  }
 
   // ── Approve handler ───────────────────────────────────────────
   async function doApprove() {
@@ -298,6 +365,44 @@ export default function PetitionDetailModal({ petitionId, onClose, onUpdate }: P
               >
                 {isAdminStage ? <><Shield className="w-4 h-4" /> อนุมัติขั้นสุดท้าย (Admin)</> : <>✍️ ดำเนินการอนุมัติ / ปฏิเสธ</>}
               </button>
+            )}
+
+            {/* Re-sign panel: approved earlier but signature was not saved */}
+            {myMissingRole && (
+              <div className="rounded-xl border p-4 space-y-3" style={{ borderColor: '#f59e0b', background: 'rgba(245,158,11,0.08)' }}>
+                <h3 className="font-bold text-sm text-amber-700 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" /> ลายเซ็นของคุณยังไม่ถูกบันทึก
+                </h3>
+                <p className="text-xs text-amber-700">
+                  คุณอนุมัติคำร้องนี้แล้ว แต่ระบบไม่ได้บันทึกลายเซ็น กรุณาลงนามอีกครั้ง
+                  (ไม่ต้องยื่นคำร้องใหม่ และคนอื่นไม่ต้องลงนามซ้ำ)
+                </p>
+                <SignaturePad onSign={setResignSig} onClear={() => setResignSig('')} label="ลายเซ็นดิจิทัล (จำเป็น)" />
+                <button
+                  onClick={doResign}
+                  disabled={resigning || !resignSig}
+                  className="btn-liquid w-full py-2.5 rounded-xl font-semibold text-sm text-white bg-amber-500 hover:bg-amber-600 disabled:opacity-40 transition-colors"
+                >
+                  {resigning ? 'กำลังบันทึก...' : '✍️ บันทึกลายเซ็น'}
+                </button>
+              </div>
+            )}
+
+            {/* Admin: list approvers whose signature is missing, allow fixing mistyped email */}
+            {user?.role === 'admin' && missingSigRoles.filter(r => r !== 'admin').length > 0 && (
+              <div className="rounded-xl border p-3 text-xs space-y-2" style={{ borderColor: '#f59e0b' }}>
+                <p className="font-semibold text-amber-700">ผู้อนุมัติที่ยังไม่มีลายเซ็น</p>
+                {missingSigRoles.filter(r => r !== 'admin').map(r => {
+                  const step = (petition.chain || []).find(s => s.role === r);
+                  if (!step) return null;
+                  return (
+                    <div key={r} className="flex items-center justify-between gap-2">
+                      <span>{step.name} — {step.email}</span>
+                      <button onClick={() => doFixEmail(r, step.email)} className="px-2 py-1 rounded-lg border border-amber-400 text-amber-700">แก้อีเมล</button>
+                    </div>
+                  );
+                })}
+              </div>
             )}
 
             {canApprove && showApproveUI && (

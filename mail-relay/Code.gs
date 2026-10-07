@@ -89,7 +89,6 @@ function handleDirectUpload(e, routerDebug) {
 
     var folder = DriveApp.getFolderById(targetFolderId);
     var file   = folder.createFile(blob);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     debug.steps.push("file_created");
 
     return jsonResponse({ status: "success", id: file.getId(), webViewLink: file.getUrl(), debug: debug });
@@ -197,7 +196,6 @@ function handleUploadFile(data, debug) {
   var blob    = Utilities.newBlob(decoded, mimeType || "application/octet-stream", fileName);
   var folder  = DriveApp.getFolderById(targetFolderId);
   var file    = folder.createFile(blob);
-  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   debug.steps.push("done");
   return jsonResponse({ status: "success", id: file.getId(), webViewLink: file.getUrl(), debug: debug });
 }
@@ -205,6 +203,9 @@ function handleUploadFile(data, debug) {
 // ── Chunked upload — Phase 1: receive one chunk ──────────────────
 // GAS CacheService max value size = 100 KB.
 // We store each chunk in a DriveApp temp file instead (no size limit).
+// The chunk file *ID* (33 chars) is also stored in CacheService so
+// handleFinalizeUpload can use getFileById() instead of the much
+// slower getFilesByName() search. IDs are tiny — 100 chunks ≈ 3 KB.
 function handleUploadChunk(data, debug) {
   debug = debug || {};
   debug.steps = debug.steps || [];
@@ -230,7 +231,12 @@ function handleUploadChunk(data, debug) {
   while (existing.hasNext()) { existing.next().setTrashed(true); }
 
   var tempFile = DriveApp.createFile(blob);
-  // Tag it so cleanup can find all chunks for this session
+
+  // Cache the file ID (tiny — ~33 chars) so finalize can use getFileById()
+  // instead of getFilesByName(). TTL 6 h is well beyond any upload window.
+  var cacheKey = "_chunkid_" + sessionId + "_" + chunkIndex;
+  CacheService.getScriptCache().put(cacheKey, tempFile.getId(), 21600);
+
   debug.steps.push("chunk_stored");
   debug.tempFileId = tempFile.getId();
 
@@ -270,16 +276,30 @@ function handleFinalizeUpload(data, debug) {
   debug.totalChunks = totalChunks;
   debug.steps.push("reading_chunks");
 
-  // Collect all chunk strings in order
+  var cache = CacheService.getScriptCache();
+
+  // Collect all chunk strings in order.
+  // Fast path: look up the file ID stored in cache during uploadChunk --
+  // getFileById() is direct and ~10x faster than getFilesByName().
+  // Fallback: if the cache entry expired (unlikely for any normal upload)
+  // fall back to getFilesByName() so correctness is never compromised.
   var parts = [];
   for (var i = 0; i < totalChunks; i++) {
-    var tempFileName = "_chunk_" + sessionId + "_" + i;
     checkDeadline("reading chunk " + i);
-    var files = DriveApp.getFilesByName(tempFileName);
-    if (!files.hasNext()) {
-      return jsonResponse({ status: "error", message: "Missing chunk " + i + " for session " + sessionId, debug: debug });
+    var f = null;
+    var cachedId = cache.get("_chunkid_" + sessionId + "_" + i);
+    if (cachedId) {
+      try { f = DriveApp.getFileById(cachedId); } catch (e) { f = null; } // stale ID guard
     }
-    var f = files.next();
+    if (!f) {
+      // Fallback: search by name (original behaviour)
+      var tempFileName = "_chunk_" + sessionId + "_" + i;
+      var files = DriveApp.getFilesByName(tempFileName);
+      if (!files.hasNext()) {
+        return jsonResponse({ status: "error", message: "Missing chunk " + i + " for session " + sessionId, debug: debug });
+      }
+      f = files.next();
+    }
     parts.push(f.getBlob().getDataAsString());
     f.setTrashed(true); // clean up immediately
   }
@@ -300,7 +320,6 @@ function handleFinalizeUpload(data, debug) {
   checkDeadline("pre-createFile");
   var folder = DriveApp.getFolderById(targetFolderId);
   var file   = folder.createFile(blob);
-  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   debug.steps.push("file_created");
 
   return jsonResponse({ status: "success", id: file.getId(), webViewLink: file.getUrl(), debug: debug });
@@ -333,6 +352,13 @@ function handleAppendRow(data, debug) {
   return jsonResponse({ status: "success", debug: debug });
 }
 
+// ── PATCHED: validate before writing + lock ──────────────────────
+// Google Sheets rejects any cell > 50,000 chars. Previously cells were written
+// one by one (status, note, signature, time), so an oversized signature threw
+// AFTER status/note were saved, leaving "approved" with no signature/time.
+// Now every value is checked first and nothing is written if any is too big.
+var SHEET_CELL_MAX = 49000;
+
 function handleUpdateRow(data, debug) {
   debug = debug || {};
   var sheetName = data.sheetName, row = data.row, updates = data.updates;
@@ -340,8 +366,25 @@ function handleUpdateRow(data, debug) {
   var ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
   var sheet = ss.getSheetByName(sheetName);
   if (!sheet) return jsonResponse({ status: "error", message: "Sheet not found: " + sheetName, debug: debug });
-  for (var i = 0; i < updates.length; i++) {
-    sheet.getRange(row, updates[i].col).setValue(updates[i].value);
+
+  // 1) Validate everything BEFORE writing anything
+  for (var v = 0; v < updates.length; v++) {
+    var val = updates[v].value;
+    if (String(val === null || val === undefined ? "" : val).length > SHEET_CELL_MAX) {
+      return jsonResponse({ status: "error", message: "Value too large for column " + updates[v].col + " (max " + SHEET_CELL_MAX + " chars)", debug: debug });
+    }
+  }
+
+  // 2) Serialize concurrent writers (e.g. two students approving at the same time)
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    for (var i = 0; i < updates.length; i++) {
+      sheet.getRange(row, updates[i].col).setValue(updates[i].value);
+    }
+    SpreadsheetApp.flush();
+  } finally {
+    lock.releaseLock();
   }
   return jsonResponse({ status: "success", debug: debug });
 }
