@@ -22,16 +22,14 @@ const petitionsRouter  = require("./api/petitions"); // NEW
 
 const app = express();
 
+// Vercel forwards the real client address through one trusted proxy hop.
+// express-rate-limit reads req.ip, so this must be enabled before the limiter
+// to avoid treating every visitor as the same proxy and rejecting valid logins.
+app.set("trust proxy", 1);
+
 // ── CORS ──────────────────────────────────────────────────────────
-// In production the frontend and /api/* are served from the same Vercel
-// origin, so browser CORS headers are not required.  We default to "*"
-// (open) unless WEB_URL is explicitly set to a non-localhost value.
-const _raw = (process.env.WEB_URL || "").replace(/\/$/, "");
-const ALLOWED_ORIGIN =
-  _raw && !_raw.includes("localhost") && !_raw.includes("127.0.0.1")
-    ? _raw
-    : "*";
-app.use(cors({ origin: ALLOWED_ORIGIN, credentials: ALLOWED_ORIGIN !== "*" }));
+const ALLOWED_ORIGIN = process.env.WEB_URL ? process.env.WEB_URL.replace(/\/$/, "") : "*";
+app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }));
 
 // ── Security headers ──────────────────────────────────────────────
 app.use((req, res, next) => {
@@ -42,9 +40,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Parse upload chunks before the global JSON parser. Blob.slice() may produce a
+// body without Content-Type, so a predicate is required instead of "*/*";
+// body-parser otherwise skips the request and leaves req.body empty.
+app.use("/api/drive-upload", express.raw({ type: () => true, limit: "25mb" }));
 app.use(express.json({ limit: "2mb" })); // increased for signature payloads
-// Raw binary parser for /api/drive-upload (supports up to 25 MB files)
-app.use("/api/drive-upload", express.raw({ type: "*/*", limit: "25mb" }));
 
 // ── Token blocklist for logout ────────────────────────────────────
 const revokedTokens = new Set();
